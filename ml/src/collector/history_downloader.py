@@ -9,52 +9,34 @@ URL パターン:
   https://www1.mbrace.or.jp/od2/K/{YYYYMM}/k{YY}{MM}{DD}.lzh
   例: https://www1.mbrace.or.jp/od2/K/202604/k260401.lzh
 
-K ファイル CSV フォーマット (Shift-JIS, タブ or スペース区切り):
-  各レースは「レースヘッダー行 + 6 艇行」の計 7 行で構成される。
+K ファイル フォーマット (Shift-JIS 固定幅テキスト):
+  複数の会場ブロックが 1 ファイルに格納される。
+  各会場ブロックは {JCD}KBGN 〜 {JCD}KEND で囲まれる。
 
-  ヘッダー行:
-    [0] 場コード          (2 桁, 01-24)
-    [1] 年月日            (8 桁, YYYYMMDD)
-    [2] レース番号        (1-2 桁, 1-12)
-    [3] 1 着艇番
-    [4] 2 着艇番
-    [5] 3 着艇番
-    [6] 4 着艇番
-    [7] 5 着艇番
-    [8] 6 着艇番
-    [9] 天候              (1: 晴, 2: 曇, 3: 雨, 4: 霧, 5: 雪)
-    [10] 風向             (1-16)
-    [11] 風速 (m)
-    [12] 水面
-    [13] 波高 (cm)
-    [14以降] 配当情報 (3連単, 3連複, etc.) ※今回は使用しない
+  ブロック先頭のヘッダーに「YYYY/ M/ D」形式で開催日が含まれる。
 
-  艇行 (艇番 1〜6 の順に 6 行):
-    [0]  艇番             (1-6)
-    [1]  登録番号         (4 桁)
-    [2]  選手名           (姓名, スペース区切り)
-    [3]  支部
-    [4]  体重 (kg)
-    [5]  F 数
-    [6]  L 数
-    [7]  平均 ST          (小数点なし 4 桁, 例: 0180 → 0.18)
-    [8]  全国勝率         (小数点なし 4 桁, 例: 0650 → 6.50)
-    [9]  全国 2 連率
-    [10] 当地勝率
-    [11] 当地 2 連率
-    [12] モーター番号
-    [13] モーター 2 連率
-    [14] ボート番号
-    [15] ボート 2 連率
-    [16] 展示タイム       (小数点なし 4 桁, 例: 0685 → 6.85)
-    [17] チルト角度
-    [18] スタートタイミング (符号付き 3 桁, 例: 015 → 0.15, -01 → フライング)
-    [19] 着順
-
-  ※ 列位置はファイルの実態に合わせて _BOAT_COLS で調整可。
+  各レースのセクション:
+    ・レースヘッダー行 (2〜6スペース後に "{race_no}R" が続く):
+        例: "   1R       一般　　　　   H1800m  晴　  風  北西　 1m  波　  1cm"
+    ・カラムヘッダー行
+    ・セパレータ行 ("---..." が10文字以上)
+    ・6艇分の結果行 (着順順):
+        "  01  1 4966 田　川　　大　貴 47   64  6.84   1    0.12     1.55.0"
+        フィールド (line.split() で分割):
+          [0] 着順   ('01'-'06', 'S0'=スタート, 'F0'=フライング, etc.)
+          [1] 艇番   (1-6)
+          [2] 登録番号 (4桁)
+          [3] 選手名  (全角スペース区切り → split()では1トークン)
+          [4] モーター番号
+          [5] ボート番号 (機材)
+          [6] 展示タイム
+          [7] 進入コース (1-6)
+          [8] スタートタイミング
+          [9] レースタイム (DNF は '.' など)
 """
 import datetime
 import logging
+import re
 import shutil
 import subprocess
 import tempfile
@@ -75,8 +57,12 @@ REQUEST_HEADERS = {
     "Referer": "https://www1.mbrace.or.jp/od2/K/dindex.html",
 }
 
-# 天候コード
-WEATHER_MAP = {"1": "晴", "2": "曇", "3": "雨", "4": "霧", "5": "雪"}
+# 正規表現
+_KBGN_RE    = re.compile(r'^(\d{2})KBGN')
+_KEND_RE    = re.compile(r'^\d{2}KEND')
+_DATE_RE    = re.compile(r'(\d{4})/\s*(\d{1,2})/\s*(\d{1,2})')
+_RACE_HDR_RE = re.compile(r'^\s{2,6}(\d{1,2})R\s')   # 2〜6スペース後に "NR " (払戻行は11スペース超)
+_SEP_RE     = re.compile(r'^-{10,}')
 
 
 # ---------------------------------------------------------------------------
@@ -163,12 +149,18 @@ def extract_lzh(lzh_path: Path, extract_dir: Path) -> list[Path]:
 
 
 # ---------------------------------------------------------------------------
-# CSV パース
+# テキストパース (実際のKファイル形式: 固定幅テキスト、Shift-JIS)
 # ---------------------------------------------------------------------------
 
 def parse_result_file(filepath: Path) -> Iterator[dict]:
     """
-    K ファイルの CSV を 1 レコード (= 1 艇 × 1 レース) ずつ yield する。
+    K ファイルを 1 レコード (= 1 艇 × 1 レース) ずつ yield する。
+
+    ファイル構造:
+      {JCD}KBGN  … 会場ブロック開始
+      ヘッダー (日付を含む)
+      各レースセクション (レースヘッダー → 区切り線 → 6艇行)
+      {JCD}KEND  … 会場ブロック終了
     """
     try:
         text = filepath.read_text(encoding="cp932", errors="replace")
@@ -177,154 +169,154 @@ def parse_result_file(filepath: Path) -> Iterator[dict]:
 
     lines = [l.rstrip("\r\n") for l in text.splitlines()]
 
-    i = 0
-    while i < len(lines):
-        line = lines[i]
+    venue_code: int | None = None
+    date_str:   str | None = None   # "YYYYMMDD"
+    race_date:  str | None = None   # "YYYY-MM-DD"
+    race_no:    int | None = None
+    weather:    str | None = None
+    wind_speed: float | None = None
+    after_sep:  bool = False
+    boat_count: int  = 0
+
+    for line in lines:
+
+        # ---- 会場ブロック開始 ----------------------------------------
+        m = _KBGN_RE.match(line)
+        if m:
+            venue_code = int(m.group(1))
+            date_str   = None
+            race_date  = None
+            race_no    = None
+            after_sep  = False
+            boat_count = 0
+            continue
+
+        # ---- 会場ブロック終了 ----------------------------------------
+        if _KEND_RE.match(line):
+            venue_code = None
+            continue
+
+        if venue_code is None:
+            continue
+
+        # ---- 日付検出 (ヘッダー内にある "YYYY/ M/ D" を探す) --------
+        if date_str is None:
+            m = _DATE_RE.search(line)
+            if m:
+                y, mo, d = int(m.group(1)), int(m.group(2)), int(m.group(3))
+                if 2010 <= y <= 2030:
+                    date_str  = f"{y:04d}{mo:02d}{d:02d}"
+                    race_date = f"{y:04d}-{mo:02d}-{d:02d}"
+            continue   # ヘッダー行はまだレースデータなし
+
+        # ---- レースヘッダー行 ----------------------------------------
+        # 2〜6スペース + 数字(1-2桁) + "R" + 空白
+        # 払戻行 ("           1R  1-5-3 ...") は先頭スペースが多く非マッチ
+        m = _RACE_HDR_RE.match(line)
+        if m:
+            race_no    = int(m.group(1))
+            after_sep  = False
+            boat_count = 0
+            weather    = None
+            wind_speed = None
+            # 天候
+            for w in ("晴", "曇", "雨", "霧", "雪"):
+                if w in line:
+                    weather = w
+                    break
+            # 風速 ("風  北西　 1m" パターン)
+            wm = re.search(r"風\s+\S+\s+(\d+(?:\.\d+)?)m", line)
+            if wm:
+                try:
+                    wind_speed = float(wm.group(1))
+                except ValueError:
+                    pass
+            continue
+
+        # ---- セパレータ行 (------...) --------------------------------
+        if _SEP_RE.match(line):
+            if race_no is not None:
+                after_sep = True
+            continue
+
+        # ---- 艇データ行 (セパレータ後、最大6艇) ----------------------
+        if not (after_sep and race_no is not None and boat_count < 6):
+            continue
+
+        # 空行 → 艇セクション終了
         if not line.strip():
-            i += 1
+            if boat_count > 0:
+                after_sep = False
             continue
 
-        cols = _split(line)
+        # Python の split() は全角スペース (U+3000) を分割しない。
+        # よって "田　川　　大　貴" は 1 トークンとして扱われる。
+        cols = line.split()
 
-        # --- レースヘッダー行の判定 ---
-        # [0]=場コード(2桁), [1]=YYYYMMDD(8桁), [2]=レース番号
+        # 最低限: [着順][艇番][登番][名前][モーター][ボート][展示][進入][ST]
         if len(cols) < 9:
-            i += 1
+            after_sep = False
             continue
 
-        if not (_is_venue(cols[0]) and _is_date(cols[1]) and _is_raceno(cols[2])):
-            i += 1
+        finish_field = cols[0]   # '01'-'06', 'S0', 'F0', etc.
+        if len(finish_field) != 2:
+            after_sep = False
             continue
 
-        venue = int(cols[0])
-        date_str = cols[1]
-        race_no = int(cols[2])
-        race_date = f"{date_str[:4]}-{date_str[4:6]}-{date_str[6:8]}"
-        race_id = f"{venue:02d}{date_str}{race_no:02d}"
-
-        # 着順 (ヘッダーの [3]〜[8])
-        finish_order: dict[int, int] = {}
-        for pos, idx in enumerate(range(3, 9), start=1):
-            if idx < len(cols) and cols[idx].isdigit():
-                boat = int(cols[idx])
-                if 1 <= boat <= 6:
-                    finish_order[boat] = pos
-
-        # 気象 ([9][10][11][12][13])
-        weather    = WEATHER_MAP.get(cols[9],  cols[9])  if len(cols) > 9  else None
-        wind_dir   = _safe_int(cols[10])                  if len(cols) > 10 else None
-        wind_speed = _safe_float(cols[11])                if len(cols) > 11 else None
-        wave_h     = _safe_float(cols[13])                if len(cols) > 13 else None
-
-        # --- 続く 6 行が艇データ ---
-        boat_rows_found = 0
-        for k in range(1, 7):
-            if i + k >= len(lines):
-                break
-            bcols = _split(lines[i + k])
-            rec = _parse_boat_cols(bcols)
-            if rec is None:
+        try:
+            boat_no = int(cols[1])
+            if not (1 <= boat_no <= 6):
+                after_sep = False
                 continue
-            rec.update({
-                "race_id":       race_id,
-                "stadium_id":    venue,
-                "race_date":     race_date,
-                "race_no":       race_no,
-                "finish_position": finish_order.get(rec["boat_no"]),
-                "weather":       weather,
-                "wind_direction": wind_dir,
-                "wind_speed":    wind_speed,
-                "wave_height":   wave_h,
-            })
-            # ヘッダーの着順リストを優先し、艇行の着順で補完
-            if rec["finish_position"] is None and rec.get("finish_position_boat"):
-                rec["finish_position"] = rec.pop("finish_position_boat")
+
+            # 登録番号は4桁数字
+            if not (cols[2].isdigit() and len(cols[2]) == 4):
+                after_sep = False
+                continue
+            racer_id = int(cols[2])
+
+            # 選手名は姓・名それぞれが半角スペース区切りのため複数トークン
+            # (例: "田 川 大 貴" = 4トークン, "村 上 遼" = 3トークン)
+            # 固定位置での列アクセスは不可のため、末尾から読む:
+            #   完走: [..., モータ, ボート, 展示, 進入, ST, レースタイム]
+            #   不完走: [..., モータ, ボート, 展示, 進入, ST, '.', '.']
+            if cols[-1] == ".":
+                # DNF / 失格 → 末尾2つが "." "."
+                ex_time  = float(cols[-5])
+                st_str   = cols[-3]
             else:
-                rec.pop("finish_position_boat", None)
-            yield rec
-            boat_rows_found += 1
+                # 完走
+                ex_time  = float(cols[-4])
+                st_str   = cols[-2]
 
-        i += 1 + max(boat_rows_found, 6)
+            start_timing = float(st_str) if st_str not in (".", "") else None
+            finish_pos = int(finish_field) if finish_field.isdigit() else None
 
+            race_id = f"{venue_code:02d}{date_str}{race_no:02d}"
 
-def _split(line: str) -> list[str]:
-    if "\t" in line:
-        return line.split("\t")
-    return line.split()
+            yield {
+                "race_id":         race_id,
+                "stadium_id":      venue_code,
+                "race_date":       race_date,
+                "race_no":         race_no,
+                "boat_no":         boat_no,
+                "racer_id":        racer_id,
+                # K ファイルには勝率・級別なし (B ファイルに格納)
+                "racer_win_rate":  None,
+                "motor_win_rate":  None,
+                "boat_win_rate":   None,
+                "racer_grade":     None,
+                "exhibition_time": ex_time,
+                "start_timing":    start_timing,
+                "finish_position": finish_pos,
+                "weather":         weather,
+                "wind_speed":      wind_speed,
+                "wave_height":     None,
+            }
+            boat_count += 1
 
-
-def _is_venue(s: str) -> bool:
-    return s.isdigit() and 1 <= int(s) <= 24
-
-def _is_date(s: str) -> bool:
-    return len(s) == 8 and s.isdigit() and s[:4] in [str(y) for y in range(2002, 2030)]
-
-def _is_raceno(s: str) -> bool:
-    return s.isdigit() and 1 <= int(s) <= 12
-
-
-def _parse_boat_cols(cols: list[str]) -> dict | None:
-    """艇行をパース。失敗時は None。"""
-    if len(cols) < 8:
-        return None
-    try:
-        boat_no = int(cols[0])
-        if boat_no < 1 or boat_no > 6:
-            return None
-        racer_id    = int(cols[1])  if len(cols) > 1 and cols[1].isdigit() else None
-        grade       = cols[3].strip() if len(cols) > 3 else None  # 支部の前が名前
-        win_rate    = _parse_rate4(cols[8])  if len(cols) > 8  else None
-        motor_rate  = _parse_rate4(cols[13]) if len(cols) > 13 else None
-        boat_rate   = _parse_rate4(cols[15]) if len(cols) > 15 else None
-        ex_time     = _parse_rate4(cols[16]) if len(cols) > 16 else None
-        st          = _parse_st(cols[18])    if len(cols) > 18 else None
-        fin_pos_raw = int(cols[19]) if len(cols) > 19 and cols[19].isdigit() else None
-        return {
-            "boat_no":             boat_no,
-            "racer_id":            racer_id,
-            "racer_grade":         grade,
-            "racer_win_rate":      win_rate,
-            "motor_win_rate":      motor_rate,
-            "boat_win_rate":       boat_rate,
-            "exhibition_time":     ex_time,
-            "start_timing":        st,
-            "finish_position_boat": fin_pos_raw,
-        }
-    except (ValueError, IndexError):
-        return None
-
-
-def _parse_rate4(s: str) -> float | None:
-    """4 桁整数レート → float (0650 → 6.50)"""
-    s = s.strip()
-    if not s or not s.isdigit():
-        return None
-    return int(s) / 100.0
-
-
-def _parse_st(s: str) -> float | None:
-    """ST 変換 ('015' → 0.15, '-01' → -0.01 フライング)"""
-    s = s.strip()
-    if not s:
-        return None
-    try:
-        return int(s) / 100.0
-    except ValueError:
-        return None
-
-
-def _safe_int(s: str) -> int | None:
-    try:
-        return int(s.strip())
-    except (ValueError, AttributeError):
-        return None
-
-
-def _safe_float(s: str) -> float | None:
-    try:
-        return float(s.strip())
-    except (ValueError, AttributeError):
-        return None
+        except (ValueError, IndexError):
+            pass   # パース失敗は無視して継続
 
 
 # ---------------------------------------------------------------------------
