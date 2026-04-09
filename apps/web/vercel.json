@@ -1,0 +1,6 @@
+{
+  "framework": "nextjs",
+  "buildCommand": "cd ../.. && pnpm build --filter=@boatrace/web",
+  "installCommand": "cd ../.. && pnpm install",
+  "outputDirectory": "apps/web/.next"
+}
