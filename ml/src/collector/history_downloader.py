@@ -1,48 +1,59 @@
 """
-boatrace.jp 公式サイトから歴史データ（2002年〜）をダウンロード・パースする
+mbrace.or.jp から競走成績データ（K ファイル）をダウンロード・パースする
 
 データソース:
-  https://www.boatrace.jp/owpc/pc/extra/data/download.html
-  月次 LZH ファイルに全場の結果 CSV が格納されている
+  https://www1.mbrace.or.jp/od2/K/dindex.html
+  日次 LZH ファイル (2012年〜) / 全24場分の成績が1ファイルに格納
 
-CSV フォーマット (Shift-JIS, 固定長):
-  各レースは「レースヘッダー行 + 6艇行」の 7 行で 1 ブロックを構成する。
-  詳細は boatrace.jp 公式の「データ仕様書」参照。
+URL パターン:
+  https://www1.mbrace.or.jp/od2/K/{YYYYMM}/k{YY}{MM}{DD}.lzh
+  例: https://www1.mbrace.or.jp/od2/K/202604/k260401.lzh
 
-  ヘッダー行 (1行):
-    col 0   : 場コード          (2桁, 01-24)
-    col 1   : 開催年月日        (8桁, YYYYMMDD)
-    col 2   : レース番号        (2桁)
-    col 3   : 天候              (1桁)
-    col 4   : 風向              (2桁)
-    col 5   : 風速              (2桁)
-    col 6   : 水面              (1桁)
-    col 7   : 波高              (3桁)
-  艇行 (6行, 艇番1〜6の順):
-    col 0   : 艇番              (1桁)
-    col 1   : 登録番号          (4桁)
-    col 2   : 級別              (2桁: A1/A2/B1/B2)
-    col 3   : 選手名            (20桁, 空白パディング)
-    col 4   : 体重              (2桁)
-    col 5   : F数               (1桁)
-    col 6   : L数               (1桁)
-    col 7   : 平均ST            (4桁, 小数点なし, 例: 0180 → 0.18)
-    col 8   : 全国勝率          (4桁, 小数点なし, 例: 0650 → 6.50)
-    col 9   : 全国2連率         (4桁)
-    col 10  : 当地勝率          (4桁)
-    col 11  : 当地2連率         (4桁)
-    col 12  : モーター番号      (2桁)
-    col 13  : モーター2連率     (4桁)
-    col 14  : ボート番号        (4桁)
-    col 15  : ボート2連率       (4桁)
-    col 16  : 展示タイム        (4桁, 例: 0680 → 6.80)
-    col 17  : チルト角度        (3桁)
-    col 18  : スタートタイミング (3桁, 例: 015 → 0.15)
-    col 19  : 着順              (1桁)
+K ファイル CSV フォーマット (Shift-JIS, タブ or スペース区切り):
+  各レースは「レースヘッダー行 + 6 艇行」の計 7 行で構成される。
 
-注: 上記は一般的な形式に基づく推定。実際のファイルを確認して調整すること。
-    Shift-JIS エンコーディング / タブ区切り or スペース区切りの場合もある。
+  ヘッダー行:
+    [0] 場コード          (2 桁, 01-24)
+    [1] 年月日            (8 桁, YYYYMMDD)
+    [2] レース番号        (1-2 桁, 1-12)
+    [3] 1 着艇番
+    [4] 2 着艇番
+    [5] 3 着艇番
+    [6] 4 着艇番
+    [7] 5 着艇番
+    [8] 6 着艇番
+    [9] 天候              (1: 晴, 2: 曇, 3: 雨, 4: 霧, 5: 雪)
+    [10] 風向             (1-16)
+    [11] 風速 (m)
+    [12] 水面
+    [13] 波高 (cm)
+    [14以降] 配当情報 (3連単, 3連複, etc.) ※今回は使用しない
+
+  艇行 (艇番 1〜6 の順に 6 行):
+    [0]  艇番             (1-6)
+    [1]  登録番号         (4 桁)
+    [2]  選手名           (姓名, スペース区切り)
+    [3]  支部
+    [4]  体重 (kg)
+    [5]  F 数
+    [6]  L 数
+    [7]  平均 ST          (小数点なし 4 桁, 例: 0180 → 0.18)
+    [8]  全国勝率         (小数点なし 4 桁, 例: 0650 → 6.50)
+    [9]  全国 2 連率
+    [10] 当地勝率
+    [11] 当地 2 連率
+    [12] モーター番号
+    [13] モーター 2 連率
+    [14] ボート番号
+    [15] ボート 2 連率
+    [16] 展示タイム       (小数点なし 4 桁, 例: 0685 → 6.85)
+    [17] チルト角度
+    [18] スタートタイミング (符号付き 3 桁, 例: 015 → 0.15, -01 → フライング)
+    [19] 着順
+
+  ※ 列位置はファイルの実態に合わせて _BOAT_COLS で調整可。
 """
+import datetime
 import logging
 import shutil
 import subprocess
@@ -55,60 +66,73 @@ import requests
 
 logger = logging.getLogger(__name__)
 
-DOWNLOAD_BASE = "https://www.boatrace.jp/owpc/pc/extra/data/download"
+BASE_URL = "https://www1.mbrace.or.jp/od2/K"
 DATA_DIR = Path(__file__).parents[3] / "data" / "history"
+REQUEST_INTERVAL = 0.5   # 礼儀正しいクロール間隔 (秒)
 REQUEST_HEADERS = {
     "User-Agent": "Mozilla/5.0 (compatible; BoatracePredictor/1.0)",
     "Accept-Language": "ja",
-    "Referer": "https://www.boatrace.jp/owpc/pc/extra/data/download.html",
+    "Referer": "https://www1.mbrace.or.jp/od2/K/dindex.html",
 }
 
 # 天候コード
 WEATHER_MAP = {"1": "晴", "2": "曇", "3": "雨", "4": "霧", "5": "雪"}
-# 風向コード (1=北, 2=北北東, ... 16=北北西)
-WIND_DIR_MAP = {str(i): i for i in range(1, 17)}
 
 
 # ---------------------------------------------------------------------------
 # ダウンロード
 # ---------------------------------------------------------------------------
 
-def download_month_data(year: int, month: int, dest_dir: Path | None = None) -> Path:
-    """
-    指定年月の LZH ファイルをダウンロードして保存する。
+def _make_url(year: int, month: int, day: int) -> str:
+    """URL を生成する。年は 2 桁 (2026 → 26)"""
+    yy = year % 100
+    yyyymm = f"{year}{month:02d}"
+    filename = f"k{yy:02d}{month:02d}{day:02d}.lzh"
+    return f"{BASE_URL}/{yyyymm}/{filename}"
 
-    URL 例: https://www.boatrace.jp/owpc/pc/extra/data/download?type=B&year=2024&month=01
-    注: 実際の URL は boatrace.jp の仕様変更で変わることがある。
+
+def download_day_data(
+    year: int, month: int, day: int, dest_dir: Path | None = None
+) -> Path | None:
     """
+    指定日の K ファイルをダウンロードして保存する。
+    開催がない日は None を返す。
+    """
+    import time
+
     save_dir = dest_dir or DATA_DIR
     save_dir.mkdir(parents=True, exist_ok=True)
-    filename = f"b{year}{month:02d}.lzh"
+
+    yy = year % 100
+    filename = f"k{yy:02d}{month:02d}{day:02d}.lzh"
     dest = save_dir / filename
 
-    if dest.exists():
-        logger.info("Already downloaded: %s", dest)
-        return dest
+    if dest.exists() and dest.stat().st_size > 0:
+        return dest  # キャッシュ済み
 
-    params = {"type": "B", "year": str(year), "month": f"{month:02d}"}
-    logger.info("Downloading %d-%02d ...", year, month)
-    resp = requests.get(
-        DOWNLOAD_BASE, params=params, headers=REQUEST_HEADERS, timeout=60, stream=True
-    )
+    url = _make_url(year, month, day)
+    try:
+        resp = requests.get(url, headers=REQUEST_HEADERS, timeout=30)
+    except requests.RequestException as exc:
+        logger.debug("Request failed %s: %s", url, exc)
+        return None
+
+    time.sleep(REQUEST_INTERVAL)
+
+    if resp.status_code == 404:
+        return None  # 開催なし → スキップ
+
     resp.raise_for_status()
 
     content_type = resp.headers.get("Content-Type", "")
     if "text/html" in content_type:
-        raise ValueError(
-            f"Expected binary file but got HTML. "
-            f"Please verify the download URL: {resp.url}\n"
-            f"Check https://www.boatrace.jp/owpc/pc/extra/data/download.html"
-        )
+        logger.warning("Unexpected HTML response for %s", url)
+        return None
 
     with open(dest, "wb") as f:
-        for chunk in resp.iter_content(chunk_size=65536):
-            f.write(chunk)
+        f.write(resp.content)
 
-    logger.info("Saved: %s (%.1f KB)", dest, dest.stat().st_size / 1024)
+    logger.debug("Downloaded %s (%.1f KB)", filename, dest.stat().st_size / 1024)
     return dest
 
 
@@ -116,13 +140,9 @@ def download_month_data(year: int, month: int, dest_dir: Path | None = None) -> 
 # LZH 展開
 # ---------------------------------------------------------------------------
 
-def extract_lzh(lzh_path: Path, extract_dir: Path | None = None) -> list[Path]:
-    """
-    LZH ファイルを展開して、展開されたファイルのパスリストを返す。
-    `lhasa` コマンドが必要 (Ubuntu: apt-get install lhasa)。
-    """
-    out_dir = extract_dir or lzh_path.parent / lzh_path.stem
-    out_dir.mkdir(parents=True, exist_ok=True)
+def extract_lzh(lzh_path: Path, extract_dir: Path) -> list[Path]:
+    """LZH ファイルを展開してファイルリストを返す。lhasa が必要。"""
+    extract_dir.mkdir(parents=True, exist_ok=True)
 
     if not shutil.which("lhasa"):
         raise RuntimeError(
@@ -132,159 +152,158 @@ def extract_lzh(lzh_path: Path, extract_dir: Path | None = None) -> list[Path]:
 
     result = subprocess.run(
         ["lhasa", "e", str(lzh_path)],
-        cwd=str(out_dir),
+        cwd=str(extract_dir),
         capture_output=True,
         text=True,
     )
     if result.returncode != 0:
-        raise RuntimeError(f"lhasa failed: {result.stderr}")
+        raise RuntimeError(f"lhasa failed ({lzh_path.name}): {result.stderr[:200]}")
 
-    extracted = list(out_dir.rglob("*"))
-    files = [f for f in extracted if f.is_file()]
-    logger.info("Extracted %d files from %s", len(files), lzh_path.name)
-    return files
+    return [f for f in extract_dir.rglob("*") if f.is_file()]
 
 
 # ---------------------------------------------------------------------------
 # CSV パース
 # ---------------------------------------------------------------------------
 
-def parse_result_csv(filepath: Path) -> Iterator[dict]:
+def parse_result_file(filepath: Path) -> Iterator[dict]:
     """
-    結果 CSV を 1 レコード (= 1 艇 × 1 レース) ずつ yield する。
-
-    Note: 実際のファイルを確認して col_*_pos 定数を調整すること。
+    K ファイルの CSV を 1 レコード (= 1 艇 × 1 レース) ずつ yield する。
     """
     try:
-        lines = filepath.read_text(encoding="cp932", errors="replace").splitlines()
+        text = filepath.read_text(encoding="cp932", errors="replace")
     except Exception:
-        lines = filepath.read_text(encoding="utf-8", errors="replace").splitlines()
+        text = filepath.read_text(encoding="utf-8", errors="replace")
+
+    lines = [l.rstrip("\r\n") for l in text.splitlines()]
 
     i = 0
     while i < len(lines):
-        line = lines[i].strip()
-        if not line:
+        line = lines[i]
+        if not line.strip():
             i += 1
             continue
 
-        parts = _split_line(line)
-        if len(parts) < 5:
+        cols = _split(line)
+
+        # --- レースヘッダー行の判定 ---
+        # [0]=場コード(2桁), [1]=YYYYMMDD(8桁), [2]=レース番号
+        if len(cols) < 9:
             i += 1
             continue
 
-        # --- ヘッダー行の判定: 8桁の数字 (YYYYMMDD) があれば日付列とみなす ---
-        date_str = None
-        venue_code = None
-        race_no = None
-        weather = None
-        wind_dir = None
-        wind_speed = None
-        wave_height = None
-
-        for j, p in enumerate(parts):
-            if len(p) == 8 and p.isdigit() and p[:4] in [str(y) for y in range(2002, 2030)]:
-                date_str = p
-                venue_code = int(parts[j - 1]) if j > 0 and parts[j - 1].isdigit() else None
-                if j + 1 < len(parts):
-                    race_no_str = parts[j + 1].strip()
-                    race_no = int(race_no_str) if race_no_str.isdigit() else None
-                # 気象データ (ヘッダー行の後半)
-                weather_parts = parts[j + 2:]
-                if len(weather_parts) >= 4:
-                    weather = WEATHER_MAP.get(weather_parts[0], weather_parts[0])
-                    wind_dir = _safe_int(weather_parts[1])
-                    wind_speed = _safe_float(weather_parts[2])
-                    wave_height = _safe_float(weather_parts[3])
-                break
-
-        if date_str is None or venue_code is None or race_no is None:
+        if not (_is_venue(cols[0]) and _is_date(cols[1]) and _is_raceno(cols[2])):
             i += 1
             continue
 
+        venue = int(cols[0])
+        date_str = cols[1]
+        race_no = int(cols[2])
         race_date = f"{date_str[:4]}-{date_str[4:6]}-{date_str[6:8]}"
-        race_id = f"{venue_code:02d}{date_str}{race_no:02d}"
+        race_id = f"{venue:02d}{date_str}{race_no:02d}"
+
+        # 着順 (ヘッダーの [3]〜[8])
+        finish_order: dict[int, int] = {}
+        for pos, idx in enumerate(range(3, 9), start=1):
+            if idx < len(cols) and cols[idx].isdigit():
+                boat = int(cols[idx])
+                if 1 <= boat <= 6:
+                    finish_order[boat] = pos
+
+        # 気象 ([9][10][11][12][13])
+        weather    = WEATHER_MAP.get(cols[9],  cols[9])  if len(cols) > 9  else None
+        wind_dir   = _safe_int(cols[10])                  if len(cols) > 10 else None
+        wind_speed = _safe_float(cols[11])                if len(cols) > 11 else None
+        wave_h     = _safe_float(cols[13])                if len(cols) > 13 else None
 
         # --- 続く 6 行が艇データ ---
+        boat_rows_found = 0
         for k in range(1, 7):
             if i + k >= len(lines):
                 break
-            boat_line = lines[i + k].strip()
-            if not boat_line:
-                continue
-            boat_parts = _split_line(boat_line)
-            rec = _parse_boat_line(boat_parts)
+            bcols = _split(lines[i + k])
+            rec = _parse_boat_cols(bcols)
             if rec is None:
                 continue
             rec.update({
-                "race_id": race_id,
-                "stadium_id": venue_code,
-                "race_date": race_date,
-                "race_no": race_no,
-                "weather": weather,
+                "race_id":       race_id,
+                "stadium_id":    venue,
+                "race_date":     race_date,
+                "race_no":       race_no,
+                "finish_position": finish_order.get(rec["boat_no"]),
+                "weather":       weather,
                 "wind_direction": wind_dir,
-                "wind_speed": wind_speed,
-                "wave_height": wave_height,
+                "wind_speed":    wind_speed,
+                "wave_height":   wave_h,
             })
+            # ヘッダーの着順リストを優先し、艇行の着順で補完
+            if rec["finish_position"] is None and rec.get("finish_position_boat"):
+                rec["finish_position"] = rec.pop("finish_position_boat")
+            else:
+                rec.pop("finish_position_boat", None)
             yield rec
+            boat_rows_found += 1
 
-        i += 7  # ヘッダー1行 + 艇6行
+        i += 1 + max(boat_rows_found, 6)
 
 
-def _split_line(line: str) -> list[str]:
-    """タブまたはスペース区切りで分割"""
+def _split(line: str) -> list[str]:
     if "\t" in line:
         return line.split("\t")
     return line.split()
 
 
-def _parse_boat_line(parts: list[str]) -> dict | None:
-    """艇行をパースして dict を返す。失敗時は None"""
-    if len(parts) < 10:
+def _is_venue(s: str) -> bool:
+    return s.isdigit() and 1 <= int(s) <= 24
+
+def _is_date(s: str) -> bool:
+    return len(s) == 8 and s.isdigit() and s[:4] in [str(y) for y in range(2002, 2030)]
+
+def _is_raceno(s: str) -> bool:
+    return s.isdigit() and 1 <= int(s) <= 12
+
+
+def _parse_boat_cols(cols: list[str]) -> dict | None:
+    """艇行をパース。失敗時は None。"""
+    if len(cols) < 8:
         return None
     try:
-        boat_no = int(parts[0])
+        boat_no = int(cols[0])
         if boat_no < 1 or boat_no > 6:
             return None
-        racer_id = int(parts[1]) if parts[1].isdigit() else None
-        grade = parts[2].strip() if len(parts) > 2 else None
-        # 各レートは 4 桁整数で格納 (例: 0650 → 6.50, 0180 → 0.180)
-        win_rate         = _parse_rate(parts[8])  if len(parts) > 8  else None
-        motor_win_rate   = _parse_rate(parts[13]) if len(parts) > 13 else None
-        boat_win_rate    = _parse_rate(parts[15]) if len(parts) > 15 else None
-        exhibition_time  = _parse_time(parts[16]) if len(parts) > 16 else None
-        start_timing     = _parse_st(parts[18])   if len(parts) > 18 else None
-        finish_position  = int(parts[19])          if len(parts) > 19 and parts[19].isdigit() else None
+        racer_id    = int(cols[1])  if len(cols) > 1 and cols[1].isdigit() else None
+        grade       = cols[3].strip() if len(cols) > 3 else None  # 支部の前が名前
+        win_rate    = _parse_rate4(cols[8])  if len(cols) > 8  else None
+        motor_rate  = _parse_rate4(cols[13]) if len(cols) > 13 else None
+        boat_rate   = _parse_rate4(cols[15]) if len(cols) > 15 else None
+        ex_time     = _parse_rate4(cols[16]) if len(cols) > 16 else None
+        st          = _parse_st(cols[18])    if len(cols) > 18 else None
+        fin_pos_raw = int(cols[19]) if len(cols) > 19 and cols[19].isdigit() else None
         return {
-            "boat_no": boat_no,
-            "racer_id": racer_id,
-            "racer_grade": grade,
-            "racer_win_rate": win_rate,
-            "motor_win_rate": motor_win_rate,
-            "boat_win_rate": boat_win_rate,
-            "exhibition_time": exhibition_time,
-            "start_timing": start_timing,
-            "finish_position": finish_position,
+            "boat_no":             boat_no,
+            "racer_id":            racer_id,
+            "racer_grade":         grade,
+            "racer_win_rate":      win_rate,
+            "motor_win_rate":      motor_rate,
+            "boat_win_rate":       boat_rate,
+            "exhibition_time":     ex_time,
+            "start_timing":        st,
+            "finish_position_boat": fin_pos_raw,
         }
     except (ValueError, IndexError):
         return None
 
 
-def _parse_rate(s: str) -> float | None:
-    """4桁整数レート → float (例: '0650' → 6.50)"""
+def _parse_rate4(s: str) -> float | None:
+    """4 桁整数レート → float (0650 → 6.50)"""
     s = s.strip()
     if not s or not s.isdigit():
         return None
-    v = int(s)
-    return v / 100.0
-
-
-def _parse_time(s: str) -> float | None:
-    """展示タイム変換 (例: '0680' → 6.80)"""
-    return _parse_rate(s)
+    return int(s) / 100.0
 
 
 def _parse_st(s: str) -> float | None:
-    """ST変換 (例: '015' → 0.15, '-01' → -0.01 フライング)"""
+    """ST 変換 ('015' → 0.15, '-01' → -0.01 フライング)"""
     s = s.strip()
     if not s:
         return None
@@ -313,7 +332,7 @@ def _safe_float(s: str) -> float | None:
 # ---------------------------------------------------------------------------
 
 def load_history_range(
-    start_year: int = 2020,
+    start_year: int = 2022,
     end_year: int | None = None,
     data_dir: Path | None = None,
 ) -> pd.DataFrame:
@@ -322,47 +341,51 @@ def load_history_range(
 
     Parameters
     ----------
-    start_year : int
-        開始年 (default: 2020 — 初期訓練では 2020 年以降で十分)
-    end_year   : int | None
-        終了年 (None = 今年)
-    data_dir   : Path | None
-        ダウンロード先 (None = ml/data/history/)
-
-    Returns
-    -------
-    pd.DataFrame
-        columns: race_id, stadium_id, race_date, race_no,
-                 boat_no, racer_id, racer_grade, racer_win_rate,
-                 motor_win_rate, boat_win_rate, exhibition_time,
-                 start_timing, finish_position,
-                 weather, wind_direction, wind_speed, wave_height
+    start_year : 開始年 (2012 以降)
+    end_year   : 終了年 (None = 今年)
+    data_dir   : ダウンロード先 (None = ml/data/history/)
     """
-    import datetime
-
     if end_year is None:
         end_year = datetime.date.today().year
 
+    save_dir  = data_dir or DATA_DIR
     records: list[dict] = []
-    tmpdir = Path(tempfile.mkdtemp())
+    tmpdir = Path(tempfile.mkdtemp(prefix="boatrace_k_"))
+
+    today = datetime.date.today()
 
     try:
         for year in range(start_year, end_year + 1):
             for month in range(1, 13):
-                if year == end_year and month > datetime.date.today().month:
+                # 未来月はスキップ
+                if datetime.date(year, month, 1) > today:
                     break
-                try:
-                    lzh_path = download_month_data(year, month, dest_dir=data_dir or DATA_DIR)
-                    csv_files = extract_lzh(lzh_path, extract_dir=tmpdir / f"{year}{month:02d}")
-                    for f in csv_files:
-                        for rec in parse_result_csv(f):
-                            records.append(rec)
-                    logger.info("%d-%02d: %d records so far", year, month, len(records))
-                except Exception as exc:
-                    logger.warning("Skip %d-%02d: %s", year, month, exc)
+                days_in_month = (
+                    datetime.date(year, month % 12 + 1, 1) - datetime.timedelta(days=1)
+                ).day if month < 12 else 31
+
+                month_records = 0
+                for day in range(1, days_in_month + 1):
+                    if datetime.date(year, month, day) > today:
+                        break
+                    try:
+                        lzh = download_day_data(year, month, day, dest_dir=save_dir)
+                        if lzh is None:
+                            continue  # 開催なし
+                        extract_dir = tmpdir / lzh.stem
+                        csvs = extract_lzh(lzh, extract_dir)
+                        for f in csvs:
+                            for rec in parse_result_file(f):
+                                records.append(rec)
+                                month_records += 1
+                    except Exception as exc:
+                        logger.debug("Skip %d-%02d-%02d: %s", year, month, day, exc)
+
+                if month_records:
+                    logger.info("%d-%02d: +%d records (total %d)", year, month, month_records, len(records))
     finally:
         shutil.rmtree(tmpdir, ignore_errors=True)
 
-    df = pd.DataFrame(records)
+    df = pd.DataFrame(records) if records else pd.DataFrame()
     logger.info("Total records loaded: %d", len(df))
     return df

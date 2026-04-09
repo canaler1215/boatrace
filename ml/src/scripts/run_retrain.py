@@ -32,7 +32,7 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 # 訓練に使う年範囲 (START_YEAR を古くするほど学習データが増えるが時間もかかる)
-START_YEAR = 2015
+START_YEAR = 2022  # 3〜4年分で十分な学習データ量、かつ GitHub Actions 6時間以内に収まる
 ARTIFACTS_DIR = Path(__file__).parents[3] / "artifacts"
 
 
