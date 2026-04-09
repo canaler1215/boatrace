@@ -57,6 +57,33 @@ def upsert_odds(conn: psycopg.Connection, race_id: str, combination: str, odds_v
         )
 
 
+def register_model_version(
+    conn: psycopg.Connection,
+    version: str,
+    trained_at: str,
+    data_range_from: str,
+    data_range_to: str,
+    rps_score: float,
+    release_url: str | None = None,
+) -> int:
+    """model_versions に新バージョンを登録して id を返す"""
+    with conn.cursor() as cur:
+        # 既存をすべて非アクティブ化
+        cur.execute("UPDATE model_versions SET is_active = false")
+        cur.execute(
+            """
+            INSERT INTO model_versions
+                (version, release_url, trained_at, data_range_from, data_range_to,
+                 rps_score, is_active)
+            VALUES (%s, %s, %s, %s, %s, %s, true)
+            RETURNING id
+            """,
+            (version, release_url, trained_at, data_range_from, data_range_to, rps_score),
+        )
+        row = cur.fetchone()
+        return row[0]
+
+
 def upsert_prediction(conn: psycopg.Connection, prediction: dict[str, Any]) -> None:
     with conn.cursor() as cur:
         cur.execute(
