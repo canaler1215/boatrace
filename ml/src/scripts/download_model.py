@@ -36,25 +36,24 @@ def main() -> None:
     with urllib.request.urlopen(_gh_request(api_url, token)) as resp:
         releases = json.loads(resp.read())
 
-    # model-* タグのリリースを最新順で探す
-    model_release = next(
-        (r for r in releases if r["tag_name"].startswith("model-")),
-        None,
-    )
+    # model-* タグのリリースを最新順で走査し、.pkl アセットがある最初のものを使う
+    model_release = None
+    pkl_asset = None
+    for release in releases:
+        if not release["tag_name"].startswith("model-"):
+            continue
+        asset = next((a for a in release["assets"] if a["name"].endswith(".pkl")), None)
+        if asset:
+            model_release = release
+            pkl_asset = asset
+            break
+        print(f"Skipping release {release['tag_name']}: no .pkl asset")
+
     if model_release is None:
-        print("ERROR: No model release found on GitHub Releases.", file=sys.stderr)
+        print("ERROR: No model release with .pkl asset found on GitHub Releases.", file=sys.stderr)
         sys.exit(1)
 
-    print(f"Found release: {model_release['tag_name']}")
-
-    # .pkl アセットを探す
-    pkl_asset = next(
-        (a for a in model_release["assets"] if a["name"].endswith(".pkl")),
-        None,
-    )
-    if pkl_asset is None:
-        print(f"ERROR: No .pkl asset in release {model_release['tag_name']}.", file=sys.stderr)
-        sys.exit(1)
+    print(f"Found release: {model_release['tag_name']} ({pkl_asset['name']})")
 
     # ダウンロード（Bearer + octet-stream でリダイレクト先から取得）
     ARTIFACTS_DIR.mkdir(exist_ok=True)
