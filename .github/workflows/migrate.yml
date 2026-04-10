@@ -15,12 +15,15 @@ jobs:
         with:
           node-version: '20'
 
+      - uses: pnpm/action-setup@v4
+        with:
+          version: '10'
+
       - name: Install dependencies
-        working-directory: apps/web
-        run: npm install
+        run: pnpm install --filter @boatrace/web
 
       - name: Run migrations
         working-directory: apps/web
-        run: npx drizzle-kit migrate
+        run: node ./node_modules/drizzle-kit/bin.cjs migrate
         env:
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
