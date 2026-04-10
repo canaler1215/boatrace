@@ -41,6 +41,6 @@ jobs:
           body: |
             Retrained model artifact.
             Run: ${{ github.run_id }}
-          files: ml/artifacts/model_*.pkl
+          files: artifacts/model_*.pkl
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
