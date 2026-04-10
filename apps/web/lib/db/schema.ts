@@ -1,4 +1,4 @@
-import { pgTable, varchar, serial, integer, real, boolean, timestamp, text, index } from "drizzle-orm/pg-core";
+import { pgTable, varchar, serial, integer, real, boolean, timestamp, text, index, unique } from "drizzle-orm/pg-core";
 
 // 競艇場マスタ
 export const stadiums = pgTable("stadiums", {
@@ -82,6 +82,7 @@ export const predictions = pgTable("predictions", {
 }, (t) => [
   index().on(t.raceId),
   index().on(t.alertFlag),
+  unique().on(t.raceId, t.combination),
 ]);
 
 // 購入記録（手動入力）

@@ -146,7 +146,7 @@ def main() -> None:
                 """
                 SELECT r.id
                 FROM races r
-                WHERE r.race_date = CURRENT_DATE
+                WHERE r.race_date = CURRENT_DATE::text
                   AND r.status != 'finished'
                   AND NOT EXISTS (
                         SELECT 1 FROM predictions p WHERE p.race_id = r.id

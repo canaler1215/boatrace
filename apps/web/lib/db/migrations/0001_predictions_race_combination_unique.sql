@@ -1,0 +1,1 @@
+ALTER TABLE "predictions" ADD CONSTRAINT "predictions_race_id_combination_unique" UNIQUE ("race_id", "combination");

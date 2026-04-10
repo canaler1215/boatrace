@@ -1,0 +1,26 @@
+name: DB Migration
+
+on:
+  workflow_dispatch:   # 手動実行のみ（マイグレーション追加時に実行）
+
+jobs:
+  migrate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install dependencies
+        working-directory: apps/web
+        run: npm install
+
+      - name: Run migrations
+        working-directory: apps/web
+        run: npx drizzle-kit migrate
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
