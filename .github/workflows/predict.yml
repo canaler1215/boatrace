@@ -23,12 +23,19 @@ jobs:
         run: pip install -r ml/requirements.txt
 
       - name: Download latest model
+        id: download
         run: python ml/src/scripts/download_model.py
+        continue-on-error: true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GITHUB_REPOSITORY: ${{ github.repository }}
 
       - name: Run prediction
+        if: steps.download.outcome == 'success'
         run: python ml/src/scripts/run_predict.py
         env:
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
+
+      - name: Skip prediction (no model available)
+        if: steps.download.outcome != 'success'
+        run: echo "No trained model found in GitHub Releases. Run 'Retrain Model' workflow first."
