@@ -14,6 +14,7 @@ boatrace.jp エンドポイント (HTML スクレイピング):
 """
 import logging
 import re
+import threading
 import time
 import warnings
 from typing import Any
@@ -31,7 +32,30 @@ HEADERS = {
     "Accept-Language": "ja,en;q=0.5",
     "Accept": "text/html,application/xhtml+xml",
 }
-REQUEST_INTERVAL = 1.0  # 礼儀正しいクロール間隔 (秒)
+# 並列ダウンロード時のスレッド間レート制限 (秒)
+# boatrace.jp の実測レスポンスタイムは ~9-10 秒/リクエストのため、
+# 同時接続数を制御することで礼儀正しい並列アクセスを実現する
+REQUEST_INTERVAL = 0.5
+
+
+class _RateLimiter:
+    """スレッドセーフなレート制限器: 全スレッド合計でインターバルを保証"""
+
+    def __init__(self, interval: float) -> None:
+        self._interval = interval
+        self._lock = threading.Lock()
+        self._last: float = 0.0
+
+    def wait(self) -> None:
+        with self._lock:
+            now = time.monotonic()
+            wait = self._interval - (now - self._last)
+            if wait > 0:
+                time.sleep(wait)
+            self._last = time.monotonic()
+
+
+_rate_limiter = _RateLimiter(REQUEST_INTERVAL)
 
 
 # ---------------------------------------------------------------------------
@@ -39,13 +63,13 @@ REQUEST_INTERVAL = 1.0  # 礼儀正しいクロール間隔 (秒)
 # ---------------------------------------------------------------------------
 
 def _get(endpoint: str, params: dict[str, str]) -> BeautifulSoup:
-    """GET リクエスト + レート制限"""
+    """GET リクエスト + グローバルレート制限（並列対応）"""
+    _rate_limiter.wait()
     url = f"{BASE_URL}/{endpoint}"
     logger.debug("GET %s %s", url, params)
     resp = requests.get(url, params=params, headers=HEADERS, timeout=30)
     resp.raise_for_status()
     resp.encoding = "utf-8"
-    time.sleep(REQUEST_INTERVAL)
     return BeautifulSoup(resp.text, "lxml")
 
 
