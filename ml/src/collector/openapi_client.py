@@ -15,10 +15,13 @@ boatrace.jp エンドポイント (HTML スクレイピング):
 import logging
 import re
 import time
+import warnings
 from typing import Any
 
 import requests
-from bs4 import BeautifulSoup
+from bs4 import BeautifulSoup, XMLParsedAsHTMLWarning
+
+warnings.filterwarnings("ignore", category=XMLParsedAsHTMLWarning)
 
 logger = logging.getLogger(__name__)
 
@@ -28,7 +31,7 @@ HEADERS = {
     "Accept-Language": "ja,en;q=0.5",
     "Accept": "text/html,application/xhtml+xml",
 }
-REQUEST_INTERVAL = 1.5  # 礼儀正しいクロール間隔 (秒)
+REQUEST_INTERVAL = 1.0  # 礼儀正しいクロール間隔 (秒)
 
 
 # ---------------------------------------------------------------------------
@@ -275,20 +278,17 @@ def fetch_odds(stadium_id: int, race_date: str, race_no: int) -> dict[str, float
         logger.info("odds via data-combination: %d entries", len(odds_map))
         return odds_map
 
-    # ---- パターン2: テーブルの行/列位置でコンビネーション推定 ----
-    # boatrace.jp の 3連単オッズページは 1着×2着 のブロック (各6セル) が並ぶ構造
-    all_cells: list[str] = []
-    for table in soup.find_all("table"):
-        for td in table.find_all("td"):
-            text = td.get_text(strip=True)
-            all_cells.append(text)
-
-    # セルテキストが "数字.数字" のパターンをすべて抽出
-    float_pattern = re.compile(r"^\d+\.\d+$")
-    float_values = [float(c) for c in all_cells if float_pattern.match(c)]
+    # ---- パターン2: class="oddsPoint" セルから位置ベースでコンビネーション推定 ----
+    # boatrace.jp の odds3t ページは td.oddsPoint が 1着→2着→3着 の順に
+    # ちょうど 120 セル並ぶ。高オッズは "1467" のように整数形式で表示される。
+    odds_cells = [td for td in soup.find_all("td") if "oddsPoint" in (td.get("class") or [])]
+    float_values: list[float] = []
+    for td in odds_cells:
+        v = _parse_float(td.get_text(strip=True))
+        if v is not None and v > 0:
+            float_values.append(v)
 
     if len(float_values) == 120:
-        # 120通りのオッズが順番通りに並んでいると仮定
         idx = 0
         for first in range(1, 7):
             for second in range(1, 7):
@@ -299,10 +299,10 @@ def fetch_odds(stadium_id: int, race_date: str, race_no: int) -> dict[str, float
                         continue
                     odds_map[f"{first}-{second}-{third}"] = float_values[idx]
                     idx += 1
-        logger.info("odds via positional parse: %d entries", len(odds_map))
+        logger.info("odds via oddsPoint class: %d entries", len(odds_map))
     else:
         logger.warning(
-            "Could not parse odds table: expected 120 float cells, got %d",
+            "Could not parse odds table: expected 120 oddsPoint cells, got %d",
             len(float_values),
         )
 

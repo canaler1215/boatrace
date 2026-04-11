@@ -1,0 +1,89 @@
+name: Backtest (Real Odds)
+
+on:
+  workflow_dispatch:
+    inputs:
+      year:
+        description: '対象年'
+        required: true
+        default: '2025'
+      month:
+        description: '対象月 (1-12)'
+        required: true
+        default: '12'
+      ev_threshold:
+        description: 'EV閾値'
+        required: false
+        default: '1.2'
+      max_bets:
+        description: '1レースあたり最大賭け点数'
+        required: false
+        default: '5'
+
+jobs:
+  backtest:
+    runs-on: ubuntu-latest
+    timeout-minutes: 360   # 最大6時間
+
+    permissions:
+      contents: write       # アーティファクトアップロードに必要
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install system dependencies
+        run: sudo apt-get install -y lhasa
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: 'pip'
+          cache-dependency-path: ml/requirements.txt
+
+      - name: Install Python dependencies
+        run: pip install -r ml/requirements.txt
+
+      # 前回中断時の partial.parquet をキャッシュから復元
+      - name: Restore odds partial cache
+        uses: actions/cache@v4
+        with:
+          path: ml/data/odds/
+          key: odds-${{ inputs.year }}-${{ inputs.month }}-${{ github.run_id }}
+          restore-keys: |
+            odds-${{ inputs.year }}-${{ inputs.month }}-
+
+      # GitHub Releases から最新モデルをダウンロード（なければ --retrain で学習）
+      - name: Download latest model
+        id: download_model
+        run: python ml/src/scripts/download_model.py
+        continue-on-error: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+
+      - name: Run backtest with real odds
+        run: |
+          cd ml
+          RETRAIN_FLAG=""
+          if [ "${{ steps.download_model.outcome }}" != "success" ]; then
+            echo "No model found in releases — will retrain during backtest"
+            RETRAIN_FLAG="--retrain"
+          fi
+          python src/scripts/run_backtest.py \
+            --year ${{ inputs.year }} \
+            --month ${{ inputs.month }} \
+            --real-odds \
+            --ev-threshold ${{ inputs.ev_threshold }} \
+            --max-bets ${{ inputs.max_bets }} \
+            $RETRAIN_FLAG \
+            --output ../artifacts/backtest_${{ inputs.year }}${{ inputs.month }}.csv
+
+      - name: Upload backtest results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: backtest-${{ inputs.year }}-${{ inputs.month }}-run${{ github.run_number }}
+          path: |
+            artifacts/backtest_*.csv
+            ml/data/odds/odds_*.parquet
+          retention-days: 90
