@@ -24,7 +24,14 @@ def calc_trifecta_probs(win_probs: np.ndarray) -> dict[str, float]:
     """
     各艇の1着確率から3連単確率を近似計算
     win_probs: shape (6,) の1着確率
+
+    注意: LightGBM multiclass は艇ごとに独立した softmax を持つため、
+    6艇の1着確率の合計が 1.0 にならない場合がある。
+    Plackett-Luce 式は合計=1を前提とするため、事前に正規化する。
     """
+    total = win_probs.sum()
+    if total > 0:
+        win_probs = win_probs / total
     result = {}
     boats = list(range(1, 7))
     for combo in permutations(boats, 3):
