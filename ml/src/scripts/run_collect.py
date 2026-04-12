@@ -24,9 +24,9 @@ from collector.openapi_client import (
 )
 from collector.db_writer import (
     get_connection,
-    upsert_race,
-    upsert_race_entry,
-    upsert_odds,
+    upsert_races_batch,
+    upsert_race_entries_batch,
+    upsert_odds_batch,
 )
 
 logging.basicConfig(
@@ -94,21 +94,34 @@ def main() -> None:
             if done % 20 == 0 or done == len(races):
                 logger.info("Collected %d/%d races", done, len(races))
 
-    # --- DB 書き込み (メインスレッドで直列) ---
-    logger.info("Writing %d races to DB...", len(collected))
-    with get_connection() as conn:
-        for r in collected:
-            upsert_race(conn, r["race"])
+    # --- データ集約 ---
+    # finish_position を entry に事前マージしておく
+    for r in collected:
+        if r["finish"]:
             for entry in r["entries"]:
-                upsert_race_entry(conn, entry)
-            for combo, val in r["odds"].items():
-                upsert_odds(conn, r["race"]["id"], combo, val)
-            if r["finish"]:
-                for entry in r["entries"]:
-                    bn = entry["boat_no"]
-                    if bn in r["finish"]:
-                        entry["finish_position"] = r["finish"][bn]
-                        upsert_race_entry(conn, entry)
+                bn = entry["boat_no"]
+                if bn in r["finish"]:
+                    entry["finish_position"] = r["finish"][bn]
+
+    all_races   = [r["race"] for r in collected]
+    all_entries = [entry for r in collected for entry in r["entries"]]
+    all_odds    = [
+        (r["race"]["id"], combo, val)
+        for r in collected
+        for combo, val in r["odds"].items()
+    ]
+
+    # --- DB 書き込み (executemany でバッチ処理) ---
+    logger.info(
+        "Writing to DB: %d races, %d entries, %d odds rows...",
+        len(all_races), len(all_entries), len(all_odds),
+    )
+    with get_connection() as conn:
+        upsert_races_batch(conn, all_races)
+        if all_entries:
+            upsert_race_entries_batch(conn, all_entries)
+        if all_odds:
+            upsert_odds_batch(conn, all_odds)
         conn.commit()
 
     logger.info("=== collect done: %d races processed ===", len(races))

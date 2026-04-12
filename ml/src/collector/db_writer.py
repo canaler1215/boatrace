@@ -57,6 +57,55 @@ def upsert_odds(conn: psycopg.Connection, race_id: str, combination: str, odds_v
         )
 
 
+# ---------------------------------------------------------------------------
+# バッチ書き込み (executemany でネットワーク往復を削減)
+# ---------------------------------------------------------------------------
+
+def upsert_races_batch(conn: psycopg.Connection, races: list[dict[str, Any]]) -> None:
+    with conn.cursor() as cur:
+        cur.executemany(
+            """
+            INSERT INTO races (id, stadium_id, race_date, race_no, grade, status)
+            VALUES (%(id)s, %(stadium_id)s, %(race_date)s, %(race_no)s, %(grade)s, %(status)s)
+            ON CONFLICT (id) DO UPDATE SET
+                status = EXCLUDED.status,
+                updated_at = now()
+            """,
+            races,
+        )
+
+
+def upsert_race_entries_batch(conn: psycopg.Connection, entries: list[dict[str, Any]]) -> None:
+    with conn.cursor() as cur:
+        cur.executemany(
+            "DELETE FROM race_entries WHERE race_id = %(race_id)s AND boat_no = %(boat_no)s",
+            entries,
+        )
+        cur.executemany(
+            """
+            INSERT INTO race_entries
+                (race_id, boat_no, racer_id, motor_win_rate, boat_win_rate,
+                 exhibition_time, start_timing, finish_position)
+            VALUES
+                (%(race_id)s, %(boat_no)s, %(racer_id)s, %(motor_win_rate)s,
+                 %(boat_win_rate)s, %(exhibition_time)s, %(start_timing)s, %(finish_position)s)
+            """,
+            entries,
+        )
+
+
+def upsert_odds_batch(conn: psycopg.Connection, rows: list[tuple[str, str, float]]) -> None:
+    with conn.cursor() as cur:
+        cur.executemany(
+            """
+            INSERT INTO odds (race_id, combination, odds_value)
+            VALUES (%s, %s, %s)
+            ON CONFLICT DO NOTHING
+            """,
+            rows,
+        )
+
+
 def register_model_version(
     conn: psycopg.Connection,
     version: str,
