@@ -402,20 +402,23 @@ def fetch_race_result(stadium_id: int, race_date: str, race_no: int) -> dict[int
     soup = _get("raceresult", {"hd": hd, "jcd": f"{stadium_id:02d}", "rno": str(race_no)})
     result: dict[int, int] = {}
 
+    # raceresult ページの着順テーブルは各着順が独立した tbody に1行ずつ格納されている
+    # (tbody[1]=1着, tbody[2]=2着, ..., tbody[6]=6着)
+    # そのため tbody ごとにループして 6艇分揃うまで収集する
     for tbody in soup.select(".table1 tbody, table tbody"):
-        for i, tr in enumerate(tbody.find_all("tr"), start=1):
+        for tr in tbody.find_all("tr"):
             cells = tr.find_all("td")
             if len(cells) < 2:
                 continue
             try:
-                # 着順テーブル: 0列=着順, 1列=艇番
+                # 着順テーブル: 0列=着順(全角数字), 1列=艇番
                 finish_pos = int(cells[0].get_text(strip=True))
                 boat_no    = int(cells[1].get_text(strip=True))
                 if 1 <= boat_no <= 6 and 1 <= finish_pos <= 6:
                     result[boat_no] = finish_pos
             except (ValueError, AttributeError, IndexError):
                 continue
-        if result:
+        if len(result) == 6:
             break
 
     logger.debug("raceresult stadium=%02d rno=%d: %s", stadium_id, race_no, result)
