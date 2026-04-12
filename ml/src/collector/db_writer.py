@@ -51,7 +51,9 @@ def upsert_odds(conn: psycopg.Connection, race_id: str, combination: str, odds_v
             """
             INSERT INTO odds (race_id, combination, odds_value)
             VALUES (%s, %s, %s)
-            ON CONFLICT DO NOTHING
+            ON CONFLICT (race_id, combination) DO UPDATE SET
+                odds_value  = EXCLUDED.odds_value,
+                snapshot_at = now()
             """,
             (race_id, combination, odds_value),
         )
@@ -112,7 +114,9 @@ def upsert_odds_batch(conn: psycopg.Connection, rows: list[tuple[str, str, float
             """
             INSERT INTO odds (race_id, combination, odds_value)
             VALUES (%s, %s, %s)
-            ON CONFLICT DO NOTHING
+            ON CONFLICT (race_id, combination) DO UPDATE SET
+                odds_value   = EXCLUDED.odds_value,
+                snapshot_at  = now()
             """,
             rows,
         )

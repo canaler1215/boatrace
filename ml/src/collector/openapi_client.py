@@ -232,7 +232,7 @@ def fetch_entry_info(stadium_id: int, race_date: str, race_no: int) -> list[dict
                         racer_id = int(line)
                     elif racer_grade is None and re.match(r"^[AB][12]$", line):
                         racer_grade = line
-                    elif racer_name is None and not re.search(r"\d{4}", line) and not re.match(r"^[AB][12]$", line):
+                    elif racer_name is None and re.search(r"[\u3040-\u9FFF]", line):
                         racer_name = line
 
             def _col_lines(idx: int) -> list[str]:
