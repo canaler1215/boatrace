@@ -2,13 +2,14 @@
 collect.yml から呼び出されるデータ収集スクリプト
 
 処理フロー:
-  1. 本日開催レース一覧を取得して races / race_entries に upsert
-  2. 直前情報 (展示タイム・ST) を取得して race_entries を更新
-  3. 3連単オッズを取得して odds に insert
+  1. 本日開催レース一覧を取得して races に upsert
+  2. 各レースの出走表・直前情報・オッズを並列取得 (MAX_WORKERS)
+  3. 取得結果を DB にシリアルで upsert (psycopg はスレッドセーフでないため)
   4. 終了済みレースの着順を取得して race_entries.finish_position を更新
 """
 import logging
 import sys
+from concurrent.futures import ThreadPoolExecutor, as_completed
 from datetime import date
 from pathlib import Path
 
@@ -34,59 +35,80 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
+MAX_WORKERS = 5
+
+
+def _collect_one(race: dict, today: str) -> dict:
+    """1レース分の HTTP データを取得（DB 書き込みなし）"""
+    entries: list[dict] = []
+    odds: dict[str, float] = {}
+    finish: dict[int, int] = {}
+
+    try:
+        entries = fetch_entry_info(race["stadium_id"], today, race["race_no"])
+    except Exception as exc:
+        logger.warning("entry_info %s: %s", race["id"], exc)
+
+    try:
+        before = fetch_before_info(race["stadium_id"], today, race["race_no"])
+        for entry in entries:
+            bn = entry["boat_no"]
+            if bn in before:
+                entry["exhibition_time"] = before[bn].get("exhibition_time")
+                entry["start_timing"] = before[bn].get("start_timing")
+    except Exception as exc:
+        logger.warning("beforeinfo %s: %s", race["id"], exc)
+
+    try:
+        odds = fetch_odds(race["stadium_id"], today, race["race_no"])
+    except Exception as exc:
+        logger.warning("odds %s: %s", race["id"], exc)
+
+    if race.get("status") == "finished":
+        try:
+            finish = fetch_race_result(race["stadium_id"], today, race["race_no"])
+        except Exception as exc:
+            logger.warning("raceresult %s: %s", race["id"], exc)
+
+    return {"race": race, "entries": entries, "odds": odds, "finish": finish}
+
 
 def main() -> None:
     today = date.today().isoformat()
     logger.info("=== collect start: %s ===", today)
 
+    races = fetch_race_list(today)
+    if not races:
+        logger.info("No races today.")
+        return
+
+    # --- 並列 HTTP 取得 ---
+    logger.info("Fetching data for %d races with %d workers...", len(races), MAX_WORKERS)
+    collected: list[dict] = []
+
+    with ThreadPoolExecutor(max_workers=MAX_WORKERS) as executor:
+        futures = {executor.submit(_collect_one, race, today): race for race in races}
+        for future in as_completed(futures):
+            collected.append(future.result())
+            done = len(collected)
+            if done % 20 == 0 or done == len(races):
+                logger.info("Collected %d/%d races", done, len(races))
+
+    # --- DB 書き込み (メインスレッドで直列) ---
+    logger.info("Writing %d races to DB...", len(collected))
     with get_connection() as conn:
-        races = fetch_race_list(today)
-        if not races:
-            logger.info("No races today.")
-            return
-
-        for race in races:
-            # 1. races テーブルに upsert
-            upsert_race(conn, race)
-
-            # 2. 出走表取得
-            entries = fetch_entry_info(race["stadium_id"], today, race["race_no"])
-
-            # 3. 直前情報 (展示タイム・ST) をマージ
-            try:
-                before = fetch_before_info(race["stadium_id"], today, race["race_no"])
-                for entry in entries:
-                    bn = entry["boat_no"]
-                    if bn in before:
-                        entry["exhibition_time"] = before[bn].get("exhibition_time")
-                        entry["start_timing"]    = before[bn].get("start_timing")
-            except Exception as exc:
-                logger.warning("beforeinfo %s: %s", race["id"], exc)
-
-            # 4. 出走表を upsert
-            for entry in entries:
+        for r in collected:
+            upsert_race(conn, r["race"])
+            for entry in r["entries"]:
                 upsert_race_entry(conn, entry)
-
-            # 5. 3連単オッズを insert
-            try:
-                odds_data = fetch_odds(race["stadium_id"], today, race["race_no"])
-                for combo, odds_val in odds_data.items():
-                    upsert_odds(conn, race["id"], combo, odds_val)
-            except Exception as exc:
-                logger.warning("odds %s: %s", race["id"], exc)
-
-            # 6. 着順取得 (レース終了後の場合のみ)
-            if race.get("status") == "finished":
-                try:
-                    result = fetch_race_result(race["stadium_id"], today, race["race_no"])
-                    for entry in entries:
-                        bn = entry["boat_no"]
-                        if bn in result:
-                            entry["finish_position"] = result[bn]
-                            upsert_race_entry(conn, entry)
-                except Exception as exc:
-                    logger.warning("raceresult %s: %s", race["id"], exc)
-
+            for combo, val in r["odds"].items():
+                upsert_odds(conn, r["race"]["id"], combo, val)
+            if r["finish"]:
+                for entry in r["entries"]:
+                    bn = entry["boat_no"]
+                    if bn in r["finish"]:
+                        entry["finish_position"] = r["finish"][bn]
+                        upsert_race_entry(conn, entry)
         conn.commit()
 
     logger.info("=== collect done: %d races processed ===", len(races))
