@@ -19,7 +19,9 @@ FEATURE_COLUMNS = [
     "boat_no",
     "racer_win_rate",
     "racer_grade_encoded",
-    "start_timing",
+    # start_timing は当該レースの実際の ST であり事後情報のため除外
+    # 代わりに選手の過去 ST 平均 (racer_avg_st) を使用
+    "racer_avg_st",
     "tidal_level",
     "tidal_type_encoded",
     "in_win_rate",
@@ -28,20 +30,32 @@ FEATURE_COLUMNS = [
 ]
 
 
-def build_features(entries: pd.DataFrame, race_meta: pd.DataFrame) -> pd.DataFrame:
+def build_features(
+    entries: pd.DataFrame,
+    race_meta: pd.DataFrame,
+    racer_avg_st: dict[int, float] | None = None,
+) -> pd.DataFrame:
     """
     DB から取得した出走表 + レースメタデータから特徴量を生成する。
     (predict.yml / run_predict.py から呼ぶ)
 
     Parameters
     ----------
-    entries   : race_entries テーブルのデータ
-    race_meta : races + stadiums + tidal_data を結合したデータ
+    entries      : race_entries テーブルのデータ
+    race_meta    : races + stadiums + tidal_data を結合したデータ
+    racer_avg_st : {racer_id: 平均ST} の辞書（省略時は全行 0 で代替）
     """
     df = entries.merge(race_meta, on="race_id", how="left")
     df = _encode_grade(df)
     df = add_tidal_features(df)
     df = add_stadium_features(df)
+
+    # 選手の過去 ST 平均（辞書が渡された場合はマッピング、なければ 0）
+    if racer_avg_st and "racer_id" in df.columns:
+        df["racer_avg_st"] = df["racer_id"].map(racer_avg_st).fillna(0.0)
+    else:
+        df["racer_avg_st"] = 0.0
+
     return df[FEATURE_COLUMNS].fillna(0)
 
 
@@ -78,10 +92,48 @@ def build_features_from_history(df: pd.DataFrame) -> tuple[pd.DataFrame, pd.Seri
     if "racer_win_rate" not in df.columns and "win_rate" in df.columns:
         df["racer_win_rate"] = df["win_rate"]
 
+    # 選手の過去 ST 平均を計算（ルックアヘッドなし）
+    df = _add_racer_avg_st(df)
+
     X = df[FEATURE_COLUMNS].fillna(0)
     y = (df["finish_position"] - 1).astype(int)
 
     return X, y
+
+
+def _add_racer_avg_st(df: pd.DataFrame) -> pd.DataFrame:
+    """
+    各選手の過去 ST 平均を計算して racer_avg_st 列として追加する。
+
+    race_date → race_id の順でソートし、各行より前のデータのみを使うことで
+    ルックアヘッドバイアスを排除する。
+
+    - racer_id が利用可能な場合: 選手ごとの expanding mean (shift=1)
+    - racer_id がない場合: データセット全体の start_timing 平均で代替
+    - 過去レースが存在しない先頭行や start_timing が欠損するレース:
+      データセット全体の平均 ST で補完する
+    """
+    df = df.copy()
+
+    if "start_timing" not in df.columns or df["start_timing"].isna().all():
+        df["racer_avg_st"] = 0.0
+        return df
+
+    global_mean = df["start_timing"].mean()
+
+    if "racer_id" in df.columns:
+        df = df.sort_values(["race_date", "race_id", "boat_no"])
+        # shift(1) で当該行自体を含めず、expanding().mean() で過去の累積平均を取る
+        df["racer_avg_st"] = (
+            df.groupby("racer_id")["start_timing"]
+            .transform(lambda s: s.shift(1).expanding().mean())
+        )
+    else:
+        # racer_id がない場合はデータ全体の平均で代替
+        df["racer_avg_st"] = global_mean
+
+    df["racer_avg_st"] = df["racer_avg_st"].fillna(global_mean)
+    return df
 
 
 def _encode_grade(df: pd.DataFrame) -> pd.DataFrame:
