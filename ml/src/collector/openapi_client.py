@@ -112,9 +112,12 @@ def fetch_race_list(race_date: str) -> list[dict[str, Any]]:
         soup = _get("index", {"hd": hd})
         # 開催場へのリンク例: href="/owpc/pc/race/racelist?hd=20240101&jcd=01"
         for a in soup.find_all("a", href=True):
-            m = re.search(r"racelist\?hd=" + hd + r"&jcd=(\d{2})", a["href"])
-            if m:
-                jcds_open.add(int(m.group(1)))
+            href = a["href"]
+            # パラメーター順序に依存しない検索 (例: ?rno=1&jcd=01&hd=20260412)
+            if "racelist" in href and hd in href:
+                m = re.search(r"jcd=(\d{2})", href)
+                if m:
+                    jcds_open.add(int(m.group(1)))
         logger.info("Open venues on %s: %s", race_date, sorted(jcds_open))
     except Exception as exc:
         logger.warning("Could not fetch index page: %s – scanning all 24 venues", exc)
@@ -138,7 +141,8 @@ def fetch_race_list(race_date: str) -> list[dict[str, Any]]:
 
 def _fetch_venue_races(jcd: int, race_date: str, hd: str) -> list[dict[str, Any]]:
     """1競艇場のレース一覧を取得"""
-    soup = _get("racelist", {"hd": hd, "jcd": f"{jcd:02d}"})
+    # 旧: racelist?hd=YYYYMMDD&jcd=XX → 新: raceindex?jcd=XX&hd=YYYYMMDD
+    soup = _get("raceindex", {"jcd": f"{jcd:02d}", "hd": hd})
     races: list[dict[str, Any]] = []
 
     # レース番号リンク例: href="...&rno=1" のテキストが "1R"
