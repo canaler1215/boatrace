@@ -85,7 +85,10 @@ def upsert_races_batch(conn: psycopg.Connection, races: list[dict[str, Any]]) ->
             INSERT INTO races (id, stadium_id, race_date, race_no, grade, status)
             VALUES (%(id)s, %(stadium_id)s, %(race_date)s, %(race_no)s, %(grade)s, %(status)s)
             ON CONFLICT (id) DO UPDATE SET
-                status = EXCLUDED.status,
+                status = CASE
+                    WHEN races.status = 'finished' THEN 'finished'
+                    ELSE EXCLUDED.status
+                END,
                 updated_at = now()
             """,
             races,

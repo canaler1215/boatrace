@@ -146,6 +146,13 @@ def _fetch_venue_races(jcd: int, race_date: str, hd: str) -> list[dict[str, Any]
     soup = _get("raceindex", {"jcd": f"{jcd:02d}", "hd": hd})
     races: list[dict[str, Any]] = []
 
+    # raceresult リンクが存在するレース番号 = 終了済み
+    finished_rnos: set[int] = set()
+    for a in soup.find_all("a", href=re.compile(r"raceresult")):
+        m = re.search(r"rno=(\d+)", a["href"])
+        if m:
+            finished_rnos.add(int(m.group(1)))
+
     # レース番号リンク例: href="...&rno=1" のテキストが "1R"
     seen: set[int] = set()
     for a in soup.find_all("a", href=re.compile(r"rno=\d+")):
@@ -171,10 +178,10 @@ def _fetch_venue_races(jcd: int, race_date: str, hd: str) -> list[dict[str, Any]
             "race_date": race_date,
             "race_no": race_no,
             "grade": grade,
-            "status": "scheduled",
+            "status": "finished" if race_no in finished_rnos else "scheduled",
         })
 
-    logger.debug("venue %02d: %d races", jcd, len(races))
+    logger.debug("venue %02d: %d races (%d finished)", jcd, len(races), len(finished_rnos))
     return races
 
 
