@@ -1,9 +1,7 @@
 name: Predict & Calculate EV
 
 on:
-  schedule:
-    - cron: '0 * * * *'    # 毎時00分 (UTC)
-  workflow_dispatch:         # 手動実行も可
+  workflow_dispatch:         # 手動実行のみ
 
 jobs:
   predict:

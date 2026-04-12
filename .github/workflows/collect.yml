@@ -1,9 +1,7 @@
 name: Collect Race Data
 
 on:
-  schedule:
-    - cron: '30 * * * *'   # 毎時30分 (UTC) に実行
-  workflow_dispatch:         # 手動実行も可
+  workflow_dispatch:         # 手動実行のみ
 
 jobs:
   collect:

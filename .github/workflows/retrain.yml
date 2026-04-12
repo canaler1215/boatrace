@@ -1,9 +1,7 @@
 name: Retrain Model
 
 on:
-  schedule:
-    - cron: '0 2 1 * *'   # 毎月1日 2:00 UTC
-  workflow_dispatch:        # 手動実行 (初期訓練もここから)
+  workflow_dispatch:        # 手動実行のみ (初期訓練もここから)
 
 jobs:
   retrain:
