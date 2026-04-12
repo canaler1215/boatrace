@@ -36,7 +36,7 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
-MAX_WORKERS = 5
+MAX_WORKERS = 10
 
 
 def _collect_one(race: dict, today: str) -> dict:
