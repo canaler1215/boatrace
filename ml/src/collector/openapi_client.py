@@ -16,6 +16,7 @@ import logging
 import re
 import threading
 import time
+import unicodedata
 import warnings
 from typing import Any
 
@@ -190,49 +191,67 @@ def fetch_entry_info(stadium_id: int, race_date: str, race_no: int) -> list[dict
                  exhibition_time, start_timing, finish_position}
     """
     hd = _hd(race_date)
-    soup = _get("racerslist", {"hd": hd, "jcd": f"{stadium_id:02d}", "rno": str(race_no)})
+    # 旧: racerslist?hd=...&jcd=...&rno=... → 新: racelist?rno=...&jcd=...&hd=...
+    soup = _get("racelist", {"rno": str(race_no), "jcd": f"{stadium_id:02d}", "hd": hd})
     race_id = make_race_id(stadium_id, race_date, race_no)
     entries: list[dict[str, Any]] = []
 
-    # 出走表テーブル: 各行が1艇。
-    # 典型的なカラム順 (boatrace.jp):
-    #   0: 艇番  1: 登番  2: 氏名  3: 級別  4: 支部/出身  5: 体重
-    #   6: F/L   7: ST平均  8: 全国勝率  9: 全国2連率
-    #  10: 当地勝率  11: 当地2連率  12: モーター2連率  13: ボート2連率
-    for tbody in soup.select(".table1 tbody, table.is-w243 tbody, table tbody"):
-        for tr in tbody.find_all("tr"):
-            cells = tr.find_all("td")
-            if len(cells) < 3:
-                continue
-            try:
-                boat_no = int(cells[0].get_text(strip=True))
-                if boat_no < 1 or boat_no > 6:
-                    continue
+    # 出走表テーブルはページ内2番目のテーブル (index 1)
+    # 艇番セル: class="is-boatColor1"〜"is-boatColor6" (全角数字)
+    # tds[2]: 登録番号/級別/氏名 (4桁番号を含む)
+    # tds[4]: 全国勝率/2連率/3連率 (改行区切り)
+    # tds[6]: モーターNo/2連率/3連率 (改行区切り)
+    # tds[7]: ボートNo/2連率/3連率 (改行区切り)
+    tables = soup.find_all("table")
+    if len(tables) < 2:
+        logger.debug("race_id=%s no entry table found", race_id)
+        return entries
 
-                # 登録番号 (4桁)
-                racer_id_text = cells[1].get_text(strip=True)
-                m = re.search(r"(\d{4})", racer_id_text)
+    for tr in tables[1].find_all("tr"):
+        boat_td = tr.find("td", class_=re.compile(r"is-boatColor\d"))
+        if not boat_td:
+            continue
+        tds = tr.find_all("td")
+        try:
+            boat_no = int(unicodedata.normalize("NFKC", boat_td.get_text(strip=True)))
+            if boat_no < 1 or boat_no > 6:
+                continue
+
+            # 登録番号 (4桁)
+            racer_id = None
+            if len(tds) > 2:
+                m = re.search(r"(\d{4})", tds[2].get_text(strip=True))
                 racer_id = int(m.group(1)) if m else None
 
-                # 勝率・2連率 (列位置は実際のHTMLで要確認)
-                win_rate      = _parse_float(cells[8].get_text(strip=True))  if len(cells) > 8  else None
-                motor_win_rate = _parse_float(cells[12].get_text(strip=True)) if len(cells) > 12 else None
-                boat_win_rate  = _parse_float(cells[13].get_text(strip=True)) if len(cells) > 13 else None
+            def _col_lines(idx: int) -> list[str]:
+                if len(tds) <= idx:
+                    return []
+                return [l.strip() for l in tds[idx].get_text(separator="\n").split("\n") if l.strip()]
 
-                entries.append({
-                    "race_id": race_id,
-                    "boat_no": boat_no,
-                    "racer_id": racer_id,
-                    "motor_win_rate": motor_win_rate,
-                    "boat_win_rate": boat_win_rate,
-                    "exhibition_time": None,   # beforeinfo で更新
-                    "start_timing": None,       # beforeinfo で更新
-                    "finish_position": None,
-                })
-            except (ValueError, AttributeError, IndexError):
-                continue
-        if entries:
-            break  # 最初の tbody で十分
+            # 全国勝率 (tds[4] 1行目)
+            lines4 = _col_lines(4)
+            win_rate = _parse_float(lines4[0]) if lines4 else None  # noqa: F841
+
+            # モーター2連率 (tds[6] 2行目)
+            lines6 = _col_lines(6)
+            motor_win_rate = _parse_float(lines6[1]) if len(lines6) > 1 else None
+
+            # ボート2連率 (tds[7] 2行目)
+            lines7 = _col_lines(7)
+            boat_win_rate = _parse_float(lines7[1]) if len(lines7) > 1 else None
+
+            entries.append({
+                "race_id": race_id,
+                "boat_no": boat_no,
+                "racer_id": racer_id,
+                "motor_win_rate": motor_win_rate,
+                "boat_win_rate": boat_win_rate,
+                "exhibition_time": None,   # beforeinfo で更新
+                "start_timing": None,       # beforeinfo で更新
+                "finish_position": None,
+            })
+        except (ValueError, AttributeError, IndexError):
+            continue
 
     logger.debug("race_id=%s entries=%d", race_id, len(entries))
     return entries
@@ -250,31 +269,41 @@ def fetch_before_info(stadium_id: int, race_date: str, race_no: int) -> dict[int
         {boat_no: {"exhibition_time": float | None, "start_timing": float | None}}
     """
     hd = _hd(race_date)
-    soup = _get("beforeinfo", {"hd": hd, "jcd": f"{stadium_id:02d}", "rno": str(race_no)})
+    soup = _get("beforeinfo", {"rno": str(race_no), "jcd": f"{stadium_id:02d}", "hd": hd})
     result: dict[int, dict[str, Any]] = {}
 
-    # 直前情報テーブル: 各行が1艇。
-    # 典型的なカラム順:
-    #   0: 艇番  1: 氏名  2: 体重  3: 調整重量  4: 展示タイム  5: チルト  6: プロペラ  7: ST
-    for tbody in soup.select(".table1 tbody, table.is-w495 tbody, table tbody"):
-        for tr in tbody.find_all("tr"):
-            cells = tr.find_all("td")
-            if len(cells) < 4:
+    # 直前情報テーブルはページ内2番目のテーブル (index 1)
+    # 各艇は4行1グループ:
+    #   行0: td[0]=艇番(1-6), td[4]=展示タイム, ...
+    #   行1: 進入コース
+    #   行2: td[0]=ST値, td[1]='ST'
+    #   行3: 着順
+    tables = soup.find_all("table")
+    if len(tables) < 2:
+        return result
+
+    current_boat: int | None = None
+    for tr in tables[1].find_all("tr"):
+        tds = tr.find_all("td")
+        if not tds:
+            continue
+        first = tds[0].get_text(strip=True)
+        try:
+            boat_no = int(first)
+            if 1 <= boat_no <= 6:
+                current_boat = boat_no
+                exhibition_time = _parse_float(tds[4].get_text(strip=True)) if len(tds) > 4 else None
+                result[boat_no] = {"exhibition_time": exhibition_time, "start_timing": None}
                 continue
-            try:
-                boat_no = int(cells[0].get_text(strip=True))
-                if boat_no < 1 or boat_no > 6:
-                    continue
-                exhibition_time = _parse_float(cells[4].get_text(strip=True)) if len(cells) > 4 else None
-                start_timing    = _parse_float(cells[7].get_text(strip=True)) if len(cells) > 7 else None
-                result[boat_no] = {
-                    "exhibition_time": exhibition_time,
-                    "start_timing": start_timing,
-                }
-            except (ValueError, AttributeError, IndexError):
-                continue
-        if result:
-            break
+        except ValueError:
+            pass
+
+        # ST行: td[1] == 'ST'
+        if current_boat is not None and len(tds) >= 2 and tds[1].get_text(strip=True) == "ST":
+            st_val = _parse_float(first)
+            if st_val is not None:
+                result[current_boat]["start_timing"] = st_val
+            current_boat = None
 
     logger.debug("beforeinfo stadium=%02d rno=%d boats=%s", stadium_id, race_no, sorted(result))
     return result
