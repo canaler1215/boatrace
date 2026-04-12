@@ -69,7 +69,10 @@ def upsert_racers_batch(conn: psycopg.Connection, racers: list[dict[str, Any]]) 
             """
             INSERT INTO racers (id, name, grade)
             VALUES (%(id)s, %(name)s, %(grade)s)
-            ON CONFLICT (id) DO NOTHING
+            ON CONFLICT (id) DO UPDATE SET
+                name       = EXCLUDED.name,
+                grade      = EXCLUDED.grade,
+                updated_at = now()
             """,
             racers,
         )
