@@ -217,11 +217,23 @@ def fetch_entry_info(stadium_id: int, race_date: str, race_no: int) -> list[dict
             if boat_no < 1 or boat_no > 6:
                 continue
 
-            # 登録番号 (4桁)
+            # 登録番号・級別・氏名 (tds[2] に3要素が含まれる)
             racer_id = None
+            racer_name = None
+            racer_grade = None
             if len(tds) > 2:
-                m = re.search(r"(\d{4})", tds[2].get_text(strip=True))
-                racer_id = int(m.group(1)) if m else None
+                td2_lines = [
+                    unicodedata.normalize("NFKC", l.strip())
+                    for l in tds[2].get_text(separator="\n").split("\n")
+                    if l.strip()
+                ]
+                for line in td2_lines:
+                    if racer_id is None and re.match(r"^\d{4}$", line):
+                        racer_id = int(line)
+                    elif racer_grade is None and re.match(r"^[AB][12]$", line):
+                        racer_grade = line
+                    elif racer_name is None and not re.search(r"\d{4}", line) and not re.match(r"^[AB][12]$", line):
+                        racer_name = line
 
             def _col_lines(idx: int) -> list[str]:
                 if len(tds) <= idx:
@@ -244,6 +256,8 @@ def fetch_entry_info(stadium_id: int, race_date: str, race_no: int) -> list[dict
                 "race_id": race_id,
                 "boat_no": boat_no,
                 "racer_id": racer_id,
+                "racer_name": racer_name,
+                "racer_grade": racer_grade,
                 "motor_win_rate": motor_win_rate,
                 "boat_win_rate": boat_win_rate,
                 "exhibition_time": None,   # beforeinfo で更新

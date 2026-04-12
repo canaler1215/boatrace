@@ -61,6 +61,18 @@ def upsert_odds(conn: psycopg.Connection, race_id: str, combination: str, odds_v
 # バッチ書き込み (executemany でネットワーク往復を削減)
 # ---------------------------------------------------------------------------
 
+def upsert_racers_batch(conn: psycopg.Connection, racers: list[dict[str, Any]]) -> None:
+    with conn.cursor() as cur:
+        cur.executemany(
+            """
+            INSERT INTO racers (id, name, grade)
+            VALUES (%(id)s, %(name)s, %(grade)s)
+            ON CONFLICT (id) DO NOTHING
+            """,
+            racers,
+        )
+
+
 def upsert_races_batch(conn: psycopg.Connection, races: list[dict[str, Any]]) -> None:
     with conn.cursor() as cur:
         cur.executemany(

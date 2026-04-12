@@ -24,6 +24,7 @@ from collector.openapi_client import (
 )
 from collector.db_writer import (
     get_connection,
+    upsert_racers_batch,
     upsert_races_batch,
     upsert_race_entries_batch,
     upsert_odds_batch,
@@ -105,6 +106,19 @@ def main() -> None:
 
     all_races   = [r["race"] for r in collected]
     all_entries = [entry for r in collected for entry in r["entries"]]
+
+    # racers テーブルへの upsert 用: racer_id をキーに重複排除
+    racers_seen: dict[int, dict] = {}
+    for entry in all_entries:
+        rid = entry.get("racer_id")
+        if rid and rid not in racers_seen:
+            racers_seen[rid] = {
+                "id": rid,
+                "name": entry.get("racer_name") or str(rid),
+                "grade": entry.get("racer_grade"),
+            }
+    all_racers = list(racers_seen.values())
+
     all_odds    = [
         (r["race"]["id"], combo, val)
         for r in collected
@@ -118,6 +132,8 @@ def main() -> None:
     )
     with get_connection() as conn:
         upsert_races_batch(conn, all_races)
+        if all_racers:
+            upsert_racers_batch(conn, all_racers)
         if all_entries:
             upsert_race_entries_batch(conn, all_entries)
         if all_odds:
