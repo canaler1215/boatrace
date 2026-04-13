@@ -47,6 +47,7 @@ def build_features(
     """
     df = entries.merge(race_meta, on="race_id", how="left")
     df = _encode_grade(df)
+    df = _encode_wind(df)
     df = add_tidal_features(df)
     df = add_stadium_features(df)
 
