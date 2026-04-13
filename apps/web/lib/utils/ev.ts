@@ -20,6 +20,12 @@ export function calcKellyFraction(
   return Math.max(0, kelly * fraction);
 }
 
+export const PROB_THRESHOLD = 0.05; // 5%
+
+export function isAlertProb(prob: number): boolean {
+  return prob >= PROB_THRESHOLD;
+}
+
 export const EV_THRESHOLD = 1.2;
 
 export function isAlertEV(ev: number): boolean {

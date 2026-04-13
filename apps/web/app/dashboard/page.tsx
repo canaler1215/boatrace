@@ -1,11 +1,25 @@
 import { db, predictions, races, stadiums } from "@/lib/db";
-import { eq, desc, and } from "drizzle-orm";
+import { eq, desc, and, gte } from "drizzle-orm";
 import { calcKellyFraction } from "@/lib/utils/ev";
 import Link from "next/link";
+import { ProbThresholdControl } from "./ProbThresholdControl";
 
 export const dynamic = "force-dynamic";
 
-export default async function DashboardPage() {
+const DEFAULT_PROB_PCT = 5;
+
+interface Props {
+  searchParams: Promise<{ prob?: string }>;
+}
+
+export default async function DashboardPage({ searchParams }: Props) {
+  const { prob } = await searchParams;
+  const probPct = Math.max(
+    DEFAULT_PROB_PCT,
+    Math.min(50, parseFloat(prob ?? String(DEFAULT_PROB_PCT)) || DEFAULT_PROB_PCT)
+  );
+  const probThreshold = probPct / 100;
+
   const today = new Date().toISOString().slice(0, 10);
 
   const alerts = await db
@@ -22,19 +36,29 @@ export default async function DashboardPage() {
     .from(predictions)
     .innerJoin(races, eq(predictions.raceId, races.id))
     .leftJoin(stadiums, eq(races.stadiumId, stadiums.id))
-    .where(and(eq(predictions.alertFlag, true), eq(races.raceDate, today)))
-    .orderBy(desc(predictions.expectedValue));
+    .where(
+      and(
+        eq(races.raceDate, today),
+        gte(predictions.winProbability, probThreshold)
+      )
+    )
+    .orderBy(desc(predictions.winProbability));
 
   return (
     <div>
       <div className="mb-6 flex items-center justify-between">
-        <h2 className="text-2xl font-bold">本日のアラートレース</h2>
-        <span className="text-sm text-gray-500">{today}</span>
+        <h2 className="text-2xl font-bold">本日のレース予測</h2>
+        <div className="flex items-center gap-4">
+          <ProbThresholdControl current={probPct} />
+          <span className="text-sm text-gray-500">{today}</span>
+        </div>
       </div>
 
       {alerts.length === 0 ? (
         <div className="rounded-lg border border-dashed border-gray-300 p-12 text-center">
-          <p className="text-gray-500">本日は期待値 1.2 以上の舟券はありません。</p>
+          <p className="text-gray-500">
+            本日は的中確率 {probPct}% 以上の舟券はありません。
+          </p>
           <p className="mt-2 text-sm text-gray-400">
             GitHub Actions (predict.yml) が毎時00分に更新します。
           </p>
@@ -79,12 +103,12 @@ export default async function DashboardPage() {
                       </span>
                     </td>
                     <td className="px-4 py-3 text-right">
-                      {(alert.winProbability * 100).toFixed(1)}%
-                    </td>
-                    <td className="px-4 py-3 text-right">
-                      <span className="font-semibold text-green-600">
-                        {alert.expectedValue.toFixed(2)}
+                      <span className="font-semibold text-blue-600">
+                        {(alert.winProbability * 100).toFixed(1)}%
                       </span>
+                    </td>
+                    <td className="px-4 py-3 text-right text-gray-700">
+                      {alert.expectedValue.toFixed(2)}
                     </td>
                     <td className="px-4 py-3 text-right text-gray-600">
                       {kelly > 0 ? `${(kelly * 100).toFixed(1)}%` : "-"}

@@ -1,16 +1,29 @@
 import { z } from "zod";
 import { createTRPCRouter, publicProcedure } from "../server";
-import { db, predictions } from "@/lib/db";
-import { eq, and } from "drizzle-orm";
+import { db, predictions, races } from "@/lib/db";
+import { eq, and, gte, desc } from "drizzle-orm";
 
 export const predictionsRouter = createTRPCRouter({
   alerts: publicProcedure
-    .input(z.object({ date: z.string().optional() }))
-    .query(async () => {
+    .input(
+      z.object({
+        date: z.string().optional(),
+        probThreshold: z.number().min(0).max(1).default(0.05),
+      })
+    )
+    .query(async ({ input }) => {
+      const date = input.date ?? new Date().toISOString().slice(0, 10);
       return db
         .select()
         .from(predictions)
-        .where(eq(predictions.alertFlag, true))
+        .innerJoin(races, eq(predictions.raceId, races.id))
+        .where(
+          and(
+            eq(races.raceDate, date),
+            gte(predictions.winProbability, input.probThreshold)
+          )
+        )
+        .orderBy(desc(predictions.winProbability))
         .limit(100);
     }),
 
