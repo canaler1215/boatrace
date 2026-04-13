@@ -126,6 +126,40 @@ def fetch_active_model_version_id(conn) -> int | None:
     return row[0] if row else None
 
 
+def fetch_racer_avg_st(conn, today: str) -> dict[int, float]:
+    """
+    今日より前のレースから各選手の平均 ST を計算して返す。
+
+    バックテスト時は build_features_from_history 内の _add_racer_avg_st で
+    過去 ST の累積平均を計算しているが、本番では racer_avg_st を渡していなかった。
+    この関数でバックテストと同等の情報を DB から取得する。
+
+    Parameters
+    ----------
+    conn  : DB 接続
+    today : JST の今日の日付文字列 (YYYY-MM-DD)
+
+    Returns
+    -------
+    {racer_id: 平均ST} の辞書。start_timing が NULL / 0 のレースは除外。
+    """
+    with conn.cursor() as cur:
+        cur.execute(
+            """
+            SELECT re.racer_id, AVG(re.start_timing) AS avg_st
+            FROM race_entries re
+            JOIN races r ON re.race_id = r.id
+            WHERE r.race_date < %s
+              AND re.start_timing IS NOT NULL
+              AND re.start_timing > 0
+            GROUP BY re.racer_id
+            """,
+            (today,),
+        )
+        rows = cur.fetchall()
+    return {row[0]: float(row[1]) for row in rows}
+
+
 # ---------------------------------------------------------------------------
 # メイン処理
 # ---------------------------------------------------------------------------
@@ -162,6 +196,10 @@ def main() -> None:
 
         logger.info("Found %d races to predict", len(race_ids))
 
+        # 選手ごとの過去 ST 平均を一括取得（全レースで共有）
+        racer_avg_st = fetch_racer_avg_st(conn, today_jst)
+        logger.info("Loaded avg ST for %d racers", len(racer_avg_st))
+
         for race_id in race_ids:
             logger.info("Predicting race %s ...", race_id)
 
@@ -177,8 +215,8 @@ def main() -> None:
                 logger.warning("Race %s: no meta found, skipping.", race_id)
                 continue
 
-            # 3. 特徴量生成
-            X = build_features(entries, race_meta)
+            # 3. 特徴量生成（過去 ST 平均をバックテストと同様に渡す）
+            X = build_features(entries, race_meta, racer_avg_st=racer_avg_st)
             if len(X) < 6:
                 logger.warning("Race %s: feature build produced %d rows, skipping.", race_id, len(X))
                 continue
