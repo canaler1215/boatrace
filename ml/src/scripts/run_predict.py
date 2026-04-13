@@ -128,34 +128,23 @@ def fetch_active_model_version_id(conn) -> int | None:
 
 def fetch_racer_avg_st(conn, today: str) -> dict[int, float]:
     """
-    今日より前のレースから各選手の平均 ST を計算して返す。
+    racer_st_stats テーブルから各選手の平均 ST を取得して返す。
 
-    バックテスト時は build_features_from_history 内の _add_racer_avg_st で
-    過去 ST の累積平均を計算しているが、本番では racer_avg_st を渡していなかった。
-    この関数でバックテストと同等の情報を DB から取得する。
+    racer_st_stats は build_racer_st_stats.py で過去2年分の履歴から
+    事前集計されており、race_entries に1日分しかない環境でも
+    正確な avg_st を返すことができる。
 
     Parameters
     ----------
     conn  : DB 接続
-    today : JST の今日の日付文字列 (YYYY-MM-DD)
+    today : 互換性のために残す（使用しない）
 
     Returns
     -------
-    {racer_id: 平均ST} の辞書。start_timing が NULL / 0 のレースは除外。
+    {racer_id: 平均ST} の辞書。
     """
     with conn.cursor() as cur:
-        cur.execute(
-            """
-            SELECT re.racer_id, AVG(re.start_timing) AS avg_st
-            FROM race_entries re
-            JOIN races r ON re.race_id = r.id
-            WHERE r.race_date < %s
-              AND re.start_timing IS NOT NULL
-              AND re.start_timing > 0
-            GROUP BY re.racer_id
-            """,
-            (today,),
-        )
+        cur.execute("SELECT racer_id, avg_st FROM racer_st_stats")
         rows = cur.fetchall()
     return {row[0]: float(row[1]) for row in rows}
 

@@ -56,7 +56,7 @@ def _save_cache(rows: list[dict], cache_path: Path) -> None:
 def download_odds_for_races(
     race_infos: list[dict],
     cache_path: Path,
-    max_workers: int = 5,
+    max_workers: int = 10,
 ) -> dict[str, dict[str, float]]:
     """
     指定レース一覧の 3 連単オッズを boatrace.jp から取得してキャッシュする。

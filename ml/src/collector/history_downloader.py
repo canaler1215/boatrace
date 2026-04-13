@@ -40,6 +40,7 @@ import re
 import shutil
 import subprocess
 import tempfile
+from concurrent.futures import ThreadPoolExecutor, as_completed
 from pathlib import Path
 from typing import Iterator
 
@@ -326,29 +327,50 @@ def parse_result_file(filepath: Path) -> Iterator[dict]:
 def load_history_range(
     start_year: int = 2022,
     end_year: int | None = None,
+    start_month: int = 1,
+    end_month: int | None = None,
     data_dir: Path | None = None,
+    max_workers: int = 8,
 ) -> pd.DataFrame:
     """
-    指定年範囲の全データをダウンロード・パースして DataFrame を返す。
+    指定年月範囲の全データをダウンロード・パースして DataFrame を返す。
 
     Parameters
     ----------
-    start_year : 開始年 (2012 以降)
-    end_year   : 終了年 (None = 今年)
-    data_dir   : ダウンロード先 (None = ml/data/history/)
+    start_year  : 開始年 (2012 以降)
+    end_year    : 終了年 (None = 今年)
+    start_month : 開始月 1-12 (start_year 内の開始月, デフォルト 1)
+    end_month   : 終了月 1-12 (end_year 内の終了月, None = 12)
+    data_dir    : ダウンロード先 (None = ml/data/history/)
+    max_workers : 日ごとのダウンロード並列数（デフォルト: 8）
     """
     if end_year is None:
         end_year = datetime.date.today().year
+    if end_month is None:
+        end_month = 12
 
-    save_dir  = data_dir or DATA_DIR
+    save_dir = data_dir or DATA_DIR
     records: list[dict] = []
     tmpdir = Path(tempfile.mkdtemp(prefix="boatrace_k_"))
-
     today = datetime.date.today()
+
+    def _fetch_day(year: int, month: int, day: int) -> list[dict]:
+        try:
+            lzh = download_day_data(year, month, day, dest_dir=save_dir)
+            if lzh is None:
+                return []
+            extract_dir = tmpdir / lzh.stem
+            csvs = extract_lzh(lzh, extract_dir)
+            return [rec for f in csvs for rec in parse_result_file(f)]
+        except Exception as exc:
+            logger.debug("Skip %d-%02d-%02d: %s", year, month, day, exc)
+            return []
 
     try:
         for year in range(start_year, end_year + 1):
-            for month in range(1, 13):
+            month_start = start_month if year == start_year else 1
+            month_end   = end_month   if year == end_year   else 12
+            for month in range(month_start, month_end + 1):
                 # 未来月はスキップ
                 if datetime.date(year, month, 1) > today:
                     break
@@ -356,25 +378,23 @@ def load_history_range(
                     datetime.date(year, month % 12 + 1, 1) - datetime.timedelta(days=1)
                 ).day if month < 12 else 31
 
-                month_records = 0
-                for day in range(1, days_in_month + 1):
-                    if datetime.date(year, month, day) > today:
-                        break
-                    try:
-                        lzh = download_day_data(year, month, day, dest_dir=save_dir)
-                        if lzh is None:
-                            continue  # 開催なし
-                        extract_dir = tmpdir / lzh.stem
-                        csvs = extract_lzh(lzh, extract_dir)
-                        for f in csvs:
-                            for rec in parse_result_file(f):
-                                records.append(rec)
-                                month_records += 1
-                    except Exception as exc:
-                        logger.debug("Skip %d-%02d-%02d: %s", year, month, day, exc)
+                days = [
+                    d for d in range(1, days_in_month + 1)
+                    if datetime.date(year, month, d) <= today
+                ]
 
+                month_records: list[dict] = []
+                with ThreadPoolExecutor(max_workers=max_workers) as executor:
+                    futures = {executor.submit(_fetch_day, year, month, d): d for d in days}
+                    for future in as_completed(futures):
+                        month_records.extend(future.result())
+
+                records.extend(month_records)
                 if month_records:
-                    logger.info("%d-%02d: +%d records (total %d)", year, month, month_records, len(records))
+                    logger.info(
+                        "%d-%02d: +%d records (total %d)",
+                        year, month, len(month_records), len(records),
+                    )
     finally:
         shutil.rmtree(tmpdir, ignore_errors=True)
 

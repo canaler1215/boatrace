@@ -98,6 +98,14 @@ export const bets = pgTable("bets", {
   bettedAt: timestamp("betted_at").defaultNow(),
 });
 
+// 選手STスタッツ（過去2年分の平均スタートタイミング）
+export const racerStStats = pgTable("racer_st_stats", {
+  racerId: integer("racer_id").primaryKey(),
+  avgSt: real("avg_st").notNull(),
+  sampleCount: integer("sample_count").notNull(),
+  updatedAt: timestamp("updated_at").notNull().defaultNow(),
+});
+
 // MLモデルバージョン管理
 export const modelVersions = pgTable("model_versions", {
   id: serial("id").primaryKey(),
