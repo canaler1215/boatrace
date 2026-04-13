@@ -65,6 +65,14 @@ _DATE_RE    = re.compile(r'(\d{4})/\s*(\d{1,2})/\s*(\d{1,2})')
 _RACE_HDR_RE = re.compile(r'^\s{2,6}(\d{1,2})R\s')   # 2〜6スペース後に "NR " (払戻行は11スペース超)
 _SEP_RE     = re.compile(r'^-{10,}')
 
+# 風向の日本語表記 → 数値エンコーディング (feature_builder.py の 1=北 … 16=北北西 と対応)
+_WIND_DIR_MAP: dict[str, int] = {
+    "北": 1, "北北東": 2, "北東": 3, "東北東": 4,
+    "東": 5, "東南東": 6, "南東": 7, "南南東": 8,
+    "南": 9, "南南西": 10, "南西": 11, "西南西": 12,
+    "西": 13, "西北西": 14, "北西": 15, "北北西": 16,
+}
+
 
 # ---------------------------------------------------------------------------
 # ダウンロード
@@ -170,14 +178,15 @@ def parse_result_file(filepath: Path) -> Iterator[dict]:
 
     lines = [l.rstrip("\r\n") for l in text.splitlines()]
 
-    venue_code: int | None = None
-    date_str:   str | None = None   # "YYYYMMDD"
-    race_date:  str | None = None   # "YYYY-MM-DD"
-    race_no:    int | None = None
-    weather:    str | None = None
-    wind_speed: float | None = None
-    after_sep:  bool = False
-    boat_count: int  = 0
+    venue_code:     int | None   = None
+    date_str:       str | None   = None   # "YYYYMMDD"
+    race_date:      str | None   = None   # "YYYY-MM-DD"
+    race_no:        int | None   = None
+    weather:        str | None   = None
+    wind_direction: int | None   = None
+    wind_speed:     float | None = None
+    after_sep:      bool         = False
+    boat_count:     int          = 0
 
     for line in lines:
 
@@ -215,21 +224,24 @@ def parse_result_file(filepath: Path) -> Iterator[dict]:
         # 払戻行 ("           1R  1-5-3 ...") は先頭スペースが多く非マッチ
         m = _RACE_HDR_RE.match(line)
         if m:
-            race_no    = int(m.group(1))
-            after_sep  = False
-            boat_count = 0
-            weather    = None
-            wind_speed = None
+            race_no        = int(m.group(1))
+            after_sep      = False
+            boat_count     = 0
+            weather        = None
+            wind_direction = None
+            wind_speed     = None
             # 天候
             for w in ("晴", "曇", "雨", "霧", "雪"):
                 if w in line:
                     weather = w
                     break
-            # 風速 ("風  北西　 1m" パターン)
-            wm = re.search(r"風\s+\S+\s+(\d+(?:\.\d+)?)m", line)
+            # 風向・風速 ("風  北西　 1m" パターン)
+            # [\s\u3000]* で ASCII スペースと全角スペースの両方に対応
+            wm = re.search(r"風[\s\u3000]*([\u4E00-\u9FFF]+)[\s\u3000]*(\d+(?:\.\d+)?)m", line)
             if wm:
+                wind_direction = _WIND_DIR_MAP.get(wm.group(1))
                 try:
-                    wind_speed = float(wm.group(1))
+                    wind_speed = float(wm.group(2))
                 except ValueError:
                     pass
             continue
@@ -311,6 +323,7 @@ def parse_result_file(filepath: Path) -> Iterator[dict]:
                 "start_timing":    start_timing,
                 "finish_position": finish_pos,
                 "weather":         weather,
+                "wind_direction":  wind_direction,
                 "wind_speed":      wind_speed,
                 "wave_height":     None,
             }

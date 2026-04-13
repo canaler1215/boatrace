@@ -317,6 +317,15 @@ def main() -> None:
 
     ARTIFACTS_DIR.mkdir(exist_ok=True)
 
+    # ── 0. --real-odds なし時の警告 ────────────────────────
+    if not args.real_odds:
+        logger.warning(
+            "--real-odds が指定されていません。合成オッズ（艇番ベース理論値）を使用します。\n"
+            "  合成オッズは実際の市場オッズと大きく異なるため、EV・ROI の絶対値は\n"
+            "  本番の収益性を正確に反映しません。\n"
+            "  本番と同等の評価をするには --real-odds を指定してください（初回 ~90 分）。"
+        )
+
     # ── 1. モデル取得 ────────────────────────────────────
     model, model_path = get_or_train_model(args)
     logger.info("Model: %s", model_path)
