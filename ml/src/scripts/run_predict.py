@@ -19,6 +19,8 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).parents[1]))
 
+from datetime import datetime, timezone, timedelta
+
 import pandas as pd
 
 from collector.db_writer import get_connection, upsert_prediction
@@ -140,18 +142,21 @@ def main() -> None:
         model_version_id = fetch_active_model_version_id(conn)
         logger.info("Active model_version_id: %s", model_version_id)
 
-        # 本日の未予測・未終了レースを取得
+        # 本日 (JST) の未予測・未終了レースを取得
+        JST = timezone(timedelta(hours=9))
+        today_jst = datetime.now(JST).date().isoformat()
         with conn.cursor() as cur:
             cur.execute(
                 """
                 SELECT r.id
                 FROM races r
-                WHERE r.race_date = CURRENT_DATE::text
+                WHERE r.race_date = %s
                   AND r.status != 'finished'
                   AND NOT EXISTS (
                         SELECT 1 FROM predictions p WHERE p.race_id = r.id
                       )
-                """
+                """,
+                (today_jst,),
             )
             race_ids = [row[0] for row in cur.fetchall()]
 

@@ -10,7 +10,7 @@ collect.yml から呼び出されるデータ収集スクリプト
 import logging
 import sys
 from concurrent.futures import ThreadPoolExecutor, as_completed
-from datetime import date
+from datetime import datetime, timezone, timedelta
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).parents[1]))
@@ -75,7 +75,8 @@ def _collect_one(race: dict, today: str) -> dict:
 
 
 def main() -> None:
-    today = date.today().isoformat()
+    JST = timezone(timedelta(hours=9))
+    today = datetime.now(JST).date().isoformat()
     logger.info("=== collect start: %s ===", today)
 
     races = fetch_race_list(today)
