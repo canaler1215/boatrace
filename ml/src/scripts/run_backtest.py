@@ -8,8 +8,8 @@
   # モデルを再学習してからバックテスト（テスト期間を学習から除外）
   python run_backtest.py --year 2025 --month 12 --retrain
 
-  # EV 閾値や賭け条件を変えて試す
-  python run_backtest.py --year 2025 --month 12 --ev-threshold 1.5 --max-bets 3
+  # 的中確率閾値や賭け条件を変えて試す
+  python run_backtest.py --year 2025 --month 12 --prob-threshold 0.10 --max-bets 3
 
   # 実オッズを使ってバックテスト（初回はダウンロード ~90 分、2 回目以降はキャッシュ）
   python run_backtest.py --year 2025 --month 12 --real-odds
@@ -20,7 +20,7 @@
 オプション:
   --year              テスト年（必須）
   --month             テスト月（必須）
-  --ev-threshold      賭け実行の EV 閾値（デフォルト: 1.2）
+  --prob-threshold    賭け実行の的中確率閾値（デフォルト: 0.05 = 5%）
   --bet-amount        1 点賭け金 円（デフォルト: 100）
   --max-bets          1 レースあたり最大賭け点数（デフォルト: 5）
   --train-start-year  --retrain 時の学習開始年（デフォルト: 2023）
@@ -38,6 +38,7 @@ import logging
 import shutil
 import sys
 import tempfile
+from concurrent.futures import ThreadPoolExecutor, as_completed
 from datetime import date
 from pathlib import Path
 
@@ -57,7 +58,7 @@ from collector.odds_downloader import load_or_download_month_odds
 from features.feature_builder import build_features_from_history
 from model.evaluator import evaluate
 from model.trainer import train
-from backtest.engine import run_race
+from backtest.engine import run_backtest_batch
 
 logging.basicConfig(
     level=logging.INFO,
@@ -72,34 +73,43 @@ ARTIFACTS_DIR = Path(__file__).parents[3] / "artifacts"
 # データ取得
 # ---------------------------------------------------------------------------
 
-def load_month_data(year: int, month: int) -> pd.DataFrame:
-    """指定月の K ファイルをダウンロード・パースして DataFrame を返す。"""
+def load_month_data(year: int, month: int, max_workers: int = 8) -> pd.DataFrame:
+    """指定月の K ファイルを並列ダウンロード・パースして DataFrame を返す。"""
     days_in_month = calendar.monthrange(year, month)[1]
-    records: list[dict] = []
-    tmpdir = Path(tempfile.mkdtemp(prefix="boatrace_bt_"))
     save_dir = DATA_DIR
+    tmpdir = Path(tempfile.mkdtemp(prefix="boatrace_bt_"))
 
-    logger.info("Downloading %d-%02d K-files (%d days)...", year, month, days_in_month)
+    days = [
+        d for d in range(1, days_in_month + 1)
+        if date(year, month, d) <= date.today()
+    ]
+    logger.info(
+        "Downloading %d-%02d K-files (%d days, %d workers)...",
+        year, month, len(days), max_workers,
+    )
 
+    def _fetch_day(day: int) -> list[dict]:
+        try:
+            lzh = download_day_data(year, month, day, dest_dir=save_dir)
+            if lzh is None:
+                return []
+            extract_dir = tmpdir / lzh.stem
+            files = extract_lzh(lzh, extract_dir)
+            return [rec for f in files for rec in parse_result_file(f)]
+        except Exception as exc:
+            logger.debug("Skip %d-%02d-%02d: %s", year, month, day, exc)
+            return []
+
+    all_records: list[dict] = []
     try:
-        for day in range(1, days_in_month + 1):
-            if date(year, month, day) > date.today():
-                break
-            try:
-                lzh = download_day_data(year, month, day, dest_dir=save_dir)
-                if lzh is None:
-                    continue  # 開催なし
-                extract_dir = tmpdir / lzh.stem
-                files = extract_lzh(lzh, extract_dir)
-                for f in files:
-                    for rec in parse_result_file(f):
-                        records.append(rec)
-            except Exception as exc:
-                logger.debug("Skip %d-%02d-%02d: %s", year, month, day, exc)
+        with ThreadPoolExecutor(max_workers=max_workers) as executor:
+            futures = {executor.submit(_fetch_day, d): d for d in days}
+            for future in as_completed(futures):
+                all_records.extend(future.result())
     finally:
         shutil.rmtree(tmpdir, ignore_errors=True)
 
-    df = pd.DataFrame(records) if records else pd.DataFrame()
+    df = pd.DataFrame(all_records) if all_records else pd.DataFrame()
     logger.info("Loaded %d records for %d-%02d", len(df), year, month)
     return df
 
@@ -189,7 +199,7 @@ def get_or_train_model(args: argparse.Namespace):
 # サマリー出力
 # ---------------------------------------------------------------------------
 
-def print_summary(results_df: pd.DataFrame, ev_threshold: float, bet_amount: int) -> None:
+def print_summary(results_df: pd.DataFrame, prob_threshold: float, bet_amount: int) -> None:
     """バックテスト結果のサマリーをコンソールに出力する。"""
     total_races = len(results_df)
     races_with_bets = int((results_df["bets_placed"] > 0).sum())
@@ -215,7 +225,7 @@ def print_summary(results_df: pd.DataFrame, ev_threshold: float, bet_amount: int
     print("  バックテスト結果サマリー")
     print("=" * 62)
     print(f"  対象期間    : {period_from} 〜 {period_to}")
-    print(f"  EV 閾値     : {ev_threshold}")
+    print(f"  的中確率閾値: {prob_threshold * 100:.1f}%")
     print(f"  賭け金/点   : ¥{bet_amount:,}")
     print(f"  総レース数  : {total_races:,} レース")
     print(f"  賭け実行    : {races_with_bets:,} レース / {total_bets:,} 点")
@@ -228,24 +238,33 @@ def print_summary(results_df: pd.DataFrame, ev_threshold: float, bet_amount: int
     print(f"  的中        : {wins} / {total_bets} 点  ({win_rate:.2f}%)")
     print(f"  平均配当    : {avg_odds:.1f}x  (的中時の合成オッズ)")
 
-    # EV バケット別 ROI
+    # 的中確率バケット別 ROI
     bet_df = results_df[results_df["bets_placed"] > 0].copy()
     if len(bet_df) > 0:
-        bins = [ev_threshold, 1.5, 2.0, 3.0, float("inf")]
-        labels = [
-            f"{ev_threshold:.1f}–1.5",
-            "1.5–2.0",
-            "2.0–3.0",
-            "3.0+",
-        ]
-        bet_df["ev_bucket"] = pd.cut(
-            bet_df["top_ev"], bins=bins, labels=labels, right=False
+        bins = [prob_threshold, 0.10, 0.20, 0.40, float("inf")]
+        # 閾値が 0.10 以上の場合はバケットを調整
+        if prob_threshold >= 0.10:
+            bins = [prob_threshold, 0.20, 0.40, float("inf")]
+            labels = [
+                f"{prob_threshold * 100:.0f}%–20%",
+                "20%–40%",
+                "40%+",
+            ]
+        else:
+            labels = [
+                f"{prob_threshold * 100:.0f}%–10%",
+                "10%–20%",
+                "20%–40%",
+                "40%+",
+            ]
+        bet_df["prob_bucket"] = pd.cut(
+            bet_df["top_prob"], bins=bins, labels=labels, right=False
         )
         print()
-        print("  [EV バケット別 ROI (トップ EV のバケット)]")
-        print(f"  {'EV':>10}  {'レース':>6}  {'投資':>10}  {'払戻':>10}  {'ROI':>7}  {'的中'}")
+        print("  [的中確率バケット別 ROI (トップ確率のバケット)]")
+        print(f"  {'確率':>10}  {'レース':>6}  {'投資':>10}  {'払戻':>10}  {'ROI':>7}  {'的中'}")
         print("  " + "-" * 56)
-        for bucket, grp in bet_df.groupby("ev_bucket", observed=True):
+        for bucket, grp in bet_df.groupby("prob_bucket", observed=True):
             g_wagered = float(grp["amount_wagered"].sum())
             g_payout = float(grp["payout_received"].sum())
             g_roi = (g_payout / g_wagered - 1) * 100 if g_wagered > 0 else 0.0
@@ -285,7 +304,7 @@ def main() -> None:
     )
     parser.add_argument("--year",  type=int, required=True, help="テスト年")
     parser.add_argument("--month", type=int, required=True, help="テスト月（1–12）")
-    parser.add_argument("--ev-threshold",     type=float, default=1.2,  help="賭け実行の EV 閾値")
+    parser.add_argument("--prob-threshold",    type=float, default=0.05, help="賭け実行の的中確率閾値（例: 0.05 = 5%%）")
     parser.add_argument("--bet-amount",       type=int,   default=100,  help="1 点賭け金（円）")
     parser.add_argument("--max-bets",         type=int,   default=5,    help="1 レースあたり最大賭け点数")
     parser.add_argument("--train-start-year",  type=int,   default=2023, help="--retrain 時の学習開始年")
@@ -315,26 +334,18 @@ def main() -> None:
         odds_by_race = load_or_download_month_odds(args.year, args.month, df_test)
         logger.info("Real odds loaded for %d races", len(odds_by_race))
 
-    # ── 4. レース別バックテスト実行 ──────────────────────
-    race_groups = list(df_test.groupby("race_id"))
-    logger.info("Running backtest on %d races...", len(race_groups))
+    # ── 4. バックテスト実行（全レース一括バッチ処理）────────────
+    n_races = df_test["race_id"].nunique()
+    logger.info("Running batch backtest on %d races...", n_races)
 
-    results: list[dict] = []
-    skipped = 0
-    for race_id, race_df in race_groups:
-        result = run_race(
-            race_df=race_df,
-            model=model,
-            ev_threshold=args.ev_threshold,
-            bet_amount=args.bet_amount,
-            max_bets_per_race=args.max_bets,
-            race_odds=odds_by_race.get(str(race_id)),
-        )
-        if result is None:
-            skipped += 1
-        else:
-            results.append(result)
-
+    results, skipped = run_backtest_batch(
+        df_test=df_test,
+        model=model,
+        odds_by_race=odds_by_race,
+        prob_threshold=args.prob_threshold,
+        bet_amount=args.bet_amount,
+        max_bets_per_race=args.max_bets,
+    )
     logger.info("Done: %d races processed, %d skipped", len(results), skipped)
 
     if not results:
@@ -351,7 +362,7 @@ def main() -> None:
     logger.info("Results saved to %s", output_path)
 
     # ── 6. サマリー表示 ──────────────────────────────────
-    print_summary(results_df, args.ev_threshold, args.bet_amount)
+    print_summary(results_df, args.prob_threshold, args.bet_amount)
 
 
 if __name__ == "__main__":

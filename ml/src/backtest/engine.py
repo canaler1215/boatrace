@@ -4,12 +4,15 @@
 1 レースごとに:
   1. K ファイル由来の特徴量でモデルを推論
   2. モデル確率 × オッズ（実オッズ or 合成オッズ）で期待値計算
-  3. EV >= threshold の組み合わせに賭け
+  3. 的中確率 >= prob_threshold の組み合わせに賭け
   4. 実際の着順と照合して P&L を記録
 
 オッズの優先順位:
   race_odds 引数（実オッズ）→ SYNTHETIC_ODDS（合成オッズ）にフォールバック
   実オッズが 60 組未満の場合（ページ取得失敗等）も合成オッズを使用
+
+run_backtest_batch は全レース分の特徴量を一括生成して model.predict を
+1 回だけ呼ぶため、run_race を逐次呼ぶより大幅に高速。
 """
 import logging
 import sys
@@ -25,6 +28,54 @@ from model.predictor import calc_trifecta_probs, calc_expected_values
 from backtest.odds_simulator import SYNTHETIC_ODDS
 
 logger = logging.getLogger(__name__)
+
+
+def _build_race_result(
+    race_id: str,
+    race_group: pd.DataFrame,
+    actual_combo: str,
+    ev_results: list[dict],
+    alerts: list[dict],
+    effective_odds: dict[str, float],
+    use_real_odds: bool,
+    bet_amount: int,
+) -> dict:
+    """run_race / run_backtest_batch 共通の結果辞書を組み立てる。"""
+    amount_wagered = len(alerts) * bet_amount
+    payout_received = 0.0
+    matched = False
+    matched_combo: str | None = None
+    matched_ev = 0.0
+    matched_odds = 0.0
+
+    for bet in alerts:
+        if bet["combination"] == actual_combo:
+            matched_odds = effective_odds.get(actual_combo, SYNTHETIC_ODDS.get(actual_combo, 0.0))
+            payout_received = matched_odds * bet_amount
+            matched = True
+            matched_combo = bet["combination"]
+            matched_ev = bet["expected_value"]
+            break
+
+    return {
+        "race_id":         race_id,
+        "race_date":       str(race_group["race_date"].iloc[0]),
+        "stadium_id":      int(race_group["stadium_id"].iloc[0]) if "stadium_id" in race_group.columns else None,
+        "actual_combo":    actual_combo,
+        "bets_placed":     len(alerts),
+        "amount_wagered":  amount_wagered,
+        "payout_received": payout_received,
+        "profit":          payout_received - amount_wagered,
+        "matched":         matched,
+        "matched_combo":   matched_combo,
+        "matched_ev":      matched_ev,
+        "matched_odds":    matched_odds,
+        "top_ev":          ev_results[0]["expected_value"] if ev_results else 0.0,
+        "top_combo":       ev_results[0]["combination"] if ev_results else None,
+        "top_prob":        ev_results[0]["win_probability"] if ev_results else 0.0,
+        "n_alerts":        len(alerts),
+        "odds_source":     "real" if use_real_odds else "synthetic",
+    }
 
 
 def get_actual_combo(race_df: pd.DataFrame) -> str | None:
@@ -46,7 +97,7 @@ def get_actual_combo(race_df: pd.DataFrame) -> str | None:
 def run_race(
     race_df: pd.DataFrame,
     model: Any,
-    ev_threshold: float,
+    prob_threshold: float,
     bet_amount: int,
     max_bets_per_race: int,
     race_odds: dict[str, float] | None = None,
@@ -58,7 +109,7 @@ def run_race(
     ----------
     race_df          : 1 レース 6 艇分のデータ（finish_position 列含む）
     model            : LightGBM Booster
-    ev_threshold     : 賭け実行の EV 閾値（例: 1.2）
+    prob_threshold   : 賭け実行の的中確率閾値（例: 0.05 = 5%）
     bet_amount       : 1 点あたりの賭け金（円）
     max_bets_per_race: 1 レースで賭ける最大点数
     race_odds        : 実オッズ {"1-2-3": 12.5, ...}（None の場合は合成オッズ）
@@ -103,43 +154,99 @@ def run_race(
     # ── 5. 期待値計算 ─────────────────────────────────────
     ev_results = calc_expected_values(trifecta_probs, effective_odds)
 
-    # ── 6. EV 閾値超えの組み合わせに賭け ──────────────────
+    # ── 6. 的中確率閾値超えの組み合わせに賭け ──────────────
     # ev_results は EV 降順ソート済み
-    alerts = [r for r in ev_results if r["expected_value"] >= ev_threshold]
+    alerts = [r for r in ev_results if r["win_probability"] >= prob_threshold]
     alerts = alerts[:max_bets_per_race]
 
-    amount_wagered = len(alerts) * bet_amount
-    payout_received = 0.0
-    matched = False
-    matched_combo: str | None = None
-    matched_ev = 0.0
-    matched_odds = 0.0
+    return _build_race_result(
+        race_id, race_df, actual_combo, ev_results, alerts,
+        effective_odds, use_real_odds, bet_amount,
+    )
 
-    for bet in alerts:
-        if bet["combination"] == actual_combo:
-            matched_odds = effective_odds.get(actual_combo, SYNTHETIC_ODDS.get(actual_combo, 0.0))
-            payout_received = matched_odds * bet_amount
-            matched = True
-            matched_combo = bet["combination"]
-            matched_ev = bet["expected_value"]
-            break
 
-    return {
-        "race_id":         race_id,
-        "race_date":       str(race_df["race_date"].iloc[0]),
-        "stadium_id":      int(race_df["stadium_id"].iloc[0]) if "stadium_id" in race_df.columns else None,
-        "actual_combo":    actual_combo,
-        "bets_placed":     len(alerts),
-        "amount_wagered":  amount_wagered,
-        "payout_received": payout_received,
-        "profit":          payout_received - amount_wagered,
-        "matched":         matched,
-        "matched_combo":   matched_combo,
-        "matched_ev":      matched_ev,
-        "matched_odds":    matched_odds,
-        "top_ev":          ev_results[0]["expected_value"] if ev_results else 0.0,
-        "top_combo":       ev_results[0]["combination"] if ev_results else None,
-        "top_prob":        ev_results[0]["win_probability"] if ev_results else 0.0,
-        "n_alerts":        len(alerts),
-        "odds_source":     "real" if use_real_odds else "synthetic",
-    }
+def run_backtest_batch(
+    df_test: pd.DataFrame,
+    model: Any,
+    odds_by_race: dict[str, dict[str, float]],
+    prob_threshold: float,
+    bet_amount: int,
+    max_bets_per_race: int,
+) -> tuple[list[dict], int]:
+    """
+    全レースのバックテストをバッチ処理で実行する。
+
+    model.predict を全レース分まとめて 1 回だけ呼ぶため、
+    run_race を逐次呼ぶ方式（4000+ 回呼び出し）に比べて大幅に高速。
+
+    Parameters
+    ----------
+    df_test          : テスト月の全レースデータ（K ファイル由来）
+    model            : LightGBM Booster
+    odds_by_race     : {race_id: {"1-2-3": 12.5, ...}}（空 dict = 合成オッズ使用）
+    prob_threshold   : 賭け実行の的中確率閾値（例: 0.05 = 5%）
+    bet_amount       : 1 点あたりの賭け金（円）
+    max_bets_per_race: 1 レースで賭ける最大点数
+
+    Returns
+    -------
+    (results, skipped)
+        results : list[dict]  レース結果リスト
+        skipped : int         データ不足・DNF 等でスキップしたレース数
+    """
+    # ── 1. 全データの特徴量を一括生成 ─────────────────────────
+    try:
+        X_all, _ = build_features_from_history(df_test)
+    except Exception as exc:
+        logger.error("Batch feature build failed: %s", exc)
+        return [], 0
+
+    if X_all.empty:
+        logger.warning("No valid rows for batch feature build")
+        return [], 0
+
+    # build_features_from_history 内の dropna/filter 後のインデックスを取得
+    df_valid = df_test.loc[X_all.index].copy()
+
+    # ── 2. 全艇分を一括予測（model.predict 呼び出し 1 回）────────
+    raw_probs = model.predict(X_all)
+    # multiclass: shape (N, 6) → クラス 0 (1 着) の確率列
+    first_place_probs = raw_probs[:, 0] if raw_probs.ndim == 2 else raw_probs
+    df_valid["_fp"] = first_place_probs
+
+    results: list[dict] = []
+    skipped = 0
+
+    # ── 3. レースごとに後処理 ──────────────────────────────────
+    for race_id, race_group in df_valid.groupby("race_id"):
+        if len(race_group) != 6:
+            logger.debug("Race %s: %d rows (expected 6), skip", race_id, len(race_group))
+            skipped += 1
+            continue
+
+        actual_combo = get_actual_combo(race_group)
+        if actual_combo is None:
+            logger.debug("Race %s: actual combo undetermined (DNF/missing), skip", race_id)
+            skipped += 1
+            continue
+
+        race_odds = odds_by_race.get(str(race_id))
+        use_real_odds = race_odds is not None and len(race_odds) >= 60
+        effective_odds = race_odds if use_real_odds else SYNTHETIC_ODDS
+
+        # boat_no = 1〜6 の順で first_place_prob を並べる
+        # （calc_trifecta_probs は win_probs[boat_no - 1] でアクセスするため）
+        fp = race_group.sort_values("boat_no")["_fp"].values
+
+        trifecta_probs = calc_trifecta_probs(fp)
+        ev_results = calc_expected_values(trifecta_probs, effective_odds)
+
+        alerts = [r for r in ev_results if r["win_probability"] >= prob_threshold]
+        alerts = alerts[:max_bets_per_race]
+
+        results.append(_build_race_result(
+            str(race_id), race_group, actual_combo, ev_results, alerts,
+            effective_odds, use_real_odds, bet_amount,
+        ))
+
+    return results, skipped
