@@ -55,6 +55,11 @@ from collector.history_downloader import (
     parse_result_file,
 )
 from collector.odds_downloader import load_or_download_month_odds
+from collector.program_downloader import (
+    load_program_month,
+    load_program_range,
+    merge_program_data,
+)
 from features.feature_builder import build_features_from_history
 from model.evaluator import evaluate
 from model.trainer import train
@@ -74,7 +79,13 @@ ARTIFACTS_DIR = Path(__file__).parents[3] / "artifacts"
 # ---------------------------------------------------------------------------
 
 def load_month_data(year: int, month: int, max_workers: int = 8) -> pd.DataFrame:
-    """指定月の K ファイルを並列ダウンロード・パースして DataFrame を返す。"""
+    """
+    指定月の K ファイル（競走成績）と B ファイル（出走表）を並列ダウンロード・
+    パースし、race_id + boat_no でマージして DataFrame を返す。
+
+    B ファイルから以下の特徴量を補完する:
+      racer_win_rate, motor_win_rate, boat_win_rate, racer_grade
+    """
     days_in_month = calendar.monthrange(year, month)[1]
     save_dir = DATA_DIR
     tmpdir = Path(tempfile.mkdtemp(prefix="boatrace_bt_"))
@@ -109,8 +120,14 @@ def load_month_data(year: int, month: int, max_workers: int = 8) -> pd.DataFrame
     finally:
         shutil.rmtree(tmpdir, ignore_errors=True)
 
-    df = pd.DataFrame(all_records) if all_records else pd.DataFrame()
-    logger.info("Loaded %d records for %d-%02d", len(df), year, month)
+    df_k = pd.DataFrame(all_records) if all_records else pd.DataFrame()
+    logger.info("K-file: %d records for %d-%02d", len(df_k), year, month)
+
+    # B ファイル（出走表）から特徴量を補完
+    logger.info("Downloading %d-%02d B-files (program data)...", year, month)
+    df_b = load_program_month(year, month, max_workers=max_workers)
+    df = merge_program_data(df_k, df_b)
+
     return df
 
 
@@ -173,6 +190,16 @@ def get_or_train_model(args: argparse.Namespace):
     if df_train.empty or len(df_train) < 1000:
         logger.error("Training data too small (%d rows). Exiting.", len(df_train))
         sys.exit(1)
+
+    # B ファイル（出走表）から特徴量を補完（学習データにも適用）
+    logger.info("Loading B-file program data for training range...")
+    df_prog_train = load_program_range(
+        start_year=args.train_start_year,
+        end_year=train_end_year,
+        start_month=args.train_start_month,
+        end_month=train_end_month,
+    )
+    df_train = merge_program_data(df_train, df_prog_train)
 
     logger.info("Training data: %d records", len(df_train))
     X, y = build_features_from_history(df_train)

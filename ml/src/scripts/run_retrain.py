@@ -21,6 +21,7 @@ import numpy as np
 
 from collector.db_writer import get_connection, register_model_version
 from collector.history_downloader import load_history_range
+from collector.program_downloader import load_program_range, merge_program_data
 from features.feature_builder import build_features_from_history
 from model.evaluator import evaluate
 from model.trainer import train
@@ -58,7 +59,14 @@ def main() -> None:
         )
         sys.exit(1)
 
-    logger.info("Loaded %d records", len(df))
+    logger.info("Loaded %d K-file records", len(df))
+
+    # B ファイル（出走表）から特徴量を補完
+    logger.info("Loading B-file program data (%d ~ %d)...", START_YEAR, today.year)
+    df_prog = load_program_range(start_year=START_YEAR, end_year=today.year)
+    df = merge_program_data(df, df_prog)
+
+    logger.info("Merged %d records total", len(df))
 
     # ------------------------------------------------------------------
     # 2. 特徴量生成
