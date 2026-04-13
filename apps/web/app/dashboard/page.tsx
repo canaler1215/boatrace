@@ -20,7 +20,9 @@ export default async function DashboardPage({ searchParams }: Props) {
   );
   const probThreshold = probPct / 100;
 
-  const today = new Date().toISOString().slice(0, 10);
+  const now = new Date();
+  const jstOffset = 9 * 60 * 60 * 1000;
+  const today = new Date(now.getTime() + jstOffset).toISOString().slice(0, 10);
 
   const alerts = await db
     .select({
