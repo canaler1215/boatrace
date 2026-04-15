@@ -1,0 +1,130 @@
+name: Walk-Forward Backtest
+
+on:
+  workflow_dispatch:
+    inputs:
+      start:
+        description: 'テスト開始月 (YYYY-MM)'
+        required: true
+        default: '2025-10'
+      end:
+        description: 'テスト終了月 (YYYY-MM)'
+        required: true
+        default: '2025-12'
+      retrain:
+        description: '各月で再学習（Walk-Forward）'
+        required: false
+        default: 'true'
+        type: boolean
+      real_odds:
+        description: '実オッズを使用（初回は時間がかかります）'
+        required: false
+        default: 'true'
+        type: boolean
+      prob_threshold:
+        description: '的中確率閾値'
+        required: false
+        default: '0.05'
+      ev_threshold:
+        description: 'EV閾値（0.0 で無効）'
+        required: false
+        default: '1.2'
+      max_bets:
+        description: '1レース最大賭け点数'
+        required: false
+        default: '5'
+      train_start_year:
+        description: '学習開始年'
+        required: false
+        default: '2023'
+      train_start_month:
+        description: '学習開始月'
+        required: false
+        default: '1'
+
+jobs:
+  walkforward:
+    runs-on: ubuntu-latest
+    timeout-minutes: 720   # 複数月分 最大12時間
+
+    permissions:
+      contents: write
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install system dependencies
+        run: sudo apt-get install -y lhasa
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: 'pip'
+          cache-dependency-path: ml/requirements.txt
+
+      - name: Install Python dependencies
+        run: pip install -r ml/requirements.txt
+
+      # K/B ファイルキャッシュ（ダウンロード済みの LZH を保持）
+      - name: Restore K/B file cache
+        uses: actions/cache@v4
+        with:
+          path: |
+            data/history/
+            data/program/
+          key: kbfile-${{ inputs.start }}-${{ inputs.end }}-${{ github.run_id }}
+          restore-keys: |
+            kbfile-${{ inputs.start }}-${{ inputs.end }}-
+            kbfile-${{ inputs.start }}-
+
+      # オッズ parquet キャッシュ（前回中断時の partial も保持）
+      - name: Restore odds cache
+        uses: actions/cache@v4
+        with:
+          path: data/odds/
+          key: odds-${{ inputs.start }}-${{ inputs.end }}-${{ github.run_id }}
+          restore-keys: |
+            odds-${{ inputs.start }}-${{ inputs.end }}-
+            odds-${{ inputs.start }}-
+            odds-
+
+      # retrain=false の場合のみ GitHub Releases からモデルをダウンロード
+      - name: Download latest model
+        if: ${{ inputs.retrain == false }}
+        id: download_model
+        run: python ml/src/scripts/download_model.py
+        continue-on-error: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+
+      - name: Run Walk-Forward backtest
+        run: |
+          REAL_ODDS_FLAG=""
+          if [ "${{ inputs.real_odds }}" == "true" ]; then
+            REAL_ODDS_FLAG="--real-odds"
+          fi
+          RETRAIN_FLAG=""
+          if [ "${{ inputs.retrain }}" == "true" ]; then
+            RETRAIN_FLAG="--retrain"
+          fi
+          python ml/src/scripts/run_walkforward.py \
+            --start "${{ inputs.start }}" \
+            --end "${{ inputs.end }}" \
+            --prob-threshold ${{ inputs.prob_threshold }} \
+            --ev-threshold ${{ inputs.ev_threshold }} \
+            --max-bets ${{ inputs.max_bets }} \
+            --train-start-year ${{ inputs.train_start_year }} \
+            --train-start-month ${{ inputs.train_start_month }} \
+            $REAL_ODDS_FLAG \
+            $RETRAIN_FLAG
+
+      - name: Upload results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: walkforward-${{ inputs.start }}-${{ inputs.end }}-run${{ github.run_number }}
+          path: |
+            artifacts/walkforward_*.csv
+            data/odds/odds_*.parquet
+          retention-days: 90

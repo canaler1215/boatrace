@@ -15,6 +15,10 @@ on:
         description: '的中確率閾値（例: 0.05 = 5%）'
         required: false
         default: '0.05'
+      ev_threshold:
+        description: 'EV閾値（例: 1.2。0.0 で無効）'
+        required: false
+        default: '1.2'
       max_bets:
         description: '1レースあたり最大賭け点数'
         required: false
@@ -74,6 +78,7 @@ jobs:
             --month ${{ inputs.month }} \
             --real-odds \
             --prob-threshold ${{ inputs.prob_threshold }} \
+            --ev-threshold ${{ inputs.ev_threshold }} \
             --max-bets ${{ inputs.max_bets }} \
             $RETRAIN_FLAG \
             --output ../artifacts/backtest_${{ inputs.year }}${{ inputs.month }}.csv

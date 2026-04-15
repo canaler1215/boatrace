@@ -101,6 +101,7 @@ def run_race(
     bet_amount: int,
     max_bets_per_race: int,
     race_odds: dict[str, float] | None = None,
+    ev_threshold: float = 0.0,
 ) -> dict[str, Any] | None:
     """
     1 レース分のバックテストを実行する。
@@ -113,6 +114,7 @@ def run_race(
     bet_amount       : 1 点あたりの賭け金（円）
     max_bets_per_race: 1 レースで賭ける最大点数
     race_odds        : 実オッズ {"1-2-3": 12.5, ...}（None の場合は合成オッズ）
+    ev_threshold     : 賭け実行の期待値閾値（例: 1.2）。0.0 で無効（全組み合わせ対象）
 
     Returns
     -------
@@ -154,9 +156,13 @@ def run_race(
     # ── 5. 期待値計算 ─────────────────────────────────────
     ev_results = calc_expected_values(trifecta_probs, effective_odds)
 
-    # ── 6. 的中確率閾値超えの組み合わせに賭け ──────────────
+    # ── 6. 的中確率閾値・EV閾値超えの組み合わせに賭け ──────────
     # ev_results は EV 降順ソート済み
-    alerts = [r for r in ev_results if r["win_probability"] >= prob_threshold]
+    alerts = [
+        r for r in ev_results
+        if r["win_probability"] >= prob_threshold
+        and r["expected_value"] >= ev_threshold
+    ]
     alerts = alerts[:max_bets_per_race]
 
     return _build_race_result(
@@ -172,7 +178,9 @@ def run_backtest_batch(
     prob_threshold: float,
     bet_amount: int,
     max_bets_per_race: int,
-) -> tuple[list[dict], int]:
+    ev_threshold: float = 0.0,
+    collect_combos: bool = False,
+) -> tuple[list[dict], int] | tuple[list[dict], int, list[dict]]:
     """
     全レースのバックテストをバッチ処理で実行する。
 
@@ -187,12 +195,17 @@ def run_backtest_batch(
     prob_threshold   : 賭け実行の的中確率閾値（例: 0.05 = 5%）
     bet_amount       : 1 点あたりの賭け金（円）
     max_bets_per_race: 1 レースで賭ける最大点数
+    ev_threshold     : 賭け実行の期待値閾値（例: 1.2）。0.0 で無効
+    collect_combos   : True の場合、全組み合わせの生データを combo_records として返す
+                       グリッドサーチ用。戻り値が (results, skipped, combo_records) になる。
 
     Returns
     -------
-    (results, skipped)
+    collect_combos=False: (results, skipped)
         results : list[dict]  レース結果リスト
         skipped : int         データ不足・DNF 等でスキップしたレース数
+    collect_combos=True: (results, skipped, combo_records)
+        combo_records: list[dict]  全組み合わせのprob/ev/actual情報（グリッドサーチ用）
     """
     # ── 1. 全データの特徴量を一括生成 ─────────────────────────
     try:
@@ -215,6 +228,7 @@ def run_backtest_batch(
     df_valid["_fp"] = first_place_probs
 
     results: list[dict] = []
+    combo_records: list[dict] = []
     skipped = 0
 
     # ── 3. レースごとに後処理 ──────────────────────────────────
@@ -241,7 +255,11 @@ def run_backtest_batch(
         trifecta_probs = calc_trifecta_probs(fp)
         ev_results = calc_expected_values(trifecta_probs, effective_odds)
 
-        alerts = [r for r in ev_results if r["win_probability"] >= prob_threshold]
+        alerts = [
+            r for r in ev_results
+            if r["win_probability"] >= prob_threshold
+            and r["expected_value"] >= ev_threshold
+        ]
         alerts = alerts[:max_bets_per_race]
 
         results.append(_build_race_result(
@@ -249,4 +267,25 @@ def run_backtest_batch(
             effective_odds, use_real_odds, bet_amount,
         ))
 
+        # グリッドサーチ用：全組み合わせの生データを収集
+        if collect_combos:
+            race_date = str(race_group["race_date"].iloc[0])
+            stadium_id = int(race_group["stadium_id"].iloc[0]) if "stadium_id" in race_group.columns else None
+            for r in ev_results:
+                combo_records.append({
+                    "race_id":        str(race_id),
+                    "race_date":      race_date,
+                    "stadium_id":     stadium_id,
+                    "combination":    r["combination"],
+                    "win_probability": r["win_probability"],
+                    "expected_value": r["expected_value"],
+                    "odds":           effective_odds.get(r["combination"], 0.0),
+                    "odds_source":    "real" if use_real_odds else "synthetic",
+                    "actual_combo":   actual_combo,
+                    "is_hit":         r["combination"] == actual_combo,
+                    "bet_amount":     bet_amount,
+                })
+
+    if collect_combos:
+        return results, skipped, combo_records
     return results, skipped

@@ -226,7 +226,7 @@ def get_or_train_model(args: argparse.Namespace):
 # サマリー出力
 # ---------------------------------------------------------------------------
 
-def print_summary(results_df: pd.DataFrame, prob_threshold: float, bet_amount: int) -> None:
+def print_summary(results_df: pd.DataFrame, prob_threshold: float, bet_amount: int, ev_threshold: float = 1.2) -> None:
     """バックテスト結果のサマリーをコンソールに出力する。"""
     total_races = len(results_df)
     races_with_bets = int((results_df["bets_placed"] > 0).sum())
@@ -253,6 +253,7 @@ def print_summary(results_df: pd.DataFrame, prob_threshold: float, bet_amount: i
     print("=" * 62)
     print(f"  対象期間    : {period_from} 〜 {period_to}")
     print(f"  的中確率閾値: {prob_threshold * 100:.1f}%")
+    print(f"  EV閾値      : {ev_threshold:.2f}")
     print(f"  賭け金/点   : ¥{bet_amount:,}")
     print(f"  総レース数  : {total_races:,} レース")
     print(f"  賭け実行    : {races_with_bets:,} レース / {total_bets:,} 点")
@@ -332,6 +333,7 @@ def main() -> None:
     parser.add_argument("--year",  type=int, required=True, help="テスト年")
     parser.add_argument("--month", type=int, required=True, help="テスト月（1–12）")
     parser.add_argument("--prob-threshold",    type=float, default=0.05, help="賭け実行の的中確率閾値（例: 0.05 = 5%%）")
+    parser.add_argument("--ev-threshold",     type=float, default=1.2,  help="賭け実行の期待値閾値（例: 1.2）。0.0 で無効")
     parser.add_argument("--bet-amount",       type=int,   default=100,  help="1 点賭け金（円）")
     parser.add_argument("--max-bets",         type=int,   default=5,    help="1 レースあたり最大賭け点数")
     parser.add_argument("--train-start-year",  type=int,   default=2023, help="--retrain 時の学習開始年")
@@ -381,6 +383,7 @@ def main() -> None:
         prob_threshold=args.prob_threshold,
         bet_amount=args.bet_amount,
         max_bets_per_race=args.max_bets,
+        ev_threshold=args.ev_threshold,
     )
     logger.info("Done: %d races processed, %d skipped", len(results), skipped)
 
@@ -398,7 +401,7 @@ def main() -> None:
     logger.info("Results saved to %s", output_path)
 
     # ── 6. サマリー表示 ──────────────────────────────────
-    print_summary(results_df, args.prob_threshold, args.bet_amount)
+    print_summary(results_df, args.prob_threshold, args.bet_amount, args.ev_threshold)
 
 
 if __name__ == "__main__":
