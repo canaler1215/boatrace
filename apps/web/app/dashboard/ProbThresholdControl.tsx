@@ -1,7 +1,7 @@
 "use client";
 import { useRouter } from "next/navigation";
 
-const PRESET_OPTIONS = [5, 10, 15, 20, 30];
+const PRESET_OPTIONS = [2, 3, 5, 10, 15, 20, 30];
 
 interface Props {
   current: number; // percentage, e.g. 5 for 5%
