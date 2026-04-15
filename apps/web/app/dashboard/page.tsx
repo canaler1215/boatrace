@@ -15,7 +15,7 @@ interface Props {
 export default async function DashboardPage({ searchParams }: Props) {
   const { prob } = await searchParams;
   const probPct = Math.max(
-    DEFAULT_PROB_PCT,
+    1,
     Math.min(50, parseFloat(prob ?? String(DEFAULT_PROB_PCT)) || DEFAULT_PROB_PCT)
   );
   const probThreshold = probPct / 100;
