@@ -128,10 +128,21 @@ def save_shap_analysis(model, X: pd.DataFrame, y: pd.Series, version: str) -> No
         X_sample = X.reset_index(drop=True)
 
     explainer = shap.TreeExplainer(model)
-    shap_values = explainer.shap_values(X_sample)  # shape: [n_classes, n_samples, n_features]
+    shap_values = explainer.shap_values(X_sample)
 
-    # クラス 0 (1着) の SHAP 値を可視化
-    sv_class0 = shap_values[0]  # shape: [n_samples, n_features]
+    # SHAP のバージョンによって返値の形式が異なる:
+    #   旧形式 (list): list[class] -> [n_samples, n_features]
+    #   新形式 (3D array): [n_samples, n_features, n_classes]
+    if isinstance(shap_values, list):
+        sv_class0 = shap_values[0]          # [n_samples, n_features]
+        n_classes = len(shap_values)
+        def _class_sv(cls_idx):
+            return shap_values[cls_idx]
+    else:
+        sv_class0 = shap_values[:, :, 0]    # [n_samples, n_features]
+        n_classes = shap_values.shape[2]
+        def _class_sv(cls_idx):
+            return shap_values[:, :, cls_idx]
 
     # --- Beeswarm (summary) plot ---
     fig, ax = plt.subplots(figsize=(9, 6))
@@ -169,8 +180,8 @@ def save_shap_analysis(model, X: pd.DataFrame, y: pd.Series, version: str) -> No
 
     # --- 全クラスの SHAP 重要度 CSV ---
     all_class_shap = pd.DataFrame(index=FEATURE_COLUMNS)
-    for cls_idx in range(len(shap_values)):
-        all_class_shap[f"class_{cls_idx}_mean_abs"] = np.abs(shap_values[cls_idx]).mean(axis=0)
+    for cls_idx in range(n_classes):
+        all_class_shap[f"class_{cls_idx}_mean_abs"] = np.abs(_class_sv(cls_idx)).mean(axis=0)
     all_class_shap.index.name = "feature"
     all_csv = ARTIFACTS_DIR / f"shap_all_classes_{version}.csv"
     all_class_shap.to_csv(all_csv)
