@@ -11,6 +11,7 @@ retrain.yml から呼び出されるモデル再学習スクリプト
   7. GitHub Releases へのアップロードは retrain.yml の softprops/action-gh-release で行う
 """
 import logging
+import os
 import sys
 from datetime import date
 from pathlib import Path
@@ -33,14 +34,16 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 # 訓練に使う年範囲 (START_YEAR を古くするほど学習データが増えるが時間もかかる)
-START_YEAR = 2022  # 3〜4年分で十分な学習データ量、かつ GitHub Actions 6時間以内に収まる
+# 環境変数 TRAIN_START_YEAR / TRAIN_START_MONTH で上書き可能（retrain.yml から注入）
+START_YEAR  = int(os.environ.get("TRAIN_START_YEAR",  "2022"))
+START_MONTH = int(os.environ.get("TRAIN_START_MONTH", "1"))
 ARTIFACTS_DIR = Path(__file__).parents[3] / "artifacts"
 
 
 def main() -> None:
     today = date.today()
     version = today.strftime("%Y%m")
-    data_range_from = f"{START_YEAR}-01-01"
+    data_range_from = f"{START_YEAR}-{START_MONTH:02d}-01"
     data_range_to = today.isoformat()
 
     logger.info("=== retrain start: version=%s ===", version)
@@ -49,8 +52,11 @@ def main() -> None:
     # ------------------------------------------------------------------
     # 1. 歴史データ取得
     # ------------------------------------------------------------------
-    logger.info("Loading history data (%d ~ %d)...", START_YEAR, today.year)
-    df = load_history_range(start_year=START_YEAR, end_year=today.year)
+    logger.info("Loading history data (%d-%02d ~ %d)...", START_YEAR, START_MONTH, today.year)
+    df = load_history_range(
+        start_year=START_YEAR, end_year=today.year,
+        start_month=START_MONTH,
+    )
 
     if df.empty:
         logger.error(
@@ -62,8 +68,11 @@ def main() -> None:
     logger.info("Loaded %d K-file records", len(df))
 
     # B ファイル（出走表）から特徴量を補完
-    logger.info("Loading B-file program data (%d ~ %d)...", START_YEAR, today.year)
-    df_prog = load_program_range(start_year=START_YEAR, end_year=today.year)
+    logger.info("Loading B-file program data (%d-%02d ~ %d)...", START_YEAR, START_MONTH, today.year)
+    df_prog = load_program_range(
+        start_year=START_YEAR, end_year=today.year,
+        start_month=START_MONTH,
+    )
     df = merge_program_data(df, df_prog)
 
     logger.info("Merged %d records total", len(df))
@@ -117,9 +126,17 @@ def main() -> None:
     logger.info("Registered model_versions.id=%d", model_id)
     logger.info("=== retrain done: %s ===", model_path.name)
 
-    # artifacts/ に model_id をファイルとして書いておく (workflow で参照するため)
+    # artifacts/ にメタデータを書いておく (workflow で参照するため)
     ARTIFACTS_DIR.mkdir(exist_ok=True)
     (ARTIFACTS_DIR / "latest_model_id.txt").write_text(str(model_id))
+    (ARTIFACTS_DIR / "model_version.txt").write_text(version)
+    (ARTIFACTS_DIR / "model_metrics.txt").write_text(
+        f"version={version}\n"
+        f"rps={metrics['rps']:.4f}\n"
+        f"top1_accuracy={metrics['top1_accuracy']:.4f}\n"
+        f"data_range={data_range_from}~{data_range_to}\n"
+        f"samples={len(X)}\n"
+    )
 
 
 if __name__ == "__main__":

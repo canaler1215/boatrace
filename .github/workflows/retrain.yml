@@ -1,7 +1,16 @@
 name: Retrain Model
 
 on:
-  workflow_dispatch:        # 手動実行のみ (初期訓練もここから)
+  workflow_dispatch:
+    inputs:
+      train_start_year:
+        description: '学習開始年（古いほどデータが増えるが時間もかかる）'
+        required: false
+        default: '2022'
+      train_start_month:
+        description: '学習開始月'
+        required: false
+        default: '1'
 
 jobs:
   retrain:
@@ -26,19 +35,68 @@ jobs:
       - name: Install Python dependencies
         run: pip install -r ml/requirements.txt
 
+      # K/B ファイルキャッシュ（ダウンロード済みの LZH を保持して再実行を高速化）
+      - name: Restore K/B file cache
+        uses: actions/cache@v4
+        with:
+          path: |
+            data/history/
+            data/program/
+          key: kbfile-${{ inputs.train_start_year }}-${{ inputs.train_start_month }}-${{ github.run_id }}
+          restore-keys: |
+            kbfile-${{ inputs.train_start_year }}-${{ inputs.train_start_month }}-
+            kbfile-${{ inputs.train_start_year }}-
+
       - name: Train model
         run: python ml/src/scripts/run_retrain.py
         env:
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          TRAIN_START_YEAR: ${{ inputs.train_start_year }}
+          TRAIN_START_MONTH: ${{ inputs.train_start_month }}
+
+      # バージョン文字列を環境変数に読み込む（リリースタグ・名前に使用）
+      - name: Read model version
+        id: version
+        run: |
+          VERSION=$(cat artifacts/model_version.txt)
+          echo "model_version=${VERSION}" >> $GITHUB_OUTPUT
+          echo "Model version: ${VERSION}"
+
+      # 評価メトリクスを読み込んでリリース本文に挿入
+      - name: Read model metrics
+        id: metrics
+        run: |
+          METRICS=$(cat artifacts/model_metrics.txt)
+          # 改行をエスケープして出力に設定
+          echo "metrics<<EOF" >> $GITHUB_OUTPUT
+          cat artifacts/model_metrics.txt >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
 
       - name: Upload model to GitHub Releases
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: model-${{ github.run_id }}
-          name: "Model ${{ github.run_id }}"
+          tag_name: model-${{ steps.version.outputs.model_version }}-run${{ github.run_number }}
+          name: "Model ${{ steps.version.outputs.model_version }} (#${{ github.run_number }})"
           body: |
-            Retrained model artifact.
-            Run: ${{ github.run_id }}
-          files: artifacts/model_*.pkl
+            ## 学習済みモデル
+
+            ${{ steps.metrics.outputs.metrics }}
+
+            - Run: [${{ github.run_number }}](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})
+            - Branch: `${{ github.ref_name }}`
+          files: |
+            artifacts/model_*.pkl
+            artifacts/model_metrics.txt
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Upload artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: retrain-${{ steps.version.outputs.model_version }}-run${{ github.run_number }}
+          path: |
+            artifacts/model_*.pkl
+            artifacts/model_version.txt
+            artifacts/model_metrics.txt
+          retention-days: 90
