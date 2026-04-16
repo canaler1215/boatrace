@@ -41,7 +41,7 @@ on:
       real_odds:
         description: '実オッズを使用（キャリブレーション・Walk-Forward 共通）'
         required: false
-        default: 'true'
+        default: true
         type: boolean
 
 jobs:
@@ -86,7 +86,7 @@ jobs:
             kbfile-${{ inputs.train_start_year }}-${{ inputs.train_start_month }}-
             kbfile-${{ inputs.train_start_year }}-
 
-      - name: Train model (Session 3: IsotonicRegression + 時系列Split)
+      - name: "Train model (Session 3: IsotonicRegression + 時系列Split)"
         run: python ml/src/scripts/run_retrain.py
         env:
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
