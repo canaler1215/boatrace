@@ -62,6 +62,14 @@ jobs:
           echo "model_version=${VERSION}" >> $GITHUB_OUTPUT
           echo "Model version: ${VERSION}"
 
+      # calibration.yml / backtest.yml が download_model.py で参照できるよう
+      # model_latest.pkl を作成（Releases 公開前にアーティファクトとして共有も可能）
+      - name: Create model_latest.pkl
+        run: |
+          VERSION=$(cat artifacts/model_version.txt)
+          cp "artifacts/model_${VERSION}.pkl" artifacts/model_latest.pkl
+          echo "Copied model_${VERSION}.pkl → model_latest.pkl"
+
       # 評価メトリクスを読み込んでリリース本文に挿入
       - name: Read model metrics
         id: metrics
@@ -100,3 +108,14 @@ jobs:
             artifacts/model_version.txt
             artifacts/model_metrics.txt
           retention-days: 90
+
+      # 他ジョブへのモデル受け渡し用（session3_verify.yml の calibration ジョブが参照）
+      - name: Upload model artifact for downstream jobs
+        uses: actions/upload-artifact@v4
+        with:
+          name: model-latest-${{ steps.version.outputs.model_version }}
+          path: |
+            artifacts/model_latest.pkl
+            artifacts/model_version.txt
+            artifacts/model_metrics.txt
+          retention-days: 7

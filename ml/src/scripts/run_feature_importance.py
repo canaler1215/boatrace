@@ -43,7 +43,11 @@ ARTIFACTS_DIR = Path(__file__).parents[3] / "artifacts"
 
 def _load_model(model_path: Path):
     logger.info("Loading model: %s", model_path)
-    return joblib.load(model_path)
+    obj = joblib.load(model_path)
+    # 新形式 dict の場合は booster を取り出す（feature_importance / SHAP は booster 直接アクセス）
+    if isinstance(obj, dict) and "booster" in obj:
+        return obj["booster"]
+    return obj
 
 
 def _get_validation_data(year: int, month: int) -> tuple[pd.DataFrame, pd.Series]:

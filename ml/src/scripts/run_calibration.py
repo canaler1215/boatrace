@@ -342,7 +342,9 @@ def main() -> None:
             logger.warning("finish_position 列がありません。クラスキャリブレーションをスキップ。")
         else:
             y_true = (df_valid["finish_position"] - 1).clip(0, 5).values.astype(int)
-            raw_probs = model.predict(X_all)
+            # 新形式 dict の場合は booster を取り出す（キャリブレーション前の生確率を使用）
+            booster = model["booster"] if isinstance(model, dict) else model
+            raw_probs = booster.predict(X_all)
 
             if raw_probs.ndim == 1 or raw_probs.shape[1] != 6:
                 logger.warning("予測形状が (N, 6) ではありません。クラスキャリブレーションをスキップ。")

@@ -1,5 +1,10 @@
 """
 推論・期待値計算
+
+Session 3 変更点:
+  - load_model: 新形式 dict {"booster": ..., "calibrators": [...]} に対応
+  - predict_win_prob: キャリブレーター適用（旧形式モデルは calibrators=None でスキップ）
+  - 後方互換性: 旧形式（lgb.Booster 直接）も動作する
 """
 import lightgbm as lgb
 import pandas as pd
@@ -11,13 +16,42 @@ from pathlib import Path
 EV_THRESHOLD = 1.2
 
 
-def load_model(model_path: Path) -> lgb.Booster:
-    return joblib.load(model_path)
+def load_model(model_path: Path):
+    """
+    モデルをロードする。
+
+    Returns
+    -------
+    dict  {"booster": lgb.Booster, "calibrators": list[IsotonicRegression] or None}
+          ※ 旧形式（lgb.Booster 直接）の場合も dict 形式に正規化して返す
+    """
+    obj = joblib.load(model_path)
+    if isinstance(obj, dict) and "booster" in obj:
+        return obj  # 新形式: {"booster": ..., "calibrators": [...]}
+    # 旧形式: lgb.Booster そのもの
+    return {"booster": obj, "calibrators": None}
 
 
-def predict_win_prob(model: lgb.Booster, X: pd.DataFrame) -> np.ndarray:
-    """各艇の1着確率を推定 (shape: [n_races, 6])"""
-    return model.predict(X)
+def predict_win_prob(model, X: pd.DataFrame) -> np.ndarray:
+    """
+    各艇の1着確率を推定 (shape: [n_races, 6])
+
+    キャリブレーターが存在する場合は補正済み確率を返す。
+    キャリブレーターは各クラスに独立した Isotonic Regression。
+    """
+    booster = model["booster"]
+    calibrators = model.get("calibrators", None)
+
+    raw_probs = booster.predict(X)  # (N, 6)
+
+    if calibrators is None:
+        return raw_probs
+
+    calibrated = np.zeros_like(raw_probs)
+    for k in range(6):
+        calibrated[:, k] = calibrators[k].predict(raw_probs[:, k])
+
+    return calibrated
 
 
 def calc_trifecta_probs(win_probs: np.ndarray) -> dict[str, float]:

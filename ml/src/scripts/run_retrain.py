@@ -97,11 +97,17 @@ def main() -> None:
     # ------------------------------------------------------------------
     # 4. 評価 (validation データで RPS を計算)
     # ------------------------------------------------------------------
-    from sklearn.model_selection import train_test_split
     import joblib
 
-    _, X_val, _, y_val = train_test_split(X, y, test_size=0.1, random_state=42, stratify=y)
-    model = joblib.load(model_path)
+    # 時系列 split: trainer.py と同じ方法で val データを取得
+    n = len(X)
+    n_val = max(int(n * 0.1), 1)
+    X_val = X.iloc[-n_val:]
+    y_val = y.iloc[-n_val:]
+
+    model_pkg = joblib.load(model_path)
+    booster = model_pkg["booster"] if isinstance(model_pkg, dict) else model_pkg
+    model = booster  # evaluate() は lgb.Booster を期待
     y_pred = model.predict(X_val)
     metrics = evaluate(y_val.values, y_pred)
 

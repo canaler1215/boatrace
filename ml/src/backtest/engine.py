@@ -24,7 +24,7 @@ import pandas as pd
 sys.path.insert(0, str(Path(__file__).parents[1]))
 
 from features.feature_builder import build_features_from_history
-from model.predictor import calc_trifecta_probs, calc_expected_values
+from model.predictor import predict_win_prob, calc_trifecta_probs, calc_expected_values
 from backtest.odds_simulator import SYNTHETIC_ODDS
 
 logger = logging.getLogger(__name__)
@@ -145,8 +145,8 @@ def run_race(
         logger.debug("Race %s: %d feature rows (expected 6), skip", race_id, len(X))
         return None
 
-    # ── 3. 1 着確率予測 ───────────────────────────────────
-    raw_probs = model.predict(X)
+    # ── 3. 1 着確率予測（キャリブレーション補正済み）────────────
+    raw_probs = predict_win_prob(model, X)
     # multiclass: shape (6, 6) → クラス 0 (1 着) の確率列を取得
     first_place_probs = raw_probs[:, 0] if raw_probs.ndim == 2 else raw_probs
 
@@ -221,8 +221,8 @@ def run_backtest_batch(
     # build_features_from_history 内の dropna/filter 後のインデックスを取得
     df_valid = df_test.loc[X_all.index].copy()
 
-    # ── 2. 全艇分を一括予測（model.predict 呼び出し 1 回）────────
-    raw_probs = model.predict(X_all)
+    # ── 2. 全艇分を一括予測（キャリブレーション補正済み、1 回のみ）──
+    raw_probs = predict_win_prob(model, X_all)
     # multiclass: shape (N, 6) → クラス 0 (1 着) の確率列
     first_place_probs = raw_probs[:, 0] if raw_probs.ndim == 2 else raw_probs
     df_valid["_fp"] = first_place_probs

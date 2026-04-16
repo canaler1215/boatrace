@@ -207,12 +207,16 @@ def get_or_train_model(args: argparse.Namespace):
     version = f"{train_end_year}{train_end_month:02d}_from{args.train_start_year}{args.train_start_month:02d}"
     model_path = train(X, y, version)
 
-    # 評価（バリデーション分割）
-    from sklearn.model_selection import train_test_split
+    # 評価（時系列 split で val データを取得）
+    n = len(X)
+    n_val = max(int(n * 0.1), 1)
+    X_val = X.iloc[-n_val:]
+    y_val = y.iloc[-n_val:]
 
-    _, X_val, _, y_val = train_test_split(X, y, test_size=0.1, random_state=42, stratify=y)
-    model = joblib.load(model_path)
-    metrics = evaluate(y_val.values, model.predict(X_val))
+    model_pkg = joblib.load(model_path)
+    model = model_pkg  # run_backtest_batch に渡す（predict_win_prob が dict 対応）
+    booster = model_pkg["booster"] if isinstance(model_pkg, dict) else model_pkg
+    metrics = evaluate(y_val.values, booster.predict(X_val))
     logger.info(
         "Train-time validation: RPS=%.4f  top1_acc=%.4f",
         metrics["rps"],
