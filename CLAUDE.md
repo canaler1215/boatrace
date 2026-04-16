@@ -40,11 +40,14 @@ data/                 ダウンロードキャッシュ
 - **モデル**: LightGBM multiclass (num_class=6, 着順1〜6を予測)
 - **特徴量** (12次元): `exhibition_time`, `motor_win_rate`, `boat_win_rate`, `boat_no`, `racer_win_rate`, `racer_grade_encoded`, `racer_avg_st`, `tidal_level`, `tidal_type_encoded`, `in_win_rate`, `wind_direction_encoded`, `wind_speed`
 - **モデル保存形式** (Session 3〜): `{"booster": lgb.Booster, "calibrators": list[IsotonicRegression]}` ※旧形式(lgb.Booster直接)も後方互換
+  - ⚠️ Session 5 で `{"booster": lgb.Booster, "temperature": float}` に変更予定（Temperature Scaling）
 - **キャリブレーション** (Session 3〜): `trainer.py` で val データに Isotonic Regression を fitting、推論時に `predict_win_prob()` が自動適用
+  - ⚠️ 効果なし（5/6クラスで ECE 悪化）→ Session 5 で Temperature Scaling（全クラス一括、sum-to-1 維持）に変更予定
 - **学習データ分割** (Session 3〜): 時系列 split（最後の 10% を val、random split 廃止）
-- **3連単確率**: Plackett-Luce近似（1着確率のみから計算） ⚠️ 10-20%帯で 7.6x、20-30%帯で 31x 過大推定
+- **3連単確率**: Plackett-Luce近似（1着確率のみから計算） ⚠️ Session 4 分析: trifecta 10-20%帯 1.4x・20-30%帯 2.8x 過大推定（Session 3 比で改善）
 - **EV計算**: `EV = P_model × odds`（実オッズ or 合成オッズ）
-- **購入条件**: 的中確率 ≥ 3% AND EV > 1.2（Session 4 で閾値最適化 + 過大推定フィルタ実装済み）
+- **購入条件**: 的中確率 ≥ 3% AND EV > 1.2（現行）
+  - → Session 5 目標: prob ≥ 7%, EV ≥ 2.0, コース2/4/5除外, オッズ<100x除外, びわこ(ID=11)除外
 - **購入金額**: 1点 100円（Session 4 で `--kelly-fraction 0.25` による 1/4 Kelly 基準も選択可能）
 
 ## 既知の問題（改善タスクに対応中）
@@ -139,6 +142,21 @@ python ml/src/scripts/run_segment_analysis.py --combos-csv artifacts/combos_2025
 python ml/src/scripts/run_backtest.py --year 2025 --month 12 --real-odds \
   --kelly-fraction 0.25 --kelly-bankroll 100000
 
-# 次回バックテスト前にオッズParquetをコピー
-cp artifacts/odds_2025*.parquet data/odds/
+# ── Session 5 コマンド（実装後に有効）────────────────────────────────────
+
+# S5-1: 新フィルタ付きグリッドサーチ（既存 combos CSV を再利用して先行検証）
+python ml/src/scripts/run_grid_search.py \
+  --combos-csv artifacts/Session4/combos_202512.csv \
+  --exclude-courses 2 4 5 --min-odds 100 --exclude-stadiums 11
+
+# S5-1: 新ルールでバックテスト
+python ml/src/scripts/run_backtest.py --year 2025 --month 12 --real-odds \
+  --prob-threshold 0.07 --ev-threshold 2.0 \
+  --exclude-courses 2 4 5 --min-odds 100 --exclude-stadiums 11
+
+# S5-3: 新ルール + 新キャリブレーション Walk-Forward
+python ml/src/scripts/run_walkforward.py \
+  --start 2025-10 --end 2025-12 --retrain --real-odds \
+  --prob-threshold 0.07 --ev-threshold 2.0 \
+  --exclude-courses 2 4 5 --min-odds 100 --exclude-stadiums 11
 ```

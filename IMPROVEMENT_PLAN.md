@@ -116,14 +116,67 @@ python ml/src/scripts/run_calibration.py --year 2025 --month 12
 - [x] calibrated ECE 計測を追加（補正前後のECE比較）
   - `run_calibration.py`: calibrators がある場合に calibrated ECE も計算して比較表示
   - Summary CSV に `ece_calibrated` 列を追加
-- [ ] 最終的なROI目標値設定と運用ルール策定
+- [ ] 最終的なROI目標値設定と運用ルール策定  → Session 5 の S5-4 に移動
+
+### Session 5: 購入ルール強化 + キャリブレーション再設計
+**目標**: Session 4 分析結果を実装し、ROI を実運用可能レベルに引き上げる
+
+#### Session 4 GH Actions 分析結果まとめ（Session 5 の根拠）
+
+| 発見 | 根拠データ | 対処方針 |
+|------|-----------|---------|
+| コース2・4・5 が低ROI | コース2: 611%, 4: 468%, 5: 385%（コース1: 2,585%） | 除外フィルタ追加 |
+| びわこ が極端低ROI | 607%（全24場中断トツ最下位、次点1,341%） | 場除外フィルタ |
+| オッズ~100x が低ROI | ROI 158%（競艇公式75%払戻に近い水準） | オッズ下限フィルタ |
+| prob≥7%, EV≥2.0 が最高ROI | 2,369%（現行 prob=3%, EV=1.2: 2,231%） | デフォルト閾値変更 |
+| Isotonic Regression が逆効果 | 5/6クラスで ECE 悪化（補正前後でほぼ変化なし） | 温度スケーリングへ変更 |
+| EV 閾値が prob 低時に無効 | max_bets=5 × EV 降順ソートで常に上位5件が EV≥2.0 | prob≥7% 設定で解消 |
+| 1着確率の構造的歪み | 0-10%ビン: 過小推定(5%→実16%)、30%+ビン: 過大推定3x | Temperature Scaling で修正 |
+
+#### タスク
+
+- [ ] S5-1: 購入ルール強化（コース/オッズ/場フィルタ）
+  - `engine.py`: `run_race` / `run_backtest_batch` に `exclude_courses`, `min_odds`, `exclude_stadiums` パラメータ追加
+  - `run_backtest.py`: `--exclude-courses 2 4 5`, `--min-odds 100`, `--exclude-stadiums 11` 引数追加
+  - `run_grid_search.py`: `apply_thresholds()` に同フィルタを追加
+  - **即時検証**: 既存 `artifacts/Session4/combos_202512.csv` にフィルタ適用して ROI 変化を先行確認
+- [ ] S5-2: 温度スケーリングによるキャリブレーション再設計
+  - `trainer.py`: IsotonicRegression を廃止 → Temperature Scaling（全クラス一括、sum-to-1 維持）
+    - softmax 出力に温度パラメータ T を適用、val データで負対数尤度最小化により T を最適化
+  - `predictor.py`: `predict_win_prob` で温度スケーリング適用に変更
+  - 保存形式: `{"booster": lgb.Booster, "temperature": float}` に変更（旧形式後方互換維持）
+  - 目標: 1着 calibrated ECE を 0.05 以下に改善
+- [ ] S5-3: Walk-Forward 再検証（新ルール + 新キャリブレーション）
+  - 再学習 + 新ルール（コース/オッズ/場フィルタ、prob≥7%, ev≥2.0）で 2025-10〜12 Walk-Forward
+  - `run_walkforward.py` に新フィルタオプションを追加
+  - Session 3 との ROI 比較
+- [ ] S5-4: 最終 ROI 目標値と運用ルールの策定
+  - バックテスト ROI・的中率・最大ドローダウン等を計算
+  - 実運用判断基準の文書化
+
+**Session 5 実行コマンド（実装後）**:
+```bash
+# 既存 combos CSV で新フィルタ効果を先行検証
+python ml/src/scripts/run_grid_search.py \
+  --combos-csv artifacts/Session4/combos_202512.csv \
+  --exclude-courses 2 4 5 --min-odds 100 --exclude-stadiums 11
+
+# Walk-Forward（新ルール）
+python ml/src/scripts/run_walkforward.py \
+  --start 2025-10 --end 2025-12 --retrain --real-odds \
+  --prob-threshold 0.07 --ev-threshold 2.0 \
+  --exclude-courses 2 4 5 --min-odds 100 --exclude-stadiums 11
+
+# 温度スケーリング後のキャリブレーション確認
+python ml/src/scripts/run_calibration.py --year 2025 --month 12
+```
 
 ---
 
 ## 現在の進捗
 
 **最終更新**: 2026-04-16
-**現在のセッション**: **Session 4 実装中（購入戦略改善）**
+**現在のセッション**: **Session 5 開始待ち（購入ルール強化 + キャリブレーション再設計）**
 
 ### Session 1 成果物
 | ファイル | 内容 |
@@ -166,6 +219,87 @@ python ml/src/scripts/run_segment_analysis.py --combos-csv artifacts/combos_2025
 python ml/src/scripts/run_backtest.py --year 2025 --month 12 --real-odds \
   --kelly-fraction 0.25 --kelly-bankroll 100000
 ```
+
+---
+
+## Session 4 → Session 5 移行分析（2026-04-16）
+
+### GH Actions 実行結果（Session 4 検証パイプライン: Grid Search + Segment Analysis + Calibration Analysis）
+
+| ファイル | 内容 |
+|---------|------|
+| `artifacts/Session4/calibration_202512_summary.csv` | RAW ECE: 1着=0.13288, Calibrated ECE: 0.13343（**補正後が悪化**） |
+| `artifacts/Session4/grid_search_202512.csv` | フィルタなしグリッドサーチ（prob×8 × ev×7 = 56通り） |
+| `artifacts/Session4/grid_search_202512_filtered.csv` | 過大推定フィルタあり（win_prob<10%限定） |
+| `artifacts/Session4/segment_{stadium,course,odds,prob}_202512.csv` | セグメント別 ROI 分析 |
+| `artifacts/Session4/combos_202512.csv` | 全コンボデータ（525,840件、再利用可能） |
+
+### キャリブレーション分析結果
+
+| クラス | RAW ECE | Calibrated ECE | 評価 |
+|--------|---------|----------------|------|
+| 1着 | 0.13288 | 0.13343 | **悪化** |
+| 2着 | 0.05260 | 0.05529 | **悪化** |
+| 3着 | 0.03558 | 0.04002 | **悪化** |
+| 4着 | 0.03244 | 0.03122 | 微改善 |
+| 5着 | 0.05489 | 0.05582 | **悪化** |
+| 6着 | 0.08920 | 0.09509 | **悪化** |
+
+**根本原因**: 各クラス独立の Isotonic Regression は sum-to-1 制約を破壊するため、Plackett-Luce 計算に悪影響。→ Session 5 で Temperature Scaling（全クラス一括）に変更。
+
+1着 ECE ビン別詳細（RAW）:
+
+| ビン | 予測確率 | 実際的中率 | 乖離 |
+|------|---------|----------|------|
+| 0-10% | 5.0% | 16.3% | **過小推定 3.3x** |
+| 10-20% | 13.7% | 16.8% | ほぼ適正 |
+| 30-40% | 34.5% | 15.9% | **過大推定 2.2x** |
+| 60-70% | 65.2% | 19.9% | **過大推定 3.3x** |
+
+### グリッドサーチ結果（ベスト組み合わせ）
+
+| prob | EV | ベット数 | ROI | 的中率 | 備考 |
+|------|----|---------|-----|-------|------|
+| 0.01 | 0.0 | 21,910 | 2,877% | 2.60% | EV 閾値が無効（max_bets=5で解消） |
+| **0.07** | **2.0** | **4,791** | **2,369%** | 6.03% | **推奨（ROI/ベット数バランス）** |
+| 0.10 | 2.0 | 1,294 | 2,354% | 7.50% | ベット数少なすぎ |
+| 0.03 | 1.2 | 21,359 | 2,231% | 3.82% | 現行設定 |
+
+### セグメント分析結果
+
+**コース別 ROI（除外候補）**:
+
+| コース | ROI | 的中数 | 判定 |
+|-------|-----|-------|------|
+| 1 | 2,585% | 666 | 維持 |
+| 3 | 2,683% | 69 | 維持 |
+| 2 | **611%** | 63 | **除外候補** |
+| 4 | **468%** | 11 | **除外候補** |
+| 5 | **385%** | 3 | **除外候補** |
+
+**オッズ帯別 ROI**:
+
+| オッズ帯 | ROI | 判定 |
+|---------|-----|------|
+| ~100x | **158%** | **除外候補** |
+| 100-300x | 603% | 維持 |
+| 300-1000x | 1,754% | 維持 |
+| 1000x+ | 8,864% | 積極維持 |
+
+**場別 ROI（下位）**:
+
+| 場 | ROI | 判定 |
+|----|-----|------|
+| びわこ (ID=11) | **607%** | **除外候補（唯一の突出した低ROI）** |
+| 平和島 (ID=4) | 1,341% | 要観察 |
+
+### Session 5 移行の判断
+
+**→ Session 5 (購入ルール強化) を優先する**。理由:
+
+1. **即時効果が期待できる**: コース/オッズ/場フィルタは既存 combos CSV で先行検証可能
+2. **キャリブレーションが根本課題**: Temperature Scaling により ECE 改善 + Plackett-Luce 精度向上が期待できる
+3. **combos CSV 再利用可能**: 再バックテスト不要で新フィルタ効果を素早く計測できる
 
 ---
 
