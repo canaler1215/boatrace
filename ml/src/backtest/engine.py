@@ -30,6 +30,47 @@ from backtest.odds_simulator import SYNTHETIC_ODDS
 logger = logging.getLogger(__name__)
 
 
+def calc_kelly_bet(
+    win_prob: float,
+    odds: float,
+    bankroll: float,
+    kelly_fraction: float,
+    min_bet: int = 100,
+    max_bet: int | None = None,
+) -> int:
+    """
+    フラクショナル Kelly 基準によるベット額を計算する。
+
+    Kelly fraction: f = (p * odds - 1) / (odds - 1)
+    Bet amount    : bankroll × kelly_fraction × f (最小 min_bet、最大 max_bet、100円単位)
+
+    Parameters
+    ----------
+    win_prob       : 的中確率（モデル推定）
+    odds           : 3連単オッズ（例: 100.0 → 100倍）
+    bankroll       : 現在の資金（円）
+    kelly_fraction : ケリー分率（1.0=フルケリー、0.25=1/4ケリー推奨）
+    min_bet        : 最小ベット額（円）
+    max_bet        : 最大ベット額（円）。None で上限なし
+
+    Returns
+    -------
+    int : ベット額（100円単位）。EV <= 1（負の期待値）の場合は 0 を返す
+    """
+    if odds <= 1.0:
+        return 0
+    ev = win_prob * odds
+    if ev <= 1.0:  # 負の期待値 → ベットしない
+        return 0
+    kelly_f = (ev - 1.0) / (odds - 1.0)
+    raw_amount = bankroll * kelly_fraction * kelly_f
+    # 100円単位に丸め
+    amount = max(min_bet, int(raw_amount / 100) * 100)
+    if max_bet is not None:
+        amount = min(amount, max_bet)
+    return amount
+
+
 def _build_race_result(
     race_id: str,
     race_group: pd.DataFrame,
@@ -39,9 +80,20 @@ def _build_race_result(
     effective_odds: dict[str, float],
     use_real_odds: bool,
     bet_amount: int,
+    bet_amounts: dict[str, int] | None = None,
 ) -> dict:
-    """run_race / run_backtest_batch 共通の結果辞書を組み立てる。"""
-    amount_wagered = len(alerts) * bet_amount
+    """run_race / run_backtest_batch 共通の結果辞書を組み立てる。
+
+    Parameters
+    ----------
+    bet_amounts : Kelly基準使用時の組み合わせ別ベット額 {"1-2-3": 300, ...}
+                  None の場合は bet_amount を一律適用
+    """
+    if bet_amounts is None:
+        amount_wagered = len(alerts) * bet_amount
+    else:
+        amount_wagered = sum(bet_amounts.get(b["combination"], bet_amount) for b in alerts)
+
     payout_received = 0.0
     matched = False
     matched_combo: str | None = None
@@ -51,7 +103,8 @@ def _build_race_result(
     for bet in alerts:
         if bet["combination"] == actual_combo:
             matched_odds = effective_odds.get(actual_combo, SYNTHETIC_ODDS.get(actual_combo, 0.0))
-            payout_received = matched_odds * bet_amount
+            actual_bet = (bet_amounts or {}).get(actual_combo, bet_amount)
+            payout_received = matched_odds * actual_bet
             matched = True
             matched_combo = bet["combination"]
             matched_ev = bet["expected_value"]
@@ -102,6 +155,8 @@ def run_race(
     max_bets_per_race: int,
     race_odds: dict[str, float] | None = None,
     ev_threshold: float = 0.0,
+    kelly_fraction: float = 0.0,
+    kelly_bankroll: float = 100_000.0,
 ) -> dict[str, Any] | None:
     """
     1 レース分のバックテストを実行する。
@@ -111,10 +166,12 @@ def run_race(
     race_df          : 1 レース 6 艇分のデータ（finish_position 列含む）
     model            : LightGBM Booster
     prob_threshold   : 賭け実行の的中確率閾値（例: 0.05 = 5%）
-    bet_amount       : 1 点あたりの賭け金（円）
+    bet_amount       : 1 点あたりの賭け金（円）。kelly_fraction > 0 の場合は最小ベット額として使用
     max_bets_per_race: 1 レースで賭ける最大点数
     race_odds        : 実オッズ {"1-2-3": 12.5, ...}（None の場合は合成オッズ）
     ev_threshold     : 賭け実行の期待値閾値（例: 1.2）。0.0 で無効（全組み合わせ対象）
+    kelly_fraction   : Kelly 分率（0.0 = 固定ベット, 0.25 = 1/4 Kelly 推奨）
+    kelly_bankroll   : Kelly 計算用の資金額（円）
 
     Returns
     -------
@@ -165,9 +222,25 @@ def run_race(
     ]
     alerts = alerts[:max_bets_per_race]
 
+    # ── 7. Kelly 基準によるベット額計算 ───────────────────────
+    bet_amounts: dict[str, int] | None = None
+    if kelly_fraction > 0.0:
+        bet_amounts = {
+            r["combination"]: calc_kelly_bet(
+                win_prob=r["win_probability"],
+                odds=effective_odds.get(r["combination"], 0.0),
+                bankroll=kelly_bankroll,
+                kelly_fraction=kelly_fraction,
+                min_bet=bet_amount,
+            )
+            for r in alerts
+        }
+        # ベット額が 0 になった組み合わせ（EV<=1）を除外
+        alerts = [r for r in alerts if bet_amounts.get(r["combination"], 0) > 0]
+
     return _build_race_result(
         race_id, race_df, actual_combo, ev_results, alerts,
-        effective_odds, use_real_odds, bet_amount,
+        effective_odds, use_real_odds, bet_amount, bet_amounts,
     )
 
 
@@ -180,6 +253,8 @@ def run_backtest_batch(
     max_bets_per_race: int,
     ev_threshold: float = 0.0,
     collect_combos: bool = False,
+    kelly_fraction: float = 0.0,
+    kelly_bankroll: float = 100_000.0,
 ) -> tuple[list[dict], int] | tuple[list[dict], int, list[dict]]:
     """
     全レースのバックテストをバッチ処理で実行する。
@@ -193,11 +268,13 @@ def run_backtest_batch(
     model            : LightGBM Booster
     odds_by_race     : {race_id: {"1-2-3": 12.5, ...}}（空 dict = 合成オッズ使用）
     prob_threshold   : 賭け実行の的中確率閾値（例: 0.05 = 5%）
-    bet_amount       : 1 点あたりの賭け金（円）
+    bet_amount       : 1 点あたりの賭け金（円）。kelly_fraction > 0 の場合は最小ベット額
     max_bets_per_race: 1 レースで賭ける最大点数
     ev_threshold     : 賭け実行の期待値閾値（例: 1.2）。0.0 で無効
     collect_combos   : True の場合、全組み合わせの生データを combo_records として返す
                        グリッドサーチ用。戻り値が (results, skipped, combo_records) になる。
+    kelly_fraction   : Kelly 分率（0.0 = 固定ベット, 0.25 = 1/4 Kelly 推奨）
+    kelly_bankroll   : Kelly 計算用の資金額（円）
 
     Returns
     -------
@@ -262,9 +339,24 @@ def run_backtest_batch(
         ]
         alerts = alerts[:max_bets_per_race]
 
+        # Kelly 基準によるベット額計算
+        race_bet_amounts: dict[str, int] | None = None
+        if kelly_fraction > 0.0:
+            race_bet_amounts = {
+                r["combination"]: calc_kelly_bet(
+                    win_prob=r["win_probability"],
+                    odds=effective_odds.get(r["combination"], 0.0),
+                    bankroll=kelly_bankroll,
+                    kelly_fraction=kelly_fraction,
+                    min_bet=bet_amount,
+                )
+                for r in alerts
+            }
+            alerts = [r for r in alerts if race_bet_amounts.get(r["combination"], 0) > 0]
+
         results.append(_build_race_result(
             str(race_id), race_group, actual_combo, ev_results, alerts,
-            effective_odds, use_real_odds, bet_amount,
+            effective_odds, use_real_odds, bet_amount, race_bet_amounts,
         ))
 
         # グリッドサーチ用：全組み合わせの生データを収集

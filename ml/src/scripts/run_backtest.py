@@ -345,6 +345,8 @@ def main() -> None:
     parser.add_argument("--retrain",           action="store_true",      help="テスト期間を除外してモデルを再学習")
     parser.add_argument("--model-path",       type=str,   default=None, help="既存モデルファイルのパス")
     parser.add_argument("--real-odds",        action="store_true",      help="boatrace.jp の実オッズを使用（初回 ~90 分）")
+    parser.add_argument("--kelly-fraction",   type=float, default=0.0,  help="Kelly 分率（0.0=固定ベット, 0.25=1/4Kelly 推奨）")
+    parser.add_argument("--kelly-bankroll",   type=float, default=100_000.0, help="Kelly 計算用の資金額（円）")
     parser.add_argument("--output",           type=str,   default=None, help="結果 CSV の保存先")
     args = parser.parse_args()
 
@@ -380,6 +382,12 @@ def main() -> None:
     n_races = df_test["race_id"].nunique()
     logger.info("Running batch backtest on %d races...", n_races)
 
+    if args.kelly_fraction > 0:
+        logger.info(
+            "Kelly criterion enabled: fraction=%.2f, bankroll=¥%,.0f",
+            args.kelly_fraction, args.kelly_bankroll,
+        )
+
     results, skipped = run_backtest_batch(
         df_test=df_test,
         model=model,
@@ -388,6 +396,8 @@ def main() -> None:
         bet_amount=args.bet_amount,
         max_bets_per_race=args.max_bets,
         ev_threshold=args.ev_threshold,
+        kelly_fraction=args.kelly_fraction,
+        kelly_bankroll=args.kelly_bankroll,
     )
     logger.info("Done: %d races processed, %d skipped", len(results), skipped)
 
@@ -406,6 +416,9 @@ def main() -> None:
 
     # ── 6. サマリー表示 ──────────────────────────────────
     print_summary(results_df, args.prob_threshold, args.bet_amount, args.ev_threshold)
+    if args.kelly_fraction > 0:
+        print(f"  [Kelly設定] 分率={args.kelly_fraction:.2f}  資金=¥{args.kelly_bankroll:,.0f}")
+        print()
 
 
 if __name__ == "__main__":

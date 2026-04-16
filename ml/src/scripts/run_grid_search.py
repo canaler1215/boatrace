@@ -74,6 +74,11 @@ ARTIFACTS_DIR = Path(__file__).parents[3] / "artifacts"
 PROB_THRESHOLDS = [0.01, 0.02, 0.03, 0.05, 0.07, 0.10, 0.15, 0.20]
 EV_THRESHOLDS   = [0.0, 1.0, 1.1, 1.2, 1.3, 1.5, 2.0]
 
+# trifecta 過大推定フィルタ:
+# Plackett-Luce 近似により win_probability が 10% 以上の組み合わせは
+# 7〜31 倍過大推定されているため、それを除外するフィルタ
+OVERESTIMATION_PROB_CUTOFF = 0.10
+
 
 # ---------------------------------------------------------------------------
 # データ取得
@@ -157,6 +162,7 @@ def apply_thresholds(
     ev_threshold: float,
     bet_amount: int,
     max_bets: int,
+    filter_overestimation: bool = False,
 ) -> dict:
     """
     combo_records DataFrame に閾値を適用して ROI 等を計算する。
@@ -164,12 +170,21 @@ def apply_thresholds(
     combos_df の必須列:
       race_id, combination, win_probability, expected_value,
       odds, actual_combo, is_hit, bet_amount
+
+    Parameters
+    ----------
+    filter_overestimation : True の場合、win_probability >= OVERESTIMATION_PROB_CUTOFF
+                            の組み合わせを除外する（Plackett-Luce 過大推定対策）
     """
     # 閾値フィルタ
     mask = (
         (combos_df["win_probability"] >= prob_threshold)
         & (combos_df["expected_value"] >= ev_threshold)
     )
+    # trifecta 過大推定フィルタ（10%以上は 7〜31x 過大推定）
+    if filter_overestimation:
+        mask = mask & (combos_df["win_probability"] < OVERESTIMATION_PROB_CUTOFF)
+
     filtered = combos_df[mask].copy()
 
     if filtered.empty:
@@ -202,17 +217,18 @@ def apply_thresholds(
     avg_hit_odds = float(filtered.loc[filtered["is_hit"], "odds"].mean()) if n_wins > 0 else float("nan")
 
     return {
-        "prob_threshold": prob_threshold,
-        "ev_threshold":   ev_threshold,
-        "n_races_bet":    n_races,
-        "n_bets":         n_bets,
-        "wagered":        wagered,
-        "payout":         payout,
-        "profit":         profit,
-        "roi":            roi,
-        "win_rate":       win_rate,
-        "n_wins":         n_wins,
-        "avg_hit_odds":   avg_hit_odds,
+        "prob_threshold":       prob_threshold,
+        "ev_threshold":         ev_threshold,
+        "filter_overestimation": filter_overestimation,
+        "n_races_bet":          n_races,
+        "n_bets":               n_bets,
+        "wagered":              wagered,
+        "payout":               payout,
+        "profit":               profit,
+        "roi":                  roi,
+        "win_rate":             win_rate,
+        "n_wins":               n_wins,
+        "avg_hit_odds":         avg_hit_odds,
     }
 
 
@@ -222,10 +238,14 @@ def run_grid_search(
     max_bets: int,
     prob_thresholds: list[float] = PROB_THRESHOLDS,
     ev_thresholds:   list[float] = EV_THRESHOLDS,
+    filter_overestimation: bool = False,
 ) -> pd.DataFrame:
     rows = []
     for prob_th, ev_th in product(prob_thresholds, ev_thresholds):
-        rows.append(apply_thresholds(combos_df, prob_th, ev_th, bet_amount, max_bets))
+        rows.append(apply_thresholds(
+            combos_df, prob_th, ev_th, bet_amount, max_bets,
+            filter_overestimation=filter_overestimation,
+        ))
     return pd.DataFrame(rows)
 
 
@@ -285,9 +305,10 @@ def main() -> None:
     parser.add_argument("--train-start-month",  type=int,  default=1,     help="学習開始月")
     parser.add_argument("--real-odds",          action="store_true",      help="実オッズを使用")
     parser.add_argument("--combos-csv",         type=str,  default=None,  help="既存 combo CSV のパス")
-    parser.add_argument("--bet-amount",         type=int,  default=100,   help="1 点賭け金（円）")
-    parser.add_argument("--max-bets",           type=int,  default=5,     help="1 レース最大賭け点数")
-    parser.add_argument("--output",             type=str,  default=None,  help="グリッドサーチ結果 CSV の保存先")
+    parser.add_argument("--bet-amount",             type=int,  default=100,   help="1 点賭け金（円）")
+    parser.add_argument("--max-bets",               type=int,  default=5,     help="1 レース最大賭け点数")
+    parser.add_argument("--filter-overestimation",  action="store_true",      help=f"win_prob >= {OVERESTIMATION_PROB_CUTOFF*100:.0f}%（過大推定ビン）を除外")
+    parser.add_argument("--output",                 type=str,  default=None,  help="グリッドサーチ結果 CSV の保存先")
     args = parser.parse_args()
 
     ARTIFACTS_DIR.mkdir(exist_ok=True)
@@ -345,34 +366,69 @@ def main() -> None:
             logger.info("Combo CSV 保存: %s", combos_csv_path)
 
     # ── 2. グリッドサーチ実行 ────────────────────────────
+    filter_flag = args.filter_overestimation
     logger.info(
-        "グリッドサーチ開始: prob×%d × ev×%d = %d 組み合わせ",
+        "グリッドサーチ開始: prob×%d × ev×%d = %d 組み合わせ  filter_overestimation=%s",
         len(PROB_THRESHOLDS), len(EV_THRESHOLDS),
         len(PROB_THRESHOLDS) * len(EV_THRESHOLDS),
+        filter_flag,
     )
     grid_df = run_grid_search(
         combos_df,
         bet_amount=args.bet_amount,
         max_bets=args.max_bets,
+        filter_overestimation=filter_flag,
     )
 
     # ── 3. 結果保存 ─────────────────────────────────────
-    output_path = args.output or str(ARTIFACTS_DIR / f"grid_search_{label}.csv")
+    suffix = "_filtered" if filter_flag else ""
+    output_path = args.output or str(ARTIFACTS_DIR / f"grid_search_{label}{suffix}.csv")
     grid_df.to_csv(output_path, index=False)
     logger.info("グリッドサーチ結果保存: %s", output_path)
 
     # ── 4. サマリー表示 ──────────────────────────────────
+    if filter_flag:
+        print(f"\n  ※ Plackett-Luce 過大推定フィルタ適用中: win_prob < {OVERESTIMATION_PROB_CUTOFF*100:.0f}% のみ")
     print_grid_summary(grid_df)
 
-    # 現在の設定（prob=5%, EV=1.2）の結果も表示
+    # 現在の設定（prob=3%, EV=1.2）の結果も表示
     current = grid_df[
-        (grid_df["prob_threshold"] == 0.05) & (grid_df["ev_threshold"] == 1.2)
+        (grid_df["prob_threshold"] == 0.03) & (grid_df["ev_threshold"] == 1.2)
     ]
     if not current.empty:
         row = current.iloc[0]
-        print(f"  [現行設定 prob≥5% × EV≥1.2]  ROI: {row['roi']:+.1f}%  "
+        print(f"  [現行設定 prob≥3% × EV≥1.2]  ROI: {row['roi']:+.1f}%  "
               f"賭け: {int(row['n_bets'])} 点  的中: {int(row['n_wins'])}")
         print()
+
+    # ── 5. フィルタなし vs あり の比較表示 ─────────────────
+    if not filter_flag:
+        # フィルタありで再計算して比較表示
+        logger.info("参考: 過大推定フィルタ適用時の結果を計算中...")
+        grid_df_filtered = run_grid_search(
+            combos_df,
+            bet_amount=args.bet_amount,
+            max_bets=args.max_bets,
+            filter_overestimation=True,
+        )
+        print("  [参考: 過大推定フィルタ（win_prob < 10%）適用時の上位5組み合わせ]")
+        print(f"  {'prob(%)':>7}  {'EV':>5}  {'賭け点':>6}  {'ROI':>7}  {'的中率':>6}  {'的中'}")
+        print("  " + "-" * 50)
+        valid_f = grid_df_filtered[grid_df_filtered["n_bets"] >= 10]
+        if not valid_f.empty:
+            for _, row in valid_f.nlargest(5, "roi").iterrows():
+                print(
+                    f"  {row['prob_threshold']*100:>6.1f}%  "
+                    f"{row['ev_threshold']:>5.2f}  "
+                    f"{int(row['n_bets']):>6,}  "
+                    f"{row['roi']:>+6.1f}%  "
+                    f"{row['win_rate']:>5.2f}%  "
+                    f"{int(row['n_wins'])}"
+                )
+        print()
+        filter_out = str(ARTIFACTS_DIR / f"grid_search_{label}_filtered.csv")
+        grid_df_filtered.to_csv(filter_out, index=False)
+        logger.info("フィルタあり結果保存: %s", filter_out)
 
 
 if __name__ == "__main__":

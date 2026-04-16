@@ -55,7 +55,7 @@ from collector.program_downloader import (
 )
 from features.feature_builder import build_features_from_history
 from model.trainer import train
-from model.predictor import calc_trifecta_probs
+from model.predictor import calc_trifecta_probs, predict_win_prob
 from backtest.engine import run_backtest_batch
 
 logging.basicConfig(
@@ -195,17 +195,19 @@ def expected_calibration_error(cal_df: pd.DataFrame) -> float:
 
 
 def analyze_class_calibration(
-    raw_probs: np.ndarray,
+    probs: np.ndarray,
     y_true: np.ndarray,
     n_bins: int = N_BINS,
+    label: str = "raw",
 ) -> tuple[pd.DataFrame, dict]:
     """
     各着順クラス（1〜6着）のキャリブレーションを分析する。
 
     Parameters
     ----------
-    raw_probs : (N, 6) 全クラスの予測確率
-    y_true    : (N,) 正解クラス（0-indexed: 0=1着, ..., 5=6着）
+    probs  : (N, 6) 全クラスの予測確率（raw または calibrated）
+    y_true : (N,) 正解クラス（0-indexed: 0=1着, ..., 5=6着）
+    label  : ログ出力用ラベル ("raw" or "calibrated")
 
     Returns
     -------
@@ -217,7 +219,7 @@ def analyze_class_calibration(
     ece_dict = {}
 
     for k in range(6):  # k=0 → 1着, ..., k=5 → 6着
-        prob_k = raw_probs[:, k]
+        prob_k = probs[:, k]
         true_k = (y_true == k).astype(int)
 
         cal_df = calibration_curve_data(prob_k, true_k, n_bins=n_bins)
@@ -226,7 +228,7 @@ def analyze_class_calibration(
 
         ece = expected_calibration_error(cal_df)
         ece_dict[k + 1] = ece
-        logger.info("クラス %d着: ECE=%.4f  サンプル=%d", k + 1, ece, int(true_k.sum()))
+        logger.info("[%s] クラス %d着: ECE=%.4f  サンプル=%d", label, k + 1, ece, int(true_k.sum()))
 
     return pd.concat(all_rows, ignore_index=True), ece_dict
 
@@ -256,28 +258,51 @@ def analyze_trifecta_calibration(
 def print_calibration_summary(
     class_ece: dict,
     trifecta_ece: float,
+    class_ece_calibrated: dict | None = None,
 ) -> None:
     print()
-    print("=" * 62)
+    print("=" * 72)
     print("  キャリブレーション分析結果")
-    print("=" * 62)
-    print("  [着順クラス別 ECE]  ※ ECE が小さいほど確率が正確")
-    print(f"  {'クラス':>6}  {'ECE':>8}  {'評価'}")
-    print("  " + "-" * 30)
-    for k, ece in sorted(class_ece.items()):
-        rating = "良好" if ece < 0.02 else ("要改善" if ece < 0.05 else "不良")
-        print(f"  {k:>3}着   {ece:>8.4f}  {rating}")
+    print("=" * 72)
+
+    if class_ece_calibrated:
+        print("  [着順クラス別 ECE]  ※ ECE が小さいほど確率が正確")
+        print(f"  {'クラス':>6}  {'RAW ECE':>10}  {'CAL ECE':>10}  {'改善率':>8}  {'評価'}")
+        print("  " + "-" * 52)
+        for k in sorted(class_ece.keys()):
+            raw = class_ece[k]
+            cal = class_ece_calibrated.get(k, float("nan"))
+            if not np.isnan(cal) and raw > 0:
+                improvement = (raw - cal) / raw * 100
+                rating = "良好" if cal < 0.02 else ("要改善" if cal < 0.05 else "不良")
+                print(f"  {k:>3}着   {raw:>10.4f}  {cal:>10.4f}  {improvement:>+7.1f}%  {rating}")
+            else:
+                rating = "良好" if raw < 0.02 else ("要改善" if raw < 0.05 else "不良")
+                print(f"  {k:>3}着   {raw:>10.4f}  {'N/A':>10}  {'N/A':>8}  {rating}")
+        print()
+        raw_avg = np.mean(list(class_ece.values()))
+        cal_avg = np.mean([v for v in class_ece_calibrated.values() if not np.isnan(v)])
+        print(f"  平均 RAW ECE: {raw_avg:.4f}  →  平均 CAL ECE: {cal_avg:.4f}  "
+              f"({(raw_avg - cal_avg) / raw_avg * 100:+.1f}% 改善)")
+    else:
+        print("  [着順クラス別 ECE]  ※ ECE が小さいほど確率が正確")
+        print(f"  {'クラス':>6}  {'ECE':>8}  {'評価'}")
+        print("  " + "-" * 30)
+        for k, ece in sorted(class_ece.items()):
+            rating = "良好" if ece < 0.02 else ("要改善" if ece < 0.05 else "不良")
+            print(f"  {k:>3}着   {ece:>8.4f}  {rating}")
+        print()
+        avg_ece = np.mean(list(class_ece.values()))
+        print(f"  平均 ECE: {avg_ece:.4f}")
+
     print()
-    avg_ece = np.mean(list(class_ece.values()))
-    print(f"  平均 ECE: {avg_ece:.4f}")
-    print()
-    print(f"  [3連単予測 ECE]: {trifecta_ece:.4f}")
+    print(f"  [3連単予測 ECE]: {trifecta_ece:.6f}")
     rating = "良好" if trifecta_ece < 0.005 else ("要改善" if trifecta_ece < 0.02 else "不良")
     print(f"  評価: {rating}")
     print()
     print("  ※ ECE > 0.05（クラス別）または > 0.02（3連単）は")
     print("    キャリブレーション補正（Session 3）を推奨")
-    print("=" * 62)
+    print("=" * 72)
     print()
 
 
@@ -317,6 +342,7 @@ def main() -> None:
     # ── A. クラスキャリブレーション分析（モデルが必要） ───
     class_ece: dict[int, float] = {}
     class_cal_df: pd.DataFrame | None = None
+    class_ece_calibrated: dict[int, float] | None = None
 
     if args.year and args.month:
         model = get_or_train_model(args)
@@ -349,11 +375,33 @@ def main() -> None:
             if raw_probs.ndim == 1 or raw_probs.shape[1] != 6:
                 logger.warning("予測形状が (N, 6) ではありません。クラスキャリブレーションをスキップ。")
             else:
-                logger.info("クラスキャリブレーション分析中 (%d サンプル)...", len(y_true))
-                class_cal_df, class_ece = analyze_class_calibration(raw_probs, y_true, n_bins=args.n_bins)
+                # ── RAW ECE 分析 ──────────────────────────────────
+                logger.info("[raw] クラスキャリブレーション分析中 (%d サンプル)...", len(y_true))
+                class_cal_df, class_ece = analyze_class_calibration(
+                    raw_probs, y_true, n_bins=args.n_bins, label="raw"
+                )
                 out_class = f"{prefix}_class.csv"
                 class_cal_df.to_csv(out_class, index=False)
-                logger.info("クラスキャリブレーション保存: %s", out_class)
+                logger.info("RAW クラスキャリブレーション保存: %s", out_class)
+
+                # ── Calibrated ECE 分析（calibrators が存在する場合のみ） ──
+                calibrators = model.get("calibrators") if isinstance(model, dict) else None
+                if calibrators is not None:
+                    logger.info("[calibrated] キャリブレーション補正後の ECE を分析中...")
+                    cal_probs = predict_win_prob(model, X_all)
+                    if cal_probs.ndim == 2 and cal_probs.shape[1] == 6:
+                        class_cal_df_cal, class_ece_calibrated = analyze_class_calibration(
+                            cal_probs, y_true, n_bins=args.n_bins, label="calibrated"
+                        )
+                        out_class_cal = f"{prefix}_class_calibrated.csv"
+                        class_cal_df_cal.to_csv(out_class_cal, index=False)
+                        logger.info("Calibrated クラスキャリブレーション保存: %s", out_class_cal)
+                    else:
+                        logger.warning("calibrated probs の形状が不正。スキップ。")
+                        class_ece_calibrated = None
+                else:
+                    logger.info("calibrators なし（旧形式モデル）。calibrated ECE をスキップ。")
+                    class_ece_calibrated = None
 
     # ── B. 3連単キャリブレーション分析 ────────────────────
     combos_df: pd.DataFrame | None = None
@@ -411,14 +459,20 @@ def main() -> None:
 
     # ── C. サマリー出力 ──────────────────────────────────
     if class_ece or not np.isnan(trifecta_ece):
-        print_calibration_summary(class_ece, trifecta_ece)
+        print_calibration_summary(
+            class_ece, trifecta_ece,
+            class_ece_calibrated=class_ece_calibrated if class_ece else None,
+        )
     else:
         logger.warning("分析データが不足しています。引数を確認してください。")
 
     # ── D. 要約 CSV 保存 ────────────────────────────────
     summary_rows = []
     for k, ece in class_ece.items():
-        summary_rows.append({"analysis": f"class_{k}着", "ece": ece})
+        row = {"analysis": f"class_{k}着_raw", "ece": ece}
+        if class_ece_calibrated and k in class_ece_calibrated:
+            row["ece_calibrated"] = class_ece_calibrated[k]
+        summary_rows.append(row)
     if not np.isnan(trifecta_ece):
         summary_rows.append({"analysis": "trifecta", "ece": trifecta_ece})
 

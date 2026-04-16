@@ -103,9 +103,19 @@ python ml/src/scripts/run_calibration.py --year 2025 --month 12
 ### Session 4: 購入戦略改善
 **目標**: ROIがプラスになるベッティング戦略を確立する
 
-- [ ] EV閾値・確率閾値の最適組み合わせをバックテストで特定
-- [ ] Kelly基準によるベット額の動的調整
-- [ ] 場・艇番・オッズ帯別のセグメント分析
+- [x] EV閾値・確率閾値の最適組み合わせをバックテストで特定
+  - `run_grid_search.py` に `--filter-overestimation` オプション追加（win_prob<10%のみ対象）
+  - フィルタあり/なしの比較を自動出力
+- [x] Kelly基準によるベット額の動的調整
+  - `engine.py`: `calc_kelly_bet()` 関数追加、`run_race` / `run_backtest_batch` に `kelly_fraction` / `kelly_bankroll` パラメータ追加
+  - `run_backtest.py`: `--kelly-fraction`（0.0=固定, 0.25=1/4Kelly推奨）/ `--kelly-bankroll` 引数追加
+- [x] 場・艇番・オッズ帯別のセグメント分析
+  - `scripts/run_segment_analysis.py` 新規作成
+  - 分析軸: 場別・コース別（1着艇番）・オッズ帯別・確率帯別
+  - 出力: `artifacts/segment_{stadium,course,odds,prob}_{YYYYMM}.csv`
+- [x] calibrated ECE 計測を追加（補正前後のECE比較）
+  - `run_calibration.py`: calibrators がある場合に calibrated ECE も計算して比較表示
+  - Summary CSV に `ece_calibrated` 列を追加
 - [ ] 最終的なROI目標値設定と運用ルール策定
 
 ---
@@ -113,7 +123,7 @@ python ml/src/scripts/run_calibration.py --year 2025 --month 12
 ## 現在の進捗
 
 **最終更新**: 2026-04-16
-**現在のセッション**: **Session 3 コード実装完了 → 次回再学習で ECE 改善を検証**
+**現在のセッション**: **Session 4 実装中（購入戦略改善）**
 
 ### Session 1 成果物
 | ファイル | 内容 |
@@ -132,6 +142,33 @@ python ml/src/scripts/run_calibration.py --year 2025 --month 12
 | `ml/src/features/feature_builder.py` | P4修正（潮位推定）+ 直近3ヶ月加重平均勝率（`_add_rolling_racer_win_rate`）追加 |
 | `ml/src/scripts/run_feature_importance.py` | 新規作成：特徴量重要度・SHAP値可視化 |
 
+### Session 4 成果物（2026-04-16 実装）
+| ファイル | 変更内容 |
+|---------|------|
+| `ml/src/scripts/run_calibration.py` | calibrated ECE 計測追加（補正前後のECE比較・`ece_calibrated`列出力） |
+| `ml/src/scripts/run_grid_search.py` | `--filter-overestimation`オプション追加（win_prob<10%フィルタ）、フィルタあり/なし比較出力 |
+| `ml/src/backtest/engine.py` | `calc_kelly_bet()`関数追加、`run_race`/`run_backtest_batch`にKellyパラメータ追加 |
+| `ml/src/scripts/run_backtest.py` | `--kelly-fraction`/`--kelly-bankroll`引数追加 |
+| `ml/src/scripts/run_segment_analysis.py` | 新規作成：場・コース・オッズ帯・確率帯別セグメント分析 |
+
+**Session 4 実行コマンド**:
+```bash
+# calibrated ECE 分析（補正前後のECE比較）
+python ml/src/scripts/run_calibration.py --year 2025 --month 12
+
+# グリッドサーチ（過大推定フィルタあり/なし比較）
+python ml/src/scripts/run_grid_search.py --combos-csv artifacts/combos_202512.csv
+
+# セグメント分析（場・コース・オッズ帯・確率帯）
+python ml/src/scripts/run_segment_analysis.py --combos-csv artifacts/combos_202512.csv
+
+# 1/4 Kelly バックテスト
+python ml/src/scripts/run_backtest.py --year 2025 --month 12 --real-odds \
+  --kelly-fraction 0.25 --kelly-bankroll 100000
+```
+
+---
+
 ### Session 3 成果物（2026-04-16 実装）
 | ファイル | 変更内容 |
 |---------|------|
@@ -143,7 +180,73 @@ python ml/src/scripts/run_calibration.py --year 2025 --month 12
 | `ml/src/scripts/run_calibration.py` | dict形式から booster を取り出して raw probs を分析するよう修正 |
 | `ml/src/scripts/run_feature_importance.py` | `_load_model`: dict形式から booster を取り出すよう修正 |
 
-**次のステップ**: GitHub Actions の retrain.yml を実行 → 再学習後に `run_calibration.py --year 2025 --month 12` で ECE 改善を確認
+---
+
+## Session 3 → Session 4 移行分析（2026-04-16）
+
+### GH Actions 実行結果（Session 3 検証パイプライン: 再学習→キャリブレーション→Walk-Forward）
+
+| ファイル | 内容 |
+|---------|------|
+| `artifacts/Session3/model_metrics.txt` | version=202604, rps=0.1565, top1_accuracy=31.45%, samples=1,403,845 |
+| `artifacts/Session3/calibration_202512_summary.csv` | RAW ECE: 1着=0.14178（Session 2と同等） |
+| `artifacts/Session3/walkforward_202510-202512.csv` | Session 3 Walk-Forward 結果（実オッズ） |
+
+### Walk-Forward 全セッション比較
+
+| 指標 | Session 1 | Session 2 | Session 3 | S2→S3変化 |
+|------|-----------|-----------|-----------|-----------|
+| ベット数 | 37,868 | 40,787 | 38,057 | -6.7% |
+| 投資額 | 3,786,800円 | 4,078,700円 | 3,805,700円 | -6.7% |
+| 払戻額 | 99,355,660円 | 23,550,890円 | 23,428,190円 | -0.5% |
+| 的中数 | 2,344 | 574 | 541 | -5.7% |
+| 的中率/bet | **6.19%** | 1.41% | 1.42% | ≒同等 |
+| ROI | **+2,524%** | +477% | +515.6% | +38pp改善 |
+| avg top_prob | 0.048 | 0.065 | 0.0700 | +7.7%↑ (悪化) |
+| avg matched_odds | 424x | 410x | 433x | ほぼ同等 |
+| 1着 ECE (raw) | 0.018 | 0.1396 | 0.1418 | ほぼ同等 |
+
+### Session 3 重大発見
+
+**キャリブレーション補正の効果が限定的** — 以下の問題を確認:
+
+1. **的中率/bet が変化なし** (1.41% → 1.42%): Isotonic Regression を適用したはずが、的中率は改善していない
+2. **avg top_prob が増加** (0.065 → 0.070): キャリブレーション後は確率が下がるはずが、逆に増加 → calibrated ECE は未計測のため効果不明
+3. **trifecta ECE が深刻** (Session 3 raw):
+
+| 予測確率ビン | サンプル数 | 予測確率 | 実際勝率 | 乖離倍率 |
+|------------|---------|--------|--------|---------|
+| 0-10% | 548,342 | 0.76% | 0.83% | **良好** |
+| 10-20% | 3,031 | 12.8% | 1.68% | **7.6x 過大推定** |
+| 20-30% | 137 | 22.9% | 0.73% | **31x 過大推定** |
+
+### 根本原因
+
+**Plackett-Luce近似が高確率域で 7〜31倍の過大推定を生む** → EV = P_model × odds が実態より大幅に過大評価される。
+
+- EV フィルタ (EV > 1.2) を通過した combos の実際勝率は 1.4%
+- 1着 ECE の Isotonic Regression は「各クラス独立キャリブレーション」のため、レース内確率の sum-to-1 制約が壊れ Plackett-Luce 計算に悪影響している可能性あり
+
+### Session 4 移行の判断
+
+**→ Session 4 (購入戦略改善) を優先する**。理由:
+
+| 理由 | 詳細 |
+|------|------|
+| Session 3 主要タスク完了 | キャリブレーション + 時系列 split は実装済み |
+| 残 Session 3 タスクの前提条件未整備 | 2착・3착独立モデルはキャリブレーション正常動作が前提。ROI改善効果が現状では計測困難 |
+| Session 4 インフラ整備済み | grid_search.py・collect_combos モードが既に実装済み。即実行可能 |
+| 閾値最適化で trifecta 過大推定に対処可能 | prob_threshold / EV_threshold を上げれば高確率帯の選択を回避できる |
+| Kelly criterion が自然なリスク制御になる | 確率過大推定への対策として bet size を縮小する効果 |
+
+**Session 3 残タスクの扱い**:
+- 🟡 2着・3着独立モデル → Session 4 グリッドサーチの結果次第でSession 5 以降に
+- 🟡 ハイパーパラメータ再チューニング → Session 4 後に実施
+
+**Session 4 で最初に確認すべきこと**:
+1. `run_calibration.py` に calibrated ECE 計測を追加（補正後確率の ECE を計算）
+2. グリッドサーチで prob_threshold を高め（≥5%, ≥7%）に設定した場合の ROI 確認
+3. trifecta 過大推定ビン（10-20%）に入る combos を除外した場合の ROI 確認
 
 ---
 

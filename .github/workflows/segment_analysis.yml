@@ -1,4 +1,4 @@
-name: Calibration Analysis
+name: Segment Analysis (場・コース・オッズ帯・確率帯)
 
 on:
   workflow_dispatch:
@@ -11,31 +11,34 @@ on:
         description: '対象月 (1-12)'
         required: true
         default: '12'
-      retrain:
-        description: 'モデルを再学習'
-        required: false
-        default: 'false'
-        type: boolean
       real_odds:
-        description: '実オッズを使用（3連単キャリブレーション用）'
+        description: '実オッズを使用（combo CSV 新規生成時）'
         required: false
-        default: 'true'
+        default: true
         type: boolean
-      n_bins:
-        description: 'キャリブレーションビン数'
+      prob_threshold:
+        description: '確率閾値（デフォルト: 0.03 = 3%）'
+        required: false
+        default: '0.03'
+      ev_threshold:
+        description: 'EV 閾値（デフォルト: 1.2）'
+        required: false
+        default: '1.2'
+      max_bets:
+        description: '1レース最大賭け点数'
+        required: false
+        default: '5'
+      bet_amount:
+        description: '1点賭け金（円）'
+        required: false
+        default: '100'
+      min_bets:
+        description: '表示最小賭け点数（少ないセグメントを除外）'
         required: false
         default: '10'
-      train_start_year:
-        description: '学習開始年（--retrain 時）'
-        required: false
-        default: '2023'
-      train_start_month:
-        description: '学習開始月（--retrain 時）'
-        required: false
-        default: '1'
 
 jobs:
-  calibration:
+  segment_analysis:
     runs-on: ubuntu-latest
     timeout-minutes: 480   # 最大8時間
 
@@ -75,7 +78,7 @@ jobs:
           restore-keys: |
             odds-${{ inputs.year }}-${{ inputs.month }}-
 
-      # grid_search.yml が先に実行済みの場合は combos CSV を再利用
+      # grid_search.yml が先に実行済みであれば combo CSV を再利用（高速）
       - name: Restore combos cache
         uses: actions/cache@v4
         with:
@@ -92,39 +95,42 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GITHUB_REPOSITORY: ${{ github.repository }}
 
-      - name: Run calibration analysis
+      - name: Run segment analysis
         run: |
           REAL_ODDS_FLAG=""
           if [ "${{ inputs.real_odds }}" == "true" ]; then
             REAL_ODDS_FLAG="--real-odds"
           fi
-          RETRAIN_FLAG=""
-          if [ "${{ inputs.retrain }}" == "true" ]; then
-            RETRAIN_FLAG="--retrain --train-start-year ${{ inputs.train_start_year }} --train-start-month ${{ inputs.train_start_month }}"
-          fi
-          # grid_search が先に実行済みなら combos CSV を再利用（3連単分析の高速化）
+          # combos CSV が既にキャッシュされていれば再利用（再ダウンロード不要）
           MONTH_PAD=$(printf "%02d" ${{ inputs.month }})
           COMBO_FILE="artifacts/combos_${{ inputs.year }}${MONTH_PAD}.csv"
-          COMBO_OPT=""
           if [ -f "$COMBO_FILE" ]; then
-            echo "Reusing combos CSV for trifecta calibration: $COMBO_FILE"
-            COMBO_OPT="--combos-csv $COMBO_FILE"
+            echo "Reusing cached combos CSV: $COMBO_FILE"
+            python ml/src/scripts/run_segment_analysis.py \
+              --combos-csv "$COMBO_FILE" \
+              --prob-threshold ${{ inputs.prob_threshold }} \
+              --ev-threshold ${{ inputs.ev_threshold }} \
+              --max-bets ${{ inputs.max_bets }} \
+              --bet-amount ${{ inputs.bet_amount }} \
+              --min-bets ${{ inputs.min_bets }}
+          else
+            python ml/src/scripts/run_segment_analysis.py \
+              --year ${{ inputs.year }} \
+              --month ${{ inputs.month }} \
+              --prob-threshold ${{ inputs.prob_threshold }} \
+              --ev-threshold ${{ inputs.ev_threshold }} \
+              --max-bets ${{ inputs.max_bets }} \
+              --bet-amount ${{ inputs.bet_amount }} \
+              --min-bets ${{ inputs.min_bets }} \
+              $REAL_ODDS_FLAG
           fi
-          python ml/src/scripts/run_calibration.py \
-            --year ${{ inputs.year }} \
-            --month ${{ inputs.month }} \
-            --n-bins ${{ inputs.n_bins }} \
-            $REAL_ODDS_FLAG \
-            $RETRAIN_FLAG \
-            $COMBO_OPT
 
       - name: Upload results
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: calibration-${{ inputs.year }}-${{ inputs.month }}-run${{ github.run_number }}
+          name: segment-${{ inputs.year }}-${{ inputs.month }}-run${{ github.run_number }}
           path: |
-            artifacts/calibration_*.csv
+            artifacts/segment_*.csv
             artifacts/combos_*.csv
-          # calibration_*_class_calibrated.csv も含まれる（Session 4〜）
           retention-days: 90

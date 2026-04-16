@@ -42,16 +42,35 @@ data/                 ダウンロードキャッシュ
 - **モデル保存形式** (Session 3〜): `{"booster": lgb.Booster, "calibrators": list[IsotonicRegression]}` ※旧形式(lgb.Booster直接)も後方互換
 - **キャリブレーション** (Session 3〜): `trainer.py` で val データに Isotonic Regression を fitting、推論時に `predict_win_prob()` が自動適用
 - **学習データ分割** (Session 3〜): 時系列 split（最後の 10% を val、random split 廃止）
-- **3連単確率**: Plackett-Luce近似（1着確率のみから計算）
+- **3連単確率**: Plackett-Luce近似（1着確率のみから計算） ⚠️ 10-20%帯で 7.6x、20-30%帯で 31x 過大推定
 - **EV計算**: `EV = P_model × odds`（実オッズ or 合成オッズ）
-- **購入条件**: 的中確率 ≥ 3% AND EV > 1.2
-- **購入金額**: 1点 100円
+- **購入条件**: 的中確率 ≥ 3% AND EV > 1.2（Session 4 で閾値最適化 + 過大推定フィルタ実装済み）
+- **購入金額**: 1点 100円（Session 4 で `--kelly-fraction 0.25` による 1/4 Kelly 基準も選択可能）
 
 ## 既知の問題（改善タスクに対応中）
 
 → 詳細は `IMPROVEMENT_PLAN.md` を参照。
 
 ## Walk-Forward 実績（2025-10〜12, 実オッズ, 各月再学習）
+
+### Session 3 モデル（キャリブレーション補正 + 時系列split — **現行モデル**）
+
+| 指標 | 値 | Session 2 比 |
+|------|----|------------|
+| 期間ROI | **+515.6%** | +38pp改善 |
+| ベット数 | 38,057点 | -6.7% |
+| 的中 | 541件 | -5.7% |
+| 的中率/bet | 1.42% | ≒同等 |
+| 的中率/race | 5.51% | — |
+| 的中時平均オッズ | 433x（中央値164x） | ほぼ同等 |
+| avg top_prob | 0.0700 | +7.7%↑ (悪化) |
+| 1着 ECE（raw） | 0.14178 | ほぼ同等 |
+
+> **注意**: Session 3 でキャリブレーション補正（Isotonic Regression）と時系列 split を実装したが、
+> 的中率/bet は 1.41% → 1.42% とほぼ変化なし。avg top_prob も増加（悪化）。
+> 原因: trifecta 確率が予測 10-20% 帯で実際勝率の 7.6x、20-30% 帯で 31x の過大推定。
+> Plackett-Luce 近似 + 各クラス独立キャリブレーション（sum-to-1 未担保）が根本課題。
+> **→ Session 4 (購入戦略改善) で閾値最適化・Kelly 基準を導入して対処**
 
 ### Session 1 モデル（特徴量改善前）
 
@@ -104,11 +123,21 @@ python ml/src/scripts/run_predict.py
 python ml/src/scripts/run_feature_importance.py --year 2025 --month 12
 python ml/src/scripts/run_feature_importance.py --year 2025 --month 12 --no-shap  # SHAP省略
 
-# キャリブレーション分析
+# キャリブレーション分析（Session 4〜: calibrated ECE も出力）
 python ml/src/scripts/run_calibration.py --year 2025 --month 12
 
 # Walk-Forward（複数月）
 python ml/src/scripts/run_walkforward.py --start 2025-10 --end 2025-12 --retrain --real-odds
+
+# グリッドサーチ（過大推定フィルタあり/なし比較、既存 combo CSV 再利用）
+python ml/src/scripts/run_grid_search.py --combos-csv artifacts/combos_202512.csv
+
+# セグメント分析（場・コース・オッズ帯・確率帯別 ROI）
+python ml/src/scripts/run_segment_analysis.py --combos-csv artifacts/combos_202512.csv
+
+# 1/4 Kelly バックテスト
+python ml/src/scripts/run_backtest.py --year 2025 --month 12 --real-odds \
+  --kelly-fraction 0.25 --kelly-bankroll 100000
 
 # 次回バックテスト前にオッズParquetをコピー
 cp artifacts/odds_2025*.parquet data/odds/

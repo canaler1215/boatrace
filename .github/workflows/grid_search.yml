@@ -29,6 +29,11 @@ on:
         description: '1レース最大賭け点数'
         required: false
         default: '5'
+      filter_overestimation:
+        description: 'win_prob≥10%（Plackett-Luce過大推定ビン）を除外してグリッドサーチ'
+        required: false
+        default: false
+        type: boolean
       train_start_year:
         description: '学習開始年（--retrain 時）'
         required: false
@@ -114,6 +119,10 @@ jobs:
             echo "Reusing cached combos CSV: $COMBO_FILE"
             COMBO_OPT="--combos-csv $COMBO_FILE"
           fi
+          FILTER_FLAG=""
+          if [ "${{ inputs.filter_overestimation }}" == "true" ]; then
+            FILTER_FLAG="--filter-overestimation"
+          fi
           python ml/src/scripts/run_grid_search.py \
             --year ${{ inputs.year }} \
             --month ${{ inputs.month }} \
@@ -121,7 +130,8 @@ jobs:
             --max-bets ${{ inputs.max_bets }} \
             $REAL_ODDS_FLAG \
             $RETRAIN_FLAG \
-            $COMBO_OPT
+            $COMBO_OPT \
+            $FILTER_FLAG
 
       - name: Upload results
         if: always()
@@ -132,4 +142,5 @@ jobs:
             artifacts/grid_search_*.csv
             artifacts/combos_*.csv
             data/odds/odds_*.parquet
+            artifacts/segment_*.csv
           retention-days: 90
