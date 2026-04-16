@@ -347,6 +347,9 @@ def main() -> None:
     parser.add_argument("--real-odds",        action="store_true",      help="boatrace.jp の実オッズを使用（初回 ~90 分）")
     parser.add_argument("--kelly-fraction",   type=float, default=0.0,  help="Kelly 分率（0.0=固定ベット, 0.25=1/4Kelly 推奨）")
     parser.add_argument("--kelly-bankroll",   type=float, default=100_000.0, help="Kelly 計算用の資金額（円）")
+    parser.add_argument("--exclude-courses",  type=int,   nargs="+",    help="除外する1着艇番（例: 2 4 5）")
+    parser.add_argument("--min-odds",         type=float, default=None, help="購入するオッズの下限（例: 100.0 → 100倍未満は除外）")
+    parser.add_argument("--exclude-stadiums", type=int,   nargs="+",    help="除外する場ID（例: 11 → びわこ）")
     parser.add_argument("--output",           type=str,   default=None, help="結果 CSV の保存先")
     args = parser.parse_args()
 
@@ -398,6 +401,9 @@ def main() -> None:
         ev_threshold=args.ev_threshold,
         kelly_fraction=args.kelly_fraction,
         kelly_bankroll=args.kelly_bankroll,
+        exclude_courses=args.exclude_courses,
+        min_odds=args.min_odds,
+        exclude_stadiums=args.exclude_stadiums,
     )
     logger.info("Done: %d races processed, %d skipped", len(results), skipped)
 

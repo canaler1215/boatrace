@@ -295,6 +295,9 @@ def main() -> None:
     parser.add_argument("--train-start-year",  type=int,   default=2023, help="学習開始年")
     parser.add_argument("--train-start-month", type=int,   default=1,    help="学習開始月")
     parser.add_argument("--real-odds",         action="store_true",      help="実オッズを使用")
+    parser.add_argument("--exclude-courses",   type=int,   nargs="+",   help="除外する1着艇番（例: 2 4 5）")
+    parser.add_argument("--min-odds",          type=float, default=None, help="購入するオッズの下限（例: 100.0 → 100倍未満は除外）")
+    parser.add_argument("--exclude-stadiums",  type=int,   nargs="+",   help="除外する場ID（例: 11 → びわこ）")
     parser.add_argument("--output",            type=str,   default=None, help="結果 CSV の保存先")
     args = parser.parse_args()
 
@@ -357,6 +360,9 @@ def main() -> None:
             bet_amount=args.bet_amount,
             max_bets_per_race=args.max_bets,
             ev_threshold=args.ev_threshold,
+            exclude_courses=args.exclude_courses,
+            min_odds=args.min_odds,
+            exclude_stadiums=args.exclude_stadiums,
         )
         logger.info("%d-%02d: 完了 %d レース、スキップ %d", test_year, test_month, len(results), skipped)
 

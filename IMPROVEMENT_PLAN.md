@@ -135,24 +135,28 @@ python ml/src/scripts/run_calibration.py --year 2025 --month 12
 
 #### タスク
 
-- [ ] S5-1: 購入ルール強化（コース/オッズ/場フィルタ）
+- [x] S5-1: 購入ルール強化（コース/オッズ/場フィルタ）— **2026-04-16 実装完了**
   - `engine.py`: `run_race` / `run_backtest_batch` に `exclude_courses`, `min_odds`, `exclude_stadiums` パラメータ追加
   - `run_backtest.py`: `--exclude-courses 2 4 5`, `--min-odds 100`, `--exclude-stadiums 11` 引数追加
-  - `run_grid_search.py`: `apply_thresholds()` に同フィルタを追加
-  - **即時検証**: 既存 `artifacts/Session4/combos_202512.csv` にフィルタ適用して ROI 変化を先行確認
-- [ ] S5-2: 温度スケーリングによるキャリブレーション再設計
-  - `trainer.py`: IsotonicRegression を廃止 → Temperature Scaling（全クラス一括、sum-to-1 維持）
-    - softmax 出力に温度パラメータ T を適用、val データで負対数尤度最小化により T を最適化
-  - `predictor.py`: `predict_win_prob` で温度スケーリング適用に変更
+  - `run_walkforward.py`: 同引数追加
+  - `run_grid_search.py`: `apply_thresholds()` / `run_grid_search()` に同フィルタを追加
+- [x] S5-2: 温度スケーリングによるキャリブレーション再設計 — **2026-04-16 実装完了**
+  - `trainer.py`: IsotonicRegression を廃止 → Temperature Scaling（scipy.optimize で NLL 最小化）
+    - `booster.predict(raw_score=True)` でロジットを取得し、温度 T でスケール
+    - val データで負対数尤度最小化（bounds=(0.1, 10.0)）により最適 T を探索
+  - `predictor.py`: `predict_win_prob` で temperature 優先処理（calibrators は legacy 対応のみ）
   - 保存形式: `{"booster": lgb.Booster, "temperature": float}` に変更（旧形式後方互換維持）
-  - 目標: 1着 calibrated ECE を 0.05 以下に改善
 - [ ] S5-3: Walk-Forward 再検証（新ルール + 新キャリブレーション）
-  - 再学習 + 新ルール（コース/オッズ/場フィルタ、prob≥7%, ev≥2.0）で 2025-10〜12 Walk-Forward
-  - `run_walkforward.py` に新フィルタオプションを追加
+  - 再学習（Temperature Scaling）+ 新ルール（コース/オッズ/場フィルタ、prob≥7%, ev≥2.0）で 2025-10〜12 Walk-Forward
   - Session 3 との ROI 比較
+  ```bash
+  python ml/src/scripts/run_walkforward.py \
+    --start 2025-10 --end 2025-12 --retrain --real-odds \
+    --prob-threshold 0.07 --ev-threshold 2.0 \
+    --exclude-courses 2 4 5 --min-odds 100 --exclude-stadiums 11
+  ```
 - [ ] S5-4: 最終 ROI 目標値と運用ルールの策定
-  - バックテスト ROI・的中率・最大ドローダウン等を計算
-  - 実運用判断基準の文書化
+  - Walk-Forward 結果を踏まえた実運用判断基準の文書化
 
 **Session 5 実行コマンド（実装後）**:
 ```bash
@@ -176,7 +180,7 @@ python ml/src/scripts/run_calibration.py --year 2025 --month 12
 ## 現在の進捗
 
 **最終更新**: 2026-04-16
-**現在のセッション**: **Session 5 開始待ち（購入ルール強化 + キャリブレーション再設計）**
+**現在のセッション**: **Session 5 進行中（S5-1/S5-2 実装完了 → S5-3 Walk-Forward 再検証待ち）**
 
 ### Session 1 成果物
 | ファイル | 内容 |
@@ -194,6 +198,16 @@ python ml/src/scripts/run_calibration.py --year 2025 --month 12
 | `ml/src/features/tidal_features.py` | 月齢推定関数 `estimate_tidal_level` + `add_tidal_features_estimated` 追加 |
 | `ml/src/features/feature_builder.py` | P4修正（潮位推定）+ 直近3ヶ月加重平均勝率（`_add_rolling_racer_win_rate`）追加 |
 | `ml/src/scripts/run_feature_importance.py` | 新規作成：特徴量重要度・SHAP値可視化 |
+
+### Session 5 成果物（2026-04-16 実装）
+| ファイル | 変更内容 |
+|---------|------|
+| `ml/src/model/trainer.py` | IsotonicRegression廃止 → Temperature Scaling（scipy NLL最小化、`raw_score=True`でロジット取得）保存形式 `{"booster": ..., "temperature": float}` |
+| `ml/src/model/predictor.py` | `predict_win_prob`: temperature優先 → calibrators(legacy) → raw の優先順位で適用 |
+| `ml/src/backtest/engine.py` | `run_race`/`run_backtest_batch`: `exclude_courses`/`min_odds`/`exclude_stadiums` パラメータ追加 |
+| `ml/src/scripts/run_backtest.py` | `--exclude-courses`/`--min-odds`/`--exclude-stadiums` 引数追加 |
+| `ml/src/scripts/run_walkforward.py` | 同引数追加 |
+| `ml/src/scripts/run_grid_search.py` | `apply_thresholds`/`run_grid_search` に同フィルタ追加 |
 
 ### Session 4 成果物（2026-04-16 実装）
 | ファイル | 変更内容 |

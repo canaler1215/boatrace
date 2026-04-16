@@ -163,6 +163,9 @@ def apply_thresholds(
     bet_amount: int,
     max_bets: int,
     filter_overestimation: bool = False,
+    exclude_courses: list[int] | None = None,
+    min_odds: float | None = None,
+    exclude_stadiums: list[int] | None = None,
 ) -> dict:
     """
     combo_records DataFrame に閾値を適用して ROI 等を計算する。
@@ -175,6 +178,9 @@ def apply_thresholds(
     ----------
     filter_overestimation : True の場合、win_probability >= OVERESTIMATION_PROB_CUTOFF
                             の組み合わせを除外する（Plackett-Luce 過大推定対策）
+    exclude_courses       : 除外する1着艇番（コース）リスト（例: [2, 4, 5]）
+    min_odds              : 購入するオッズの下限（例: 100.0 → 100倍未満は除外）
+    exclude_stadiums      : 除外する場ID リスト（例: [11] → びわこ除外）
     """
     # 閾値フィルタ
     mask = (
@@ -184,6 +190,16 @@ def apply_thresholds(
     # trifecta 過大推定フィルタ（10%以上は 7〜31x 過大推定）
     if filter_overestimation:
         mask = mask & (combos_df["win_probability"] < OVERESTIMATION_PROB_CUTOFF)
+    # コース（1着艇番）フィルタ
+    if exclude_courses:
+        first_boat = combos_df["combination"].str.split("-").str[0].astype(int)
+        mask = mask & (~first_boat.isin(exclude_courses))
+    # オッズ下限フィルタ
+    if min_odds is not None:
+        mask = mask & (combos_df["odds"] >= min_odds)
+    # 場フィルタ
+    if exclude_stadiums and "stadium_id" in combos_df.columns:
+        mask = mask & (~combos_df["stadium_id"].isin(exclude_stadiums))
 
     filtered = combos_df[mask].copy()
 
@@ -239,12 +255,18 @@ def run_grid_search(
     prob_thresholds: list[float] = PROB_THRESHOLDS,
     ev_thresholds:   list[float] = EV_THRESHOLDS,
     filter_overestimation: bool = False,
+    exclude_courses: list[int] | None = None,
+    min_odds: float | None = None,
+    exclude_stadiums: list[int] | None = None,
 ) -> pd.DataFrame:
     rows = []
     for prob_th, ev_th in product(prob_thresholds, ev_thresholds):
         rows.append(apply_thresholds(
             combos_df, prob_th, ev_th, bet_amount, max_bets,
             filter_overestimation=filter_overestimation,
+            exclude_courses=exclude_courses,
+            min_odds=min_odds,
+            exclude_stadiums=exclude_stadiums,
         ))
     return pd.DataFrame(rows)
 
@@ -308,6 +330,9 @@ def main() -> None:
     parser.add_argument("--bet-amount",             type=int,  default=100,   help="1 点賭け金（円）")
     parser.add_argument("--max-bets",               type=int,  default=5,     help="1 レース最大賭け点数")
     parser.add_argument("--filter-overestimation",  action="store_true",      help=f"win_prob >= {OVERESTIMATION_PROB_CUTOFF*100:.0f}%（過大推定ビン）を除外")
+    parser.add_argument("--exclude-courses",        type=int,  nargs="+",    help="除外する1着艇番（例: 2 4 5）")
+    parser.add_argument("--min-odds",               type=float, default=None, help="購入するオッズの下限（例: 100.0 → 100倍未満は除外）")
+    parser.add_argument("--exclude-stadiums",       type=int,  nargs="+",    help="除外する場ID（例: 11 → びわこ）")
     parser.add_argument("--output",                 type=str,  default=None,  help="グリッドサーチ結果 CSV の保存先")
     args = parser.parse_args()
 
@@ -373,11 +398,21 @@ def main() -> None:
         len(PROB_THRESHOLDS) * len(EV_THRESHOLDS),
         filter_flag,
     )
+    if args.exclude_courses:
+        logger.info("除外コース: %s", args.exclude_courses)
+    if args.min_odds:
+        logger.info("オッズ下限: %.1f", args.min_odds)
+    if args.exclude_stadiums:
+        logger.info("除外場ID: %s", args.exclude_stadiums)
+
     grid_df = run_grid_search(
         combos_df,
         bet_amount=args.bet_amount,
         max_bets=args.max_bets,
         filter_overestimation=filter_flag,
+        exclude_courses=args.exclude_courses,
+        min_odds=args.min_odds,
+        exclude_stadiums=args.exclude_stadiums,
     )
 
     # ── 3. 結果保存 ─────────────────────────────────────
@@ -410,6 +445,9 @@ def main() -> None:
             bet_amount=args.bet_amount,
             max_bets=args.max_bets,
             filter_overestimation=True,
+            exclude_courses=args.exclude_courses,
+            min_odds=args.min_odds,
+            exclude_stadiums=args.exclude_stadiums,
         )
         print("  [参考: 過大推定フィルタ（win_prob < 10%）適用時の上位5組み合わせ]")
         print(f"  {'prob(%)':>7}  {'EV':>5}  {'賭け点':>6}  {'ROI':>7}  {'的中率':>6}  {'的中'}")

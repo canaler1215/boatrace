@@ -157,6 +157,9 @@ def run_race(
     ev_threshold: float = 0.0,
     kelly_fraction: float = 0.0,
     kelly_bankroll: float = 100_000.0,
+    exclude_courses: list[int] | None = None,
+    min_odds: float | None = None,
+    exclude_stadiums: list[int] | None = None,
 ) -> dict[str, Any] | None:
     """
     1 レース分のバックテストを実行する。
@@ -172,12 +175,21 @@ def run_race(
     ev_threshold     : 賭け実行の期待値閾値（例: 1.2）。0.0 で無効（全組み合わせ対象）
     kelly_fraction   : Kelly 分率（0.0 = 固定ベット, 0.25 = 1/4 Kelly 推奨）
     kelly_bankroll   : Kelly 計算用の資金額（円）
+    exclude_courses  : 除外する1着艇番（コース）リスト（例: [2, 4, 5]）
+    min_odds         : 購入するオッズの下限（例: 100.0 → 100倍未満は除外）
+    exclude_stadiums : 除外する場ID リスト（例: [11] → びわこ除外）
 
     Returns
     -------
     dict | None
-        レース結果辞書。スキップ（データ不足・DNF 等）の場合は None。
+        レース結果辞書。スキップ（データ不足・DNF・除外場等）の場合は None。
     """
+    # ── 0. 場フィルタ（レース単位でスキップ）──────────────────
+    if exclude_stadiums and "stadium_id" in race_df.columns:
+        sid = int(race_df["stadium_id"].iloc[0])
+        if sid in exclude_stadiums:
+            return None
+
     # 有効な実オッズかどうか判定（120 組のうち 60 組以上あれば使用）
     use_real_odds = race_odds is not None and len(race_odds) >= 60
     effective_odds = race_odds if use_real_odds else SYNTHETIC_ODDS
@@ -213,13 +225,17 @@ def run_race(
     # ── 5. 期待値計算 ─────────────────────────────────────
     ev_results = calc_expected_values(trifecta_probs, effective_odds)
 
-    # ── 6. 的中確率閾値・EV閾値超えの組み合わせに賭け ──────────
+    # ── 6. 的中確率閾値・EV閾値・コース/オッズフィルタで絞り込み ──
     # ev_results は EV 降順ソート済み
     alerts = [
         r for r in ev_results
         if r["win_probability"] >= prob_threshold
         and r["expected_value"] >= ev_threshold
     ]
+    if exclude_courses:
+        alerts = [r for r in alerts if int(r["combination"].split("-")[0]) not in exclude_courses]
+    if min_odds is not None:
+        alerts = [r for r in alerts if effective_odds.get(r["combination"], 0.0) >= min_odds]
     alerts = alerts[:max_bets_per_race]
 
     # ── 7. Kelly 基準によるベット額計算 ───────────────────────
@@ -255,6 +271,9 @@ def run_backtest_batch(
     collect_combos: bool = False,
     kelly_fraction: float = 0.0,
     kelly_bankroll: float = 100_000.0,
+    exclude_courses: list[int] | None = None,
+    min_odds: float | None = None,
+    exclude_stadiums: list[int] | None = None,
 ) -> tuple[list[dict], int] | tuple[list[dict], int, list[dict]]:
     """
     全レースのバックテストをバッチ処理で実行する。
@@ -275,6 +294,9 @@ def run_backtest_batch(
                        グリッドサーチ用。戻り値が (results, skipped, combo_records) になる。
     kelly_fraction   : Kelly 分率（0.0 = 固定ベット, 0.25 = 1/4 Kelly 推奨）
     kelly_bankroll   : Kelly 計算用の資金額（円）
+    exclude_courses  : 除外する1着艇番（コース）リスト（例: [2, 4, 5]）
+    min_odds         : 購入するオッズの下限（例: 100.0 → 100倍未満は除外）
+    exclude_stadiums : 除外する場ID リスト（例: [11] → びわこ除外）
 
     Returns
     -------
@@ -315,6 +337,13 @@ def run_backtest_batch(
             skipped += 1
             continue
 
+        # 場フィルタ（除外場はスキップ）
+        if exclude_stadiums and "stadium_id" in race_group.columns:
+            sid = int(race_group["stadium_id"].iloc[0])
+            if sid in exclude_stadiums:
+                skipped += 1
+                continue
+
         actual_combo = get_actual_combo(race_group)
         if actual_combo is None:
             logger.debug("Race %s: actual combo undetermined (DNF/missing), skip", race_id)
@@ -337,6 +366,10 @@ def run_backtest_batch(
             if r["win_probability"] >= prob_threshold
             and r["expected_value"] >= ev_threshold
         ]
+        if exclude_courses:
+            alerts = [r for r in alerts if int(r["combination"].split("-")[0]) not in exclude_courses]
+        if min_odds is not None:
+            alerts = [r for r in alerts if effective_odds.get(r["combination"], 0.0) >= min_odds]
         alerts = alerts[:max_bets_per_race]
 
         # Kelly 基準によるベット額計算
