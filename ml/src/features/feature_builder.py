@@ -3,7 +3,7 @@
 約12次元 (MVP) の特徴量を組み立てる
 """
 import pandas as pd
-from .tidal_features import add_tidal_features
+from .tidal_features import add_tidal_features, add_tidal_features_estimated
 from .stadium_features import add_stadium_features
 
 # 級別エンコーディング (高いほど上位)
@@ -83,15 +83,18 @@ def build_features_from_history(df: pd.DataFrame) -> tuple[pd.DataFrame, pd.Seri
     df = _encode_wind(df)
     df = add_stadium_features(df)
 
-    # 潮位データは歴史 CSV には含まれないため 0 で埋める
-    if "tidal_level" not in df.columns:
-        df["tidal_level"] = 0.0
-    if "tidal_type_encoded" not in df.columns:
-        df["tidal_type_encoded"] = 0
+    # 潮位データは Kファイルには含まれないため月齢モデルで推定する（P4修正）
+    # race_date + race_no + stadium_id が揃っていれば推定値を使用し、
+    # 推論時（DB由来）との乖離を解消する。
+    df = add_tidal_features_estimated(df)
 
     # racer_win_rate の列名を統一
     if "racer_win_rate" not in df.columns and "win_rate" in df.columns:
         df["racer_win_rate"] = df["win_rate"]
+
+    # racer_win_rate を直近3ヶ月加重平均に更新（ルックアヘッドなし）
+    # B ファイルの全国勝率（年度集計）より直近の実績を反映させる
+    df = _add_rolling_racer_win_rate(df, window_months=3, min_weighted_races=3)
 
     # 選手の過去 ST 平均を計算（ルックアヘッドなし）
     df = _add_racer_avg_st(df)
@@ -100,6 +103,82 @@ def build_features_from_history(df: pd.DataFrame) -> tuple[pd.DataFrame, pd.Seri
     y = (df["finish_position"] - 1).astype(int)
 
     return X, y
+
+
+def _add_rolling_racer_win_rate(
+    df: pd.DataFrame,
+    window_months: int = 3,
+    min_weighted_races: int = 3,
+) -> pd.DataFrame:
+    """
+    Kファイルの finish_position を使い、直近 window_months ヶ月の加重平均勝率を計算して
+    racer_win_rate 列を更新する。
+
+    重み: 1ヶ月前 × window_months, 2ヶ月前 × (window_months-1), ..., N ヶ月前 × 1
+
+    ルックアヘッドなし:
+      - 当月のレース結果は参照しない（前月以前のみ）
+      - 加重レース数 < min_weighted_races の場合は既存の racer_win_rate（B ファイル値）を維持
+
+    Parameters
+    ----------
+    df                 : K+B マージ済みの DataFrame (finish_position, racer_id, race_date 必須)
+    window_months      : ルックバック月数（デフォルト 3）
+    min_weighted_races : この加重レース数を下回る場合 B ファイル値を使用（デフォルト 3）
+    """
+    required = {"racer_id", "race_date", "finish_position"}
+    if not required.issubset(df.columns):
+        return df
+
+    df = df.copy()
+    df["_race_date_dt"] = pd.to_datetime(df["race_date"])
+    df["_ym"] = df["_race_date_dt"].dt.to_period("M")
+    df["_ym_ord"] = df["_ym"].apply(lambda p: p.ordinal)
+
+    # 月別集計: (racer_id, ym_ordinal) → (wins, races)
+    monthly = (
+        df.groupby(["racer_id", "_ym_ord"])
+        .agg(
+            wins=("finish_position", lambda x: (x == 1).sum()),
+            races=("finish_position", lambda x: x.notna().sum()),
+        )
+        .reset_index()
+    )
+
+    # 重みテーブル: lag 1 → weight=window_months, ..., lag N → weight=1
+    weights = {lag: window_months + 1 - lag for lag in range(1, window_months + 1)}
+
+    # 各ラグ月の勝ち数・レース数をマージ
+    rolling_wins = None
+    rolling_weighted_races = None
+    for lag, w in weights.items():
+        m = monthly.copy()
+        m["_ym_ord"] = m["_ym_ord"] + lag  # 参照先を lag ヶ月分前倒し
+        m = m.rename(columns={"wins": f"_wins_{lag}", "races": f"_races_{lag}"})
+
+        df = df.merge(
+            m[["racer_id", "_ym_ord", f"_wins_{lag}", f"_races_{lag}"]],
+            on=["racer_id", "_ym_ord"],
+            how="left",
+        )
+        w_wins = w * df[f"_wins_{lag}"].fillna(0.0)
+        w_races = w * df[f"_races_{lag}"].fillna(0.0)
+
+        rolling_wins = w_wins if rolling_wins is None else rolling_wins + w_wins
+        rolling_weighted_races = w_races if rolling_weighted_races is None else rolling_weighted_races + w_races
+
+        df = df.drop(columns=[f"_wins_{lag}", f"_races_{lag}"])
+
+    # 加重平均勝率
+    has_enough = rolling_weighted_races >= min_weighted_races
+    rolling_rate = rolling_wins / rolling_weighted_races.clip(lower=1)
+
+    # 既存の racer_win_rate (B ファイル値) がある場合は不足行に使用
+    fallback = df["racer_win_rate"].fillna(0.0) if "racer_win_rate" in df.columns else 0.0
+    df["racer_win_rate"] = rolling_rate.where(has_enough, other=fallback)
+
+    df = df.drop(columns=["_race_date_dt", "_ym", "_ym_ord"])
+    return df
 
 
 def _add_racer_avg_st(df: pd.DataFrame) -> pd.DataFrame:

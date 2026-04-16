@@ -75,4 +75,11 @@ python ml/src/scripts/run_retrain.py
 
 # 本番予測
 python ml/src/scripts/run_predict.py
+
+# 特徴量重要度・SHAP値の可視化
+python ml/src/scripts/run_feature_importance.py --year 2025 --month 12
+python ml/src/scripts/run_feature_importance.py --year 2025 --month 12 --no-shap  # SHAP省略
+
+# 次回バックテスト前にオッズParquetをコピー
+cp artifacts/odds_2025*.parquet data/odds/
 ```

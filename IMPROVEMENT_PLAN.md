@@ -59,10 +59,20 @@ python ml/src/scripts/run_calibration.py --year 2025 --month 12
 ### Session 2: 特徴量改善
 **目標**: 学習データの質を上げてモデル精度を向上させる
 
-- [ ] 全24場の1コース勝率を追加（stadium_features.py 拡充）
-- [ ] tidal_level を学習データに組み込む（Kファイル×潮位APIの結合）
-- [ ] racer_win_rate の直近3ヶ月加重平均化
-- [ ] 特徴量重要度・SHAP値の可視化
+- [x] 全24場の1コース勝率を追加（stadium_features.py 拡充）
+  - 旧コードのJCDコード誤記バグ修正（4→13=尼崎, 22→24=大村）
+  - 全24場の実績値を追加
+- [x] tidal_level を学習データに組み込む（月齢×半日周潮モデルによる推定）
+  - `tidal_features.py`: `estimate_tidal_level` + `add_tidal_features_estimated` を追加
+  - `feature_builder.py`: 歴史データに tidal_level / tidal_type_encoded を推定値で設定（P4修正）
+- [x] racer_win_rate の直近3ヶ月加重平均化
+  - `feature_builder.py`: `_add_rolling_racer_win_rate` を追加
+  - 重み: 1ヶ月前×3, 2ヶ月前×2, 3ヶ月前×1 / 加重レース数≥3で有効
+  - 履歴不足の場合はBファイル勝率にフォールバック
+- [x] 特徴量重要度・SHAP値の可視化
+  - `scripts/run_feature_importance.py` 新規作成
+  - LightGBM gain/split importance を CSV + PNG に保存
+  - SHAP beeswarm + bar plot を PNG に保存（shap ライブラリ要）
 
 ### Session 3: モデル改善
 **目標**: 確率推定の精度を上げ、キャリブレーションを適正化する
@@ -85,7 +95,7 @@ python ml/src/scripts/run_calibration.py --year 2025 --month 12
 ## 現在の進捗
 
 **最終更新**: 2026-04-16
-**現在のセッション**: Session 1 完了 / Walk-Forward分析済み → **Session 2 準備中**
+**現在のセッション**: Session 2 完了 → **Session 3 準備中**
 
 ### Session 1 成果物
 | ファイル | 内容 |
@@ -95,6 +105,14 @@ python ml/src/scripts/run_calibration.py --year 2025 --month 12
 | `ml/src/scripts/run_walkforward.py` | 新規作成：複数月Walk-Forward検証 |
 | `ml/src/scripts/run_grid_search.py` | 新規作成：閾値グリッドサーチ |
 | `ml/src/scripts/run_calibration.py` | 新規作成：キャリブレーション分析 |
+
+### Session 2 成果物
+| ファイル | 内容 |
+|---------|------|
+| `ml/src/features/stadium_features.py` | 全24場1コース勝率追加・JCDコードバグ修正 |
+| `ml/src/features/tidal_features.py` | 月齢推定関数 `estimate_tidal_level` + `add_tidal_features_estimated` 追加 |
+| `ml/src/features/feature_builder.py` | P4修正（潮位推定）+ 直近3ヶ月加重平均勝率（`_add_rolling_racer_win_rate`）追加 |
+| `ml/src/scripts/run_feature_importance.py` | 新規作成：特徴量重要度・SHAP値可視化 |
 
 ---
 
@@ -128,8 +146,8 @@ python ml/src/scripts/run_calibration.py --year 2025 --month 12
   `artifacts/` に置かれているが、正しいキャッシュパスは `data/odds/`
   → 次回実行前に `cp artifacts/odds_2025*.parquet data/odds/` が必要
 
-### Session 2 進行判断
-**Session 2 進行を推奨**（以下の確認・修正を並行実施）:
-- [ ] オッズParquetを `data/odds/` にコピー（次回バックテスト前に必須）
-- [ ] GH Actions artifactsからキャリブレーション・グリッドサーチCSVをDL・確認
+### Session 3 進行前の確認事項
+- [ ] オッズParquetを `data/odds/` にコピー（次回バックテスト前に必須）: `cp artifacts/odds_2025*.parquet data/odds/`
+- [ ] Session 2 変更を含めた再学習・Walk-Forward検証で改善効果を確認
+- [ ] 特徴量重要度確認: `python ml/src/scripts/run_feature_importance.py --year 2025 --month 12`
 - [ ] より長期（2024-01〜2025-12）のWalk-Forward検証を将来的に実施
