@@ -454,6 +454,7 @@ jobs:
             --chunk-total 4 \
             --chunk-index ${{ matrix.chunk_index }} \
             --retrain \
+            --retrain-interval 3 \
             --train-start-year ${{ inputs.train_start_year }} \
             --train-start-month ${{ inputs.train_start_month }} \
             --prob-threshold ${{ inputs.prob_threshold }} \

@@ -299,8 +299,9 @@ def main() -> None:
     parser.add_argument("--min-odds",          type=float, default=None, help="購入するオッズの下限（例: 100.0 → 100倍未満は除外）")
     parser.add_argument("--exclude-stadiums",  type=int,   nargs="+",   help="除外する場ID（例: 11 → びわこ）")
     parser.add_argument("--output",            type=str,   default=None, help="結果 CSV の保存先")
-    parser.add_argument("--chunk-total",       type=int,   default=1,   help="並列チャンク総数（GH Actions matrix 用、デフォルト: 1 = 全月実行）")
-    parser.add_argument("--chunk-index",       type=int,   default=0,   help="このジョブのチャンクインデックス（0始まり）")
+    parser.add_argument("--chunk-total",        type=int,   default=1,   help="並列チャンク総数（GH Actions matrix 用、デフォルト: 1 = 全月実行）")
+    parser.add_argument("--chunk-index",        type=int,   default=0,   help="このジョブのチャンクインデックス（0始まり）")
+    parser.add_argument("--retrain-interval",   type=int,   default=1,   help="再学習間隔（月数）。デフォルト 1 = 毎月。N=3 なら 3 ヶ月に 1 回再学習し中間月はモデルを再利用。")
     args = parser.parse_args()
 
     ARTIFACTS_DIR.mkdir(exist_ok=True)
@@ -336,21 +337,21 @@ def main() -> None:
 
     all_results_list: list[pd.DataFrame] = []
     monthly_rows: list[dict] = []
-    cached_model = None  # retrain=False 時にモデルをキャッシュ
+    cached_model = None
 
-    for test_year, test_month in months:
+    for i, (test_year, test_month) in enumerate(months):
         logger.info("── %d-%02d のバックテスト開始 ──", test_year, test_month)
 
-        # 1. モデル取得
+        # 1. モデル取得（retrain_interval に基づき再学習 or 前月モデル再利用）
+        should_retrain = args.retrain and (i % args.retrain_interval == 0)
         model = get_model_for_month(
             test_year, test_month,
-            retrain=args.retrain,
+            retrain=should_retrain,
             train_start_year=args.train_start_year,
             train_start_month=args.train_start_month,
             cached_model=cached_model,
         )
-        if not args.retrain:
-            cached_model = model  # 同じモデルを再利用
+        cached_model = model  # 次月以降で再利用（再学習した場合も更新）
 
         # 2. テストデータ取得
         df_test = load_month_data(test_year, test_month)
