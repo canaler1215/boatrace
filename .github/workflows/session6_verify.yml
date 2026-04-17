@@ -376,16 +376,18 @@ jobs:
           retention-days: 90
 
   # ============================================================
-  # Job 4: 長期 Walk-Forward（S6-3: 2024-01〜2025-12）
-  #   統計的信頼性を高めるための1年以上の検証
+  # Job 4: 長期 Walk-Forward（S6-3: 2024-01〜2025-12）— 4並列チャンク版
+  #   GH Actions 6h 制限を回避するため 4 チャンクを並列実行する。
+  #   各チャンクは全月範囲を --chunk-total 4 --chunk-index N で均等分割して処理。
   # ============================================================
   walkforward_long:
     runs-on: ubuntu-latest
-    timeout-minutes: 1440
+    timeout-minutes: 360
     if: ${{ inputs.run_long_walkforward == true }}
-
-    permissions:
-      contents: write
+    strategy:
+      fail-fast: false
+      matrix:
+        chunk_index: [0, 1, 2, 3]
 
     steps:
       - uses: actions/checkout@v4
@@ -408,23 +410,23 @@ jobs:
           path: |
             data/history/
             data/program/
-          key: kbfile-${{ inputs.wf_long_start }}-${{ inputs.wf_long_end }}-${{ github.run_id }}
+          key: kbfile-long-c${{ matrix.chunk_index }}-${{ inputs.wf_long_start }}-${{ inputs.wf_long_end }}-${{ github.run_id }}
           restore-keys: |
-            kbfile-${{ inputs.wf_long_start }}-${{ inputs.wf_long_end }}-
-            kbfile-${{ inputs.wf_long_start }}-
+            kbfile-long-c${{ matrix.chunk_index }}-${{ inputs.wf_long_start }}-${{ inputs.wf_long_end }}-
+            kbfile-long-c${{ matrix.chunk_index }}-
             kbfile-
 
       - name: Restore odds cache
         uses: actions/cache@v4
         with:
           path: data/odds/
-          key: odds-${{ inputs.wf_long_start }}-${{ inputs.wf_long_end }}-${{ github.run_id }}
+          key: odds-long-c${{ matrix.chunk_index }}-${{ inputs.wf_long_start }}-${{ inputs.wf_long_end }}-${{ github.run_id }}
           restore-keys: |
-            odds-${{ inputs.wf_long_start }}-${{ inputs.wf_long_end }}-
-            odds-${{ inputs.wf_long_start }}-
+            odds-long-c${{ matrix.chunk_index }}-${{ inputs.wf_long_start }}-${{ inputs.wf_long_end }}-
+            odds-long-c${{ matrix.chunk_index }}-
             odds-
 
-      - name: "Run Long Walk-Forward (Session 6-3: 長期統計検証)"
+      - name: "Run Long Walk-Forward chunk ${{ matrix.chunk_index }}/4 (S6-3)"
         run: |
           REAL_ODDS_FLAG=""
           if [ "${{ inputs.real_odds }}" == "true" ]; then
@@ -449,6 +451,8 @@ jobs:
           python ml/src/scripts/run_walkforward.py \
             --start "${{ inputs.wf_long_start }}" \
             --end "${{ inputs.wf_long_end }}" \
+            --chunk-total 4 \
+            --chunk-index ${{ matrix.chunk_index }} \
             --retrain \
             --train-start-year ${{ inputs.train_start_year }} \
             --train-start-month ${{ inputs.train_start_month }} \
@@ -460,12 +464,109 @@ jobs:
             $MIN_ODDS_FLAG \
             $EXCLUDE_STADIUMS_FLAG
 
-      - name: Upload Long Walk-Forward results
+      - name: Upload chunk results
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: walkforward-session6-long-${{ inputs.wf_long_start }}-${{ inputs.wf_long_end }}-run${{ github.run_number }}
-          path: |
-            artifacts/walkforward_*.csv
-            data/odds/odds_*.parquet
+          name: walkforward-long-chunk${{ matrix.chunk_index }}-run${{ github.run_number }}
+          path: artifacts/walkforward_*.csv
+          retention-days: 90
+
+  # ============================================================
+  # Job 5: 長期 Walk-Forward マージ（全チャンク結果を結合・集計）
+  # ============================================================
+  walkforward_long_merge:
+    needs: walkforward_long
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    if: ${{ always() && inputs.run_long_walkforward == true && needs.walkforward_long.result != 'skipped' && needs.walkforward_long.result != 'cancelled' }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: 'pip'
+          cache-dependency-path: ml/requirements.txt
+
+      - name: Install Python dependencies
+        run: pip install -r ml/requirements.txt
+
+      - name: Download all chunk artifacts
+        uses: actions/download-artifact@v4
+        with:
+          pattern: walkforward-long-chunk*-run${{ github.run_number }}
+          merge-multiple: true
+          path: artifacts/
+
+      - name: Merge chunks and print summary
+        run: |
+          python - <<'PYEOF'
+          import sys
+          from pathlib import Path
+          import pandas as pd
+
+          chunks = sorted(Path("artifacts").glob("walkforward_*_chunk*of*.csv"))
+          if not chunks:
+              print("チャンク CSV が見つかりません。")
+              sys.exit(1)
+
+          print(f"マージ対象 ({len(chunks)} ファイル): {[c.name for c in chunks]}")
+          df = pd.concat([pd.read_csv(f) for f in chunks], ignore_index=True)
+          df = df.sort_values(["race_date", "race_id"])
+
+          out = Path("artifacts/walkforward_long_merged.csv")
+          df.to_csv(out, index=False)
+          print(f"マージ完了: {out} ({len(df):,} 行)\n")
+
+          total_wagered = float(df["amount_wagered"].sum())
+          total_payout  = float(df["payout_received"].sum())
+          total_bets    = int(df["bets_placed"].sum())
+          total_wins    = int(df["matched"].sum())
+          roi = (total_payout / total_wagered - 1) * 100 if total_wagered > 0 else 0.0
+          win_rate = total_wins / total_bets * 100 if total_bets > 0 else 0.0
+          avg_odds = float(df[df["matched"]]["matched_odds"].mean()) if total_wins > 0 else 0.0
+
+          print("=" * 62)
+          print("  長期 Walk-Forward 結果（全チャンクマージ）")
+          print("=" * 62)
+          print(f"  対象期間  : {df['race_date'].min()} 〜 {df['race_date'].max()}")
+          print(f"  総レース  : {len(df):,}")
+          print("-" * 62)
+          print(f"  投資合計  : ¥{total_wagered:>12,.0f}")
+          print(f"  払戻合計  : ¥{total_payout:>12,.0f}")
+          print(f"  損益      : ¥{total_payout - total_wagered:>+12,.0f}")
+          print(f"  ROI       : {roi:>+.1f}%")
+          print("-" * 62)
+          print(f"  的中      : {total_wins} / {total_bets} 点  ({win_rate:.2f}%)")
+          print(f"  平均配当  : {avg_odds:.1f}x")
+          print("=" * 62)
+
+          df["month"] = df["race_date"].str[:7]
+          monthly = df.groupby("month").agg(
+              wagered=("amount_wagered", "sum"),
+              payout=("payout_received", "sum"),
+              n_bets=("bets_placed", "sum"),
+              wins=("matched", "sum"),
+          ).reset_index()
+
+          print()
+          print(f"  {'月':>7}  {'賭け点':>6}  {'投資':>10}  {'払戻':>10}  {'ROI':>7}  {'的中'}")
+          print("  " + "-" * 58)
+          for _, row in monthly.iterrows():
+              roi_m = (row["payout"] / row["wagered"] - 1) * 100 if row["wagered"] > 0 else float("nan")
+              print(
+                  f"  {row['month']:>7}  {int(row['n_bets']):>6,}  "
+                  f"¥{row['wagered']:>9,.0f}  ¥{row['payout']:>9,.0f}  "
+                  f"{roi_m:>+6.1f}%  {int(row['wins'])}"
+              )
+          PYEOF
+
+      - name: Upload merged results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: walkforward-long-merged-run${{ github.run_number }}
+          path: artifacts/walkforward_long_merged.csv
           retention-days: 90

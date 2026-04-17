@@ -299,6 +299,8 @@ def main() -> None:
     parser.add_argument("--min-odds",          type=float, default=None, help="購入するオッズの下限（例: 100.0 → 100倍未満は除外）")
     parser.add_argument("--exclude-stadiums",  type=int,   nargs="+",   help="除外する場ID（例: 11 → びわこ）")
     parser.add_argument("--output",            type=str,   default=None, help="結果 CSV の保存先")
+    parser.add_argument("--chunk-total",       type=int,   default=1,   help="並列チャンク総数（GH Actions matrix 用、デフォルト: 1 = 全月実行）")
+    parser.add_argument("--chunk-index",       type=int,   default=0,   help="このジョブのチャンクインデックス（0始まり）")
     args = parser.parse_args()
 
     ARTIFACTS_DIR.mkdir(exist_ok=True)
@@ -311,7 +313,20 @@ def main() -> None:
         sys.exit(1)
 
     months = list(month_range(start_year, start_month, end_year, end_month))
-    logger.info("Walk-Forward: %d 月分を検証します (%s → %s)", len(months), args.start, args.end)
+
+    if args.chunk_total > 1:
+        chunk_size = (len(months) + args.chunk_total - 1) // args.chunk_total
+        months = months[args.chunk_index * chunk_size : (args.chunk_index + 1) * chunk_size]
+        if not months:
+            logger.info("チャンク %d/%d: 処理対象月なし。終了します。", args.chunk_index, args.chunk_total)
+            return
+        logger.info(
+            "チャンク %d/%d: %d-%02d 〜 %d-%02d (%d ヶ月)",
+            args.chunk_index, args.chunk_total,
+            months[0][0], months[0][1], months[-1][0], months[-1][1], len(months),
+        )
+    else:
+        logger.info("Walk-Forward: %d 月分を検証します (%s → %s)", len(months), args.start, args.end)
 
     if not args.real_odds:
         logger.warning(
@@ -394,7 +409,11 @@ def main() -> None:
     # 5. CSV 保存
     label_start = f"{start_year}{start_month:02d}"
     label_end   = f"{end_year}{end_month:02d}"
-    output_path = args.output or str(ARTIFACTS_DIR / f"walkforward_{label_start}-{label_end}.csv")
+    if args.chunk_total > 1:
+        chunk_suffix = f"_chunk{args.chunk_index}of{args.chunk_total}"
+    else:
+        chunk_suffix = ""
+    output_path = args.output or str(ARTIFACTS_DIR / f"walkforward_{label_start}-{label_end}{chunk_suffix}.csv")
     all_results.to_csv(output_path, index=False)
     logger.info("結果を保存: %s", output_path)
 
