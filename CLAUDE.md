@@ -39,13 +39,12 @@ data/                 ダウンロードキャッシュ
 
 - **モデル**: LightGBM multiclass (num_class=6, 着順1〜6を予測)
 - **特徴量** (12次元): `exhibition_time`, `motor_win_rate`, `boat_win_rate`, `boat_no`, `racer_win_rate`, `racer_grade_encoded`, `racer_avg_st`, `tidal_level`, `tidal_type_encoded`, `in_win_rate`, `wind_direction_encoded`, `wind_speed`
-- **モデル保存形式** (Session 5〜): `{"booster": lgb.Booster, "temperature": float}` ※旧形式(calibrators/Booster直接)も後方互換
-  - ⚠️ Session 5 検証結果: T=0.988≈1.0 で実質スケーリングなし。グローバルスカラーではビン別構造バイアスを解消できない
-- **キャリブレーション** (Session 5〜): `trainer.py` で val データの NLL を最小化する Temperature T を scipy で探索
-  - ⚠️ 根本課題未解決: 1着 ECE=0.137（改善幅小）、trifecta ECE が逆に 4.6x 悪化
-  - → Session 6 対策: レース内ソフトマックス正規化 + 正規化後 Isotonic Regression
+- **モデル保存形式** (Session 6〜): `{"booster": lgb.Booster, "softmax_calibrators": list[IsotonicRegression]}` ※旧形式(temperature/calibrators/Booster直接)も後方互換
+- **キャリブレーション** (Session 6〜): `trainer.py` で raw probs → softmax正規化 → per-class Isotonic Regression → 再正規化
+  - Session 5（廃止）: Temperature Scaling（T≈1.0 でスケーリング無効、trifecta ECE 4.6x 悪化と確定）
+  - Session 6 狙い: ビン別構造バイアスを per-bin IR で直接補正、sum-to-1 維持で trifecta ECE も改善
 - **学習データ分割** (Session 3〜): 時系列 split（最後の 10% を val、random split 廃止）
-- **3連単確率**: Plackett-Luce近似（1着確率のみから計算） ⚠️ trifecta 10-20%帯 6x 過大推定（根本未解決）
+- **3連単確率**: Plackett-Luce近似（1着確率のみから計算）。`predict_win_prob` が sum-to-1 を保証するため過大推定を抑制
 - **EV計算**: `EV = P_model × odds`（実オッズ or 合成オッズ）
 - **購入条件** (Session 5〜): prob ≥ 7%, EV ≥ 2.0, コース2/4/5除外, オッズ<100x除外, びわこ(ID=11)除外
 - **購入金額**: 1点 100円（`--kelly-fraction 0.25` による 1/4 Kelly 基準も選択可能）

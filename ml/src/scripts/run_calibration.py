@@ -384,9 +384,12 @@ def main() -> None:
                 class_cal_df.to_csv(out_class, index=False)
                 logger.info("RAW クラスキャリブレーション保存: %s", out_class)
 
-                # ── Calibrated ECE 分析（calibrators が存在する場合のみ） ──
-                calibrators = model.get("calibrators") if isinstance(model, dict) else None
-                if calibrators is not None:
+                # ── Calibrated ECE 分析（softmax_calibrators / calibrators が存在する場合） ──
+                has_calibrators = isinstance(model, dict) and (
+                    model.get("softmax_calibrators") is not None
+                    or model.get("calibrators") is not None
+                )
+                if has_calibrators:
                     logger.info("[calibrated] キャリブレーション補正後の ECE を分析中...")
                     cal_probs = predict_win_prob(model, X_all)
                     if cal_probs.ndim == 2 and cal_probs.shape[1] == 6:

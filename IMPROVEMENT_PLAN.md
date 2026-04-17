@@ -175,7 +175,7 @@ python ml/src/scripts/run_calibration.py --year 2025 --month 12
 ## 現在の進捗
 
 **最終更新**: 2026-04-17
-**現在のセッション**: **Session 5 完了（S5-1〜S5-3 完了、S5-4 → Session 6 で整理）→ Session 6 計画中**
+**現在のセッション**: **Session 6 進行中（S6-1・S6-2 実装完了 → GH Actions 検証待ち）**
 
 ### Session 1 成果物
 | ファイル | 内容 |
@@ -244,16 +244,20 @@ python ml/src/scripts/run_backtest.py --year 2025 --month 12 --real-odds \
 
 #### タスク
 
-- [ ] S6-1: レース内ソフトマックス正規化の実装
-  - `predictor.py`: `predict_win_prob()` で各レースの6艇確率を softmax で sum-to-1 に正規化
-  - 正規化後の確率を Plackett-Luce に入力することで trifecta 過大推定を解消
-- [ ] S6-2: 正規化後 Isotonic Regression によるキャリブレーション再設計
-  - `trainer.py`: ソフトマックス正規化後の確率に対して val データで Isotonic Regression を学習
-  - クラス間 sum-to-1 制約を保持したまま per-bin 補正（正規化 → calibrate → 再正規化）
+- [x] S6-1: レース内ソフトマックス正規化の実装 — **2026-04-17 実装完了**
+  - `predictor.py`: `predict_win_prob()` に `_softmax_normalize()` を追加
+  - `softmax_calibrators` パスで raw probs → 正規化 → IR → 再正規化（sum-to-1 維持）
+  - Plackett-Luce への入力が常に sum-to-1 になり、trifecta 過大推定を根本的に解消
+- [x] S6-2: 正規化後 Isotonic Regression によるキャリブレーション再設計 — **2026-04-17 実装完了**
+  - `trainer.py`: Temperature Scaling を廃止 → `_softmax_normalize()` + `IsotonicRegression`
+  - val データで: raw probs → softmax 正規化 → per-class IR 学習 → 再正規化で ECE 計測
   - 保存形式: `{"booster": lgb.Booster, "softmax_calibrators": list[IsotonicRegression]}`
+  - `run_calibration.py`: `softmax_calibrators` キーも calibrated ECE 計測対象に追加
+  - GH Actions: `session6_verify.yml` 新規作成（retrain → calibration → walkforward → walkforward_long）
 - [ ] S6-3: Walk-Forward 期間延長（2024-01〜2025-12）
   - 12ヶ月以上の検証で月次ROI分散を把握し、統計的信頼性を確認
   - Session 5 ルール（prob≥7%, EV≥2.0 等）を維持して比較
+  - `session6_verify.yml` の `walkforward_long` ジョブで実行（`run_long_walkforward=true`）
 - [ ] S6-4: 運用ルール策定（S5-4 の移管）
   - Walk-Forward 長期結果を踏まえた実運用判断基準の文書化
   - 月次許容損失・停止条件・モデル再学習タイミングの定義
