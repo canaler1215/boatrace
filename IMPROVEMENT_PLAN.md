@@ -146,17 +146,12 @@ python ml/src/scripts/run_calibration.py --year 2025 --month 12
     - val データで負対数尤度最小化（bounds=(0.1, 10.0)）により最適 T を探索
   - `predictor.py`: `predict_win_prob` で temperature 優先処理（calibrators は legacy 対応のみ）
   - 保存形式: `{"booster": lgb.Booster, "temperature": float}` に変更（旧形式後方互換維持）
-- [ ] S5-3: Walk-Forward 再検証（新ルール + 新キャリブレーション）
+- [x] S5-3: Walk-Forward 再検証（新ルール + 新キャリブレーション）— **2026-04-17 完了**
   - 再学習（Temperature Scaling）+ 新ルール（コース/オッズ/場フィルタ、prob≥7%, ev≥2.0）で 2025-10〜12 Walk-Forward
-  - Session 3 との ROI 比較
-  ```bash
-  python ml/src/scripts/run_walkforward.py \
-    --start 2025-10 --end 2025-12 --retrain --real-odds \
-    --prob-threshold 0.07 --ev-threshold 2.0 \
-    --exclude-courses 2 4 5 --min-odds 100 --exclude-stadiums 11
-  ```
+  - 結果: ベット 6,967件, ROI +1,044%, 的中率 1.87%, avg matched_odds 613x
+  - 重大発見: Temperature T=0.988≈1.0 → 実質スケーリングなし, trifecta ECE が 4.6x 悪化
 - [ ] S5-4: 最終 ROI 目標値と運用ルールの策定
-  - Walk-Forward 結果を踏まえた実運用判断基準の文書化
+  - Walk-Forward 結果を踏まえた実運用判断基準の文書化（→ Session 6 で整理）
 
 **Session 5 実行コマンド（実装後）**:
 ```bash
@@ -179,8 +174,8 @@ python ml/src/scripts/run_calibration.py --year 2025 --month 12
 
 ## 現在の進捗
 
-**最終更新**: 2026-04-16
-**現在のセッション**: **Session 5 進行中（S5-1/S5-2 実装完了 → S5-3 Walk-Forward 再検証待ち）**
+**最終更新**: 2026-04-17
+**現在のセッション**: **Session 5 完了（S5-1〜S5-3 完了、S5-4 → Session 6 で整理）→ Session 6 計画中**
 
 ### Session 1 成果物
 | ファイル | 内容 |
@@ -233,6 +228,109 @@ python ml/src/scripts/run_segment_analysis.py --combos-csv artifacts/combos_2025
 python ml/src/scripts/run_backtest.py --year 2025 --month 12 --real-odds \
   --kelly-fraction 0.25 --kelly-bankroll 100000
 ```
+
+### Session 6: キャリブレーション根本解決 + 長期検証
+**目標**: Temperature Scaling で解決できなかった構造的キャリブレーションバイアスを根本から修正し、統計的信頼性を高める
+
+#### Session 5 GH Actions 分析結果（根拠）
+
+| 発見 | 根拠データ | 対処方針 |
+|------|-----------|---------|
+| Temperature T≈1.0（実質無効） | T=0.9881。NLL最小化がスケーリングなし点に収束 | グローバルスカラーでは解決不可能と確定 |
+| trifecta ECE が 4.6x 悪化 | 0.000242 → 0.001123（10-20%ビン: 6x過大推定） | ソフトマックス正規化でPlackett-Luce入力を修正 |
+| 1着 ECE の構造バイアス継続 | 0-10%ビン: 過小推定3.4x、30%+ビン: 過大推定2-3.5x | ビン別補正が必要（Isotonic Regression を正規化後に適用） |
+| ROI +1,044%（購入ルールは有効） | S3 +516% → S5 +1,044%（ベット数-82%） | 購入ルールは維持、キャリブレーション改善でさらに向上を狙う |
+| 月次ROI分散大（611%〜1,575%） | 3ヶ月では統計的信頼性が低い | Walk-Forward期間を1年以上に延長して検証 |
+
+#### タスク
+
+- [ ] S6-1: レース内ソフトマックス正規化の実装
+  - `predictor.py`: `predict_win_prob()` で各レースの6艇確率を softmax で sum-to-1 に正規化
+  - 正規化後の確率を Plackett-Luce に入力することで trifecta 過大推定を解消
+- [ ] S6-2: 正規化後 Isotonic Regression によるキャリブレーション再設計
+  - `trainer.py`: ソフトマックス正規化後の確率に対して val データで Isotonic Regression を学習
+  - クラス間 sum-to-1 制約を保持したまま per-bin 補正（正規化 → calibrate → 再正規化）
+  - 保存形式: `{"booster": lgb.Booster, "softmax_calibrators": list[IsotonicRegression]}`
+- [ ] S6-3: Walk-Forward 期間延長（2024-01〜2025-12）
+  - 12ヶ月以上の検証で月次ROI分散を把握し、統計的信頼性を確認
+  - Session 5 ルール（prob≥7%, EV≥2.0 等）を維持して比較
+- [ ] S6-4: 運用ルール策定（S5-4 の移管）
+  - Walk-Forward 長期結果を踏まえた実運用判断基準の文書化
+  - 月次許容損失・停止条件・モデル再学習タイミングの定義
+
+---
+
+## Session 5 → Session 6 移行分析（2026-04-17）
+
+### GH Actions 実行結果（Session 5 検証パイプライン: 再学習→キャリブレーション→Walk-Forward）
+
+| ファイル | 内容 |
+|---------|------|
+| `artifacts/Session5/model_metrics.txt` | version=202604, rps=0.1565, top1_accuracy=31.45%, samples=1,403,845 |
+| `artifacts/Session5/model_latest.pkl` | temperature=0.9881（≈1.0、実質スケーリングなし） |
+| `artifacts/Session5/calibration_202512_summary.csv` | 1착 ECE=0.13720（S3: 0.14178と同等）、trifecta ECE=0.001123（4.6x悪化） |
+| `artifacts/Session5/walkforward_202510-202512.csv` | 全レース詳細データ（約75万行） |
+
+### Walk-Forward 結果（Session 5）
+
+| 月 | ベット | 投資額 | 払戻額 | 的中 | ROI |
+|----|-------|--------|--------|-----|-----|
+| 2025-10 | 2,245 | 224,500円 | 2,622,980円 | 39件 | +1,068% |
+| 2025-11 | 2,064 | 206,400円 | 3,456,580円 | 55件 | +1,575% |
+| 2025-12 | 2,658 | 265,800円 | 1,890,310円 | 36件 | +611% |
+| **計** | **6,967** | **696,700円** | **7,969,870円** | **130件** | **+1,044%** |
+
+### 全セッション Walk-Forward 比較
+
+| セッション | ルール | ベット数 | ROI | 的中率/bet | avg matched_odds | 1着 ECE |
+|-----------|--------|---------|-----|-----------|-----------------|---------|
+| S1 | prob≥3%, EV≥1.2 | 37,868 | +2,524% | 6.19% | 424x | 0.018 |
+| S2 | prob≥3%, EV≥1.2 | 40,787 | +477% | 1.41% | 410x | 0.1396 |
+| S3 | prob≥3%, EV≥1.2 | 38,057 | +516% | 1.42% | 433x | 0.14178 |
+| **S5** | **prob≥7%, EV≥2.0, C2/4/5除外, ≥100x, びわこ除外** | **6,967** | **+1,044%** | **1.87%** | **613x** | **0.13720** |
+
+### Session 5 キャリブレーション分析結果
+
+| クラス | S5 ECE（raw/temperature-scaled） | S4 ECE（raw） | 変化 |
+|--------|--------------------------------|--------------|------|
+| 1着 | 0.13720 | 0.13288 | 微悪化 |
+| 2着 | 0.05629 | 0.05260 | 微悪化 |
+| 3着 | 0.03700 | 0.03558 | 微悪化 |
+| 4着 | 0.02796 | 0.03244 | 改善 |
+| 5着 | 0.06277 | 0.05489 | 悪化 |
+| 6着 | 0.08750 | 0.08920 | 微改善 |
+| trifecta | **0.001123** | 0.000242 | **▼ 4.6x悪化** |
+
+1着キャリブレーションビン別（S5、構造バイアス継続）:
+
+| ビン | 予測確率 | 実際的中率 | 乖離 |
+|------|---------|----------|------|
+| 0-10% | 5.0% | 16.8% | 過小推定 3.4x |
+| 10-20% | 13.7% | 16.6% | ほぼ適正 |
+| 20-30% | 24.5% | 16.6% | 過大推定 1.5x |
+| 30-40% | 34.5% | 16.9% | 過大推定 2.0x |
+| 50-60% | 55.0% | 15.7% | 過大推定 3.5x |
+
+### Session 5 重大発見
+
+**Temperature T=0.988≈1.0**:
+- NLL最小化の最適解がスケーリングなし点に収束 → グローバルスカラーでは解決不可能
+- 根本原因: LightGBMのmulticlass log-lossはサンプル単位で独立最適化されるため、レース内sum-to-1が保証されない。per-binの系統的バイアスはグローバルスカラーでは吸収不可能
+
+**trifecta ECE悪化の機序**:
+- Temperature Scaling が win_prob の大きさを微妙に変化 → Plackett-Luce の乗算で誤差が増幅
+- 10-20%ビン: 予測12.7%、実際2.1% → 6x過大推定（S3の7.6xと同等水準）
+
+### Session 6 移行の判断
+
+**→ Session 6 (キャリブレーション根本解決 + 長期検証) を実施する**。理由:
+
+| 理由 | 詳細 |
+|------|------|
+| Temperature Scalingの限界が確定 | T≈1で収束。グローバルスカラーアプローチを廃止し、per-bin補正に切り替える |
+| ソフトマックス正規化で即効が期待できる | レース内sum-to-1を強制することでPlackett-Luceの入力を修正し、trifecta過大推定を解消 |
+| 購入ルールは現行維持 | S5のルール（prob≥7%, EV≥2.0等）は有効。キャリブレーション改善でさらなるROI向上を狙う |
+| 統計的信頼性の確保 | 3ヶ月では月次ROI分散が大きすぎる。1年以上のWalk-Forwardが必要 |
 
 ---
 

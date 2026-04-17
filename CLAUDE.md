@@ -39,16 +39,16 @@ data/                 ダウンロードキャッシュ
 
 - **モデル**: LightGBM multiclass (num_class=6, 着順1〜6を予測)
 - **特徴量** (12次元): `exhibition_time`, `motor_win_rate`, `boat_win_rate`, `boat_no`, `racer_win_rate`, `racer_grade_encoded`, `racer_avg_st`, `tidal_level`, `tidal_type_encoded`, `in_win_rate`, `wind_direction_encoded`, `wind_speed`
-- **モデル保存形式** (Session 3〜): `{"booster": lgb.Booster, "calibrators": list[IsotonicRegression]}` ※旧形式(lgb.Booster直接)も後方互換
-  - ⚠️ Session 5 で `{"booster": lgb.Booster, "temperature": float}` に変更予定（Temperature Scaling）
-- **キャリブレーション** (Session 3〜): `trainer.py` で val データに Isotonic Regression を fitting、推論時に `predict_win_prob()` が自動適用
-  - ⚠️ 効果なし（5/6クラスで ECE 悪化）→ Session 5 で Temperature Scaling（全クラス一括、sum-to-1 維持）に変更予定
+- **モデル保存形式** (Session 5〜): `{"booster": lgb.Booster, "temperature": float}` ※旧形式(calibrators/Booster直接)も後方互換
+  - ⚠️ Session 5 検証結果: T=0.988≈1.0 で実質スケーリングなし。グローバルスカラーではビン別構造バイアスを解消できない
+- **キャリブレーション** (Session 5〜): `trainer.py` で val データの NLL を最小化する Temperature T を scipy で探索
+  - ⚠️ 根本課題未解決: 1着 ECE=0.137（改善幅小）、trifecta ECE が逆に 4.6x 悪化
+  - → Session 6 対策: レース内ソフトマックス正規化 + 正規化後 Isotonic Regression
 - **学習データ分割** (Session 3〜): 時系列 split（最後の 10% を val、random split 廃止）
-- **3連単確率**: Plackett-Luce近似（1着確率のみから計算） ⚠️ Session 4 分析: trifecta 10-20%帯 1.4x・20-30%帯 2.8x 過大推定（Session 3 比で改善）
+- **3連単確率**: Plackett-Luce近似（1着確率のみから計算） ⚠️ trifecta 10-20%帯 6x 過大推定（根本未解決）
 - **EV計算**: `EV = P_model × odds`（実オッズ or 合成オッズ）
-- **購入条件**: 的中確率 ≥ 3% AND EV > 1.2（現行）
-  - → Session 5 目標: prob ≥ 7%, EV ≥ 2.0, コース2/4/5除外, オッズ<100x除外, びわこ(ID=11)除外
-- **購入金額**: 1点 100円（Session 4 で `--kelly-fraction 0.25` による 1/4 Kelly 基準も選択可能）
+- **購入条件** (Session 5〜): prob ≥ 7%, EV ≥ 2.0, コース2/4/5除外, オッズ<100x除外, びわこ(ID=11)除外
+- **購入金額**: 1点 100円（`--kelly-fraction 0.25` による 1/4 Kelly 基準も選択可能）
 
 ## 既知の問題（改善タスクに対応中）
 
@@ -56,7 +56,33 @@ data/                 ダウンロードキャッシュ
 
 ## Walk-Forward 実績（2025-10〜12, 実オッズ, 各月再学習）
 
-### Session 3 モデル（キャリブレーション補正 + 時系列split — **現行モデル**）
+### Session 5 モデル（Temperature Scaling + 強化購入ルール — **現行モデル**）
+
+| 指標 | 値 | Session 3 比 |
+|------|----|------------|
+| 期間ROI | **+1,044%** | **+2x改善** |
+| ベット数 | 6,967点 | -81.7%（絞り込み） |
+| 的中 | 130件 | -76% |
+| 的中率/bet | 1.87% | +32%改善 |
+| 的中時平均オッズ | 613x | +42%改善 |
+| avg top_prob | 0.0830 | +18.6%↑ |
+| 1着 ECE（raw） | 0.13720 | ほぼ同等（-3%改善） |
+| trifecta ECE | 0.001123 | ▼ **4.6x悪化** |
+| Temperature T | 0.988≈1.0 | — |
+
+| 月 | ベット | 投資額 | 払戻額 | 的中 | ROI |
+|----|-------|--------|--------|-----|-----|
+| 2025-10 | 2,245 | 224,500円 | 2,622,980円 | 39件 | +1,068% |
+| 2025-11 | 2,064 | 206,400円 | 3,456,580円 | 55件 | +1,575% |
+| 2025-12 | 2,658 | 265,800円 | 1,890,310円 | 36件 | +611% |
+| **計** | **6,967** | **696,700円** | **7,969,870円** | **130件** | **+1,044%** |
+
+> **評価**: 購入ルール強化（コース/オッズ/場フィルタ, prob≥7%, EV≥2.0）によりROIは倍増。
+> 一方、Temperature Scaling は T≈1.0 で実質無効。trifecta ECE が悪化（Plackett-Luce との相互作用）。
+> 月次ROIの分散が大きく（611%〜1,575%）、3ヶ月では統計的信頼性が限定的。
+> **→ Session 6 でレース内ソフトマックス正規化 + 長期Walk-Forwardで根本課題に対処**
+
+### Session 3 モデル（キャリブレーション補正 + 時系列split）
 
 | 指標 | 値 | Session 2 比 |
 |------|----|------------|
@@ -142,19 +168,14 @@ python ml/src/scripts/run_segment_analysis.py --combos-csv artifacts/combos_2025
 python ml/src/scripts/run_backtest.py --year 2025 --month 12 --real-odds \
   --kelly-fraction 0.25 --kelly-bankroll 100000
 
-# ── Session 5 コマンド（実装後に有効）────────────────────────────────────
+# ── Session 5 現行ルール（デフォルト）────────────────────────────────────
 
-# S5-1: 新フィルタ付きグリッドサーチ（既存 combos CSV を再利用して先行検証）
-python ml/src/scripts/run_grid_search.py \
-  --combos-csv artifacts/Session4/combos_202512.csv \
-  --exclude-courses 2 4 5 --min-odds 100 --exclude-stadiums 11
-
-# S5-1: 新ルールでバックテスト
+# 新ルールでバックテスト
 python ml/src/scripts/run_backtest.py --year 2025 --month 12 --real-odds \
   --prob-threshold 0.07 --ev-threshold 2.0 \
   --exclude-courses 2 4 5 --min-odds 100 --exclude-stadiums 11
 
-# S5-3: 新ルール + 新キャリブレーション Walk-Forward
+# 新ルール Walk-Forward
 python ml/src/scripts/run_walkforward.py \
   --start 2025-10 --end 2025-12 --retrain --real-odds \
   --prob-threshold 0.07 --ev-threshold 2.0 \
