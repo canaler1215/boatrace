@@ -55,7 +55,14 @@ data/                 ダウンロードキャッシュ
 
 ## Walk-Forward 実績（2025-10〜12, 実オッズ, 各月再学習）
 
-### Session 5 モデル（Temperature Scaling + 強化購入ルール — **現行モデル**）
+### Session 6 モデル（Softmax正規化 + Isotonic Regression — **現行モデル、GH Actions 検証待ち**）
+
+- S6-1・S6-2 実装完了（2026-04-17）: `session6_verify.yml` をトリガーして ECE・ROI を検証中
+- 比較基準: Session 5（1着 ECE 0.137、trifecta ECE 0.001123、ROI +1,044%）
+- 期待効果: ビン別構造バイアス補正により 1着 ECE 改善 + trifecta ECE 改善（sum-to-1 維持）
+- 次ステップ: GH Actions 結果確認 → S6-3（長期 Walk-Forward 2024-01〜2025-12）→ S6-4（運用ルール策定）
+
+### Session 5 モデル（Temperature Scaling + 強化購入ルール）
 
 | 指標 | 値 | Session 3 比 |
 |------|----|------------|
@@ -79,7 +86,7 @@ data/                 ダウンロードキャッシュ
 > **評価**: 購入ルール強化（コース/オッズ/場フィルタ, prob≥7%, EV≥2.0）によりROIは倍増。
 > 一方、Temperature Scaling は T≈1.0 で実質無効。trifecta ECE が悪化（Plackett-Luce との相互作用）。
 > 月次ROIの分散が大きく（611%〜1,575%）、3ヶ月では統計的信頼性が限定的。
-> **→ Session 6 でレース内ソフトマックス正規化 + 長期Walk-Forwardで根本課題に対処**
+> **→ Session 6（Softmax正規化 + Isotonic Regression）で根本課題に対処中（2026-04-17 実装・検証待ち）**
 
 ### Session 3 モデル（キャリブレーション補正 + 時系列split）
 

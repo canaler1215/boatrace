@@ -229,6 +229,29 @@ python ml/src/scripts/run_backtest.py --year 2025 --month 12 --real-odds \
   --kelly-fraction 0.25 --kelly-bankroll 100000
 ```
 
+### Session 6 成果物（2026-04-17 実装）
+| ファイル | 変更内容 |
+|---------|------|
+| `ml/src/model/trainer.py` | Temperature Scaling 廃止 → `_softmax_normalize()` + per-class `IsotonicRegression`。保存形式 `{"booster": ..., "softmax_calibrators": list[IsotonicRegression]}` |
+| `ml/src/model/predictor.py` | `softmax_calibrators` パスを最優先追加（正規化 → IR → 再正規化）。旧形式（temperature/calibrators/直接）はフォールバック |
+| `ml/src/scripts/run_calibration.py` | `softmax_calibrators` キーも calibrated ECE 計測対象に追加 |
+| `.github/workflows/session6_verify.yml` | 新規作成：retrain → calibration → walkforward（短期 S5比較） → walkforward_long（S6-3, opt-in） |
+
+**Session 6 実行コマンド**:
+```bash
+# GH Actions から手動トリガー（推奨）
+# → .github/workflows/session6_verify.yml を "Run workflow" で実行
+
+# ローカル検証（キャリブレーション確認）
+python ml/src/scripts/run_calibration.py --year 2025 --month 12 --real-odds
+
+# Walk-Forward（Session 5 ルール維持 + Session 6 モデル）
+python ml/src/scripts/run_walkforward.py \
+  --start 2025-10 --end 2025-12 --retrain --real-odds \
+  --prob-threshold 0.07 --ev-threshold 2.0 \
+  --exclude-courses 2 4 5 --min-odds 100 --exclude-stadiums 11
+```
+
 ### Session 6: キャリブレーション根本解決 + 長期検証
 **目標**: Temperature Scaling で解決できなかった構造的キャリブレーションバイアスを根本から修正し、統計的信頼性を高める
 
