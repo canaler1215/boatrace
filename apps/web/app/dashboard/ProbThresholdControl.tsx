@@ -1,10 +1,19 @@
 "use client";
 import { useRouter } from "next/navigation";
 
-const PRESET_OPTIONS = [2, 3, 5, 10, 15, 20, 30];
+const PRESET_OPTIONS = [
+  { value: 2, label: "2%" },
+  { value: 3, label: "3%" },
+  { value: 5, label: "5%" },
+  { value: 7, label: "7%（推奨）" },
+  { value: 10, label: "10%" },
+  { value: 15, label: "15%" },
+  { value: 20, label: "20%" },
+  { value: 30, label: "30%" },
+];
 
 interface Props {
-  current: number; // percentage, e.g. 5 for 5%
+  current: number; // percentage, e.g. 7 for 7%
 }
 
 export function ProbThresholdControl({ current }: Props) {
@@ -25,9 +34,9 @@ export function ProbThresholdControl({ current }: Props) {
         onChange={handleChange}
         className="rounded border border-gray-300 bg-white px-2 py-1 text-sm focus:border-blue-500 focus:outline-none"
       >
-        {PRESET_OPTIONS.map((v) => (
-          <option key={v} value={String(v)}>
-            {v}%
+        {PRESET_OPTIONS.map((opt) => (
+          <option key={opt.value} value={String(opt.value)}>
+            {opt.label}
           </option>
         ))}
       </select>
