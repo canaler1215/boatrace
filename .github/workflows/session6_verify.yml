@@ -376,9 +376,10 @@ jobs:
           retention-days: 90
 
   # ============================================================
-  # Job 4: 長期 Walk-Forward（S6-3: 2024-01〜2025-12）— 4並列チャンク版
-  #   GH Actions 6h 制限を回避するため 4 チャンクを並列実行する。
-  #   各チャンクは全月範囲を --chunk-total 4 --chunk-index N で均等分割して処理。
+  # Job 4: 長期 Walk-Forward（S6-3: 2024-01〜2025-12）— 8並列チャンク版
+  #   GH Actions 6h 制限を回避するため 8 チャンクを並列実行する。
+  #   各チャンクは全月範囲を --chunk-total 8 --chunk-index N で均等分割して処理。
+  #   3ヶ月/チャンク、再学習 1回/チャンク（retrain-interval=3, i=0のみ）→ 推定 ~2.5h/チャンク。
   # ============================================================
   walkforward_long:
     runs-on: ubuntu-latest
@@ -387,7 +388,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        chunk_index: [0, 1, 2, 3]
+        chunk_index: [0, 1, 2, 3, 4, 5, 6, 7]
 
     steps:
       - uses: actions/checkout@v4
@@ -426,7 +427,7 @@ jobs:
             odds-long-c${{ matrix.chunk_index }}-
             odds-
 
-      - name: "Run Long Walk-Forward chunk ${{ matrix.chunk_index }}/4 (S6-3)"
+      - name: "Run Long Walk-Forward chunk ${{ matrix.chunk_index }}/8 (S6-3)"
         run: |
           REAL_ODDS_FLAG=""
           if [ "${{ inputs.real_odds }}" == "true" ]; then
@@ -451,7 +452,7 @@ jobs:
           python ml/src/scripts/run_walkforward.py \
             --start "${{ inputs.wf_long_start }}" \
             --end "${{ inputs.wf_long_end }}" \
-            --chunk-total 4 \
+            --chunk-total 8 \
             --chunk-index ${{ matrix.chunk_index }} \
             --retrain \
             --retrain-interval 3 \
