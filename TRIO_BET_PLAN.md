@@ -166,8 +166,8 @@ T8 CLAUDE.md 更新
 
 ### チェックリスト
 
-- [ ] T1: `calc_trio_probs()` を `ml/src/model/predictor.py` に追加
-- [ ] T2: `fetch_trio_odds()` を `ml/src/collector/openapi_client.py` に追加（`odds3f` パース確認含む）
+- [x] T1: `calc_trio_probs()` を `ml/src/model/predictor.py` に追加
+- [x] T2: `fetch_trio_odds()` を `ml/src/collector/openapi_client.py` に追加（`odds3f` パース確認含む）
 - [ ] T3: `load_or_download_month_trio_odds()` を `ml/src/collector/odds_downloader.py` に追加
 - [ ] T4: `ml/src/backtest/engine.py` に `bet_type` パラメータ・3連複的中判定を追加
 - [ ] T5: `ml/src/scripts/run_backtest.py` / `run_walkforward.py` に `--bet-type` オプション追加

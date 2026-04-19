@@ -7,11 +7,13 @@ boatrace.jp エンドポイント (HTML スクレイピング):
   /owpc/pc/race/racerslist - 出走表              ?hd=YYYYMMDD&jcd=XX&rno=N
   /owpc/pc/race/beforeinfo - 直前情報(展示・ST)   ?hd=YYYYMMDD&jcd=XX&rno=N
   /owpc/pc/race/odds3t     - 3連単オッズ         ?hd=YYYYMMDD&jcd=XX&rno=N
+  /owpc/pc/race/odds3f     - 3連複オッズ         ?hd=YYYYMMDD&jcd=XX&rno=N
   /owpc/pc/race/raceresult - レース結果          ?hd=YYYYMMDD&jcd=XX&rno=N
 
 注: HTML 構造は boatrace.jp のサイトリニューアルにより変わる場合がある。
     CSS セレクタは実際の HTML を確認して適宜調整すること。
 """
+import itertools
 import logging
 import re
 import threading
@@ -381,6 +383,54 @@ def fetch_odds(stadium_id: int, race_date: str, race_no: int) -> dict[str, float
     else:
         logger.warning(
             "Could not parse odds table: expected 120 oddsPoint cells, got %d",
+            len(float_values),
+        )
+
+    return odds_map
+
+
+def fetch_trio_odds(stadium_id: int, race_date: str, race_no: int) -> dict[str, float]:
+    """
+    3連複オッズを取得。
+
+    Returns:
+        {"1-2-3": 8.5, "1-2-4": 12.0, ...}  全20通り（キーはソート済み艇番）
+    """
+    hd = _hd(race_date)
+    soup = _get("odds3f", {"hd": hd, "jcd": f"{stadium_id:02d}", "rno": str(race_no)})
+    odds_map: dict[str, float] = {}
+
+    # ---- パターン1: data-combination 属性があるセル ----
+    # data-combination がソートされていない場合も正規化する
+    for td in soup.find_all("td", attrs={"data-combination": True}):
+        raw_combo = td["data-combination"]  # 例: "1-2-3" or "3-1-2"
+        parts = raw_combo.split("-")
+        combo = "-".join(sorted(parts, key=lambda x: int(x)))
+        val = _parse_float(td.get_text(strip=True))
+        if val and val > 0:
+            odds_map[combo] = val
+
+    if odds_map:
+        logger.info("trio odds via data-combination: %d entries", len(odds_map))
+        return odds_map
+
+    # ---- パターン2: class="oddsPoint" セルから位置ベースでコンビネーション推定 ----
+    # odds3f ページは combinations(range(1,7), 3) の順で 20 セル並ぶ想定
+    odds_cells = [td for td in soup.find_all("td") if "oddsPoint" in (td.get("class") or [])]
+    float_values: list[float] = []
+    for td in odds_cells:
+        v = _parse_float(td.get_text(strip=True))
+        if v is not None and v > 0:
+            float_values.append(v)
+
+    if len(float_values) == 20:
+        for idx, combo in enumerate(itertools.combinations(range(1, 7), 3)):
+            key = "-".join(map(str, combo))
+            odds_map[key] = float_values[idx]
+        logger.info("trio odds via oddsPoint class: %d entries", len(odds_map))
+    else:
+        logger.warning(
+            "Could not parse trio odds table: expected 20 oddsPoint cells, got %d",
             len(float_values),
         )
 
