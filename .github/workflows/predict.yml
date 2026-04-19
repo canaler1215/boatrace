@@ -1,15 +1,49 @@
 name: Predict & Calculate EV
 
 on:
-  workflow_dispatch:         # 手動実行のみ
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: '実行モード（daily=当日予測 / monthly_check=月次結果検証）'
+        required: false
+        default: 'daily'
+        type: choice
+        options:
+          - daily
+          - monthly_check
+      year:
+        description: '[monthly_check] 対象年（例: 2026）'
+        required: false
+        default: '2026'
+      month:
+        description: '[monthly_check] 対象月 (1-12)'
+        required: false
+        default: '4'
+      prob_threshold:
+        description: '[monthly_check] 的中確率閾値（例: 0.07 = 7%）'
+        required: false
+        default: '0.07'
+      ev_threshold:
+        description: '[monthly_check] EV閾値（例: 2.0）'
+        required: false
+        default: '2.0'
+      real_odds:
+        description: '[monthly_check] 実オッズを使用（true にすると初回 ~90 分かかります）'
+        required: false
+        default: 'true'
+        type: boolean
 
 jobs:
   predict:
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 360
 
     steps:
       - uses: actions/checkout@v4
+
+      - name: Install system dependencies (monthly_check のみ)
+        if: inputs.mode == 'monthly_check'
+        run: sudo apt-get install -y lhasa
 
       - uses: actions/setup-python@v5
         with:
@@ -28,12 +62,59 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GITHUB_REPOSITORY: ${{ github.repository }}
 
-      - name: Run prediction
-        if: steps.download.outcome == 'success'
+      # ── daily モード: 当日レース予測 → DB 書き込み ────────────────────────
+
+      - name: Run daily prediction
+        if: inputs.mode == 'daily' && steps.download.outcome == 'success'
         run: python ml/src/scripts/run_predict.py
         env:
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
 
-      - name: Skip prediction (no model available)
-        if: steps.download.outcome != 'success'
+      - name: Skip daily prediction (no model)
+        if: inputs.mode == 'daily' && steps.download.outcome != 'success'
         run: echo "No trained model found in GitHub Releases. Run 'Retrain Model' workflow first."
+
+      # ── monthly_check モード: 月次予想・結果検証 → CSV 出力 ───────────────
+
+      - name: Restore odds cache
+        if: inputs.mode == 'monthly_check'
+        uses: actions/cache@v4
+        with:
+          path: data/odds/
+          key: odds-${{ inputs.year }}-${{ inputs.month }}-${{ github.run_id }}
+          restore-keys: |
+            odds-${{ inputs.year }}-${{ inputs.month }}-
+
+      - name: Run monthly prediction check
+        if: inputs.mode == 'monthly_check' && steps.download.outcome == 'success'
+        run: |
+          REAL_ODDS_FLAG=""
+          if [ "${{ inputs.real_odds }}" = "true" ]; then
+            REAL_ODDS_FLAG="--real-odds"
+          fi
+          python ml/src/scripts/run_predict_check.py \
+            --year ${{ inputs.year }} \
+            --month ${{ inputs.month }} \
+            --prob-threshold ${{ inputs.prob_threshold }} \
+            --ev-threshold ${{ inputs.ev_threshold }} \
+            --exclude-courses 2 4 5 \
+            --min-odds 100 \
+            --exclude-stadiums 11 \
+            $REAL_ODDS_FLAG
+
+      - name: Skip monthly check (no model)
+        if: inputs.mode == 'monthly_check' && steps.download.outcome != 'success'
+        run: |
+          echo "::error::No trained model found in GitHub Releases. Run 'Retrain Model' workflow first."
+          exit 1
+
+      - name: Upload prediction check results
+        if: always() && inputs.mode == 'monthly_check'
+        uses: actions/upload-artifact@v4
+        with:
+          name: predict-check-${{ inputs.year }}-${{ inputs.month }}-run${{ github.run_number }}
+          path: |
+            artifacts/predict_check_*.csv
+            data/odds/odds_*.parquet
+          if-no-files-found: warn
+          retention-days: 90
