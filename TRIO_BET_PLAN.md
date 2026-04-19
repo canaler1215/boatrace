@@ -170,7 +170,7 @@ T8 CLAUDE.md 更新
 - [x] T2: `fetch_trio_odds()` を `ml/src/collector/openapi_client.py` に追加（`odds3f` パース確認含む）
 - [x] T3: `load_or_download_month_trio_odds()` を `ml/src/collector/odds_downloader.py` に追加
 - [x] T4: `ml/src/backtest/engine.py` に `bet_type` パラメータ・3連複的中判定を追加
-- [ ] T5: `ml/src/scripts/run_backtest.py` / `run_walkforward.py` に `--bet-type` オプション追加
+- [x] T5: `ml/src/scripts/run_backtest.py` / `run_walkforward.py` に `--bet-type` オプション追加
 - [ ] T6: パイロットバックテスト実行（2025-10〜12、`--bet-type trio --prob-threshold 0.10`）
 - [ ] T7: 長期Walk-Forward実行（2024-01〜2025-12）
 - [ ] T8: 結果をCLAUDE.mdに反映
