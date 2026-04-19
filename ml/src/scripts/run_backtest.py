@@ -54,7 +54,7 @@ from collector.history_downloader import (
     load_history_range,
     parse_result_file,
 )
-from collector.odds_downloader import load_or_download_month_odds
+from collector.odds_downloader import load_or_download_month_odds, load_or_download_month_trio_odds
 from collector.program_downloader import (
     load_program_month,
     load_program_range,
@@ -350,6 +350,7 @@ def main() -> None:
     parser.add_argument("--exclude-courses",  type=int,   nargs="+",    help="除外する1着艇番（例: 2 4 5）")
     parser.add_argument("--min-odds",         type=float, default=None, help="購入するオッズの下限（例: 100.0 → 100倍未満は除外）")
     parser.add_argument("--exclude-stadiums", type=int,   nargs="+",    help="除外する場ID（例: 11 → びわこ）")
+    parser.add_argument("--bet-type",         type=str,   default="trifecta", choices=["trifecta", "trio", "both"], help="賭式: trifecta=3連単, trio=3連複, both=両方")
     parser.add_argument("--output",           type=str,   default=None, help="結果 CSV の保存先")
     args = parser.parse_args()
 
@@ -376,10 +377,16 @@ def main() -> None:
 
     # ── 3. 実オッズ取得（--real-odds 指定時）────────────────
     odds_by_race: dict[str, dict[str, float]] = {}
+    trio_odds_by_race: dict[str, dict[str, float]] = {}
     if args.real_odds:
-        logger.info("Fetching real odds for %d-%02d...", args.year, args.month)
-        odds_by_race = load_or_download_month_odds(args.year, args.month, df_test)
-        logger.info("Real odds loaded for %d races", len(odds_by_race))
+        if args.bet_type in ("trifecta", "both"):
+            logger.info("Fetching real trifecta odds for %d-%02d...", args.year, args.month)
+            odds_by_race = load_or_download_month_odds(args.year, args.month, df_test)
+            logger.info("Real trifecta odds loaded for %d races", len(odds_by_race))
+        if args.bet_type in ("trio", "both"):
+            logger.info("Fetching real trio odds for %d-%02d...", args.year, args.month)
+            trio_odds_by_race = load_or_download_month_trio_odds(args.year, args.month, df_test)
+            logger.info("Real trio odds loaded for %d races", len(trio_odds_by_race))
 
     # ── 4. バックテスト実行（全レース一括バッチ処理）────────────
     n_races = df_test["race_id"].nunique()
@@ -391,27 +398,49 @@ def main() -> None:
             args.kelly_fraction, args.kelly_bankroll,
         )
 
-    results, skipped = run_backtest_batch(
-        df_test=df_test,
-        model=model,
-        odds_by_race=odds_by_race,
-        prob_threshold=args.prob_threshold,
-        bet_amount=args.bet_amount,
-        max_bets_per_race=args.max_bets,
-        ev_threshold=args.ev_threshold,
-        kelly_fraction=args.kelly_fraction,
-        kelly_bankroll=args.kelly_bankroll,
-        exclude_courses=args.exclude_courses,
-        min_odds=args.min_odds,
-        exclude_stadiums=args.exclude_stadiums,
-    )
-    logger.info("Done: %d races processed, %d skipped", len(results), skipped)
+    bet_types = ["trifecta", "trio"] if args.bet_type == "both" else [args.bet_type]
+    all_results_dfs: list[pd.DataFrame] = []
 
-    if not results:
+    for bt in bet_types:
+        race_odds = trio_odds_by_race if bt == "trio" else odds_by_race
+        results, skipped = run_backtest_batch(
+            df_test=df_test,
+            model=model,
+            odds_by_race=race_odds,
+            prob_threshold=args.prob_threshold,
+            bet_amount=args.bet_amount,
+            max_bets_per_race=args.max_bets,
+            ev_threshold=args.ev_threshold,
+            kelly_fraction=args.kelly_fraction,
+            kelly_bankroll=args.kelly_bankroll,
+            exclude_courses=args.exclude_courses,
+            min_odds=args.min_odds,
+            exclude_stadiums=args.exclude_stadiums,
+            bet_type=bt,
+        )
+        logger.info("[%s] Done: %d races processed, %d skipped", bt, len(results), skipped)
+
+        if not results:
+            logger.warning("[%s] No results generated.", bt)
+            continue
+
+        df_bt = pd.DataFrame(results).sort_values(["race_date", "race_id"])
+        all_results_dfs.append(df_bt)
+
+        # サマリー表示
+        if args.bet_type == "both":
+            print(f"\n{'='*62}")
+            print(f"  賭式: {'3連単 (trifecta)' if bt == 'trifecta' else '3連複 (trio)'}")
+        print_summary(df_bt, args.prob_threshold, args.bet_amount, args.ev_threshold)
+        if args.kelly_fraction > 0:
+            print(f"  [Kelly設定] 分率={args.kelly_fraction:.2f}  資金=¥{args.kelly_bankroll:,.0f}")
+            print()
+
+    if not all_results_dfs:
         logger.error("No results generated. Check data or model.")
         sys.exit(1)
 
-    results_df = pd.DataFrame(results).sort_values(["race_date", "race_id"])
+    results_df = pd.concat(all_results_dfs, ignore_index=True).sort_values(["race_date", "race_id"])
 
     # ── 5. CSV 保存 ──────────────────────────────────────
     output_path = args.output or str(
@@ -419,12 +448,6 @@ def main() -> None:
     )
     results_df.to_csv(output_path, index=False)
     logger.info("Results saved to %s", output_path)
-
-    # ── 6. サマリー表示 ──────────────────────────────────
-    print_summary(results_df, args.prob_threshold, args.bet_amount, args.ev_threshold)
-    if args.kelly_fraction > 0:
-        print(f"  [Kelly設定] 分率={args.kelly_fraction:.2f}  資金=¥{args.kelly_bankroll:,.0f}")
-        print()
 
 
 if __name__ == "__main__":

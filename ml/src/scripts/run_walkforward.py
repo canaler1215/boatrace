@@ -49,7 +49,7 @@ from collector.history_downloader import (
     load_history_range,
     parse_result_file,
 )
-from collector.odds_downloader import load_or_download_month_odds
+from collector.odds_downloader import load_or_download_month_odds, load_or_download_month_trio_odds
 from collector.program_downloader import (
     load_program_month,
     load_program_range,
@@ -298,6 +298,7 @@ def main() -> None:
     parser.add_argument("--exclude-courses",   type=int,   nargs="+",   help="除外する1着艇番（例: 2 4 5）")
     parser.add_argument("--min-odds",          type=float, default=None, help="購入するオッズの下限（例: 100.0 → 100倍未満は除外）")
     parser.add_argument("--exclude-stadiums",  type=int,   nargs="+",   help="除外する場ID（例: 11 → びわこ）")
+    parser.add_argument("--bet-type",          type=str,   default="trifecta", choices=["trifecta", "trio", "both"], help="賭式: trifecta=3連単, trio=3連複, both=両方")
     parser.add_argument("--output",            type=str,   default=None, help="結果 CSV の保存先")
     parser.add_argument("--chunk-total",        type=int,   default=1,   help="並列チャンク総数（GH Actions matrix 用、デフォルト: 1 = 全月実行）")
     parser.add_argument("--chunk-index",        type=int,   default=0,   help="このジョブのチャンクインデックス（0始まり）")
@@ -335,8 +336,10 @@ def main() -> None:
             "ROI の絶対値は実際の収益性を反映しません。"
         )
 
-    all_results_list: list[pd.DataFrame] = []
-    monthly_rows: list[dict] = []
+    bet_types = ["trifecta", "trio"] if args.bet_type == "both" else [args.bet_type]
+    # bet_type ごとの集計コンテナ
+    all_results_by_bt: dict[str, list[pd.DataFrame]] = {bt: [] for bt in bet_types}
+    monthly_rows_by_bt: dict[str, list[dict]] = {bt: [] for bt in bet_types}
     cached_model = None
 
     for i, (test_year, test_month) in enumerate(months):
@@ -361,65 +364,87 @@ def main() -> None:
 
         # 3. 実オッズ取得
         odds_by_race: dict[str, dict[str, float]] = {}
+        trio_odds_by_race: dict[str, dict[str, float]] = {}
         if args.real_odds:
-            odds_by_race = load_or_download_month_odds(test_year, test_month, df_test)
-            logger.info("実オッズ: %d レース分取得", len(odds_by_race))
+            if "trifecta" in bet_types:
+                odds_by_race = load_or_download_month_odds(test_year, test_month, df_test)
+                logger.info("3連単実オッズ: %d レース分取得", len(odds_by_race))
+            if "trio" in bet_types:
+                trio_odds_by_race = load_or_download_month_trio_odds(test_year, test_month, df_test)
+                logger.info("3連複実オッズ: %d レース分取得", len(trio_odds_by_race))
 
-        # 4. バックテスト
+        # 4. バックテスト（bet_type ごとに実行）
         n_races = df_test["race_id"].nunique()
-        logger.info("%d-%02d: %d レースをバックテスト中...", test_year, test_month, n_races)
-        results, skipped = run_backtest_batch(
-            df_test=df_test,
-            model=model,
-            odds_by_race=odds_by_race,
-            prob_threshold=args.prob_threshold,
-            bet_amount=args.bet_amount,
-            max_bets_per_race=args.max_bets,
-            ev_threshold=args.ev_threshold,
-            exclude_courses=args.exclude_courses,
-            min_odds=args.min_odds,
-            exclude_stadiums=args.exclude_stadiums,
-        )
-        logger.info("%d-%02d: 完了 %d レース、スキップ %d", test_year, test_month, len(results), skipped)
+        for bt in bet_types:
+            race_odds = trio_odds_by_race if bt == "trio" else odds_by_race
+            logger.info("%d-%02d [%s]: %d レースをバックテスト中...", test_year, test_month, bt, n_races)
+            results, skipped = run_backtest_batch(
+                df_test=df_test,
+                model=model,
+                odds_by_race=race_odds,
+                prob_threshold=args.prob_threshold,
+                bet_amount=args.bet_amount,
+                max_bets_per_race=args.max_bets,
+                ev_threshold=args.ev_threshold,
+                exclude_courses=args.exclude_courses,
+                min_odds=args.min_odds,
+                exclude_stadiums=args.exclude_stadiums,
+                bet_type=bt,
+            )
+            logger.info("%d-%02d [%s]: 完了 %d レース、スキップ %d", test_year, test_month, bt, len(results), skipped)
 
-        if not results:
-            continue
+            if not results:
+                continue
 
-        df_month = pd.DataFrame(results)
-        all_results_list.append(df_month)
+            df_month = pd.DataFrame(results)
+            all_results_by_bt[bt].append(df_month)
 
-        # 月別集計
-        wagered = float(df_month["amount_wagered"].sum())
-        payout  = float(df_month["payout_received"].sum())
-        n_bets  = int(df_month["bets_placed"].sum())
-        wins    = int(df_month["matched"].sum())
-        monthly_rows.append({
-            "month":   f"{test_year}-{test_month:02d}",
-            "wagered": wagered,
-            "payout":  payout,
-            "n_bets":  n_bets,
-            "wins":    wins,
-        })
+            wagered = float(df_month["amount_wagered"].sum())
+            payout  = float(df_month["payout_received"].sum())
+            n_bets  = int(df_month["bets_placed"].sum())
+            wins    = int(df_month["matched"].sum())
+            monthly_rows_by_bt[bt].append({
+                "month":   f"{test_year}-{test_month:02d}",
+                "wagered": wagered,
+                "payout":  payout,
+                "n_bets":  n_bets,
+                "wins":    wins,
+            })
 
-    if not all_results_list:
-        logger.error("全月でデータが取得できませんでした。")
-        sys.exit(1)
-
-    all_results = pd.concat(all_results_list, ignore_index=True).sort_values(["race_date", "race_id"])
-
-    # 5. CSV 保存
     label_start = f"{start_year}{start_month:02d}"
     label_end   = f"{end_year}{end_month:02d}"
     if args.chunk_total > 1:
         chunk_suffix = f"_chunk{args.chunk_index}of{args.chunk_total}"
     else:
         chunk_suffix = ""
-    output_path = args.output or str(ARTIFACTS_DIR / f"walkforward_{label_start}-{label_end}{chunk_suffix}.csv")
-    all_results.to_csv(output_path, index=False)
-    logger.info("結果を保存: %s", output_path)
 
-    # 6. サマリー表示
-    print_summary(all_results, monthly_rows, args.prob_threshold, args.ev_threshold, args.bet_amount)
+    any_results = False
+    all_dfs_for_csv: list[pd.DataFrame] = []
+
+    for bt in bet_types:
+        if not all_results_by_bt[bt]:
+            logger.warning("[%s] 全月でデータが取得できませんでした。", bt)
+            continue
+        any_results = True
+
+        all_results = pd.concat(all_results_by_bt[bt], ignore_index=True).sort_values(["race_date", "race_id"])
+        all_dfs_for_csv.append(all_results)
+
+        # 5. サマリー表示
+        if args.bet_type == "both":
+            print(f"\n{'='*62}")
+            print(f"  賭式: {'3連単 (trifecta)' if bt == 'trifecta' else '3連複 (trio)'}")
+        print_summary(all_results, monthly_rows_by_bt[bt], args.prob_threshold, args.ev_threshold, args.bet_amount)
+
+    if not any_results:
+        logger.error("全月・全賭式でデータが取得できませんでした。")
+        sys.exit(1)
+
+    # 6. CSV 保存（全賭式を結合）
+    combined = pd.concat(all_dfs_for_csv, ignore_index=True).sort_values(["race_date", "race_id"])
+    output_path = args.output or str(ARTIFACTS_DIR / f"walkforward_{label_start}-{label_end}{chunk_suffix}.csv")
+    combined.to_csv(output_path, index=False)
+    logger.info("結果を保存: %s", output_path)
 
 
 if __name__ == "__main__":
