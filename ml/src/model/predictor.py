@@ -9,7 +9,7 @@ import lightgbm as lgb
 import pandas as pd
 import numpy as np
 import joblib
-from itertools import permutations
+from itertools import permutations, combinations
 from pathlib import Path
 
 EV_THRESHOLD = 1.2
@@ -103,6 +103,24 @@ def calc_trifecta_probs(win_probs: np.ndarray) -> dict[str, float]:
         key = f"{combo[0]}-{combo[1]}-{combo[2]}"
         result[key] = float(prob)
     return result
+
+
+def calc_trio_probs(win_probs: np.ndarray) -> dict[str, float]:
+    """3連複確率をPlackett-Luceで計算。キーはソート済み艇番文字列 "1-2-3"。"""
+    p = win_probs / max(win_probs.sum(), 1e-9)
+    boats = list(range(1, 7))
+    result = {}
+    for combo in combinations(boats, 3):
+        key = "-".join(map(str, combo))
+        prob = 0.0
+        for perm in permutations(combo):
+            a, b, c = perm[0] - 1, perm[1] - 1, perm[2] - 1
+            denom_b = 1.0 - p[a]
+            denom_c = 1.0 - p[a] - p[b]
+            if denom_b > 0 and denom_c > 0:
+                prob += p[a] * (p[b] / denom_b) * (p[c] / denom_c)
+        result[key] = float(prob)
+    return result  # 20エントリ、合計≒1.0
 
 
 def calc_expected_values(
