@@ -188,11 +188,11 @@ export default async function DashboardPage({ searchParams }: Props) {
             description="実オッズで先月のROIを確認。prob=0.07, ev=2.0, --exclude-courses 2 4 5 --min-odds 100 --exclude-stadiums 11 のオプションを指定してください。収支分析ページで停止条件と照合。"
           />
           <OperationCard
-            freq="週次(自動)"
+            freq="日次(自動)"
             freqColor="bg-gray-100 text-gray-600"
             workflow="Collect Race Data"
-            timing="毎週日曜 03:00 JST（自動）"
-            description="選手STスタッツ（直近2年スタートタイミング平均）を自動更新。手動実行も可能。"
+            timing="毎日 07:00・21:30 JST（自動）／毎週日曜 03:00 JST（自動）"
+            description="レース前（07:00 JST）に出走表・展示タイム・オッズを収集し、レース後（21:30 JST）に着順結果を取得。毎週日曜 03:00 JST には選手STスタッツ（直近2年）も再構築。すべて自動実行のため手動操作不要。"
           />
           <OperationCard
             freq="四半期"
