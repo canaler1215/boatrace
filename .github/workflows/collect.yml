@@ -1,9 +1,11 @@
 name: Collect Race Data
 
 on:
-  workflow_dispatch:         # 手動実行のみ
+  workflow_dispatch:
   schedule:
-    - cron: '0 18 * * 0'    # 毎週日曜 03:00 JST (UTC 18:00) に racer_st_stats を更新
+    - cron: '0 22 * * *'    # 毎日 07:00 JST (UTC 22:00 前日) レース前収集
+    - cron: '30 12 * * *'   # 毎日 21:30 JST (UTC 12:30)  レース後収集・着順取得
+    - cron: '0 18 * * 0'    # 毎週日曜 03:00 JST (UTC 18:00) racer_st_stats 更新
 
 jobs:
   collect:
@@ -30,8 +32,8 @@ jobs:
   build-racer-st-stats:
     runs-on: ubuntu-latest
     timeout-minutes: 60
-    # スケジュール実行時または手動実行時に racer_st_stats を再構築
-    if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
+    # 日曜スケジュールまたは手動実行時のみ racer_st_stats を再構築（日次スケジュールでは実行しない）
+    if: github.event_name == 'workflow_dispatch' || (github.event_name == 'schedule' && github.event.schedule == '0 18 * * 0')
 
     steps:
       - uses: actions/checkout@v4
