@@ -30,37 +30,93 @@
 
 ---
 
-## 設計スコープ（別セッションで詳細化）
+## 詳細設計（2026-04-19 確定）
 
-### 1. 確率計算
+### T1: `calc_trio_probs()` — `ml/src/model/predictor.py`
 
-- `calc_trio_probs(win_probs)` の追加
-  - Plackett-Luce の3連単確率（既存 `calc_trifecta_probs`）を C(6,3)=20 の各組み合わせについて6通りの順列で合算
-  - 出力形式: `{"1-2-3": 0.045, ...}`（キー: ソート済み艇番、例 "1-2-3" = 1/2/3着のいずれの順でも）
+既存の `calc_trifecta_probs` の直後に追加する。
 
-### 2. オッズ取得
+```python
+def calc_trio_probs(win_probs: np.ndarray) -> dict[str, float]:
+    """3連複確率をPlackett-Luceで計算。キーはソート済み艇番文字列 "1-2-3"。"""
+    p = win_probs / win_probs.sum()
+    boats = list(range(1, 7))
+    result = {}
+    for combo in itertools.combinations(boats, 3):
+        key = "-".join(map(str, combo))
+        prob = 0.0
+        for perm in itertools.permutations(combo):
+            a, b, c = perm[0]-1, perm[1]-1, perm[2]-1
+            denom_b = 1.0 - p[a]
+            denom_c = 1.0 - p[a] - p[b]
+            if denom_b > 0 and denom_c > 0:
+                prob += p[a] * (p[b] / denom_b) * (p[c] / denom_c)
+        result[key] = prob
+    return result  # 20エントリ、合計≒1.0
+```
 
-- `openapi_client.py` に `fetch_trio_odds(stadium_id, race_date, race_no)` を追加
-  - エンドポイント: `odds3f`（3連複オッズページ、boatrace.jp）
-  - 返却形式: `{"1-2-3": 15.2, ...}` 全20通り
-- `odds_downloader.py` に 3連複オッズのキャッシュ対応を追加
-  - キャッシュパス: `data/odds/trio_odds_{YYYYMM}.parquet`
+- 出力形式: `{"1-2-3": 0.045, ...}`（キー: ソート済み艇番、20通り）
+- `calc_expected_values()` は汎用関数のためそのまま流用可能
 
-### 3. バックテスト
+### T2: `fetch_trio_odds()` — `ml/src/collector/openapi_client.py`
 
-- `engine.py` の `run_race` / `run_backtest_batch` を拡張
-  - `bet_types: list[str] = ["trifecta"]` パラメータを追加し `"trio"` も指定可能に
-  - 3連複の的中判定: `actual_combo` の艇番セットが `frozenset(combo.split("-"))` と一致
-- `run_backtest.py` に `--bet-type trio` オプションを追加
+既存の `fetch_odds`（`/odds3t`）と対称的に実装する。
+
+- エンドポイント: `/odds3f`（3連複オッズページ、boatrace.jp）
+- HTMLパース: `data-combination` 属性優先、fallback は順列ベース
+- 返却形式: `{"1-2-3": 15.2, ...}` 全20通り
+- **注意**: `odds3f` ページの `data-combination` がソート済みか未確認。ソートされていない場合は `"-".join(sorted(combo.split("-")))` で正規化する
+
+### T3: `load_or_download_month_trio_odds()` — `ml/src/collector/odds_downloader.py`
+
+既存の `load_or_download_month_odds` と並行して追加する。
+
+- キャッシュパス: `data/odds/trio_odds_YYYYMM.parquet`
+- ダウンロード: `fetch_trio_odds()` を ThreadPoolExecutor（max_workers=10）で並列呼び出し
+- チェックポイント保存・再開ロジックは既存実装を流用
+
+### T4: `bet_type` パラメータ — `ml/src/backtest/engine.py`
+
+`run_race` と `run_backtest_batch` に `bet_type: str = "trifecta"` を追加する。
+
+| 処理 | `trifecta`（現行） | `trio`（追加） |
+|------|-----------------|-------------|
+| 確率計算 | `calc_trifecta_probs()` | `calc_trio_probs()` |
+| EV計算 | `calc_expected_values()` | 同じ関数（trio probs/odds で） |
+| オッズ入力 | `race_odds`（120通り） | `trio_race_odds`（20通り） |
+| 的中判定 | `actual_combo == combo` | `frozenset(actual.split("-")) == frozenset(combo.split("-"))` |
+| 組合せ数 | 120 | 20 |
+
+的中判定ロジック（trio 用）:
+
+```python
+def _is_trio_hit(actual_combo: str | None, trio_combo: str) -> bool:
+    if actual_combo is None:
+        return False
+    return frozenset(actual_combo.split("-")) == frozenset(trio_combo.split("-"))
+```
+
+`combo_records` には `bet_type` フィールドを追加し、3連単/3連複を区別する。
+
+### T5: `--bet-type` オプション — `ml/src/scripts/run_backtest.py` / `run_walkforward.py`
+
+```
+--bet-type {trifecta,trio,both}  デフォルト: trifecta
+```
+
+- `both` 指定時は同一レースで両方計算し、結果を別々に集計・表示する
 - `run_walkforward.py` も同様に対応
 
-### 4. EV・購入フィルタ
+### EV・購入フィルタ方針
 
-- 3連複でも現行の購入条件をベースとして検討
-  - prob閾値: 3連複は的中率が高いため、単純な prob ≥ 7% では点数が増えすぎる可能性
-  - EV閾値: EV ≥ 2.0 は維持
-  - オッズ下限: 3連複の最低オッズを別途設定（例: 10x以上）
-  - コース除外: 3連単と同じルールが適用できるか検討
+3連複は理論的中率が5%（3連単の6倍）のため閾値を調整する。
+
+| パラメータ | 3連単（現行） | 3連複（提案初期値） |
+|-----------|------------|----------------|
+| `--prob-threshold` | 7% | **10〜15%** |
+| `--ev-threshold` | 2.0 | **2.0 維持** |
+| `--min-odds` | 100x | **10x（新設）** |
+| コース除外 | 2/4/5 | パイロット後に検討 |
 
 ---
 
@@ -86,14 +142,36 @@
 
 ---
 
-## 実装タスク（未着手）
+## 実装タスク・実装順序
 
-- [ ] T1: `calc_trio_probs()` を `predictor.py` に追加
-- [ ] T2: `fetch_trio_odds()` を `openapi_client.py` に追加
-- [ ] T3: `odds_downloader.py` に3連複オッズキャッシュ対応追加
-- [ ] T4: `engine.py` に3連複的中判定・集計ロジック追加
-- [ ] T5: `run_backtest.py` に `--bet-type` オプション追加
-- [ ] T6: パイロットバックテスト実行（2025-10〜12）
+T1〜T5 は順次依存のため直列実装。T6 以降はコード変更なし（実行のみ）。
+
+```
+T1 predictor.py
+  ↓
+T2 openapi_client.py
+  ↓
+T3 odds_downloader.py
+  ↓
+T4 engine.py
+  ↓
+T5 run_backtest.py / run_walkforward.py
+  ↓
+T6 パイロットバックテスト（2025-10〜12）
+  ↓
+T7 長期Walk-Forward（2024-01〜2025-12）
+  ↓
+T8 CLAUDE.md 更新
+```
+
+### チェックリスト
+
+- [ ] T1: `calc_trio_probs()` を `ml/src/model/predictor.py` に追加
+- [ ] T2: `fetch_trio_odds()` を `ml/src/collector/openapi_client.py` に追加（`odds3f` パース確認含む）
+- [ ] T3: `load_or_download_month_trio_odds()` を `ml/src/collector/odds_downloader.py` に追加
+- [ ] T4: `ml/src/backtest/engine.py` に `bet_type` パラメータ・3連複的中判定を追加
+- [ ] T5: `ml/src/scripts/run_backtest.py` / `run_walkforward.py` に `--bet-type` オプション追加
+- [ ] T6: パイロットバックテスト実行（2025-10〜12、`--bet-type trio --prob-threshold 0.10`）
 - [ ] T7: 長期Walk-Forward実行（2024-01〜2025-12）
 - [ ] T8: 結果をCLAUDE.mdに反映
 
