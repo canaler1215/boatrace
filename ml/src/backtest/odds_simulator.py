@@ -14,7 +14,7 @@
   EV > 1.2 ⟺ モデルが艇番ベース期待値より 20% 超の確率を見込んでいる
   → モデルが展示タイム・ST などのレース固有情報を活用できているかを検証できる
 """
-from itertools import permutations
+from itertools import combinations, permutations
 
 # 競艇全国平均 1 着入着率（艇番別）
 # 出典: 日本モーターボート競走会 統計資料
@@ -73,6 +73,24 @@ def _calc_synthetic_odds(
     }
 
 
+def _calc_market_trio_probs() -> dict[str, float]:
+    """Plackett-Luceモデルで艇番ベース3連複確率を計算する。20通り、合計≒1.0。"""
+    rates = BOAT_WIN_RATES
+    result: dict[str, float] = {}
+    for combo in combinations(range(1, 7), 3):
+        prob = 0.0
+        for perm in permutations(combo):
+            a, b, c = perm
+            denom_b = 1.0 - rates[a]
+            denom_c = denom_b - rates[b]
+            prob += rates[a] * (rates[b] / max(denom_b, 1e-9)) * (rates[c] / max(denom_c, 1e-9))
+        result["-".join(map(str, combo))] = float(prob)
+    return result
+
+
 # モジュールロード時に一度だけ計算（全レース共通）
 MARKET_TRIFECTA_PROBS: dict[str, float] = _calc_market_trifecta_probs()
 SYNTHETIC_ODDS: dict[str, float] = _calc_synthetic_odds(MARKET_TRIFECTA_PROBS)
+
+MARKET_TRIO_PROBS: dict[str, float] = _calc_market_trio_probs()
+SYNTHETIC_TRIO_ODDS: dict[str, float] = _calc_synthetic_odds(MARKET_TRIO_PROBS)

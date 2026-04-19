@@ -24,8 +24,8 @@ import pandas as pd
 sys.path.insert(0, str(Path(__file__).parents[1]))
 
 from features.feature_builder import build_features_from_history
-from model.predictor import predict_win_prob, calc_trifecta_probs, calc_expected_values
-from backtest.odds_simulator import SYNTHETIC_ODDS
+from model.predictor import predict_win_prob, calc_trifecta_probs, calc_trio_probs, calc_expected_values
+from backtest.odds_simulator import SYNTHETIC_ODDS, SYNTHETIC_TRIO_ODDS
 
 logger = logging.getLogger(__name__)
 
@@ -71,6 +71,12 @@ def calc_kelly_bet(
     return amount
 
 
+def _is_trio_hit(actual_combo: str | None, trio_combo: str) -> bool:
+    if actual_combo is None:
+        return False
+    return frozenset(actual_combo.split("-")) == frozenset(trio_combo.split("-"))
+
+
 def _build_race_result(
     race_id: str,
     race_group: pd.DataFrame,
@@ -81,6 +87,7 @@ def _build_race_result(
     use_real_odds: bool,
     bet_amount: int,
     bet_amounts: dict[str, int] | None = None,
+    bet_type: str = "trifecta",
 ) -> dict:
     """run_race / run_backtest_batch 共通の結果辞書を組み立てる。
 
@@ -101,9 +108,14 @@ def _build_race_result(
     matched_odds = 0.0
 
     for bet in alerts:
-        if bet["combination"] == actual_combo:
-            matched_odds = effective_odds.get(actual_combo, SYNTHETIC_ODDS.get(actual_combo, 0.0))
-            actual_bet = (bet_amounts or {}).get(actual_combo, bet_amount)
+        combo_hit = (
+            _is_trio_hit(actual_combo, bet["combination"])
+            if bet_type == "trio"
+            else bet["combination"] == actual_combo
+        )
+        if combo_hit:
+            matched_odds = effective_odds.get(bet["combination"], SYNTHETIC_ODDS.get(bet["combination"], 0.0))
+            actual_bet = (bet_amounts or {}).get(bet["combination"], bet_amount)
             payout_received = matched_odds * actual_bet
             matched = True
             matched_combo = bet["combination"]
@@ -128,6 +140,7 @@ def _build_race_result(
         "top_prob":        ev_results[0]["win_probability"] if ev_results else 0.0,
         "n_alerts":        len(alerts),
         "odds_source":     "real" if use_real_odds else "synthetic",
+        "bet_type":        bet_type,
     }
 
 
@@ -160,6 +173,7 @@ def run_race(
     exclude_courses: list[int] | None = None,
     min_odds: float | None = None,
     exclude_stadiums: list[int] | None = None,
+    bet_type: str = "trifecta",
 ) -> dict[str, Any] | None:
     """
     1 レース分のバックテストを実行する。
@@ -178,6 +192,7 @@ def run_race(
     exclude_courses  : 除外する1着艇番（コース）リスト（例: [2, 4, 5]）
     min_odds         : 購入するオッズの下限（例: 100.0 → 100倍未満は除外）
     exclude_stadiums : 除外する場ID リスト（例: [11] → びわこ除外）
+    bet_type         : "trifecta"（3連単）or "trio"（3連複）
 
     Returns
     -------
@@ -190,9 +205,12 @@ def run_race(
         if sid in exclude_stadiums:
             return None
 
-    # 有効な実オッズかどうか判定（120 組のうち 60 組以上あれば使用）
-    use_real_odds = race_odds is not None and len(race_odds) >= 60
-    effective_odds = race_odds if use_real_odds else SYNTHETIC_ODDS
+    # 有効な実オッズかどうか判定
+    # 3連単: 120組のうち60組以上、3連複: 20組のうち10組以上
+    min_real_odds_count = 10 if bet_type == "trio" else 60
+    use_real_odds = race_odds is not None and len(race_odds) >= min_real_odds_count
+    fallback_odds = SYNTHETIC_TRIO_ODDS if bet_type == "trio" else SYNTHETIC_ODDS
+    effective_odds = race_odds if use_real_odds else fallback_odds
     race_id = race_df["race_id"].iloc[0]
 
     # ── 1. 実際の着順取得 ──────────────────────────────────
@@ -219,11 +237,14 @@ def run_race(
     # multiclass: shape (6, 6) → クラス 0 (1 着) の確率列を取得
     first_place_probs = raw_probs[:, 0] if raw_probs.ndim == 2 else raw_probs
 
-    # ── 4. 3 連単確率計算 ─────────────────────────────────
-    trifecta_probs = calc_trifecta_probs(first_place_probs)
+    # ── 4. 確率計算（3連単 or 3連複）─────────────────────────
+    if bet_type == "trio":
+        combo_probs = calc_trio_probs(first_place_probs)
+    else:
+        combo_probs = calc_trifecta_probs(first_place_probs)
 
     # ── 5. 期待値計算 ─────────────────────────────────────
-    ev_results = calc_expected_values(trifecta_probs, effective_odds)
+    ev_results = calc_expected_values(combo_probs, effective_odds)
 
     # ── 6. 的中確率閾値・EV閾値・コース/オッズフィルタで絞り込み ──
     # ev_results は EV 降順ソート済み
@@ -232,7 +253,8 @@ def run_race(
         if r["win_probability"] >= prob_threshold
         and r["expected_value"] >= ev_threshold
     ]
-    if exclude_courses:
+    # exclude_coursesは3連単のみ（3連複はパイロット後に検討）
+    if exclude_courses and bet_type == "trifecta":
         alerts = [r for r in alerts if int(r["combination"].split("-")[0]) not in exclude_courses]
     if min_odds is not None:
         alerts = [r for r in alerts if effective_odds.get(r["combination"], 0.0) >= min_odds]
@@ -257,6 +279,7 @@ def run_race(
     return _build_race_result(
         race_id, race_df, actual_combo, ev_results, alerts,
         effective_odds, use_real_odds, bet_amount, bet_amounts,
+        bet_type=bet_type,
     )
 
 
@@ -274,6 +297,7 @@ def run_backtest_batch(
     exclude_courses: list[int] | None = None,
     min_odds: float | None = None,
     exclude_stadiums: list[int] | None = None,
+    bet_type: str = "trifecta",
 ) -> tuple[list[dict], int] | tuple[list[dict], int, list[dict]]:
     """
     全レースのバックテストをバッチ処理で実行する。
@@ -297,6 +321,7 @@ def run_backtest_batch(
     exclude_courses  : 除外する1着艇番（コース）リスト（例: [2, 4, 5]）
     min_odds         : 購入するオッズの下限（例: 100.0 → 100倍未満は除外）
     exclude_stadiums : 除外する場ID リスト（例: [11] → びわこ除外）
+    bet_type         : "trifecta"（3連単）or "trio"（3連複）
 
     Returns
     -------
@@ -351,22 +376,27 @@ def run_backtest_batch(
             continue
 
         race_odds = odds_by_race.get(str(race_id))
-        use_real_odds = race_odds is not None and len(race_odds) >= 60
-        effective_odds = race_odds if use_real_odds else SYNTHETIC_ODDS
+        min_real_odds_count = 10 if bet_type == "trio" else 60
+        use_real_odds = race_odds is not None and len(race_odds) >= min_real_odds_count
+        fallback_odds = SYNTHETIC_TRIO_ODDS if bet_type == "trio" else SYNTHETIC_ODDS
+        effective_odds = race_odds if use_real_odds else fallback_odds
 
         # boat_no = 1〜6 の順で first_place_prob を並べる
-        # （calc_trifecta_probs は win_probs[boat_no - 1] でアクセスするため）
         fp = race_group.sort_values("boat_no")["_fp"].values
 
-        trifecta_probs = calc_trifecta_probs(fp)
-        ev_results = calc_expected_values(trifecta_probs, effective_odds)
+        if bet_type == "trio":
+            combo_probs = calc_trio_probs(fp)
+        else:
+            combo_probs = calc_trifecta_probs(fp)
+        ev_results = calc_expected_values(combo_probs, effective_odds)
 
         alerts = [
             r for r in ev_results
             if r["win_probability"] >= prob_threshold
             and r["expected_value"] >= ev_threshold
         ]
-        if exclude_courses:
+        # exclude_coursesは3連単のみ（3連複はパイロット後に検討）
+        if exclude_courses and bet_type == "trifecta":
             alerts = [r for r in alerts if int(r["combination"].split("-")[0]) not in exclude_courses]
         if min_odds is not None:
             alerts = [r for r in alerts if effective_odds.get(r["combination"], 0.0) >= min_odds]
@@ -390,6 +420,7 @@ def run_backtest_batch(
         results.append(_build_race_result(
             str(race_id), race_group, actual_combo, ev_results, alerts,
             effective_odds, use_real_odds, bet_amount, race_bet_amounts,
+            bet_type=bet_type,
         ))
 
         # グリッドサーチ用：全組み合わせの生データを収集
@@ -407,8 +438,13 @@ def run_backtest_batch(
                     "odds":           effective_odds.get(r["combination"], 0.0),
                     "odds_source":    "real" if use_real_odds else "synthetic",
                     "actual_combo":   actual_combo,
-                    "is_hit":         r["combination"] == actual_combo,
+                    "is_hit":         (
+                        _is_trio_hit(actual_combo, r["combination"])
+                        if bet_type == "trio"
+                        else r["combination"] == actual_combo
+                    ),
                     "bet_amount":     bet_amount,
+                    "bet_type":       bet_type,
                 })
 
     if collect_combos:
