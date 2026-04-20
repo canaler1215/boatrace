@@ -11,18 +11,52 @@ on:
         description: '対象月 (1-12)'
         required: true
         default: '12'
+      bet_type:
+        description: '賭式 (trifecta=3連単 / trio=3連複 / both=両方)'
+        required: false
+        default: 'trifecta'
+        type: choice
+        options:
+          - trifecta
+          - trio
+          - both
       prob_threshold:
-        description: '的中確率閾値（例: 0.05 = 5%）'
+        description: '的中確率閾値（例: 0.07 = 7%）'
         required: false
-        default: '0.05'
+        default: '0.07'
       ev_threshold:
-        description: 'EV閾値（例: 1.2。0.0 で無効）'
+        description: 'EV閾値（例: 2.0。0.0 で無効）'
         required: false
-        default: '1.2'
+        default: '2.0'
       max_bets:
         description: '1レースあたり最大賭け点数'
         required: false
         default: '5'
+      exclude_courses:
+        description: '除外する1着艇番（スペース区切り、例: "2 4 5"。空欄で無効）'
+        required: false
+        default: '2 4 5'
+      min_odds:
+        description: '購入オッズ下限（例: 100。空欄で無効）'
+        required: false
+        default: '100'
+      exclude_stadiums:
+        description: '除外する場ID（スペース区切り、例: "11"。空欄で無効）'
+        required: false
+        default: '11'
+      retrain:
+        description: 'テスト期間を除外してモデルを再学習'
+        required: false
+        default: false
+        type: boolean
+      train_start_year:
+        description: '--retrain 時の学習開始年'
+        required: false
+        default: '2023'
+      train_start_month:
+        description: '--retrain 時の学習開始月'
+        required: false
+        default: '1'
 
 jobs:
   backtest:
@@ -30,7 +64,7 @@ jobs:
     timeout-minutes: 360   # 最大6時間
 
     permissions:
-      contents: write       # アーティファクトアップロードに必要
+      contents: write
 
     steps:
       - uses: actions/checkout@v4
@@ -51,13 +85,15 @@ jobs:
       - name: Restore odds partial cache
         uses: actions/cache@v4
         with:
-          path: ml/data/odds/
-          key: odds-${{ inputs.year }}-${{ inputs.month }}-${{ github.run_id }}
+          path: data/odds/
+          key: odds-${{ inputs.year }}-${{ inputs.month }}-${{ inputs.bet_type }}-${{ github.run_id }}
           restore-keys: |
+            odds-${{ inputs.year }}-${{ inputs.month }}-${{ inputs.bet_type }}-
             odds-${{ inputs.year }}-${{ inputs.month }}-
 
       # GitHub Releases から最新モデルをダウンロード（なければ --retrain で学習）
       - name: Download latest model
+        if: ${{ inputs.retrain == false }}
         id: download_model
         run: python ml/src/scripts/download_model.py
         continue-on-error: true
@@ -67,28 +103,48 @@ jobs:
 
       - name: Run backtest with real odds
         run: |
-          cd ml
+          # オプション組み立て
           RETRAIN_FLAG=""
-          if [ "${{ steps.download_model.outcome }}" != "success" ]; then
-            echo "No model found in releases — will retrain during backtest"
-            RETRAIN_FLAG="--retrain"
+          if [ "${{ inputs.retrain }}" == "true" ] || [ "${{ steps.download_model.outcome }}" != "success" ]; then
+            RETRAIN_FLAG="--retrain --train-start-year ${{ inputs.train_start_year }} --train-start-month ${{ inputs.train_start_month }}"
           fi
-          python src/scripts/run_backtest.py \
+
+          EXCLUDE_COURSES_FLAG=""
+          if [ -n "${{ inputs.exclude_courses }}" ]; then
+            EXCLUDE_COURSES_FLAG="--exclude-courses ${{ inputs.exclude_courses }}"
+          fi
+
+          MIN_ODDS_FLAG=""
+          if [ -n "${{ inputs.min_odds }}" ]; then
+            MIN_ODDS_FLAG="--min-odds ${{ inputs.min_odds }}"
+          fi
+
+          EXCLUDE_STADIUMS_FLAG=""
+          if [ -n "${{ inputs.exclude_stadiums }}" ]; then
+            EXCLUDE_STADIUMS_FLAG="--exclude-stadiums ${{ inputs.exclude_stadiums }}"
+          fi
+
+          python ml/src/scripts/run_backtest.py \
             --year ${{ inputs.year }} \
             --month ${{ inputs.month }} \
+            --bet-type ${{ inputs.bet_type }} \
             --real-odds \
             --prob-threshold ${{ inputs.prob_threshold }} \
             --ev-threshold ${{ inputs.ev_threshold }} \
             --max-bets ${{ inputs.max_bets }} \
             $RETRAIN_FLAG \
-            --output ../artifacts/backtest_${{ inputs.year }}${{ inputs.month }}.csv
+            $EXCLUDE_COURSES_FLAG \
+            $MIN_ODDS_FLAG \
+            $EXCLUDE_STADIUMS_FLAG \
+            --output artifacts/backtest_${{ inputs.year }}${{ inputs.month }}_${{ inputs.bet_type }}.csv
 
       - name: Upload backtest results
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: backtest-${{ inputs.year }}-${{ inputs.month }}-run${{ github.run_number }}
+          name: backtest-${{ inputs.year }}-${{ inputs.month }}-${{ inputs.bet_type }}-run${{ github.run_number }}
           path: |
             artifacts/backtest_*.csv
-            ml/data/odds/odds_*.parquet
+            data/odds/odds_*.parquet
+            data/odds/trio_odds_*.parquet
           retention-days: 90

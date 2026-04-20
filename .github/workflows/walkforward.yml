@@ -11,6 +11,15 @@ on:
         description: 'テスト終了月 (YYYY-MM)'
         required: true
         default: '2025-12'
+      bet_type:
+        description: '賭式 (trifecta=3連単 / trio=3連複 / both=両方)'
+        required: false
+        default: 'trifecta'
+        type: choice
+        options:
+          - trifecta
+          - trio
+          - both
       retrain:
         description: '各月で再学習（Walk-Forward）'
         required: false
@@ -24,15 +33,27 @@ on:
       prob_threshold:
         description: '的中確率閾値'
         required: false
-        default: '0.05'
+        default: '0.07'
       ev_threshold:
         description: 'EV閾値（0.0 で無効）'
         required: false
-        default: '1.2'
+        default: '2.0'
       max_bets:
         description: '1レース最大賭け点数'
         required: false
         default: '5'
+      exclude_courses:
+        description: '除外する1着艇番（スペース区切り、例: "2 4 5"。空欄で無効）'
+        required: false
+        default: '2 4 5'
+      min_odds:
+        description: '購入オッズ下限（例: 100。空欄で無効）'
+        required: false
+        default: '100'
+      exclude_stadiums:
+        description: '除外する場ID（スペース区切り、例: "11"。空欄で無効）'
+        required: false
+        default: '11'
       train_start_year:
         description: '学習開始年'
         required: false
@@ -82,8 +103,9 @@ jobs:
         uses: actions/cache@v4
         with:
           path: data/odds/
-          key: odds-${{ inputs.start }}-${{ inputs.end }}-${{ github.run_id }}
+          key: odds-${{ inputs.start }}-${{ inputs.end }}-${{ inputs.bet_type }}-${{ github.run_id }}
           restore-keys: |
+            odds-${{ inputs.start }}-${{ inputs.end }}-${{ inputs.bet_type }}-
             odds-${{ inputs.start }}-${{ inputs.end }}-
             odds-${{ inputs.start }}-
             odds-
@@ -104,27 +126,49 @@ jobs:
           if [ "${{ inputs.real_odds }}" == "true" ]; then
             REAL_ODDS_FLAG="--real-odds"
           fi
+
           RETRAIN_FLAG=""
           if [ "${{ inputs.retrain }}" == "true" ]; then
             RETRAIN_FLAG="--retrain"
           fi
+
+          EXCLUDE_COURSES_FLAG=""
+          if [ -n "${{ inputs.exclude_courses }}" ]; then
+            EXCLUDE_COURSES_FLAG="--exclude-courses ${{ inputs.exclude_courses }}"
+          fi
+
+          MIN_ODDS_FLAG=""
+          if [ -n "${{ inputs.min_odds }}" ]; then
+            MIN_ODDS_FLAG="--min-odds ${{ inputs.min_odds }}"
+          fi
+
+          EXCLUDE_STADIUMS_FLAG=""
+          if [ -n "${{ inputs.exclude_stadiums }}" ]; then
+            EXCLUDE_STADIUMS_FLAG="--exclude-stadiums ${{ inputs.exclude_stadiums }}"
+          fi
+
           python ml/src/scripts/run_walkforward.py \
             --start "${{ inputs.start }}" \
             --end "${{ inputs.end }}" \
+            --bet-type ${{ inputs.bet_type }} \
             --prob-threshold ${{ inputs.prob_threshold }} \
             --ev-threshold ${{ inputs.ev_threshold }} \
             --max-bets ${{ inputs.max_bets }} \
             --train-start-year ${{ inputs.train_start_year }} \
             --train-start-month ${{ inputs.train_start_month }} \
             $REAL_ODDS_FLAG \
-            $RETRAIN_FLAG
+            $RETRAIN_FLAG \
+            $EXCLUDE_COURSES_FLAG \
+            $MIN_ODDS_FLAG \
+            $EXCLUDE_STADIUMS_FLAG
 
       - name: Upload results
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: walkforward-${{ inputs.start }}-${{ inputs.end }}-run${{ github.run_number }}
+          name: walkforward-${{ inputs.start }}-${{ inputs.end }}-${{ inputs.bet_type }}-run${{ github.run_number }}
           path: |
             artifacts/walkforward_*.csv
             data/odds/odds_*.parquet
+            data/odds/trio_odds_*.parquet
           retention-days: 90
