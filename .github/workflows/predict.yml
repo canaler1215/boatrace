@@ -33,8 +33,7 @@ on:
         default: 'true'
         type: boolean
   schedule:
-    - cron: '30 1 * * *'   # 毎日 10:30 JST (01:30 UTC) — 早時間帯オッズ公開後
-    - cron: '0 4 * * *'    # 毎日 13:00 JST (04:00 UTC) — 中間レース・オッズ公開後
+    - cron: '15,45 0-9 * * *'  # 毎30分 09:15-18:45 JST (collect から 15 分オフセット)
 
 jobs:
   predict:
@@ -65,14 +64,9 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GITHUB_REPOSITORY: ${{ github.repository }}
 
-      # ── daily モード: 最新オッズ収集 → 当日レース予測 → DB 書き込み ─────────
+      # ── daily モード: 当日レース予測 → DB 書き込み ───────────────────────
+      # collect は collect.yml が 30 分ごとに実行するため、ここでは predict のみ実行
       # schedule トリガー時は inputs.mode が空になるため github.event_name で判定
-
-      - name: Collect latest odds before prediction
-        if: (inputs.mode == 'daily' || github.event_name == 'schedule') && steps.download.outcome == 'success'
-        run: python ml/src/scripts/run_collect.py
-        env:
-          DATABASE_URL: ${{ secrets.DATABASE_URL }}
 
       - name: Run daily prediction
         if: (inputs.mode == 'daily' || github.event_name == 'schedule') && steps.download.outcome == 'success'

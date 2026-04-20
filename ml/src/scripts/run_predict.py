@@ -165,7 +165,7 @@ def main() -> None:
         model_version_id = fetch_active_model_version_id(conn)
         logger.info("Active model_version_id: %s", model_version_id)
 
-        # 本日 (JST) の未予測・未終了レースを取得
+        # 本日 (JST) の未終了レースを取得（再予測により EV を最新オッズに追従させる）
         JST = timezone(timedelta(hours=9))
         today_jst = datetime.now(JST).date().isoformat()
         with conn.cursor() as cur:
@@ -175,9 +175,6 @@ def main() -> None:
                 FROM races r
                 WHERE r.race_date = %s
                   AND r.status != 'finished'
-                  AND NOT EXISTS (
-                        SELECT 1 FROM predictions p WHERE p.race_id = r.id
-                      )
                 """,
                 (today_jst,),
             )
