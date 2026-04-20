@@ -3,7 +3,7 @@ name: Collect Race Data
 on:
   workflow_dispatch:
   schedule:
-    - cron: '0,30 0-9 * * *'  # 毎30分 09:00-18:30 JST (00:00-09:30 UTC) レース時間帯の高頻度収集
+    - cron: '3,33 0-9 * * *'  # 毎30分 09:03-18:33 JST (00:03-09:33 UTC) レース時間帯の高頻度収集（毎時開始を避けて遅延低減）
     - cron: '0 22 * * *'      # 毎日 07:00 JST (UTC 22:00 前日) レース前収集
     - cron: '30 12 * * *'     # 毎日 21:30 JST (UTC 12:30)  レース後収集・着順取得
     - cron: '0 18 * * 0'      # 毎週日曜 03:00 JST (UTC 18:00) racer_st_stats 更新
