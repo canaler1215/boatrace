@@ -3,17 +3,18 @@ import { eq, desc, and, gte } from "drizzle-orm";
 import { calcKellyFraction, EV_THRESHOLD, getSeasonalBet } from "@/lib/utils/ev";
 import Link from "next/link";
 import { ProbThresholdControl } from "./ProbThresholdControl";
+import { DateControl } from "./DateControl";
 
 export const dynamic = "force-dynamic";
 
 const DEFAULT_PROB_PCT = 7; // S6-4運用ルール: prob ≥ 7%
 
 interface Props {
-  searchParams: Promise<{ prob?: string }>;
+  searchParams: Promise<{ prob?: string; date?: string }>;
 }
 
 export default async function DashboardPage({ searchParams }: Props) {
-  const { prob } = await searchParams;
+  const { prob, date } = await searchParams;
   const probPct = Math.max(
     1,
     Math.min(50, parseFloat(prob ?? String(DEFAULT_PROB_PCT)) || DEFAULT_PROB_PCT)
@@ -24,7 +25,14 @@ export default async function DashboardPage({ searchParams }: Props) {
   const jstOffset = 9 * 60 * 60 * 1000;
   const jstNow = new Date(now.getTime() + jstOffset);
   const today = jstNow.toISOString().slice(0, 10);
-  const currentMonth = jstNow.getMonth() + 1; // 1-12
+
+  // 指定日付のバリデーション（YYYY-MM-DD形式のみ受け付け）
+  const datePattern = /^\d{4}-\d{2}-\d{2}$/;
+  const selectedDate = date && datePattern.test(date) ? date : today;
+  const isToday = selectedDate === today;
+
+  const selectedMonth = new Date(selectedDate).getMonth() + 1; // 1-12
+  const currentMonth = isToday ? selectedMonth : jstNow.getMonth() + 1;
   const seasonal = getSeasonalBet(currentMonth);
 
   const alertsRaw = await db
@@ -44,7 +52,7 @@ export default async function DashboardPage({ searchParams }: Props) {
     .leftJoin(stadiums, eq(races.stadiumId, stadiums.id))
     .where(
       and(
-        eq(races.raceDate, today),
+        eq(races.raceDate, selectedDate),
         gte(predictions.winProbability, probThreshold),
         gte(predictions.expectedValue, EV_THRESHOLD) // S6-4: EV ≥ 2.0
       )
@@ -61,10 +69,12 @@ export default async function DashboardPage({ searchParams }: Props) {
     <div className="space-y-6">
       {/* ヘッダー */}
       <div className="flex items-center justify-between">
-        <h2 className="text-2xl font-bold">本日のレース予測</h2>
+        <h2 className="text-2xl font-bold">
+          {isToday ? "本日のレース予測" : `${selectedDate} のレース予測`}
+        </h2>
         <div className="flex items-center gap-4">
+          <DateControl current={selectedDate} today={today} />
           <ProbThresholdControl current={probPct} />
-          <span className="text-sm text-gray-500">{today}</span>
         </div>
       </div>
 
@@ -94,7 +104,7 @@ export default async function DashboardPage({ searchParams }: Props) {
       {alerts.length === 0 ? (
         <div className="rounded-lg border border-dashed border-gray-300 p-12 text-center">
           <p className="text-gray-500">
-            本日は的中確率 {probPct}% 以上 かつ EV ≥ {EV_THRESHOLD.toFixed(1)} の舟券はありません。
+            {isToday ? "本日" : selectedDate} は的中確率 {probPct}% 以上 かつ EV ≥ {EV_THRESHOLD.toFixed(1)} の舟券はありません。
           </p>
           <p className="mt-2 text-sm text-gray-400">
             GitHub Actions「Predict &amp; Calculate EV」を手動実行して予測データを更新してください。
