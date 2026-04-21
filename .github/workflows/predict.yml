@@ -32,8 +32,8 @@ on:
         required: false
         default: 'true'
         type: boolean
-  schedule:
-    - cron: '15,45 0-9 * * *'  # 毎30分 09:15-18:45 JST (collect から 15 分オフセット)
+  repository_dispatch:
+    types: [predict-trigger]   # cron-job.org からの 30 分ごと定期トリガー
 
 jobs:
   predict:
@@ -69,13 +69,13 @@ jobs:
       # schedule トリガー時は inputs.mode が空になるため github.event_name で判定
 
       - name: Run daily prediction
-        if: (inputs.mode == 'daily' || github.event_name == 'schedule') && steps.download.outcome == 'success'
+        if: (inputs.mode == 'daily' || github.event_name == 'schedule' || github.event_name == 'repository_dispatch') && steps.download.outcome == 'success'
         run: python ml/src/scripts/run_predict.py
         env:
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
 
       - name: Skip daily prediction (no model)
-        if: (inputs.mode == 'daily' || github.event_name == 'schedule') && steps.download.outcome != 'success'
+        if: (inputs.mode == 'daily' || github.event_name == 'schedule' || github.event_name == 'repository_dispatch') && steps.download.outcome != 'success'
         run: echo "No trained model found in GitHub Releases. Run 'Retrain Model' workflow first."
 
       # ── monthly_check モード: 月次予想・結果検証 → CSV 出力 ───────────────
