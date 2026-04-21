@@ -27,7 +27,7 @@ export default async function DashboardPage({ searchParams }: Props) {
   const currentMonth = jstNow.getMonth() + 1; // 1-12
   const seasonal = getSeasonalBet(currentMonth);
 
-  const alerts = await db
+  const alertsRaw = await db
     .select({
       id: predictions.id,
       raceId: predictions.raceId,
@@ -37,6 +37,7 @@ export default async function DashboardPage({ searchParams }: Props) {
       raceNo: races.raceNo,
       grade: races.grade,
       stadiumName: stadiums.name,
+      status: races.status,
     })
     .from(predictions)
     .innerJoin(races, eq(predictions.raceId, races.id))
@@ -49,6 +50,12 @@ export default async function DashboardPage({ searchParams }: Props) {
       )
     )
     .orderBy(desc(predictions.winProbability));
+
+  // 未終了を先頭、終了済みを末尾に（同一ステータス内はwP降順を維持）
+  const alerts = [
+    ...alertsRaw.filter((a) => a.status !== "finished"),
+    ...alertsRaw.filter((a) => a.status === "finished"),
+  ];
 
   return (
     <div className="space-y-6">
@@ -96,13 +103,14 @@ export default async function DashboardPage({ searchParams }: Props) {
       ) : (
         <div className="overflow-hidden rounded-lg border border-gray-200 bg-white shadow-sm">
           <div className="border-b border-gray-100 bg-gray-50 px-4 py-2 text-xs text-gray-500">
-            確率 ≥ {probPct}% かつ EV ≥ {EV_THRESHOLD.toFixed(1)}（{alerts.length}件）
+            確率 ≥ {probPct}% かつ EV ≥ {EV_THRESHOLD.toFixed(1)}（{alerts.length}件 / うち終了済み {alerts.filter((a) => a.status === "finished").length}件）
           </div>
           <table className="w-full text-sm">
             <thead className="bg-gray-50 text-xs uppercase text-gray-600">
               <tr>
                 <th className="px-4 py-3 text-left">競艇場</th>
                 <th className="px-4 py-3 text-left">レース</th>
+                <th className="px-4 py-3 text-left">状態</th>
                 <th className="px-4 py-3 text-left">組合せ</th>
                 <th className="px-4 py-3 text-right">的中確率</th>
                 <th className="px-4 py-3 text-right">期待値</th>
@@ -112,44 +120,70 @@ export default async function DashboardPage({ searchParams }: Props) {
             </thead>
             <tbody className="divide-y divide-gray-100">
               {alerts.map((alert) => {
+                const isFinished = alert.status === "finished";
+                const isRunning = alert.status === "running";
                 const odds =
                   alert.winProbability > 0
                     ? alert.expectedValue / alert.winProbability
                     : 0;
                 const kelly = calcKellyFraction(alert.expectedValue, odds);
                 return (
-                  <tr key={alert.id} className="hover:bg-gray-50">
-                    <td className="px-4 py-3 font-medium">
+                  <tr
+                    key={alert.id}
+                    className={
+                      isFinished
+                        ? "bg-gray-50 opacity-60"
+                        : isRunning
+                          ? "bg-green-50 hover:bg-green-100"
+                          : "hover:bg-blue-50"
+                    }
+                  >
+                    <td className={`px-4 py-3 font-medium ${isFinished ? "text-gray-400" : ""}`}>
                       {alert.stadiumName ?? "-"}
                     </td>
-                    <td className="px-4 py-3">
+                    <td className={`px-4 py-3 ${isFinished ? "text-gray-400" : ""}`}>
                       {alert.raceNo}R
                       {alert.grade && (
-                        <span className="ml-1 text-xs text-gray-500">
+                        <span className="ml-1 text-xs text-gray-400">
                           {alert.grade}
                         </span>
                       )}
                     </td>
                     <td className="px-4 py-3">
-                      <span className="rounded bg-blue-100 px-2 py-0.5 font-mono text-blue-800">
+                      {isFinished ? (
+                        <span className="rounded bg-gray-200 px-2 py-0.5 text-xs font-medium text-gray-500">
+                          終了
+                        </span>
+                      ) : isRunning ? (
+                        <span className="rounded bg-green-200 px-2 py-0.5 text-xs font-medium text-green-700">
+                          進行中
+                        </span>
+                      ) : (
+                        <span className="rounded bg-blue-100 px-2 py-0.5 text-xs font-medium text-blue-700">
+                          予定
+                        </span>
+                      )}
+                    </td>
+                    <td className="px-4 py-3">
+                      <span className={`rounded px-2 py-0.5 font-mono ${isFinished ? "bg-gray-100 text-gray-400" : "bg-blue-100 text-blue-800"}`}>
                         {alert.combination}
                       </span>
                     </td>
                     <td className="px-4 py-3 text-right">
-                      <span className="font-semibold text-blue-600">
+                      <span className={`font-semibold ${isFinished ? "text-gray-400" : "text-blue-600"}`}>
                         {(alert.winProbability * 100).toFixed(1)}%
                       </span>
                     </td>
-                    <td className="px-4 py-3 text-right font-medium text-gray-700">
+                    <td className={`px-4 py-3 text-right font-medium ${isFinished ? "text-gray-400" : "text-gray-700"}`}>
                       {alert.expectedValue.toFixed(2)}
                     </td>
-                    <td className="px-4 py-3 text-right text-gray-600">
+                    <td className={`px-4 py-3 text-right ${isFinished ? "text-gray-400" : "text-gray-600"}`}>
                       {kelly > 0 ? `${(kelly * 100).toFixed(1)}%` : "-"}
                     </td>
                     <td className="px-4 py-3 text-right">
                       <Link
                         href={`/races/${alert.raceId}`}
-                        className="text-blue-600 hover:underline"
+                        className={isFinished ? "text-gray-400 hover:underline" : "text-blue-600 hover:underline"}
                       >
                         詳細 →
                       </Link>
