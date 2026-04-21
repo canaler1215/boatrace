@@ -16,9 +16,16 @@ ROI・的中率・投資額を比較し、最適な閾値を特定する。
   # STEP 3: combo 生成 → グリッドサーチを一括実行
   python run_grid_search.py --year 2025 --month 12 --real-odds
 
+  # 3連複グリッドサーチ（複数月）
+  python run_grid_search.py --bet-type trio --start 2025-10 --end 2025-12 --real-odds \
+    --prob-thresholds 0.12 0.14 0.16 0.18 0.20 --ev-thresholds 2.5 3.0 3.5 4.0
+
 オプション:
-  --year              テスト年（combo CSV 生成時に必須）
-  --month             テスト月（combo CSV 生成時に必須）
+  --year              テスト年（combo CSV 生成時に必須、--start/--end と排他）
+  --month             テスト月（combo CSV 生成時に必須、--start/--end と排他）
+  --start             開始年月 YYYY-MM（複数月モード）
+  --end               終了年月 YYYY-MM（複数月モード）
+  --bet-type          賭け式: trifecta（3連単, デフォルト）or trio（3連複）
   --retrain           モデルを再学習してからバックテスト
   --train-start-year  --retrain 時の学習開始年（デフォルト: 2023）
   --train-start-month --retrain 時の学習開始月（デフォルト: 1）
@@ -26,6 +33,8 @@ ROI・的中率・投資額を比較し、最適な閾値を特定する。
   --combos-csv        既存の combo CSV パス（指定時はデータ生成をスキップ）
   --bet-amount        1 点賭け金（デフォルト: 100）
   --max-bets          1 レース最大賭け点数（デフォルト: 5）
+  --prob-thresholds   prob_threshold 候補リスト（スペース区切り）
+  --ev-thresholds     ev_threshold 候補リスト（スペース区切り）
   --output            グリッドサーチ結果 CSV の保存先
 """
 import argparse
@@ -52,7 +61,7 @@ from collector.history_downloader import (
     load_history_range,
     parse_result_file,
 )
-from collector.odds_downloader import load_or_download_month_odds
+from collector.odds_downloader import load_or_download_month_odds, load_or_download_month_trio_odds
 from collector.program_downloader import (
     load_program_month,
     load_program_range,
@@ -124,10 +133,16 @@ def get_or_train_model(args: argparse.Namespace):
         logger.info("Using existing model: %s", existing[0])
         return joblib.load(existing[0])
 
-    if args.month > 1:
-        train_end_year, train_end_month = args.year, args.month - 1
+    year  = getattr(args, "year",  None) or getattr(args, "_start_year",  None)
+    month = getattr(args, "month", None) or getattr(args, "_start_month", None)
+    if year is None or month is None:
+        logger.error("--retrain requires --year/--month or --start.")
+        sys.exit(1)
+
+    if month > 1:
+        train_end_year, train_end_month = year, month - 1
     else:
-        train_end_year, train_end_month = args.year - 1, 12
+        train_end_year, train_end_month = year - 1, 12
 
     df_train = load_history_range(
         start_year=args.train_start_year,
@@ -150,6 +165,69 @@ def get_or_train_model(args: argparse.Namespace):
     version = f"{train_end_year}{train_end_month:02d}_from{args.train_start_year}{args.train_start_month:02d}"
     model_path = train(X, y, version)
     return joblib.load(model_path)
+
+
+def _iter_months(start: str, end: str):
+    """'YYYY-MM' から 'YYYY-MM' まで月を yield する。"""
+    sy, sm = map(int, start.split("-"))
+    ey, em = map(int, end.split("-"))
+    y, m = sy, sm
+    while (y, m) <= (ey, em):
+        yield y, m
+        m += 1
+        if m > 12:
+            m = 1
+            y += 1
+
+
+def _build_combo_csv(
+    year: int,
+    month: int,
+    args: argparse.Namespace,
+    model,
+    bet_type: str,
+) -> pd.DataFrame:
+    """指定月の combo CSV を生成（キャッシュ済みなら再利用）して DataFrame を返す。"""
+    prefix = "trio_combos" if bet_type == "trio" else "combos"
+    label = f"{year}{month:02d}"
+    combos_csv_path = ARTIFACTS_DIR / f"{prefix}_{label}.csv"
+
+    if combos_csv_path.exists():
+        logger.info("キャッシュ済み combo CSV を使用: %s", combos_csv_path)
+        return pd.read_csv(combos_csv_path)
+
+    logger.info("テストデータを取得中: %d-%02d", year, month)
+    df_test = load_month_data(year, month)
+    if df_test.empty:
+        logger.error("データが見つかりません: %d-%02d", year, month)
+        return pd.DataFrame()
+
+    odds_by_race: dict[str, dict[str, float]] = {}
+    if args.real_odds:
+        if bet_type == "trio":
+            odds_by_race = load_or_download_month_trio_odds(year, month, df_test)
+        else:
+            odds_by_race = load_or_download_month_odds(year, month, df_test)
+        logger.info("実オッズ: %d レース分取得", len(odds_by_race))
+
+    max_combos = 20 if bet_type == "trio" else 120
+    _, skipped, combo_records = run_backtest_batch(
+        df_test=df_test,
+        model=model,
+        odds_by_race=odds_by_race,
+        prob_threshold=0.0,
+        bet_amount=args.bet_amount,
+        max_bets_per_race=max_combos,
+        ev_threshold=0.0,
+        collect_combos=True,
+        bet_type=bet_type,
+    )
+    logger.info("Combo 収集完了: %d 組み合わせ、スキップ %d レース", len(combo_records), skipped)
+
+    combos_df = pd.DataFrame(combo_records)
+    combos_df.to_csv(combos_csv_path, index=False)
+    logger.info("Combo CSV 保存: %s", combos_csv_path)
+    return combos_df
 
 
 # ---------------------------------------------------------------------------
@@ -320,15 +398,20 @@ def main() -> None:
         description="prob_threshold × ev_threshold グリッドサーチ",
         formatter_class=argparse.ArgumentDefaultsHelpFormatter,
     )
-    parser.add_argument("--year",               type=int,  default=None,  help="テスト年（combo 生成時に使用）")
-    parser.add_argument("--month",              type=int,  default=None,  help="テスト月（combo 生成時に使用）")
+    parser.add_argument("--year",               type=int,  default=None,  help="テスト年（--start/--end と排他）")
+    parser.add_argument("--month",              type=int,  default=None,  help="テスト月（--start/--end と排他）")
+    parser.add_argument("--start",              type=str,  default=None,  help="開始年月 YYYY-MM（複数月モード）")
+    parser.add_argument("--end",                type=str,  default=None,  help="終了年月 YYYY-MM（複数月モード）")
+    parser.add_argument("--bet-type",           choices=["trifecta", "trio"], default="trifecta", help="賭け式（trifecta=3連単, trio=3連複）")
     parser.add_argument("--retrain",            action="store_true",      help="モデルを再学習")
     parser.add_argument("--train-start-year",   type=int,  default=2023,  help="学習開始年")
     parser.add_argument("--train-start-month",  type=int,  default=1,     help="学習開始月")
     parser.add_argument("--real-odds",          action="store_true",      help="実オッズを使用")
-    parser.add_argument("--combos-csv",         type=str,  default=None,  help="既存 combo CSV のパス")
+    parser.add_argument("--combos-csv",         type=str,  default=None,  help="既存 combo CSV のパス（単月モード専用）")
     parser.add_argument("--bet-amount",             type=int,  default=100,   help="1 点賭け金（円）")
     parser.add_argument("--max-bets",               type=int,  default=5,     help="1 レース最大賭け点数")
+    parser.add_argument("--prob-thresholds",        type=float, nargs="+", default=None, help="prob_threshold 候補リスト（デフォルト: 組み込み定数）")
+    parser.add_argument("--ev-thresholds",          type=float, nargs="+", default=None, help="ev_threshold 候補リスト（デフォルト: 組み込み定数）")
     parser.add_argument("--filter-overestimation",  action="store_true",      help=f"win_prob >= {OVERESTIMATION_PROB_CUTOFF*100:.0f}%（過大推定ビン）を除外")
     parser.add_argument("--exclude-courses",        type=int,  nargs="+",    help="除外する1着艇番（例: 2 4 5）")
     parser.add_argument("--min-odds",               type=float, default=None, help="購入するオッズの下限（例: 100.0 → 100倍未満は除外）")
@@ -338,65 +421,63 @@ def main() -> None:
 
     ARTIFACTS_DIR.mkdir(exist_ok=True)
 
+    bet_type = args.bet_type
+    prob_thresholds = args.prob_thresholds or PROB_THRESHOLDS
+    ev_thresholds   = args.ev_thresholds   or EV_THRESHOLDS
+
     # ── 1. combo CSV の取得 ──────────────────────────────
+    multi_month_mode = args.start is not None and args.end is not None
+
     if args.combos_csv:
+        # 既存 CSV を直接読み込み（単月モード）
         logger.info("既存 combo CSV を読み込み: %s", args.combos_csv)
         combos_df = pd.read_csv(args.combos_csv)
-        label = Path(args.combos_csv).stem.replace("combos_", "")
+        stem = Path(args.combos_csv).stem
+        label = stem.replace("trio_combos_", "").replace("combos_", "")
+
+    elif multi_month_mode:
+        # 複数月モード: 各月の combo をマージ
+        months = list(_iter_months(args.start, args.end))
+        if not months:
+            logger.error("--start / --end の範囲が空です。")
+            sys.exit(1)
+        sy, sm = months[0]
+        args._start_year  = sy
+        args._start_month = sm
+        model = get_or_train_model(args)
+
+        frames = []
+        for y, m in months:
+            df = _build_combo_csv(y, m, args, model, bet_type)
+            if not df.empty:
+                frames.append(df)
+        if not frames:
+            logger.error("全月のデータ取得に失敗しました。")
+            sys.exit(1)
+        combos_df = pd.concat(frames, ignore_index=True)
+        prefix = "trio" if bet_type == "trio" else "trifecta"
+        label = f"{prefix}_{args.start.replace('-','')}_{args.end.replace('-','')}"
+        logger.info("複数月 combo: %d 行 (%d 月分)", len(combos_df), len(frames))
+
     else:
+        # 単月モード
         if args.year is None or args.month is None:
-            logger.error("--year と --month を指定してください（または --combos-csv を指定）。")
+            logger.error("--year/--month, --start/--end, または --combos-csv を指定してください。")
             sys.exit(1)
 
         label = f"{args.year}{args.month:02d}"
-        combos_csv_path = ARTIFACTS_DIR / f"combos_{label}.csv"
-
-        # キャッシュ済みなら再利用
-        if combos_csv_path.exists():
-            logger.info("キャッシュ済み combo CSV を使用: %s", combos_csv_path)
-            combos_df = pd.read_csv(combos_csv_path)
-        else:
-            # モデル取得
-            model = get_or_train_model(args)
-
-            # テストデータ取得
-            logger.info("テストデータを取得中: %d-%02d", args.year, args.month)
-            df_test = load_month_data(args.year, args.month)
-            if df_test.empty:
-                logger.error("データが見つかりません: %d-%02d", args.year, args.month)
-                sys.exit(1)
-
-            # 実オッズ取得
-            odds_by_race: dict[str, dict[str, float]] = {}
-            if args.real_odds:
-                odds_by_race = load_or_download_month_odds(args.year, args.month, df_test)
-                logger.info("実オッズ: %d レース分取得", len(odds_by_race))
-
-            # バックテスト（collect_combos=True）
-            logger.info("全組み合わせデータを収集中...")
-            _, skipped, combo_records = run_backtest_batch(
-                df_test=df_test,
-                model=model,
-                odds_by_race=odds_by_race,
-                prob_threshold=0.0,   # 全組み合わせ収集のため閾値なし
-                bet_amount=args.bet_amount,
-                max_bets_per_race=120,  # 全 120 通り
-                ev_threshold=0.0,
-                collect_combos=True,
-            )
-            logger.info("Combo 収集完了: %d 組み合わせ、スキップ %d レース", len(combo_records), skipped)
-
-            combos_df = pd.DataFrame(combo_records)
-            combos_df.to_csv(combos_csv_path, index=False)
-            logger.info("Combo CSV 保存: %s", combos_csv_path)
+        model = get_or_train_model(args)
+        combos_df = _build_combo_csv(args.year, args.month, args, model, bet_type)
+        if combos_df.empty:
+            sys.exit(1)
 
     # ── 2. グリッドサーチ実行 ────────────────────────────
     filter_flag = args.filter_overestimation
     logger.info(
-        "グリッドサーチ開始: prob×%d × ev×%d = %d 組み合わせ  filter_overestimation=%s",
-        len(PROB_THRESHOLDS), len(EV_THRESHOLDS),
-        len(PROB_THRESHOLDS) * len(EV_THRESHOLDS),
-        filter_flag,
+        "グリッドサーチ開始: prob×%d × ev×%d = %d 組み合わせ  bet_type=%s  filter_overestimation=%s",
+        len(prob_thresholds), len(ev_thresholds),
+        len(prob_thresholds) * len(ev_thresholds),
+        bet_type, filter_flag,
     )
     if args.exclude_courses:
         logger.info("除外コース: %s", args.exclude_courses)
@@ -409,6 +490,8 @@ def main() -> None:
         combos_df,
         bet_amount=args.bet_amount,
         max_bets=args.max_bets,
+        prob_thresholds=prob_thresholds,
+        ev_thresholds=ev_thresholds,
         filter_overestimation=filter_flag,
         exclude_courses=args.exclude_courses,
         min_odds=args.min_odds,
@@ -416,57 +499,61 @@ def main() -> None:
     )
 
     # ── 3. 結果保存 ─────────────────────────────────────
-    suffix = "_filtered" if filter_flag else ""
+    suffix = f"_{bet_type}" if bet_type != "trifecta" else ""
+    suffix += "_filtered" if filter_flag else ""
     output_path = args.output or str(ARTIFACTS_DIR / f"grid_search_{label}{suffix}.csv")
     grid_df.to_csv(output_path, index=False)
     logger.info("グリッドサーチ結果保存: %s", output_path)
 
     # ── 4. サマリー表示 ──────────────────────────────────
+    print(f"\n  賭け式: {bet_type}  期間: {label}")
     if filter_flag:
-        print(f"\n  ※ Plackett-Luce 過大推定フィルタ適用中: win_prob < {OVERESTIMATION_PROB_CUTOFF*100:.0f}% のみ")
+        print(f"  ※ Plackett-Luce 過大推定フィルタ適用中: win_prob < {OVERESTIMATION_PROB_CUTOFF*100:.0f}% のみ")
     print_grid_summary(grid_df)
 
-    # 現在の設定（prob=3%, EV=1.2）の結果も表示
-    current = grid_df[
-        (grid_df["prob_threshold"] == 0.03) & (grid_df["ev_threshold"] == 1.2)
-    ]
-    if not current.empty:
-        row = current.iloc[0]
-        print(f"  [現行設定 prob≥3% × EV≥1.2]  ROI: {row['roi']:+.1f}%  "
-              f"賭け: {int(row['n_bets'])} 点  的中: {int(row['n_wins'])}")
-        print()
+    # 3連単のみ: 現行設定（prob=3%, EV=1.2）の参考表示
+    if bet_type == "trifecta":
+        current = grid_df[
+            (grid_df["prob_threshold"] == 0.03) & (grid_df["ev_threshold"] == 1.2)
+        ]
+        if not current.empty:
+            row = current.iloc[0]
+            print(f"  [現行設定 prob≥3% × EV≥1.2]  ROI: {row['roi']:+.1f}%  "
+                  f"賭け: {int(row['n_bets'])} 点  的中: {int(row['n_wins'])}")
+            print()
 
-    # ── 5. フィルタなし vs あり の比較表示 ─────────────────
-    if not filter_flag:
-        # フィルタありで再計算して比較表示
-        logger.info("参考: 過大推定フィルタ適用時の結果を計算中...")
-        grid_df_filtered = run_grid_search(
-            combos_df,
-            bet_amount=args.bet_amount,
-            max_bets=args.max_bets,
-            filter_overestimation=True,
-            exclude_courses=args.exclude_courses,
-            min_odds=args.min_odds,
-            exclude_stadiums=args.exclude_stadiums,
-        )
-        print("  [参考: 過大推定フィルタ（win_prob < 10%）適用時の上位5組み合わせ]")
-        print(f"  {'prob(%)':>7}  {'EV':>5}  {'賭け点':>6}  {'ROI':>7}  {'的中率':>6}  {'的中'}")
-        print("  " + "-" * 50)
-        valid_f = grid_df_filtered[grid_df_filtered["n_bets"] >= 10]
-        if not valid_f.empty:
-            for _, row in valid_f.nlargest(5, "roi").iterrows():
-                print(
-                    f"  {row['prob_threshold']*100:>6.1f}%  "
-                    f"{row['ev_threshold']:>5.2f}  "
-                    f"{int(row['n_bets']):>6,}  "
-                    f"{row['roi']:>+6.1f}%  "
-                    f"{row['win_rate']:>5.2f}%  "
-                    f"{int(row['n_wins'])}"
-                )
-        print()
-        filter_out = str(ARTIFACTS_DIR / f"grid_search_{label}_filtered.csv")
-        grid_df_filtered.to_csv(filter_out, index=False)
-        logger.info("フィルタあり結果保存: %s", filter_out)
+        # フィルタなし vs あり の比較表示（3連単のみ）
+        if not filter_flag:
+            logger.info("参考: 過大推定フィルタ適用時の結果を計算中...")
+            grid_df_filtered = run_grid_search(
+                combos_df,
+                bet_amount=args.bet_amount,
+                max_bets=args.max_bets,
+                prob_thresholds=prob_thresholds,
+                ev_thresholds=ev_thresholds,
+                filter_overestimation=True,
+                exclude_courses=args.exclude_courses,
+                min_odds=args.min_odds,
+                exclude_stadiums=args.exclude_stadiums,
+            )
+            print("  [参考: 過大推定フィルタ（win_prob < 10%）適用時の上位5組み合わせ]")
+            print(f"  {'prob(%)':>7}  {'EV':>5}  {'賭け点':>6}  {'ROI':>7}  {'的中率':>6}  {'的中'}")
+            print("  " + "-" * 50)
+            valid_f = grid_df_filtered[grid_df_filtered["n_bets"] >= 10]
+            if not valid_f.empty:
+                for _, row in valid_f.nlargest(5, "roi").iterrows():
+                    print(
+                        f"  {row['prob_threshold']*100:>6.1f}%  "
+                        f"{row['ev_threshold']:>5.2f}  "
+                        f"{int(row['n_bets']):>6,}  "
+                        f"{row['roi']:>+6.1f}%  "
+                        f"{row['win_rate']:>5.2f}%  "
+                        f"{int(row['n_wins'])}"
+                    )
+            print()
+            filter_out = str(ARTIFACTS_DIR / f"grid_search_{label}_filtered.csv")
+            grid_df_filtered.to_csv(filter_out, index=False)
+            logger.info("フィルタあり結果保存: %s", filter_out)
 
 
 if __name__ == "__main__":

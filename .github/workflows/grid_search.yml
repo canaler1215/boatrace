@@ -4,13 +4,37 @@ on:
   workflow_dispatch:
     inputs:
       year:
-        description: '対象年'
-        required: true
+        description: '対象年（単月モード, --start/--end 使用時は空で可）'
+        required: false
         default: '2025'
       month:
-        description: '対象月 (1-12)'
-        required: true
+        description: '対象月 1-12（単月モード）'
+        required: false
         default: '12'
+      start:
+        description: '開始年月 YYYY-MM（複数月モード。空なら単月）'
+        required: false
+        default: ''
+      end:
+        description: '終了年月 YYYY-MM（複数月モード）'
+        required: false
+        default: ''
+      bet_type:
+        description: '賭け式: trifecta（3連単）or trio（3連複）'
+        required: false
+        default: 'trifecta'
+        type: choice
+        options:
+          - trifecta
+          - trio
+      prob_thresholds:
+        description: 'prob_threshold 候補（スペース区切り。空なら組み込みデフォルト）'
+        required: false
+        default: ''
+      ev_thresholds:
+        description: 'ev_threshold 候補（スペース区切り。空なら組み込みデフォルト）'
+        required: false
+        default: ''
       retrain:
         description: 'モデルを再学習'
         required: false
@@ -88,10 +112,12 @@ jobs:
       - name: Restore combos cache
         uses: actions/cache@v4
         with:
-          path: artifacts/combos_*.csv
-          key: combos-${{ inputs.year }}-${{ inputs.month }}-${{ github.run_id }}
+          path: |
+            artifacts/combos_*.csv
+            artifacts/trio_combos_*.csv
+          key: combos-${{ inputs.bet_type }}-${{ inputs.start || inputs.year }}-${{ inputs.end || inputs.month }}-${{ github.run_id }}
           restore-keys: |
-            combos-${{ inputs.year }}-${{ inputs.month }}-
+            combos-${{ inputs.bet_type }}-${{ inputs.start || inputs.year }}-${{ inputs.end || inputs.month }}-
 
       - name: Download latest model
         id: download_model
@@ -111,36 +137,56 @@ jobs:
           if [ "${{ inputs.retrain }}" == "true" ]; then
             RETRAIN_FLAG="--retrain --train-start-year ${{ inputs.train_start_year }} --train-start-month ${{ inputs.train_start_month }}"
           fi
-          # combos CSV が既にキャッシュされていれば再利用（再ダウンロード不要）
-          MONTH_PAD=$(printf "%02d" ${{ inputs.month }})
-          COMBO_FILE="artifacts/combos_${{ inputs.year }}${MONTH_PAD}.csv"
-          COMBO_OPT=""
-          if [ -f "$COMBO_FILE" ]; then
-            echo "Reusing cached combos CSV: $COMBO_FILE"
-            COMBO_OPT="--combos-csv $COMBO_FILE"
-          fi
           FILTER_FLAG=""
           if [ "${{ inputs.filter_overestimation }}" == "true" ]; then
             FILTER_FLAG="--filter-overestimation"
           fi
+          # 複数月モード vs 単月モード
+          if [ -n "${{ inputs.start }}" ] && [ -n "${{ inputs.end }}" ]; then
+            RANGE_OPT="--start ${{ inputs.start }} --end ${{ inputs.end }}"
+            YEAR_MONTH_OPT=""
+          else
+            RANGE_OPT=""
+            MONTH_PAD=$(printf "%02d" ${{ inputs.month }})
+            YEAR_MONTH_OPT="--year ${{ inputs.year }} --month ${{ inputs.month }}"
+            # 単月: 既存 combo CSV があれば再利用
+            BET_PREFIX="${{ inputs.bet_type == 'trio' && 'trio_combos' || 'combos' }}"
+            COMBO_FILE="artifacts/${BET_PREFIX}_${{ inputs.year }}${MONTH_PAD}.csv"
+            if [ -f "$COMBO_FILE" ]; then
+              echo "Reusing cached combos CSV: $COMBO_FILE"
+              YEAR_MONTH_OPT="--combos-csv $COMBO_FILE"
+            fi
+          fi
+          PROB_OPT=""
+          if [ -n "${{ inputs.prob_thresholds }}" ]; then
+            PROB_OPT="--prob-thresholds ${{ inputs.prob_thresholds }}"
+          fi
+          EV_OPT=""
+          if [ -n "${{ inputs.ev_thresholds }}" ]; then
+            EV_OPT="--ev-thresholds ${{ inputs.ev_thresholds }}"
+          fi
           python ml/src/scripts/run_grid_search.py \
-            --year ${{ inputs.year }} \
-            --month ${{ inputs.month }} \
+            --bet-type ${{ inputs.bet_type }} \
             --bet-amount ${{ inputs.bet_amount }} \
             --max-bets ${{ inputs.max_bets }} \
             $REAL_ODDS_FLAG \
             $RETRAIN_FLAG \
-            $COMBO_OPT \
-            $FILTER_FLAG
+            $FILTER_FLAG \
+            $RANGE_OPT \
+            $YEAR_MONTH_OPT \
+            $PROB_OPT \
+            $EV_OPT
 
       - name: Upload results
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: grid-search-${{ inputs.year }}-${{ inputs.month }}-run${{ github.run_number }}
+          name: grid-search-${{ inputs.bet_type }}-${{ inputs.start || inputs.year }}-${{ inputs.end || inputs.month }}-run${{ github.run_number }}
           path: |
             artifacts/grid_search_*.csv
             artifacts/combos_*.csv
+            artifacts/trio_combos_*.csv
             data/odds/odds_*.parquet
+            data/odds/trio_odds_*.parquet
             artifacts/segment_*.csv
           retention-days: 90
