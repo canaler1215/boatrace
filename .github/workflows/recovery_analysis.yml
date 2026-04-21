@@ -1,0 +1,122 @@
+name: T6-B Recovery Analysis (3連単外れ × 3連複的中)
+
+on:
+  workflow_dispatch:
+    inputs:
+      start:
+        description: '分析開始月 (YYYY-MM)'
+        required: true
+        default: '2025-10'
+      end:
+        description: '分析終了月 (YYYY-MM)'
+        required: true
+        default: '2025-12'
+      trifecta_prob:
+        description: '3連単: 的中確率閾値（S6標準=0.07）'
+        required: false
+        default: '0.07'
+      trifecta_ev:
+        description: '3連単: EV閾値（S6標準=2.0）'
+        required: false
+        default: '2.0'
+      trio_prob:
+        description: '3連複: 的中確率閾値（T6-A最適=0.20）'
+        required: false
+        default: '0.20'
+      trio_ev:
+        description: '3連複: EV閾値（T6-A最適=4.0）'
+        required: false
+        default: '4.0'
+      exclude_stadiums:
+        description: '除外場ID（スペース区切り、例: "11"）'
+        required: false
+        default: '11'
+
+jobs:
+  recovery_analysis:
+    runs-on: ubuntu-latest
+    timeout-minutes: 480   # 最大8時間（実オッズ取得含む）
+
+    permissions:
+      contents: write
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install system dependencies
+        run: sudo apt-get install -y lhasa
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: 'pip'
+          cache-dependency-path: ml/requirements.txt
+
+      - name: Install Python dependencies
+        run: pip install -r ml/requirements.txt
+
+      - name: Restore K/B file cache
+        uses: actions/cache@v4
+        with:
+          path: |
+            data/history/
+            data/program/
+          key: kbfile-${{ inputs.start }}-${{ inputs.end }}-${{ github.run_id }}
+          restore-keys: |
+            kbfile-${{ inputs.start }}-${{ inputs.end }}-
+            kbfile-2025-10-2025-12-
+
+      - name: Restore trifecta odds cache
+        uses: actions/cache@v4
+        with:
+          path: data/odds/odds_*.parquet
+          key: odds-trifecta-${{ inputs.start }}-${{ inputs.end }}-${{ github.run_id }}
+          restore-keys: |
+            odds-trifecta-${{ inputs.start }}-${{ inputs.end }}-
+            odds-2025-10-2025-12-
+
+      - name: Restore trio odds cache
+        uses: actions/cache@v4
+        with:
+          path: data/odds/trio_odds_*.parquet
+          key: odds-trio-${{ inputs.start }}-${{ inputs.end }}-${{ github.run_id }}
+          restore-keys: |
+            odds-trio-${{ inputs.start }}-${{ inputs.end }}-
+            odds-trio-2025-10-2025-12-
+
+      - name: Download latest model
+        id: download_model
+        run: python ml/src/scripts/download_model.py
+        continue-on-error: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+
+      - name: Run recovery analysis
+        run: |
+          EXCLUDE_STADIUMS_FLAG=""
+          if [ -n "${{ inputs.exclude_stadiums }}" ]; then
+            EXCLUDE_STADIUMS_FLAG="--exclude-stadiums ${{ inputs.exclude_stadiums }}"
+          fi
+
+          python ml/src/scripts/run_recovery_analysis.py \
+            --start ${{ inputs.start }} \
+            --end ${{ inputs.end }} \
+            --real-odds \
+            --trifecta-prob ${{ inputs.trifecta_prob }} \
+            --trifecta-ev ${{ inputs.trifecta_ev }} \
+            --trio-prob ${{ inputs.trio_prob }} \
+            --trio-ev ${{ inputs.trio_ev }} \
+            $EXCLUDE_STADIUMS_FLAG \
+            --output artifacts/recovery_analysis_${{ inputs.start }}_${{ inputs.end }}.csv
+
+      - name: Upload results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: recovery-analysis-${{ inputs.start }}-${{ inputs.end }}-run${{ github.run_number }}
+          path: |
+            artifacts/recovery_analysis_*.csv
+            data/odds/odds_*.parquet
+            data/odds/trio_odds_*.parquet
+          retention-days: 90

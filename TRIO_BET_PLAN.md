@@ -173,7 +173,7 @@ T8 CLAUDE.md 更新
 - [x] T5: `ml/src/scripts/run_backtest.py` / `run_walkforward.py` に `--bet-type` オプション追加
 - [x] T6: パイロットバックテスト実行（2025-10〜12、`--bet-type trio --prob-threshold 0.10`）
 - [x] T6-A: 閾値グリッドサーチ（prob 0.12〜0.20 × EV 2.5〜4.0）→ 推奨: prob=0.20, ev=4.0（ROI +118.0%）
-- [ ] T6-B: 「3連複のみ的中」リカバリー分析
+- [x] T6-B: 「3連複のみ的中」リカバリー分析（スクリプト実装完了、CI実行待ち）
 - [ ] T7: 長期Walk-Forward実行（2024-01〜2025-12、閾値最適化後）
 - [ ] T8: 結果をCLAUDE.mdに反映
 
@@ -307,10 +307,18 @@ prob=0.20, ev=4.0（最高ROI）でもベット数 10,806点（1.23点/レース
 3連単で外れたレースのうち3連複は的中していた件数・払戻額を集計する。
 「3連単に追加購入する価値」を定量化し、組み合わせ戦略の可否を判断する。
 
+専用スクリプト `ml/src/scripts/run_recovery_analysis.py` を実装（2026-04-22）。
+3連単（S6標準パラメータ）と3連複（T6-A最適パラメータ）を race_id で結合し、
+カテゴリ別（両方的中/3連単のみ/3連複のみ=純リカバリー/両方外れ）に分析する。
+
 ```bash
-python ml/src/scripts/run_backtest.py \
-  --year 2025 --month 10 --real-odds --bet-type both \
-  --prob-threshold 0.07 --ev-threshold 2.0
+# ローカル実行（実オッズ使用）
+python ml/src/scripts/run_recovery_analysis.py \
+  --start 2025-10 --end 2025-12 --real-odds \
+  --trifecta-prob 0.07 --trifecta-ev 2.0 \
+  --trio-prob 0.20 --trio-ev 4.0
+
+# GitHub Actions: recovery_analysis.yml ワークフロー（workflow_dispatch）
 ```
 
 確認ポイント:
