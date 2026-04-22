@@ -265,11 +265,22 @@ CREATE TABLE odds_history (
 - 購入ルール枠下に「○分前バッジ」の説明文を追記
 - typecheck / lint / build (compile) 通過。build の collect page data は DATABASE_URL 未設定によるもので実装変更とは無関係
 
-#### D-2. 予測時オッズ vs 確定オッズのサマリー
+#### D-2. 予測時オッズ vs 確定オッズのサマリー ✅ 2026-04-22 実装済み
 
 日次バッチで前日分の `predictions.expected_value`（予測時 EV）と
 `final_odds × win_probability`（確定 EV）の差分を集計し、
 「当日の EV 乖離分布」を可視化。
+
+**実装内容**:
+- `apps/web/lib/utils/evDrift.ts`: 乖離計算ユーティリティ（`calcFinalEV` / `calcDrift` / `summarizeEVDrift` / `summarizeByOddsBin` / `driftSeverity`）。確定オッズ帯ビン（<50x / 50-100x / 100-300x / 300-600x / 600-1000x / ≥1000x）を定義
+- `apps/web/lib/utils/evDrift.test.ts`: assert ベースの単体テスト（9/9 PASS）。`node --import tsx lib/utils/evDrift.test.ts` で実行
+- `apps/web/app/analytics/page.tsx`: 収支分析ページに「EV 乖離サマリー」セクションを追加
+  - 直近30日分の `final_odds IS NOT NULL` な予測を集計
+  - 全体指標: サンプル数、平均 予測EV、平均 確定EV、平均乖離、平均絶対乖離、RMSE、過大/過小評価率
+  - 確定オッズ帯別テーブル（どのオッズ帯で乖離が大きいか）
+  - 日次乖離推移（直近14日）
+  - 乖離重症度バッジ（良好 / やや過大 / 過大評価 / 重度の過大評価）
+- typecheck 通過、next build はコンパイル成功（collect page data のエラーは DATABASE_URL 未設定によるもので実装変更とは無関係）
 
 ---
 
@@ -307,11 +318,12 @@ CREATE TABLE odds_history (
 1. ~~**A-1**（cron-job.org 設定変更のみ・10 分）: 発走直前オッズ捕捉率を 2 倍に~~ ✅ 2026-04-22 実施済み
 2. ~~**A-3**（確定オッズ保存・0.5 日）: 予測精度の定量モニタリングを可能に~~ ✅ 2026-04-22 実装済み
 3. ~~**D-1**（UI 表示・0.5 日）: ユーザーに鮮度情報を届ける~~ ✅ 2026-04-22 実装済み
+4. ~~**D-2**（予測 EV vs 確定 EV の乖離ダッシュボード）: モニタリング基盤~~ ✅ 2026-04-22 実装済み
 
-**次のアクション候補**: D-2（予測 EV vs 確定 EV の乖離ダッシュボード）。A-3 で蓄積される `final_odds` データを使い、`final_odds × win_probability` を「確定 EV」として日次集計し、`expected_value`（予測時 EV）との乖離分布を可視化する。A-1 / A-3 の効果測定にも直結。
-
-A-1 と A-3 で乖離実態の定量化ができたうえで、A-2 / B-1 などの本格的な
-アーキテクチャ変更の要否を判断する流れが合理的。
+**次のアクション候補（D-2 実装後、2026-04-22 更新）**: final_odds データが数日〜1週間分蓄積された時点で `/analytics` ページの「EV 乖離サマリー」を確認し、以下のいずれかを判断する。
+- **オッズ帯全般で過大評価が大きい**（avg_drift < -0.5 が継続） → A-1 の効果検証を進めつつ **A-2（発売締切時刻を DB 保持して発走直前レースのみ refresh）** を実装
+- **特定オッズ帯だけ乖離が大きい**（例: 100-300x で avg_drift < -1.0） → キャリブレーション見直し + グリッドサーチでビン別閾値を再最適化
+- **全体の乖離が小さい**（avg_drift > -0.2） → 既存ルールで問題なし。B-1（ワークフロー分離）や C-1（odds_history）などのインフラ最適化に移行
 
 ---
 

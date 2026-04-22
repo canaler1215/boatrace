@@ -1,5 +1,5 @@
-import { db, bets } from "@/lib/db";
-import { sql } from "drizzle-orm";
+import { db, bets, predictions, races } from "@/lib/db";
+import { sql, and, isNotNull, gte, eq } from "drizzle-orm";
 import {
   calcROI,
   getMonitoringZone,
@@ -10,6 +10,12 @@ import {
   ZONE_BADGE_CSS,
   type MonitoringZone,
 } from "@/lib/utils/ev";
+import {
+  summarizeEVDrift,
+  summarizeByOddsBin,
+  driftSeverity,
+  type EVDriftRow,
+} from "@/lib/utils/evDrift";
 
 export const dynamic = "force-dynamic";
 
@@ -63,6 +69,69 @@ export default async function AnalyticsPage() {
   const below300Count = monthlyROIs.slice(0, 2).filter((r) => r < 300).length;
   const below500Count = monthlyROIs.slice(0, 3).filter((r) => r < 500).length;
   const hasZeroMinus = monthlyROIs.slice(0, 1).some((r) => r < 0);
+
+  // D-2: 予測 EV vs 確定 EV の乖離集計
+  // final_odds が記録済みの予測を対象に、直近 30 日分を取得
+  const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
+  const thirtyDaysAgoStr = thirtyDaysAgo.toISOString().slice(0, 10);
+
+  const driftRaw = await db
+    .select({
+      raceDate: races.raceDate,
+      predictedEV: predictions.expectedValue,
+      winProbability: predictions.winProbability,
+      finalOdds: predictions.finalOdds,
+    })
+    .from(predictions)
+    .innerJoin(races, eq(predictions.raceId, races.id))
+    .where(
+      and(
+        isNotNull(predictions.finalOdds),
+        isNotNull(predictions.expectedValue),
+        gte(races.raceDate, thirtyDaysAgoStr)
+      )
+    );
+
+  const driftRows: EVDriftRow[] = driftRaw
+    .filter(
+      (r) =>
+        r.predictedEV != null &&
+        r.finalOdds != null &&
+        r.winProbability != null &&
+        r.finalOdds > 0
+    )
+    .map((r) => ({
+      predictedEV: Number(r.predictedEV),
+      winProbability: Number(r.winProbability),
+      finalOdds: Number(r.finalOdds),
+    }));
+
+  const driftSummary = summarizeEVDrift(driftRows);
+  const driftByOddsBin = summarizeByOddsBin(driftRows);
+  const driftSev = driftSeverity(driftSummary.avgDrift);
+
+  // 日次（直近14日）の乖離推移
+  const driftByDateMap = new Map<string, EVDriftRow[]>();
+  for (const r of driftRaw) {
+    if (
+      r.predictedEV == null ||
+      r.finalOdds == null ||
+      r.winProbability == null ||
+      r.finalOdds <= 0
+    )
+      continue;
+    const key = r.raceDate;
+    if (!driftByDateMap.has(key)) driftByDateMap.set(key, []);
+    driftByDateMap.get(key)!.push({
+      predictedEV: Number(r.predictedEV),
+      winProbability: Number(r.winProbability),
+      finalOdds: Number(r.finalOdds),
+    });
+  }
+  const driftByDate = Array.from(driftByDateMap.entries())
+    .map(([date, rows]) => ({ date, summary: summarizeEVDrift(rows) }))
+    .sort((a, b) => (a.date < b.date ? 1 : -1))
+    .slice(0, 14);
 
   return (
     <div className="space-y-6">
@@ -262,6 +331,196 @@ export default async function AnalyticsPage() {
         )}
       </div>
 
+      {/* D-2: EV 乖離サマリー（予測時 EV vs 確定 EV） */}
+      <div className="rounded-lg border border-gray-200 bg-white p-6">
+        <div className="mb-3 flex items-start justify-between">
+          <div>
+            <h3 className="text-base font-semibold">
+              EV 乖離サマリー
+              <span className="ml-2 text-xs font-normal text-gray-500">
+                予測時 EV vs 確定 EV（直近30日・final_odds 記録済み）
+              </span>
+            </h3>
+            <p className="mt-1 text-xs text-gray-500">
+              確定 EV = win_probability × final_odds。乖離 = 確定 EV − 予測時 EV。
+              負が大きいほど予測時に EV を過大評価していたことを意味し、購入判断の信頼性が低下している可能性が高い。
+            </p>
+          </div>
+          {driftSummary.count > 0 && (
+            <span
+              className={`shrink-0 rounded px-2 py-1 text-xs font-medium ${driftSev.cls}`}
+            >
+              {driftSev.label}
+            </span>
+          )}
+        </div>
+
+        {driftSummary.count === 0 ? (
+          <p className="text-sm text-gray-500">
+            final_odds が記録された予測データがまだありません。A-3
+            実装後、終了済みレースが蓄積されると表示されます。
+          </p>
+        ) : (
+          <>
+            <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
+              <DriftStat
+                title="サンプル数"
+                value={`${driftSummary.count.toLocaleString()} 件`}
+              />
+              <DriftStat
+                title="平均 予測時 EV"
+                value={driftSummary.avgPredictedEV.toFixed(2)}
+              />
+              <DriftStat
+                title="平均 確定 EV"
+                value={driftSummary.avgFinalEV.toFixed(2)}
+              />
+              <DriftStat
+                title="平均 乖離"
+                value={`${driftSummary.avgDrift >= 0 ? "+" : ""}${driftSummary.avgDrift.toFixed(2)}`}
+                highlight={driftSummary.avgDrift < -0.2 ? "red" : "neutral"}
+              />
+              <DriftStat
+                title="平均 絶対乖離"
+                value={driftSummary.avgAbsDrift.toFixed(2)}
+              />
+              <DriftStat title="RMSE" value={driftSummary.rmse.toFixed(2)} />
+              <DriftStat
+                title="過大評価率"
+                value={`${(driftSummary.overEstimatedRate * 100).toFixed(1)}%`}
+                highlight={driftSummary.overEstimatedRate > 0.6 ? "red" : "neutral"}
+              />
+              <DriftStat
+                title="過小評価率"
+                value={`${(driftSummary.underEstimatedRate * 100).toFixed(1)}%`}
+              />
+            </div>
+
+            {/* オッズ帯別 */}
+            <div className="mt-6">
+              <h4 className="mb-2 text-sm font-semibold text-gray-700">
+                確定オッズ帯別の乖離
+              </h4>
+              <div className="overflow-x-auto">
+                <table className="w-full text-sm">
+                  <thead className="border-b border-gray-200 text-xs uppercase text-gray-600">
+                    <tr>
+                      <th className="pb-2 text-left">オッズ帯</th>
+                      <th className="pb-2 text-right">件数</th>
+                      <th className="pb-2 text-right">平均 予測EV</th>
+                      <th className="pb-2 text-right">平均 確定EV</th>
+                      <th className="pb-2 text-right">平均 乖離</th>
+                      <th className="pb-2 text-right">過大率</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-gray-100">
+                    {driftByOddsBin.map((row) => (
+                      <tr key={row.bin.label}>
+                        <td className="py-2 font-medium">{row.bin.label}</td>
+                        <td className="py-2 text-right">
+                          {row.summary.count.toLocaleString()}
+                        </td>
+                        <td className="py-2 text-right">
+                          {row.summary.count > 0
+                            ? row.summary.avgPredictedEV.toFixed(2)
+                            : "-"}
+                        </td>
+                        <td className="py-2 text-right">
+                          {row.summary.count > 0
+                            ? row.summary.avgFinalEV.toFixed(2)
+                            : "-"}
+                        </td>
+                        <td
+                          className={`py-2 text-right font-medium ${
+                            row.summary.count === 0
+                              ? "text-gray-400"
+                              : row.summary.avgDrift < -0.2
+                                ? "text-red-600"
+                                : row.summary.avgDrift > 0.2
+                                  ? "text-green-600"
+                                  : "text-gray-700"
+                          }`}
+                        >
+                          {row.summary.count > 0
+                            ? `${row.summary.avgDrift >= 0 ? "+" : ""}${row.summary.avgDrift.toFixed(2)}`
+                            : "-"}
+                        </td>
+                        <td className="py-2 text-right">
+                          {row.summary.count > 0
+                            ? `${(row.summary.overEstimatedRate * 100).toFixed(0)}%`
+                            : "-"}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            {/* 日次推移（直近14日） */}
+            {driftByDate.length > 0 && (
+              <div className="mt-6">
+                <h4 className="mb-2 text-sm font-semibold text-gray-700">
+                  日次乖離推移（直近14日）
+                </h4>
+                <div className="overflow-x-auto">
+                  <table className="w-full text-sm">
+                    <thead className="border-b border-gray-200 text-xs uppercase text-gray-600">
+                      <tr>
+                        <th className="pb-2 text-left">日付</th>
+                        <th className="pb-2 text-right">件数</th>
+                        <th className="pb-2 text-right">平均 予測EV</th>
+                        <th className="pb-2 text-right">平均 確定EV</th>
+                        <th className="pb-2 text-right">平均 乖離</th>
+                        <th className="pb-2 text-right">RMSE</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-gray-100">
+                      {driftByDate.map((row) => (
+                        <tr key={row.date}>
+                          <td className="py-2 font-medium">{row.date}</td>
+                          <td className="py-2 text-right">
+                            {row.summary.count.toLocaleString()}
+                          </td>
+                          <td className="py-2 text-right">
+                            {row.summary.avgPredictedEV.toFixed(2)}
+                          </td>
+                          <td className="py-2 text-right">
+                            {row.summary.avgFinalEV.toFixed(2)}
+                          </td>
+                          <td
+                            className={`py-2 text-right font-medium ${
+                              row.summary.avgDrift < -0.2
+                                ? "text-red-600"
+                                : row.summary.avgDrift > 0.2
+                                  ? "text-green-600"
+                                  : "text-gray-700"
+                            }`}
+                          >
+                            {row.summary.avgDrift >= 0 ? "+" : ""}
+                            {row.summary.avgDrift.toFixed(2)}
+                          </td>
+                          <td className="py-2 text-right">
+                            {row.summary.rmse.toFixed(2)}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            )}
+
+            <p className="mt-4 text-xs text-gray-500">
+              ※ 乖離が継続的に負（過大評価）の場合、
+              <code className="rounded bg-gray-100 px-1">refresh_ev</code>{" "}
+              の実行間隔短縮（A-1）や発走直前オッズ取得機構（A-2）の検討が必要。
+              特定オッズ帯だけ乖離が大きい場合はキャリブレーション見直し（再学習）を検討。
+            </p>
+          </>
+        )}
+      </div>
+
       {/* 運用メモ */}
       <div className="rounded-lg border border-gray-100 bg-gray-50 p-4 text-xs text-gray-500 space-y-1">
         <p className="font-medium text-gray-700">モデル特性メモ（S6-3実績）</p>
@@ -293,6 +552,29 @@ function StatCard({
             : highlight === "red"
               ? "text-red-600"
               : ""
+        }`}
+      >
+        {value}
+      </p>
+    </div>
+  );
+}
+
+function DriftStat({
+  title,
+  value,
+  highlight,
+}: {
+  title: string;
+  value: string;
+  highlight?: "red" | "neutral";
+}) {
+  return (
+    <div className="rounded border border-gray-100 bg-gray-50 p-3">
+      <p className="text-xs text-gray-500">{title}</p>
+      <p
+        className={`text-lg font-semibold ${
+          highlight === "red" ? "text-red-600" : "text-gray-800"
         }`}
       >
         {value}
