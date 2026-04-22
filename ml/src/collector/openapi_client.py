@@ -361,14 +361,12 @@ def fetch_odds(stadium_id: int, race_date: str, race_no: int) -> dict[str, float
     # ---- パターン2: class="oddsPoint" セルから位置ベースでコンビネーション推定 ----
     # boatrace.jp の odds3t ページは td.oddsPoint が 1着→2着→3着 の順に
     # ちょうど 120 セル並ぶ。高オッズは "1467" のように整数形式で表示される。
+    # 発売中はオッズ未確定の組み合わせが "---" で表示されるため、
+    # 数値セルだけカウントすると120未満になる。全120セルを位置で割り当て、
+    # "---" は None として読み飛ばす。
     odds_cells = [td for td in soup.find_all("td") if "oddsPoint" in (td.get("class") or [])]
-    float_values: list[float] = []
-    for td in odds_cells:
-        v = _parse_float(td.get_text(strip=True))
-        if v is not None and v > 0:
-            float_values.append(v)
 
-    if len(float_values) == 120:
+    if len(odds_cells) == 120:
         idx = 0
         for first in range(1, 7):
             for second in range(1, 7):
@@ -377,13 +375,15 @@ def fetch_odds(stadium_id: int, race_date: str, race_no: int) -> dict[str, float
                 for third in range(1, 7):
                     if third == first or third == second:
                         continue
-                    odds_map[f"{first}-{second}-{third}"] = float_values[idx]
+                    v = _parse_float(odds_cells[idx].get_text(strip=True))
+                    if v is not None and v > 0:
+                        odds_map[f"{first}-{second}-{third}"] = v
                     idx += 1
         logger.info("odds via oddsPoint class: %d entries", len(odds_map))
     else:
         logger.warning(
             "Could not parse odds table: expected 120 oddsPoint cells, got %d",
-            len(float_values),
+            len(odds_cells),
         )
 
     return odds_map
