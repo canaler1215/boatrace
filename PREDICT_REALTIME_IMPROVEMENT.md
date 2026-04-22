@@ -273,9 +273,33 @@ for race_id in active_race_ids:
 
 | 変更 | 対象ファイル | 優先度 | 効果 |
 |------|------------|--------|------|
-| `run_refresh_ev.py` 新規作成 | `ml/src/scripts/run_refresh_ev.py` | **中** | predict（~3分）より軽量なオッズのみ再取得 + DB上でEV直接更新 |
-| `refresh_ev.yml` 新規作成 | `.github/workflows/refresh_ev.yml` | **中** | 10分ごとの EV 再計算ワークフロー |
+| `run_refresh_ev.py` 新規作成 | `ml/src/scripts/run_refresh_ev.py` | **完了** | predict（~3分）より軽量なオッズのみ再取得 + DB上でEV直接更新 |
+| `refresh_ev.yml` 新規作成 | `.github/workflows/refresh_ev.yml` | **完了** | `repository_dispatch: refresh-ev-trigger` で起動 |
 | `predictions.odds_snapshot_at` 追加 | `migrations/0005_odds_snapshot_at.sql` | **低** | オッズ鮮度の可視化（任意） |
+
+### Phase 2 実装・テスト完了（2026-04-22）
+
+`run_refresh_ev.py` と `refresh_ev.yml` を実装し、GitHub Actions の `workflow_dispatch` でテスト済み。
+
+**テスト結果（2026-04-22 12:00 JST）：**
+
+| 指標 | 値 |
+|------|-----|
+| 対象レース数 | 20 races |
+| 更新した predictions | 2,400件（20 × 120組み合わせ） |
+| スクリプト実行時間 | **約 28 秒**（cold start 込みで約 56 秒） |
+| ワークフロー結論 | **success** |
+
+**実装の要点：**
+- DB → 保存済み `win_probability` を読み取り
+- HTTP → オッズのみ並列取得（`MAX_WORKERS=10`）
+- DB → `EV = win_probability × new_odds` を直接 UPDATE（LightGBM 推論なし）
+- `alert_flag`（EV >= 1.2）も再評価して上書き
+
+**次のアクション：**
+cron-job.org に `refresh-ev-trigger` ジョブを追加する（10 分ごと、`collect-trigger` / `predict-trigger` と同様）
+
+---
 
 ### cron-job.org 側の設定確認
 
