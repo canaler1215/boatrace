@@ -32,8 +32,8 @@ on:
         required: false
         default: 'true'
         type: boolean
-  repository_dispatch:
-    types: [predict-trigger]   # cron-job.org からの 30 分ごと定期トリガー
+  # repository_dispatch:
+  #   types: [predict-trigger]   # cron-job.org からの 30 分ごと定期トリガー（無効化）
 
 jobs:
   predict:
