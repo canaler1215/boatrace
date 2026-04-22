@@ -2,8 +2,8 @@ name: Collect Race Data
 
 on:
   workflow_dispatch:
-  # repository_dispatch:
-  #   types: [collect-trigger]   # cron-job.org からの 30 分ごと定期トリガー（無効化）
+  repository_dispatch:
+    types: [collect-trigger]   # cron-job.org からの 30 分ごと定期トリガー
   # schedule:
   #   - cron: '0 22 * * *'      # 毎日 07:00 JST (UTC 22:00 前日) レース前収集
   #   - cron: '30 12 * * *'     # 毎日 21:30 JST (UTC 12:30)  レース後収集・着順取得
