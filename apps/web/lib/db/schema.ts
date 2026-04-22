@@ -79,6 +79,7 @@ export const predictions = pgTable("predictions", {
   alertFlag: boolean("alert_flag").default(false), // EV >= 1.2
   modelVersionId: integer("model_version_id"),
   predictedAt: timestamp("predicted_at").defaultNow(),
+  oddsSnapshotAt: timestamp("odds_snapshot_at"),
 }, (t) => [
   index().on(t.raceId),
   index().on(t.alertFlag),

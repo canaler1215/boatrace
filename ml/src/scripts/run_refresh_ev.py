@@ -75,9 +75,10 @@ def update_ev_batch(conn, race_id: str, updates: list[dict]) -> int:
         cur.executemany(
             """
             UPDATE predictions
-            SET expected_value = %(expected_value)s,
-                alert_flag     = %(alert_flag)s,
-                predicted_at   = now()
+            SET expected_value   = %(expected_value)s,
+                alert_flag       = %(alert_flag)s,
+                predicted_at     = now(),
+                odds_snapshot_at = now()
             WHERE race_id    = %(race_id)s
               AND combination = %(combination)s
             """,
