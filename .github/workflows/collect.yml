@@ -30,28 +30,3 @@ jobs:
         run: python ml/src/scripts/run_collect.py
         env:
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
-
-  build-racer-st-stats:
-    runs-on: ubuntu-latest
-    timeout-minutes: 60
-    # 日曜スケジュールまたは手動実行時のみ racer_st_stats を再構築（日次スケジュールでは実行しない）
-    if: github.event_name == 'workflow_dispatch' || (github.event_name == 'schedule' && github.event.schedule == '0 18 * * 0')
-
-    steps:
-      - uses: actions/checkout@v4
-
-      - uses: actions/setup-python@v5
-        with:
-          python-version: '3.12'
-          cache: 'pip'
-          cache-dependency-path: ml/requirements.txt
-
-      - name: Install dependencies
-        run: |
-          pip install -r ml/requirements.txt
-          sudo apt-get install -y lhasa
-
-      - name: Build racer ST stats (past 2 years)
-        run: python ml/src/scripts/build_racer_st_stats.py
-        env:
-          DATABASE_URL: ${{ secrets.DATABASE_URL }}
