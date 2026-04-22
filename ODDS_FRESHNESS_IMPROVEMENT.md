@@ -254,10 +254,16 @@ CREATE TABLE odds_history (
 
 ### 優先度D：UI/可視化
 
-#### D-1. ダッシュボードに `odds_snapshot_at` 表示
+#### D-1. ダッシュボードに `odds_snapshot_at` 表示 ✅ 2026-04-22 実装済み
 
 `predictions.odds_snapshot_at`（Phase 3 で追加済み）をフロントエンドに表示。
 「このオッズは X 分前のものです」バッジでユーザーに鮮度を認識させる。
+
+**実装内容**:
+- `apps/web/app/dashboard/page.tsx`: `predictions.oddsSnapshotAt` を select に追加し、未終了行のオッズ列下に `OddsFreshnessBadge` を表示
+- 鮮度区分: 〜10分=緑、〜30分=黄、〜60分=橙、60分超=赤（時間表記）。`snapshot_at` が NULL の場合は「取得時刻不明」（灰）
+- 購入ルール枠下に「○分前バッジ」の説明文を追記
+- typecheck / lint / build (compile) 通過。build の collect page data は DATABASE_URL 未設定によるもので実装変更とは無関係
 
 #### D-2. 予測時オッズ vs 確定オッズのサマリー
 
@@ -300,7 +306,9 @@ CREATE TABLE odds_history (
 
 1. ~~**A-1**（cron-job.org 設定変更のみ・10 分）: 発走直前オッズ捕捉率を 2 倍に~~ ✅ 2026-04-22 実施済み
 2. ~~**A-3**（確定オッズ保存・0.5 日）: 予測精度の定量モニタリングを可能に~~ ✅ 2026-04-22 実装済み
-3. **D-1**（UI 表示・0.5 日）: ユーザーに鮮度情報を届ける ← **次のアクション**
+3. ~~**D-1**（UI 表示・0.5 日）: ユーザーに鮮度情報を届ける~~ ✅ 2026-04-22 実装済み
+
+**次のアクション候補**: D-2（予測 EV vs 確定 EV の乖離ダッシュボード）。A-3 で蓄積される `final_odds` データを使い、`final_odds × win_probability` を「確定 EV」として日次集計し、`expected_value`（予測時 EV）との乖離分布を可視化する。A-1 / A-3 の効果測定にも直結。
 
 A-1 と A-3 で乖離実態の定量化ができたうえで、A-2 / B-1 などの本格的な
 アーキテクチャ変更の要否を判断する流れが合理的。

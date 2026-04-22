@@ -42,6 +42,7 @@ export default async function DashboardPage({ searchParams }: Props) {
       combination: predictions.combination,
       winProbability: predictions.winProbability,
       expectedValue: predictions.expectedValue,
+      oddsSnapshotAt: predictions.oddsSnapshotAt,
       raceNo: races.raceNo,
       grade: races.grade,
       stadiumName: stadiums.name,
@@ -101,6 +102,10 @@ export default async function DashboardPage({ searchParams }: Props) {
         <p className="mt-2 text-xs text-blue-600">
           ※ コース・オッズ・場フィルタは <code className="rounded bg-blue-100 px-1">run_predict.py</code> 実行時に適用済み。
           オッズ未取得の組み合わせは EV欄が「取得中」と表示されます。collect実行後に再予測すると更新されます。
+        </p>
+        <p className="mt-1 text-xs text-blue-600">
+          ※ オッズの右下に「○分前」のバッジを表示しています。発走直前ほどオッズ変動が激しいため、
+          鮮度が古い場合は <code className="rounded bg-blue-100 px-1">refresh_ev</code> 実行を待つか EV を割り引いて判断してください。
         </p>
       </div>
 
@@ -192,6 +197,9 @@ export default async function DashboardPage({ searchParams }: Props) {
                     </td>
                     <td className={`px-4 py-3 text-right font-mono ${isFinished ? "text-gray-400" : "text-gray-700"}`}>
                       {odds != null && odds > 0 ? `${odds.toFixed(0)}x` : <span className="text-gray-300">—</span>}
+                      {!isFinished && hasEv && (
+                        <OddsFreshnessBadge snapshotAt={alert.oddsSnapshotAt} now={now} />
+                      )}
                     </td>
                     <td className={`px-4 py-3 text-right font-medium ${isFinished ? "text-gray-400" : "text-gray-700"}`}>
                       {hasEv ? alert.expectedValue!.toFixed(2) : <span className="text-xs text-gray-400">取得中</span>}
@@ -323,6 +331,36 @@ export default async function DashboardPage({ searchParams }: Props) {
       </div>
     </div>
   );
+}
+
+function OddsFreshnessBadge({
+  snapshotAt,
+  now,
+}: {
+  snapshotAt: Date | null;
+  now: Date;
+}) {
+  if (!snapshotAt) {
+    return (
+      <div className="mt-0.5 text-[10px] text-gray-400">取得時刻不明</div>
+    );
+  }
+  const ageMs = now.getTime() - new Date(snapshotAt).getTime();
+  const ageMin = Math.max(0, Math.floor(ageMs / 60000));
+  const { label, cls } = freshnessStyle(ageMin);
+  return (
+    <div className={`mt-0.5 text-[10px] font-medium ${cls}`}>{label}</div>
+  );
+}
+
+function freshnessStyle(ageMin: number): { label: string; cls: string } {
+  // S6運用: refresh_ev は 5 分間隔。10分超は「やや古い」、30分超は「古い」と扱う。
+  if (ageMin < 1) return { label: "0分前", cls: "text-green-600" };
+  if (ageMin <= 10) return { label: `${ageMin}分前`, cls: "text-green-600" };
+  if (ageMin <= 30) return { label: `${ageMin}分前`, cls: "text-yellow-600" };
+  if (ageMin < 60) return { label: `${ageMin}分前`, cls: "text-orange-600" };
+  const ageHour = Math.floor(ageMin / 60);
+  return { label: `${ageHour}時間前`, cls: "text-red-600" };
 }
 
 function RuleItem({
