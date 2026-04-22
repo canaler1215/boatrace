@@ -218,15 +218,27 @@ def main() -> None:
             # 5. 3連単確率を近似計算
             trifecta_probs = calc_trifecta_probs(first_place_probs)
 
-            # 6. オッズ取得
+            # 6. オッズ取得（なくても確率だけ先に保存する）
             odds_dict = fetch_odds(conn, race_id)
             if not odds_dict:
-                logger.warning("Race %s: no odds data, skipping.", race_id)
-                continue
+                logger.info("Race %s: no odds data, saving probabilities only.", race_id)
 
-            # 7. 期待値計算 & upsert
-            results = calc_expected_values(trifecta_probs, odds_dict)
-            alert_count = sum(1 for r in results if r["alert_flag"])
+            # 7. 期待値計算（オッズがある組み合わせのみ）& upsert
+            if odds_dict:
+                results = calc_expected_values(trifecta_probs, odds_dict)
+                alert_count = sum(1 for r in results if r["alert_flag"])
+            else:
+                # オッズなし: 全120通りを確率のみで保存
+                results = [
+                    {
+                        "combination": combo,
+                        "win_probability": prob,
+                        "expected_value": None,
+                        "alert_flag": False,
+                    }
+                    for combo, prob in trifecta_probs.items()
+                ]
+                alert_count = 0
 
             for result in results:
                 upsert_prediction(

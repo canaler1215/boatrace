@@ -1,5 +1,5 @@
 import { db, predictions, races, stadiums } from "@/lib/db";
-import { eq, desc, and, gte } from "drizzle-orm";
+import { eq, desc, and, gte, isNull, or } from "drizzle-orm";
 import { calcKellyFraction, EV_THRESHOLD, getSeasonalBet } from "@/lib/utils/ev";
 import Link from "next/link";
 import { ProbThresholdControl } from "./ProbThresholdControl";
@@ -54,7 +54,11 @@ export default async function DashboardPage({ searchParams }: Props) {
       and(
         eq(races.raceDate, selectedDate),
         gte(predictions.winProbability, probThreshold),
-        gte(predictions.expectedValue, EV_THRESHOLD) // S6-4: EV ≥ 2.0
+        // EV が NULL（オッズ未取得）の行も表示する。EV がある場合は閾値でフィルタ。
+        or(
+          isNull(predictions.expectedValue),
+          gte(predictions.expectedValue, EV_THRESHOLD)
+        )
       )
     )
     .orderBy(desc(predictions.winProbability));
@@ -96,7 +100,7 @@ export default async function DashboardPage({ searchParams }: Props) {
         )}
         <p className="mt-2 text-xs text-blue-600">
           ※ コース・オッズ・場フィルタは <code className="rounded bg-blue-100 px-1">run_predict.py</code> 実行時に適用済み。
-          このページは確率・EV条件でさらに絞り込みます。
+          オッズ未取得の組み合わせは EV欄が「取得中」と表示されます。collect実行後に再予測すると更新されます。
         </p>
       </div>
 
@@ -113,7 +117,7 @@ export default async function DashboardPage({ searchParams }: Props) {
       ) : (
         <div className="overflow-hidden rounded-lg border border-gray-200 bg-white shadow-sm">
           <div className="border-b border-gray-100 bg-gray-50 px-4 py-2 text-xs text-gray-500">
-            確率 ≥ {probPct}% かつ EV ≥ {EV_THRESHOLD.toFixed(1)}（{alerts.length}件 / うち終了済み {alerts.filter((a) => a.status === "finished").length}件）
+            確率 ≥ {probPct}%（EV未取得含む）かつ EV ≥ {EV_THRESHOLD.toFixed(1)}（{alerts.length}件 / うち終了済み {alerts.filter((a) => a.status === "finished").length}件）
           </div>
           <table className="w-full text-sm">
             <thead className="bg-gray-50 text-xs uppercase text-gray-600">
@@ -133,11 +137,12 @@ export default async function DashboardPage({ searchParams }: Props) {
               {alerts.map((alert) => {
                 const isFinished = alert.status === "finished";
                 const isRunning = alert.status === "running";
+                const hasEv = alert.expectedValue != null;
                 const odds =
-                  alert.winProbability > 0
-                    ? alert.expectedValue / alert.winProbability
-                    : 0;
-                const kelly = calcKellyFraction(alert.expectedValue, odds);
+                  hasEv && alert.winProbability > 0
+                    ? alert.expectedValue! / alert.winProbability
+                    : null;
+                const kelly = hasEv && odds != null ? calcKellyFraction(alert.expectedValue!, odds) : null;
                 return (
                   <tr
                     key={alert.id}
@@ -186,13 +191,13 @@ export default async function DashboardPage({ searchParams }: Props) {
                       </span>
                     </td>
                     <td className={`px-4 py-3 text-right font-mono ${isFinished ? "text-gray-400" : "text-gray-700"}`}>
-                      {odds > 0 ? `${odds.toFixed(0)}x` : "-"}
+                      {odds != null && odds > 0 ? `${odds.toFixed(0)}x` : <span className="text-gray-300">—</span>}
                     </td>
                     <td className={`px-4 py-3 text-right font-medium ${isFinished ? "text-gray-400" : "text-gray-700"}`}>
-                      {alert.expectedValue.toFixed(2)}
+                      {hasEv ? alert.expectedValue!.toFixed(2) : <span className="text-xs text-gray-400">取得中</span>}
                     </td>
                     <td className={`px-4 py-3 text-right ${isFinished ? "text-gray-400" : "text-gray-600"}`}>
-                      {kelly > 0 ? `${(kelly * 100).toFixed(1)}%` : "-"}
+                      {kelly != null && kelly > 0 ? `${(kelly * 100).toFixed(1)}%` : "-"}
                     </td>
                     <td className="px-4 py-3 text-right">
                       <Link

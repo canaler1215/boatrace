@@ -75,7 +75,7 @@ export const predictions = pgTable("predictions", {
   raceId: varchar("race_id", { length: 20 }).references(() => races.id),
   combination: varchar("combination", { length: 10 }).notNull(),
   winProbability: real("win_probability").notNull(),
-  expectedValue: real("expected_value").notNull(),
+  expectedValue: real("expected_value"),
   alertFlag: boolean("alert_flag").default(false), // EV >= 1.2
   modelVersionId: integer("model_version_id"),
   predictedAt: timestamp("predicted_at").defaultNow(),

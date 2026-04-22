@@ -166,8 +166,11 @@ def upsert_prediction(conn: psycopg.Connection, prediction: dict[str, Any]) -> N
                  %(expected_value)s, %(alert_flag)s, %(model_version_id)s)
             ON CONFLICT (race_id, combination) DO UPDATE SET
                 win_probability = EXCLUDED.win_probability,
-                expected_value = EXCLUDED.expected_value,
-                alert_flag = EXCLUDED.alert_flag,
+                expected_value  = CASE
+                    WHEN EXCLUDED.expected_value IS NOT NULL THEN EXCLUDED.expected_value
+                    ELSE predictions.expected_value
+                END,
+                alert_flag   = EXCLUDED.alert_flag,
                 predicted_at = now()
             """,
             prediction,
