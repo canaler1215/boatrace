@@ -1,5 +1,12 @@
 name: T6-B Recovery Analysis (3連単外れ × 3連複的中)
 
+# T6-B: 3連単（S6標準）vs 3連複（T6-A最適）のリカバリー分析
+#
+# 【タイムアウト対策】
+# 合成オッズモード (use_real_odds: false, デフォルト): 約20〜30分で完了
+# 実オッズモード (use_real_odds: true): trifecta+trio 3ヶ月分で6時間超 → 非推奨
+#   実オッズが必要な場合は backtest.yml を月ごとに実行してキャッシュを作成した後に実行すること
+
 on:
   workflow_dispatch:
     inputs:
@@ -11,6 +18,14 @@ on:
         description: '分析終了月 (YYYY-MM)'
         required: true
         default: '2025-12'
+      use_real_odds:
+        description: '実オッズを使用（false=合成オッズ、高速推奨）'
+        required: false
+        default: 'false'
+        type: choice
+        options:
+          - 'false'
+          - 'true'
       trifecta_prob:
         description: '3連単: 的中確率閾値（S6標準=0.07）'
         required: false
@@ -35,7 +50,8 @@ on:
 jobs:
   recovery_analysis:
     runs-on: ubuntu-latest
-    timeout-minutes: 480   # 最大8時間（実オッズ取得含む）
+    # 合成オッズ: 30分以内、実オッズ: 最大6時間（GitHub Actions上限）
+    timeout-minutes: 350
 
     permissions:
       contents: write
@@ -64,25 +80,32 @@ jobs:
           key: kbfile-${{ inputs.start }}-${{ inputs.end }}-${{ github.run_id }}
           restore-keys: |
             kbfile-${{ inputs.start }}-${{ inputs.end }}-
-            kbfile-2025-10-2025-12-
+            kbfile-${{ inputs.start }}-
 
+      # 実オッズ使用時のみオッズキャッシュを復元（walkforward.yml のキャッシュと共有）
       - name: Restore trifecta odds cache
+        if: inputs.use_real_odds == 'true'
         uses: actions/cache@v4
         with:
           path: data/odds/odds_*.parquet
-          key: odds-trifecta-${{ inputs.start }}-${{ inputs.end }}-${{ github.run_id }}
+          key: odds-${{ inputs.start }}-${{ inputs.end }}-trifecta-${{ github.run_id }}
           restore-keys: |
-            odds-trifecta-${{ inputs.start }}-${{ inputs.end }}-
-            odds-2025-10-2025-12-
+            odds-${{ inputs.start }}-${{ inputs.end }}-trifecta-
+            odds-${{ inputs.start }}-${{ inputs.end }}-
+            odds-${{ inputs.start }}-
+            odds-
 
       - name: Restore trio odds cache
+        if: inputs.use_real_odds == 'true'
         uses: actions/cache@v4
         with:
           path: data/odds/trio_odds_*.parquet
-          key: odds-trio-${{ inputs.start }}-${{ inputs.end }}-${{ github.run_id }}
+          key: odds-${{ inputs.start }}-${{ inputs.end }}-trio-${{ github.run_id }}
           restore-keys: |
-            odds-trio-${{ inputs.start }}-${{ inputs.end }}-
-            odds-trio-2025-10-2025-12-
+            odds-${{ inputs.start }}-${{ inputs.end }}-trio-
+            odds-${{ inputs.start }}-${{ inputs.end }}-
+            odds-${{ inputs.start }}-
+            odds-
 
       - name: Download latest model
         id: download_model
@@ -94,6 +117,11 @@ jobs:
 
       - name: Run recovery analysis
         run: |
+          REAL_ODDS_FLAG=""
+          if [ "${{ inputs.use_real_odds }}" == "true" ]; then
+            REAL_ODDS_FLAG="--real-odds"
+          fi
+
           EXCLUDE_STADIUMS_FLAG=""
           if [ -n "${{ inputs.exclude_stadiums }}" ]; then
             EXCLUDE_STADIUMS_FLAG="--exclude-stadiums ${{ inputs.exclude_stadiums }}"
@@ -102,11 +130,11 @@ jobs:
           python ml/src/scripts/run_recovery_analysis.py \
             --start ${{ inputs.start }} \
             --end ${{ inputs.end }} \
-            --real-odds \
             --trifecta-prob ${{ inputs.trifecta_prob }} \
             --trifecta-ev ${{ inputs.trifecta_ev }} \
             --trio-prob ${{ inputs.trio_prob }} \
             --trio-ev ${{ inputs.trio_ev }} \
+            $REAL_ODDS_FLAG \
             $EXCLUDE_STADIUMS_FLAG \
             --output artifacts/recovery_analysis_${{ inputs.start }}_${{ inputs.end }}.csv
 
@@ -117,6 +145,4 @@ jobs:
           name: recovery-analysis-${{ inputs.start }}-${{ inputs.end }}-run${{ github.run_number }}
           path: |
             artifacts/recovery_analysis_*.csv
-            data/odds/odds_*.parquet
-            data/odds/trio_odds_*.parquet
           retention-days: 90
