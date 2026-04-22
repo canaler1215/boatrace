@@ -28,6 +28,7 @@ from collector.db_writer import (
     upsert_races_batch,
     upsert_race_entries_batch,
     upsert_odds_batch,
+    update_predictions_final_odds_batch,
 )
 
 logging.basicConfig(
@@ -126,10 +127,19 @@ def main() -> None:
         for combo, val in r["odds"].items()
     ]
 
+    # 終了済みレースのオッズは「確定オッズ」とみなし、predictions.final_odds に記録する
+    # （EV 乖離モニタリング用。NULL の行のみ一度だけ書き込む。A-3: ODDS_FRESHNESS_IMPROVEMENT）
+    final_odds_rows = [
+        (r["race"]["id"], combo, val)
+        for r in collected
+        if r["race"].get("status") == "finished"
+        for combo, val in r["odds"].items()
+    ]
+
     # --- DB 書き込み (executemany でバッチ処理) ---
     logger.info(
-        "Writing to DB: %d races, %d entries, %d odds rows...",
-        len(all_races), len(all_entries), len(all_odds),
+        "Writing to DB: %d races, %d entries, %d odds rows, %d final_odds rows...",
+        len(all_races), len(all_entries), len(all_odds), len(final_odds_rows),
     )
     with get_connection() as conn:
         upsert_races_batch(conn, all_races)
@@ -139,6 +149,8 @@ def main() -> None:
             upsert_race_entries_batch(conn, all_entries)
         if all_odds:
             upsert_odds_batch(conn, all_odds)
+        if final_odds_rows:
+            update_predictions_final_odds_batch(conn, final_odds_rows)
         conn.commit()
 
     logger.info("=== collect done: %d races processed ===", len(races))

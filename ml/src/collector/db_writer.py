@@ -128,6 +128,35 @@ def upsert_odds_batch(conn: psycopg.Connection, rows: list[tuple[str, str, float
         )
 
 
+def update_predictions_final_odds_batch(
+    conn: psycopg.Connection,
+    rows: list[tuple[str, str, float]],
+) -> int:
+    """
+    終了済みレースの確定オッズを predictions.final_odds に書き込む。
+
+    rows: list of (race_id, combination, odds_value)
+    戻り値: 処理した件数（rows の長さ）
+
+    すでに final_odds が入っている行は上書きしない（確定オッズは一度しか記録しないため）。
+    """
+    if not rows:
+        return 0
+    with conn.cursor() as cur:
+        cur.executemany(
+            """
+            UPDATE predictions
+            SET final_odds              = %s,
+                final_odds_recorded_at  = now()
+            WHERE race_id     = %s
+              AND combination = %s
+              AND final_odds IS NULL
+            """,
+            [(odds_value, race_id, combo) for race_id, combo, odds_value in rows],
+        )
+    return len(rows)
+
+
 def register_model_version(
     conn: psycopg.Connection,
     version: str,

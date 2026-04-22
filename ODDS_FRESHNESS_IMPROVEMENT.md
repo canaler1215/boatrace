@@ -183,10 +183,16 @@ CREATE TABLE odds (
 
 現状の `races` テーブルに締切時刻列がない場合はスキーマ追加が必要（後述）。
 
-#### A-3. 発走直後の確定オッズ取得ステップを追加
+#### A-3. 発走直後の確定オッズ取得ステップを追加 ✅ 2026-04-22 実装済み
 
 `run_collect.py` の「終了済みレース処理」で `fetch_odds` を最後にもう 1 回呼び、
 `predictions.final_odds`（新列）に保存。
+
+**実装内容**:
+- `migrations/0006_predictions_final_odds.sql`: `final_odds` と `final_odds_recorded_at` 列追加
+- `db_writer.update_predictions_final_odds_batch`: `WHERE final_odds IS NULL` ガード付きで初回のみ書き込み
+- `run_collect.py`: `status == "finished"` のレースのオッズを `predictions.final_odds` にも転記
+- `tests/test_final_odds_writer.py`: SQL ガードと引数バインド順の検証（5/5 PASS）
 
 ---
 
