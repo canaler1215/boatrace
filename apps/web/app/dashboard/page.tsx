@@ -123,6 +123,7 @@ export default async function DashboardPage({ searchParams }: Props) {
                 <th className="px-4 py-3 text-left">状態</th>
                 <th className="px-4 py-3 text-left">組合せ</th>
                 <th className="px-4 py-3 text-right">的中確率</th>
+                <th className="px-4 py-3 text-right">オッズ</th>
                 <th className="px-4 py-3 text-right">期待値</th>
                 <th className="px-4 py-3 text-right">推奨ベット (1/4 Kelly)</th>
                 <th className="px-4 py-3"></th>
@@ -183,6 +184,9 @@ export default async function DashboardPage({ searchParams }: Props) {
                       <span className={`font-semibold ${isFinished ? "text-gray-400" : "text-blue-600"}`}>
                         {(alert.winProbability * 100).toFixed(1)}%
                       </span>
+                    </td>
+                    <td className={`px-4 py-3 text-right font-mono ${isFinished ? "text-gray-400" : "text-gray-700"}`}>
+                      {odds > 0 ? `${odds.toFixed(0)}x` : "-"}
                     </td>
                     <td className={`px-4 py-3 text-right font-medium ${isFinished ? "text-gray-400" : "text-gray-700"}`}>
                       {alert.expectedValue.toFixed(2)}
