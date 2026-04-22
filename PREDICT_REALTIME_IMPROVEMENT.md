@@ -253,3 +253,97 @@ for race_id in active_race_ids:
 1. `ml/src/scripts/run_refresh_ev.py` を新規作成（オッズ取得 + EV 上書き）
 2. `.github/workflows/refresh_ev.yml` を新規作成（10分ごと、cron-job.org トリガー）
 3. `predictions` テーブルに `odds_snapshot_at` 列を追加してオッズ鮮度を記録（任意）
+
+---
+
+## 実装状況の確認（2026-04-22）
+
+### 完了済み変更
+
+| 変更 | 対象ファイル | 状態 | 確認方法 |
+|------|------------|------|---------|
+| 変更1: NOT EXISTS 削除 | `ml/src/scripts/run_predict.py` L172-181 | **完了** | `status != 'finished'` のみで取得するクエリに変更済み |
+| 変更2: collect.yml 高頻度化 | `.github/workflows/collect.yml` | **完了** | `repository_dispatch: collect-trigger` で cron-job.org からトリガー受け取り済み |
+| 変更3: predict inline collect 削除 | `.github/workflows/predict.yml` | **完了** | predict.yml に collect ステップなし、predict のみ実行 |
+| 変更4: predict.yml 高頻度化 | `.github/workflows/predict.yml` | **完了** | `repository_dispatch: predict-trigger` で cron-job.org からトリガー受け取り済み |
+| `upsert_prediction` ON CONFLICT 対応 | `ml/src/collector/db_writer.py` L167-174 | **完了** | `win_probability`・`expected_value`・`alert_flag`・`predicted_at` を UPDATE |
+| `expected_value` NULL 許容 | `migrations/0004_predictions_ev_nullable.sql` | **完了** | オッズなし時に確率のみ先行保存できる |
+
+### 未実装（次フェーズ）
+
+| 変更 | 対象ファイル | 優先度 | 効果 |
+|------|------------|--------|------|
+| `run_refresh_ev.py` 新規作成 | `ml/src/scripts/run_refresh_ev.py` | **中** | predict（~3分）より軽量なオッズのみ再取得 + DB上でEV直接更新 |
+| `refresh_ev.yml` 新規作成 | `.github/workflows/refresh_ev.yml` | **中** | 10分ごとの EV 再計算ワークフロー |
+| `predictions.odds_snapshot_at` 追加 | `migrations/0005_odds_snapshot_at.sql` | **低** | オッズ鮮度の可視化（任意） |
+
+### cron-job.org 側の設定確認
+
+`collect.yml` と `predict.yml` は `repository_dispatch` トリガーに切り替え済みだが、
+**cron-job.org 側で実際に 30 分ごとに HTTP POST しているかを確認する必要がある。**
+
+```
+collect-trigger: 毎 30 分 09:00-18:30 JST
+predict-trigger: 毎 30 分 09:15-18:45 JST（collect から 15 分オフセット）
+```
+
+cron-job.org の管理画面で上記 2 ジョブが設定済みであれば、変更1〜4 はすべて稼働中。
+
+---
+
+## 対応の流れ（実装ロードマップ）
+
+### Phase 1: 現行構成の稼働確認（即時）
+
+1. cron-job.org ダッシュボードで `collect-trigger` / `predict-trigger` ジョブを確認
+   - 実行間隔: 30 分
+   - エンドポイント: `https://api.github.com/repos/{owner}/boatrace/dispatches`
+   - タイムゾーン: 09:00-18:45 JST の範囲
+2. GitHub Actions の実行ログを確認（`collect.yml` と `predict.yml` が 30 分ごとに動いているか）
+3. DB の `predictions.predicted_at` を確認し、当日レースが繰り返し上書きされているか検証
+
+### Phase 2: run_refresh_ev.py 実装（任意・中期）
+
+現行の `predict.yml` は LightGBM 推論も含む（~3 分）。
+推論不要のオッズ再取得のみに絞った軽量スクリプトを追加することで、10 分間隔の EV 追従が可能になる。
+
+**実装方針：**
+
+```python
+# run_refresh_ev.py のコアロジック
+def main():
+    with get_connection() as conn:
+        # 1. 当日の未終了レース（かつ predictions に確率が保存済み）を取得
+        active_races = fetch_active_races_with_predictions(conn, today_jst)
+        
+        for race in active_races:
+            # 2. オッズのみ取得（1リクエスト / レース）
+            new_odds = fetch_odds(race["stadium_id"], today_jst, race["race_no"])
+            if not new_odds:
+                continue
+            
+            # 3. DB 上で EV を直接更新（推論不要）
+            #    EV = win_probability × new_odds
+            update_ev_from_odds(conn, race["id"], new_odds)
+        
+        conn.commit()
+```
+
+`update_ev_from_odds` は `predictions` テーブルの `win_probability` を読んで
+`expected_value = win_probability * odds_value` を計算し、`alert_flag` も再評価する UPDATE 文。
+
+**スクリプト追加時の必要ファイル：**
+- `ml/src/scripts/run_refresh_ev.py`（新規）
+- `.github/workflows/refresh_ev.yml`（新規、`repository_dispatch: refresh-ev-trigger`）
+- cron-job.org に `refresh-ev-trigger` ジョブを追加（10 分ごと）
+
+### Phase 3: odds_snapshot_at 列追加（任意）
+
+EV の鮮度を Web UI に表示したい場合のみ実施。
+
+```sql
+-- migrations/0005_odds_snapshot_at.sql
+ALTER TABLE "predictions" ADD COLUMN "odds_snapshot_at" timestamp;
+```
+
+`run_refresh_ev.py` の UPDATE 時に `odds_snapshot_at = now()` を同時に書き込む。
