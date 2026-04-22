@@ -89,14 +89,15 @@ export default async function RacePage({ params }: Props) {
               </thead>
               <tbody className="divide-y divide-gray-100">
                 {predictionList.map((p) => {
+                  const hasEv = p.expectedValue != null;
                   const estimatedOdds =
-                    p.winProbability > 0
-                      ? p.expectedValue / p.winProbability
-                      : 0;
-                  const kelly = calcKellyFraction(
-                    p.expectedValue,
-                    estimatedOdds
-                  );
+                    hasEv && p.winProbability > 0
+                      ? p.expectedValue! / p.winProbability
+                      : null;
+                  const kelly =
+                    hasEv && estimatedOdds != null
+                      ? calcKellyFraction(p.expectedValue!, estimatedOdds)
+                      : null;
                   return (
                     <tr
                       key={p.id}
@@ -111,7 +112,7 @@ export default async function RacePage({ params }: Props) {
                         {(p.winProbability * 100).toFixed(1)}%
                       </td>
                       <td className="px-4 py-3 text-right text-gray-600">
-                        {estimatedOdds > 0
+                        {estimatedOdds != null && estimatedOdds > 0
                           ? `${estimatedOdds.toFixed(1)}倍`
                           : "-"}
                       </td>
@@ -123,7 +124,7 @@ export default async function RacePage({ params }: Props) {
                               : "text-gray-700"
                           }
                         >
-                          {p.expectedValue.toFixed(2)}
+                          {hasEv ? p.expectedValue!.toFixed(2) : <span className="text-xs text-gray-400">取得中</span>}
                         </span>
                       </td>
                       <td className="px-4 py-3 text-center">
@@ -136,7 +137,7 @@ export default async function RacePage({ params }: Props) {
                         )}
                       </td>
                       <td className="px-4 py-3 text-right text-gray-600">
-                        {kelly > 0 ? `${(kelly * 100).toFixed(1)}%` : "-"}
+                        {kelly != null && kelly > 0 ? `${(kelly * 100).toFixed(1)}%` : "-"}
                       </td>
                     </tr>
                   );
