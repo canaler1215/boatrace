@@ -358,33 +358,60 @@ def fetch_odds(stadium_id: int, race_date: str, race_no: int) -> dict[str, float
         logger.info("odds via data-combination: %d entries", len(odds_map))
         return odds_map
 
-    # ---- パターン2: class="oddsPoint" セルから位置ベースでコンビネーション推定 ----
-    # boatrace.jp の odds3t ページは td.oddsPoint が 1着→2着→3着 の順に
-    # ちょうど 120 セル並ぶ。高オッズは "1467" のように整数形式で表示される。
-    # 発売中はオッズ未確定の組み合わせが "---" で表示されるため、
-    # 数値セルだけカウントすると120未満になる。全120セルを位置で割り当て、
-    # "---" は None として読み飛ばす。
-    odds_cells = [td for td in soup.find_all("td") if "oddsPoint" in (td.get("class") or [])]
+    # ---- パターン2: odds3t テーブル構造を行ベースでパース ----
+    # boatrace.jp の odds3t は以下のレイアウト:
+    #   thead: 6列 (1着=1〜6号艇)
+    #   tbody: 20行 × 6列 = 120オッズ
+    #   各列は 2着=5通り、各2着ブロック4行 (3着=4通り) で構成
+    #   2着セルには rowspan=4 が付与され、ブロック先頭行のみ現れる
+    # 行構造:
+    #   ブロック先頭行: 各列 [2着, 3着, odds] = 3セル × 6列 = 18 td
+    #   継続行:         各列 [3着, odds]      = 2セル × 6列 = 12 td
+    tables = soup.find_all("table")
+    if len(tables) < 2:
+        logger.warning("odds3t: expected at least 2 tables, got %d", len(tables))
+        return odds_map
 
-    if len(odds_cells) == 120:
-        idx = 0
-        for first in range(1, 7):
-            for second in range(1, 7):
-                if first == second:
+    data_rows = [tr for tr in tables[1].find_all("tr") if tr.find_all("td")]
+    current_second: list[int | None] = [None] * 6  # 列ごとの現在の2着
+
+    for tr in data_rows:
+        tds = tr.find_all("td")
+        n = len(tds)
+        if n == 18:
+            # 先頭行: 各列 (2着, 3着, odds)
+            for col in range(6):
+                base = col * 3
+                try:
+                    second = int(tds[base].get_text(strip=True))
+                    third  = int(tds[base + 1].get_text(strip=True))
+                except ValueError:
                     continue
-                for third in range(1, 7):
-                    if third == first or third == second:
-                        continue
-                    v = _parse_float(odds_cells[idx].get_text(strip=True))
-                    if v is not None and v > 0:
-                        odds_map[f"{first}-{second}-{third}"] = v
-                    idx += 1
-        logger.info("odds via oddsPoint class: %d entries", len(odds_map))
+                current_second[col] = second
+                first = col + 1
+                v = _parse_float(tds[base + 2].get_text(strip=True))
+                if v is not None and v > 0:
+                    odds_map[f"{first}-{second}-{third}"] = v
+        elif n == 12:
+            # 継続行: 各列 (3着, odds) — 2着は current_second[col]
+            for col in range(6):
+                base = col * 2
+                second = current_second[col]
+                if second is None:
+                    continue
+                try:
+                    third = int(tds[base].get_text(strip=True))
+                except ValueError:
+                    continue
+                first = col + 1
+                v = _parse_float(tds[base + 1].get_text(strip=True))
+                if v is not None and v > 0:
+                    odds_map[f"{first}-{second}-{third}"] = v
+
+    if odds_map:
+        logger.info("odds via table rows: %d entries", len(odds_map))
     else:
-        logger.warning(
-            "Could not parse odds table: expected 120 oddsPoint cells, got %d",
-            len(odds_cells),
-        )
+        logger.warning("Could not parse odds3t table (no entries)")
 
     return odds_map
 
