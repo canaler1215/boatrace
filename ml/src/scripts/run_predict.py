@@ -13,6 +13,7 @@ predict.yml から呼び出される推論・期待値計算スクリプト
      f. オッズを取得して期待値を計算
      g. predictions テーブルに upsert（EV >= 1.2 で alert_flag=true）
 """
+import argparse
 import logging
 import sys
 from pathlib import Path
@@ -31,6 +32,7 @@ from model.predictor import (
     load_model,
     predict_win_prob,
 )
+from notifier import notify_bet_candidates
 
 logging.basicConfig(
     level=logging.INFO,
@@ -79,6 +81,7 @@ def fetch_race_meta(conn, race_id: str) -> pd.DataFrame:
             SELECT
                 r.id                              AS race_id,
                 r.stadium_id,
+                r.race_no,
                 COALESCE(t.tidal_level, 0)        AS tidal_level,
                 COALESCE(t.tidal_type, '')        AS tidal_type
             FROM races r
@@ -150,10 +153,89 @@ def fetch_racer_avg_st(conn, today: str) -> dict[int, float]:
 
 
 # ---------------------------------------------------------------------------
+# 購入候補抽出（Session 5 以降の運用ルールに準拠）
+# ---------------------------------------------------------------------------
+
+def extract_bet_candidates(
+    results: list[dict],
+    *,
+    race_id: str,
+    stadium_id: int | None,
+    race_no: int | None,
+    prob_threshold: float,
+    ev_threshold: float,
+    min_odds: float | None,
+    exclude_courses: set[int] | None,
+    exclude_stadiums: set[int] | None,
+    odds_dict: dict[str, float],
+) -> list[dict]:
+    """
+    推論結果から購入条件に合致する候補のみを抽出する。
+
+    デフォルトは CLAUDE.md の運用ルール: prob>=7%, EV>=2.0, コース2/4/5除外,
+    オッズ<100x除外, びわこ除外。
+    """
+    if exclude_stadiums and stadium_id in exclude_stadiums:
+        return []
+
+    candidates: list[dict] = []
+    for r in results:
+        prob = r.get("win_probability") or 0.0
+        ev = r.get("expected_value")
+        if ev is None:
+            continue
+        if prob < prob_threshold or ev < ev_threshold:
+            continue
+
+        combo = r["combination"]
+        odds = odds_dict.get(combo)
+        if odds is None:
+            continue
+        if min_odds is not None and odds < min_odds:
+            continue
+
+        first = int(combo.split("-")[0])
+        if exclude_courses and first in exclude_courses:
+            continue
+
+        candidates.append(
+            {
+                "race_id": race_id,
+                "stadium_id": stadium_id,
+                "race_no": race_no,
+                "combination": combo,
+                "win_probability": prob,
+                "expected_value": ev,
+                "odds": odds,
+            }
+        )
+    return candidates
+
+
+# ---------------------------------------------------------------------------
 # メイン処理
 # ---------------------------------------------------------------------------
 
-def main() -> None:
+def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
+    parser = argparse.ArgumentParser(description="boatrace 本番予測 + ベット候補通知")
+    parser.add_argument("--notify", action="store_true",
+                        help="購入候補を Discord Webhook 経由で通知する")
+    parser.add_argument("--prob-threshold", type=float, default=0.07,
+                        help="通知対象の的中確率閾値（デフォルト: 0.07）")
+    parser.add_argument("--ev-threshold", type=float, default=2.0,
+                        help="通知対象の期待値閾値（デフォルト: 2.0）")
+    parser.add_argument("--min-odds", type=float, default=100.0,
+                        help="通知対象のオッズ下限（デフォルト: 100.0）")
+    parser.add_argument("--exclude-courses", type=int, nargs="+", default=[2, 4, 5],
+                        help="通知対象から除外する1着艇番（デフォルト: 2 4 5）")
+    parser.add_argument("--exclude-stadiums", type=int, nargs="+", default=[11],
+                        help="通知対象から除外する場ID（デフォルト: 11=びわこ）")
+    return parser.parse_args(argv)
+
+
+def main(argv: list[str] | None = None) -> None:
+    args = parse_args(argv)
+
     if not MODEL_PATH.exists():
         logger.error("Model not found at %s. Run download_model.py first.", MODEL_PATH)
         sys.exit(1)
@@ -185,6 +267,10 @@ def main() -> None:
         # 選手ごとの過去 ST 平均を一括取得（全レースで共有）
         racer_avg_st = fetch_racer_avg_st(conn, today_jst)
         logger.info("Loaded avg ST for %d racers", len(racer_avg_st))
+
+        exclude_courses = set(args.exclude_courses) if args.exclude_courses else None
+        exclude_stadiums = set(args.exclude_stadiums) if args.exclude_stadiums else None
+        all_candidates: list[dict] = []
 
         for race_id in race_ids:
             logger.info("Predicting race %s ...", race_id)
@@ -258,6 +344,31 @@ def main() -> None:
                 "Race %s: %d predictions upserted (%d alerts, EV >= 1.2)",
                 race_id, len(results), alert_count,
             )
+
+            # ベット候補（通知対象）を抽出
+            if odds_dict:
+                stadium_id = int(race_meta.iloc[0]["stadium_id"])
+                race_no = int(race_meta.iloc[0]["race_no"])
+                all_candidates.extend(
+                    extract_bet_candidates(
+                        results,
+                        race_id=race_id,
+                        stadium_id=stadium_id,
+                        race_no=race_no,
+                        prob_threshold=args.prob_threshold,
+                        ev_threshold=args.ev_threshold,
+                        min_odds=args.min_odds,
+                        exclude_courses=exclude_courses,
+                        exclude_stadiums=exclude_stadiums,
+                        odds_dict=odds_dict,
+                    )
+                )
+
+    logger.info("Extracted %d bet candidates", len(all_candidates))
+    if args.notify:
+        notify_bet_candidates(all_candidates)
+    elif all_candidates:
+        logger.info("(--notify flag off; skipping notification)")
 
     logger.info("=== predict done ===")
 
