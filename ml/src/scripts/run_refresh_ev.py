@@ -20,7 +20,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).parents[1]))
 
-from collector.db_writer import get_connection
+from collector.db_writer import get_connection, insert_odds_history_batch
 from collector.openapi_client import fetch_odds as http_fetch_odds
 
 logging.basicConfig(
@@ -88,24 +88,27 @@ def update_ev_batch(conn, race_id: str, updates: list[dict]) -> int:
     return len(updates)
 
 
-def refresh_race(race: dict, today: str, stored_probs: dict[str, float]) -> tuple[str, list[dict]]:
+def refresh_race(
+    race: dict, today: str, stored_probs: dict[str, float]
+) -> tuple[str, list[dict], dict[str, float]]:
     """
     1レース分のオッズを HTTP 取得して EV を再計算する。
-    DB 書き込みはせず、更新データのリストを返す（スレッドセーフ）。
+    DB 書き込みはせず、更新データと取得したオッズを返す（スレッドセーフ）。
+    戻り値: (race_id, EV 更新用 dict のリスト, 取得オッズ dict)
     """
     race_id = race["id"]
     if not stored_probs:
-        return race_id, []
+        return race_id, [], {}
 
     try:
         new_odds = http_fetch_odds(race["stadium_id"], today, race["race_no"])
     except Exception as exc:
         logger.warning("odds fetch failed %s: %s", race_id, exc)
-        return race_id, []
+        return race_id, [], {}
 
     if not new_odds:
         logger.info("Race %s: no odds available", race_id)
-        return race_id, []
+        return race_id, [], {}
 
     updates: list[dict] = []
     for combo, prob in stored_probs.items():
@@ -118,7 +121,7 @@ def refresh_race(race: dict, today: str, stored_probs: dict[str, float]) -> tupl
             "alert_flag": ev >= ALERT_EV_THRESHOLD,
         })
 
-    return race_id, updates
+    return race_id, updates, new_odds
 
 
 def main() -> None:
@@ -141,7 +144,7 @@ def main() -> None:
 
     # --- 並列 HTTP 取得（DB 接続は使わない） ---
     logger.info("Fetching odds for %d races with %d workers...", len(races), MAX_WORKERS)
-    results: list[tuple[str, list[dict]]] = []
+    results: list[tuple[str, list[dict], dict[str, float]]] = []
 
     with ThreadPoolExecutor(max_workers=MAX_WORKERS) as executor:
         futures = {
@@ -154,9 +157,10 @@ def main() -> None:
     # --- DB 更新（シリアル）---
     total_updated = 0
     total_alerts = 0
+    history_rows: list[tuple[str, str, float]] = []
 
     with get_connection() as conn:
-        for race_id, updates in results:
+        for race_id, updates, new_odds in results:
             if not updates:
                 continue
             n = update_ev_batch(conn, race_id, updates)
@@ -164,14 +168,21 @@ def main() -> None:
             total_updated += n
             total_alerts += alerts
             logger.info("Race %s: %d EVs updated (%d alerts)", race_id, n, alerts)
+            # オッズ履歴には取得できた全組合せを蓄積（EV 対象外の組合せも推移分析で必要）
+            # C-1: ODDS_FRESHNESS_IMPROVEMENT
+            for combo, val in new_odds.items():
+                history_rows.append((race_id, combo, val))
 
+        if history_rows:
+            insert_odds_history_batch(conn, history_rows)
         conn.commit()
 
     logger.info(
-        "=== refresh_ev done: %d races, %d predictions updated, %d alerts ===",
+        "=== refresh_ev done: %d races, %d predictions updated, %d alerts, %d history rows ===",
         len([r for r in results if r[1]]),
         total_updated,
         total_alerts,
+        len(history_rows),
     )
 
 

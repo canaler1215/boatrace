@@ -29,6 +29,7 @@ from collector.db_writer import (
     upsert_race_entries_batch,
     upsert_odds_batch,
     update_predictions_final_odds_batch,
+    insert_odds_history_batch,
 )
 
 logging.basicConfig(
@@ -136,10 +137,19 @@ def main() -> None:
         for combo, val in r["odds"].items()
     ]
 
+    # オッズ履歴は未終了レース分のみ蓄積する（終了済みは final_odds に記録済み）
+    # C-1: ODDS_FRESHNESS_IMPROVEMENT
+    history_rows = [
+        (r["race"]["id"], combo, val)
+        for r in collected
+        if r["race"].get("status") != "finished"
+        for combo, val in r["odds"].items()
+    ]
+
     # --- DB 書き込み (executemany でバッチ処理) ---
     logger.info(
-        "Writing to DB: %d races, %d entries, %d odds rows, %d final_odds rows...",
-        len(all_races), len(all_entries), len(all_odds), len(final_odds_rows),
+        "Writing to DB: %d races, %d entries, %d odds rows, %d final_odds rows, %d history rows...",
+        len(all_races), len(all_entries), len(all_odds), len(final_odds_rows), len(history_rows),
     )
     with get_connection() as conn:
         upsert_races_batch(conn, all_races)
@@ -151,6 +161,8 @@ def main() -> None:
             upsert_odds_batch(conn, all_odds)
         if final_odds_rows:
             update_predictions_final_odds_batch(conn, final_odds_rows)
+        if history_rows:
+            insert_odds_history_batch(conn, history_rows)
         conn.commit()
 
     logger.info("=== collect done: %d races processed ===", len(races))

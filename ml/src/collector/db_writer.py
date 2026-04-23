@@ -128,6 +128,33 @@ def upsert_odds_batch(conn: psycopg.Connection, rows: list[tuple[str, str, float
         )
 
 
+def insert_odds_history_batch(
+    conn: psycopg.Connection,
+    rows: list[tuple[str, str, float]],
+) -> int:
+    """
+    odds_history テーブルにオッズスナップショットを INSERT ONLY で蓄積する。
+
+    rows: list of (race_id, combination, odds_value)
+    戻り値: 挿入した行数（rows の長さ）
+
+    snapshot_at はサーバ側の now() で揃える。重複排除は行わない（同一タイムスタンプは
+    同一実行内の書き込み）。既存の odds テーブル（最新値キャッシュ）とは独立に
+    時系列データを蓄積することで、発走までのオッズ推移分析を可能にする。
+    """
+    if not rows:
+        return 0
+    with conn.cursor() as cur:
+        cur.executemany(
+            """
+            INSERT INTO odds_history (race_id, combination, odds_value)
+            VALUES (%s, %s, %s)
+            """,
+            rows,
+        )
+    return len(rows)
+
+
 def update_predictions_final_odds_batch(
     conn: psycopg.Connection,
     rows: list[tuple[str, str, float]],

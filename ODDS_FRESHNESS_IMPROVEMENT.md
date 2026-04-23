@@ -224,25 +224,36 @@ CREATE TABLE odds (
 
 ### 優先度C：オッズ履歴の保存
 
-#### C-1. `odds_history` テーブル新設
+#### C-1. `odds_history` テーブル新設 ✅ 2026-04-24 実装済み
 
 ```sql
 CREATE TABLE odds_history (
   id           BIGSERIAL PRIMARY KEY,
-  race_id      TEXT NOT NULL,
-  combination  TEXT NOT NULL,
-  odds_value   NUMERIC NOT NULL,
-  snapshot_at  TIMESTAMP NOT NULL,
-  INDEX (race_id, snapshot_at)
+  race_id      VARCHAR(20) NOT NULL REFERENCES races(id),
+  combination  VARCHAR(10) NOT NULL,
+  odds_value   REAL NOT NULL,
+  snapshot_at  TIMESTAMP NOT NULL DEFAULT now()
 );
+CREATE INDEX odds_history_race_id_snapshot_at_idx ON odds_history (race_id, snapshot_at);
+CREATE INDEX odds_history_snapshot_at_idx ON odds_history (snapshot_at);
 ```
 
 既存の `odds` テーブルは「最新値キャッシュ」として残し、`odds_history` に
 `INSERT ONLY` で時系列データを蓄積する。
 
+**実装内容**:
+- `apps/web/lib/db/migrations/0008_odds_history.sql`: テーブル + `(race_id, snapshot_at)` / `(snapshot_at)` の2本のインデックス
+- `apps/web/lib/db/schema.ts`: `oddsHistory` エクスポート追加（`bigserial` 利用、typecheck 通過）
+- `ml/src/collector/db_writer.py`: `insert_odds_history_batch(rows=[(race_id, combination, odds_value), ...])`
+- `ml/src/scripts/run_collect.py`: 未終了レースのオッズを履歴に追加（終了済みは既存の `final_odds` 記録で担保）
+- `ml/src/scripts/run_refresh_ev.py`: オッズ再取得ごとに全組合せを履歴に追加
+- `ml/tests/test_odds_history_writer.py`: 空入力 no-op / 行数返却 / SQL 内容 / パラメータ順の検証（5/5 PASS）
+
 **容量試算**: 300 レース × 120 組 × 1 日 60 スナップショット = 2.16M 行/日
 → 年 788M 行。Neon の無料枠では厳しい。履歴保存は最新 30 日分に limit するか、
-選抜組み合わせ（EV ≥ 2.0 のもの）のみを保存する。
+選抜組み合わせ（EV ≥ 2.0 のもの）のみを保存する。`snapshot_at` インデックスを
+付けたのは `DELETE WHERE snapshot_at < now() - interval '30 day'` のバッチ削除を
+想定したもの。削除バッチは運用開始後に追加する想定。
 
 #### C-2. バックテスト用の発走直前オッズ取得
 

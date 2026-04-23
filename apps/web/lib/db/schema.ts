@@ -1,4 +1,4 @@
-import { pgTable, varchar, serial, integer, real, boolean, timestamp, text, index, unique } from "drizzle-orm/pg-core";
+import { pgTable, varchar, serial, bigserial, integer, real, boolean, timestamp, text, index, unique } from "drizzle-orm/pg-core";
 
 // 競艇場マスタ
 export const stadiums = pgTable("stadiums", {
@@ -49,7 +49,7 @@ export const raceEntries = pgTable("race_entries", {
   index().on(t.raceId),
 ]);
 
-// 3連単オッズ
+// 3連単オッズ（最新値キャッシュ）
 export const odds = pgTable("odds", {
   id: serial("id").primaryKey(),
   raceId: varchar("race_id", { length: 20 }).references(() => races.id),
@@ -58,6 +58,19 @@ export const odds = pgTable("odds", {
   snapshotAt: timestamp("snapshot_at").defaultNow(),
 }, (t) => [
   index().on(t.raceId),
+]);
+
+// 3連単オッズ履歴（INSERT ONLY、発走直前までの推移を蓄積）
+// ODDS_FRESHNESS_IMPROVEMENT.md の C-1 で追加。
+export const oddsHistory = pgTable("odds_history", {
+  id: bigserial("id", { mode: "number" }).primaryKey(),
+  raceId: varchar("race_id", { length: 20 }).references(() => races.id).notNull(),
+  combination: varchar("combination", { length: 10 }).notNull(),
+  oddsValue: real("odds_value").notNull(),
+  snapshotAt: timestamp("snapshot_at").notNull().defaultNow(),
+}, (t) => [
+  index().on(t.raceId, t.snapshotAt),
+  index().on(t.snapshotAt),
 ]);
 
 // 潮位データ
