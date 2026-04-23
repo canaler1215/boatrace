@@ -86,10 +86,10 @@ jobs:
         uses: actions/cache@v4
         with:
           path: data/odds/
-          key: odds-${{ inputs.year }}-${{ inputs.month }}-${{ inputs.bet_type }}-${{ github.run_id }}
+          key: odds-v2-${{ inputs.year }}-${{ inputs.month }}-${{ inputs.bet_type }}-${{ github.run_id }}
           restore-keys: |
-            odds-${{ inputs.year }}-${{ inputs.month }}-${{ inputs.bet_type }}-
-            odds-${{ inputs.year }}-${{ inputs.month }}-
+            odds-v2-${{ inputs.year }}-${{ inputs.month }}-${{ inputs.bet_type }}-
+            odds-v2-${{ inputs.year }}-${{ inputs.month }}-
 
       # GitHub Releases から最新モデルをダウンロード（なければ --retrain で学習）
       - name: Download latest model

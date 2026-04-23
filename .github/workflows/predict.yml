@@ -85,9 +85,9 @@ jobs:
         uses: actions/cache@v4
         with:
           path: data/odds/
-          key: odds-${{ inputs.year }}-${{ inputs.month }}-${{ github.run_id }}
+          key: odds-v2-${{ inputs.year }}-${{ inputs.month }}-${{ github.run_id }}
           restore-keys: |
-            odds-${{ inputs.year }}-${{ inputs.month }}-
+            odds-v2-${{ inputs.year }}-${{ inputs.month }}-
 
       - name: Run monthly prediction check
         if: inputs.mode == 'monthly_check' && steps.download.outcome == 'success'

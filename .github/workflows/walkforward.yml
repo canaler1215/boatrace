@@ -103,12 +103,12 @@ jobs:
         uses: actions/cache@v4
         with:
           path: data/odds/
-          key: odds-${{ inputs.start }}-${{ inputs.end }}-${{ inputs.bet_type }}-${{ github.run_id }}
+          key: odds-v2-${{ inputs.start }}-${{ inputs.end }}-${{ inputs.bet_type }}-${{ github.run_id }}
           restore-keys: |
-            odds-${{ inputs.start }}-${{ inputs.end }}-${{ inputs.bet_type }}-
-            odds-${{ inputs.start }}-${{ inputs.end }}-
-            odds-${{ inputs.start }}-
-            odds-
+            odds-v2-${{ inputs.start }}-${{ inputs.end }}-${{ inputs.bet_type }}-
+            odds-v2-${{ inputs.start }}-${{ inputs.end }}-
+            odds-v2-${{ inputs.start }}-
+            odds-v2-
 
       # retrain=false の場合のみ GitHub Releases からモデルをダウンロード
       - name: Download latest model

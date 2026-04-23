@@ -88,24 +88,24 @@ jobs:
         uses: actions/cache@v4
         with:
           path: data/odds/odds_*.parquet
-          key: odds-${{ inputs.start }}-${{ inputs.end }}-trifecta-${{ github.run_id }}
+          key: odds-v2-${{ inputs.start }}-${{ inputs.end }}-trifecta-${{ github.run_id }}
           restore-keys: |
-            odds-${{ inputs.start }}-${{ inputs.end }}-trifecta-
-            odds-${{ inputs.start }}-${{ inputs.end }}-
-            odds-${{ inputs.start }}-
-            odds-
+            odds-v2-${{ inputs.start }}-${{ inputs.end }}-trifecta-
+            odds-v2-${{ inputs.start }}-${{ inputs.end }}-
+            odds-v2-${{ inputs.start }}-
+            odds-v2-
 
       - name: Restore trio odds cache
         if: inputs.use_real_odds == 'true'
         uses: actions/cache@v4
         with:
           path: data/odds/trio_odds_*.parquet
-          key: odds-${{ inputs.start }}-${{ inputs.end }}-trio-${{ github.run_id }}
+          key: odds-v2-${{ inputs.start }}-${{ inputs.end }}-trio-${{ github.run_id }}
           restore-keys: |
-            odds-${{ inputs.start }}-${{ inputs.end }}-trio-
-            odds-${{ inputs.start }}-${{ inputs.end }}-
-            odds-${{ inputs.start }}-
-            odds-
+            odds-v2-${{ inputs.start }}-${{ inputs.end }}-trio-
+            odds-v2-${{ inputs.start }}-${{ inputs.end }}-
+            odds-v2-${{ inputs.start }}-
+            odds-v2-
 
       - name: Download latest model
         id: download_model

@@ -71,9 +71,9 @@ jobs:
         uses: actions/cache@v4
         with:
           path: data/odds/
-          key: odds-${{ inputs.year }}-${{ inputs.month }}-${{ github.run_id }}
+          key: odds-v2-${{ inputs.year }}-${{ inputs.month }}-${{ github.run_id }}
           restore-keys: |
-            odds-${{ inputs.year }}-${{ inputs.month }}-
+            odds-v2-${{ inputs.year }}-${{ inputs.month }}-
 
       # grid_search.yml が先に実行済みの場合は combos CSV を再利用
       - name: Restore combos cache
