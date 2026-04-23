@@ -473,3 +473,82 @@ def fetch_race_result(stadium_id: int, race_date: str, race_no: int) -> dict[int
 
     logger.debug("raceresult stadium=%02d rno=%d: %s", stadium_id, race_no, result)
     return result
+
+
+def fetch_race_result_full(
+    stadium_id: int, race_date: str, race_no: int
+) -> dict[str, Any]:
+    """
+    レース結果を「3連単の的中組合せ」と「払戻金（100円あたり円）」付きで取得。
+
+    Returns:
+        {
+            "finish": {boat_no: finish_position, ...},
+            "trifecta_combination": "1-2-3" | None,
+            "trifecta_payout": int | None,   # 円 (100円ベース)
+        }
+
+    raceresult ページは着順テーブルと払戻金テーブルを含む。
+    払戻金テーブルは 3連単 / 3連複 / 2連単 ... が列挙され、
+    3連単行のセル例: "1-2-3"  "¥ 12,340" (払戻金が "円" 単位で記載)
+    """
+    hd = _hd(race_date)
+    soup = _get("raceresult", {"hd": hd, "jcd": f"{stadium_id:02d}", "rno": str(race_no)})
+
+    # --- 着順テーブル ---
+    finish: dict[int, int] = {}
+    for tbody in soup.select(".table1 tbody, table tbody"):
+        for tr in tbody.find_all("tr"):
+            cells = tr.find_all("td")
+            if len(cells) < 2:
+                continue
+            try:
+                finish_pos = int(cells[0].get_text(strip=True))
+                boat_no    = int(cells[1].get_text(strip=True))
+                if 1 <= boat_no <= 6 and 1 <= finish_pos <= 6:
+                    finish[boat_no] = finish_pos
+            except (ValueError, AttributeError, IndexError):
+                continue
+        if len(finish) == 6:
+            break
+
+    # --- 3連単 払戻金 ---
+    # ページ全体から "3連単" セクションを探し、同じ行内の "1-2-3" 形式と金額を取得
+    trifecta_combo: str | None = None
+    trifecta_payout: int | None = None
+
+    # 組合せ 文字列は着順から直接計算できる（着順テーブルが取れている場合）
+    if {1, 2, 3}.issubset(finish.values()):
+        inv = {pos: bn for bn, pos in finish.items()}
+        trifecta_combo = f"{inv[1]}-{inv[2]}-{inv[3]}"
+
+    # 払戻金パース: "3連単" を含むテキスト要素の近傍から金額を抽出
+    # boatrace.jp の払戻金テーブルは .table1 に含まれ、th に "3連単" が入る
+    for th in soup.find_all(string=re.compile(r"3連単")):
+        parent = th.find_parent(["tr", "tbody", "table"])
+        if not parent:
+            continue
+        text = parent.get_text(separator=" ", strip=True)
+        # 組合せ取得（テーブル側で "1-2-3" が書かれている場合は信頼する）
+        m_combo = re.search(r"([1-6]-[1-6]-[1-6])", text)
+        if m_combo:
+            trifecta_combo = m_combo.group(1)
+        # "¥12,340" / "12340円" / "12,340" のいずれでも抽出
+        m_yen = re.search(r"(?:¥|￥)?\s*([0-9]{1,3}(?:,[0-9]{3})+|[0-9]{2,7})\s*円?", text)
+        if m_yen:
+            try:
+                trifecta_payout = int(m_yen.group(1).replace(",", ""))
+            except ValueError:
+                pass
+        if trifecta_combo and trifecta_payout is not None:
+            break
+
+    logger.debug(
+        "raceresult_full stadium=%02d rno=%d combo=%s payout=%s",
+        stadium_id, race_no, trifecta_combo, trifecta_payout,
+    )
+    return {
+        "finish": finish,
+        "trifecta_combination": trifecta_combo,
+        "trifecta_payout": trifecta_payout,
+    }

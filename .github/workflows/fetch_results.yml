@@ -1,0 +1,60 @@
+name: Fetch Race Results
+
+# ダッシュボードに表示された購入候補レース（S6-4運用ルール）の確定結果を
+# 日次で取得し、race_results テーブルに保存する。
+#
+# 取得タイミング:
+#   UTC 14:00 = JST 23:00
+#   boatrace.jp の最終レース発走（通常 20:30〜21:00 JST）から約2時間後で
+#   払戻金が確定している。
+#   collect.yml（21:30 JST）と分離することで、万が一 collect が失敗しても
+#   結果だけは独立して取得できる。
+#
+# 取得対象:
+#   デフォルト = JST 前日の predictions に行があるレース（ダッシュボード表示条件を満たしたもの）
+#   --all-races / --date で再取得も可能。
+
+on:
+  workflow_dispatch:
+    inputs:
+      date:
+        description: '取得対象日 (YYYY-MM-DD)。空欄で JST 前日。'
+        required: false
+        default: ''
+      all_races:
+        description: 'predictions に限定せず全レースを対象にする（再取得用）'
+        required: false
+        default: 'false'
+        type: boolean
+  schedule:
+    - cron: '0 14 * * *'   # 毎日 23:00 JST (UTC 14:00)
+
+jobs:
+  fetch_results:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: 'pip'
+          cache-dependency-path: ml/requirements.txt
+
+      - name: Install dependencies
+        run: pip install -r ml/requirements.txt
+
+      - name: Run fetch_results
+        run: |
+          ARGS=""
+          if [ -n "${{ inputs.date }}" ]; then
+            ARGS="$ARGS --date ${{ inputs.date }}"
+          fi
+          if [ "${{ inputs.all_races }}" = "true" ]; then
+            ARGS="$ARGS --all-races"
+          fi
+          python ml/src/scripts/run_fetch_results.py $ARGS
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}

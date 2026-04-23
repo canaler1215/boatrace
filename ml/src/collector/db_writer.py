@@ -157,6 +157,33 @@ def update_predictions_final_odds_batch(
     return len(rows)
 
 
+def upsert_race_results_batch(
+    conn: psycopg.Connection,
+    rows: list[dict[str, Any]],
+) -> int:
+    """
+    race_results テーブルに 3連単の的中組合せ・払戻金を upsert する。
+
+    rows: [{"race_id", "trifecta_combination", "trifecta_payout"}, ...]
+    戻り値: 書き込んだ件数。
+    """
+    if not rows:
+        return 0
+    with conn.cursor() as cur:
+        cur.executemany(
+            """
+            INSERT INTO race_results (race_id, trifecta_combination, trifecta_payout)
+            VALUES (%(race_id)s, %(trifecta_combination)s, %(trifecta_payout)s)
+            ON CONFLICT (race_id) DO UPDATE SET
+                trifecta_combination = EXCLUDED.trifecta_combination,
+                trifecta_payout      = COALESCE(EXCLUDED.trifecta_payout, race_results.trifecta_payout),
+                settled_at           = now()
+            """,
+            rows,
+        )
+    return len(rows)
+
+
 def register_model_version(
     conn: psycopg.Connection,
     version: str,

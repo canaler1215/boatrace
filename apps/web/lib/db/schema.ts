@@ -88,6 +88,18 @@ export const predictions = pgTable("predictions", {
   unique().on(t.raceId, t.combination),
 ]);
 
+// レース結果（確定着順・払戻金）
+// race_entries.finish_position は艇ごとの着順だが、ダッシュボードでの的中判定には
+// 「1-2-3」のような3連単組合せ文字列が必要。3連単の払戻金もここで一元管理する。
+export const raceResults = pgTable("race_results", {
+  raceId: varchar("race_id", { length: 20 })
+    .primaryKey()
+    .references(() => races.id),
+  trifectaCombination: varchar("trifecta_combination", { length: 10 }).notNull(), // 例: "1-2-3"
+  trifectaPayout: integer("trifecta_payout"), // 100円あたりの払戻金（円）
+  settledAt: timestamp("settled_at").defaultNow(),
+});
+
 // 購入記録（手動入力）
 export const bets = pgTable("bets", {
   id: serial("id").primaryKey(),

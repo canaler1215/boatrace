@@ -1,4 +1,4 @@
-import { db, predictions, races, stadiums } from "@/lib/db";
+import { db, predictions, races, raceResults, stadiums } from "@/lib/db";
 import { eq, desc, and, gte, isNull, or } from "drizzle-orm";
 import { calcKellyFraction, EV_THRESHOLD, getSeasonalBet } from "@/lib/utils/ev";
 import Link from "next/link";
@@ -47,10 +47,13 @@ export default async function DashboardPage({ searchParams }: Props) {
       grade: races.grade,
       stadiumName: stadiums.name,
       status: races.status,
+      resultCombination: raceResults.trifectaCombination,
+      resultPayout: raceResults.trifectaPayout,
     })
     .from(predictions)
     .innerJoin(races, eq(predictions.raceId, races.id))
     .leftJoin(stadiums, eq(races.stadiumId, stadiums.id))
+    .leftJoin(raceResults, eq(predictions.raceId, raceResults.raceId))
     .where(
       and(
         eq(races.raceDate, selectedDate),
@@ -122,7 +125,13 @@ export default async function DashboardPage({ searchParams }: Props) {
       ) : (
         <div className="overflow-hidden rounded-lg border border-gray-200 bg-white shadow-sm">
           <div className="border-b border-gray-100 bg-gray-50 px-4 py-2 text-xs text-gray-500">
-            確率 ≥ {probPct}%（EV未取得含む）かつ EV ≥ {EV_THRESHOLD.toFixed(1)}（{alerts.length}件 / うち終了済み {alerts.filter((a) => a.status === "finished").length}件）
+            確率 ≥ {probPct}%（EV未取得含む）かつ EV ≥ {EV_THRESHOLD.toFixed(1)}（{alerts.length}件 / うち終了済み {alerts.filter((a) => a.status === "finished").length}件
+            {(() => {
+              const settled = alerts.filter((a) => a.resultCombination != null);
+              const hits = settled.filter((a) => a.combination === a.resultCombination);
+              if (settled.length === 0) return null;
+              return ` / 結果確定 ${settled.length}件・的中 ${hits.length}件`;
+            })()}）
           </div>
           <table className="w-full text-sm">
             <thead className="bg-gray-50 text-xs uppercase text-gray-600">
@@ -148,15 +157,19 @@ export default async function DashboardPage({ searchParams }: Props) {
                     ? alert.expectedValue! / alert.winProbability
                     : null;
                 const kelly = hasEv && odds != null ? calcKellyFraction(alert.expectedValue!, odds) : null;
+                const hasResult = alert.resultCombination != null;
+                const isHit = hasResult && alert.combination === alert.resultCombination;
                 return (
                   <tr
                     key={alert.id}
                     className={
-                      isFinished
-                        ? "bg-gray-50 opacity-60"
-                        : isRunning
-                          ? "bg-green-50 hover:bg-green-100"
-                          : "hover:bg-blue-50"
+                      isHit
+                        ? "bg-yellow-50 hover:bg-yellow-100"
+                        : isFinished
+                          ? "bg-gray-50 opacity-60"
+                          : isRunning
+                            ? "bg-green-50 hover:bg-green-100"
+                            : "hover:bg-blue-50"
                     }
                   >
                     <td className={`px-4 py-3 font-medium ${isFinished ? "text-gray-400" : ""}`}>
@@ -171,7 +184,35 @@ export default async function DashboardPage({ searchParams }: Props) {
                       )}
                     </td>
                     <td className="px-4 py-3">
-                      {isFinished ? (
+                      {hasResult ? (
+                        isHit ? (
+                          <span
+                            className="rounded bg-yellow-200 px-2 py-0.5 text-xs font-bold text-yellow-800"
+                            title={
+                              alert.resultPayout != null
+                                ? `払戻: ${alert.resultPayout.toLocaleString()}円 / 100円`
+                                : "払戻: 取得中"
+                            }
+                          >
+                            的中
+                            {alert.resultPayout != null && (
+                              <span className="ml-1 font-mono text-[10px] font-medium text-yellow-700">
+                                ¥{alert.resultPayout.toLocaleString()}
+                              </span>
+                            )}
+                          </span>
+                        ) : (
+                          <span
+                            className="rounded bg-gray-200 px-2 py-0.5 text-xs font-medium text-gray-600"
+                            title={`結果: ${alert.resultCombination}`}
+                          >
+                            不的中
+                            <span className="ml-1 font-mono text-[10px] text-gray-500">
+                              {alert.resultCombination}
+                            </span>
+                          </span>
+                        )
+                      ) : isFinished ? (
                         <span className="rounded bg-gray-200 px-2 py-0.5 text-xs font-medium text-gray-500">
                           終了
                         </span>
