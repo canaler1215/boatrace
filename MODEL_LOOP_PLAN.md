@@ -4,7 +4,7 @@
 セッション開始時にこのファイルをまず読み、記載通りに実装を進めること。
 
 最終更新: 2026-04-24
-ステータス: **設計確定、実装未着手**
+ステータス: **タスク1完了、タスク2以降 未着手**
 
 ---
 
@@ -463,3 +463,47 @@ argument-hint: `[trial_id | all]`
 ## 9. 変更履歴
 
 - 2026-04-24: 初版作成（設計確定、実装未着手）
+- 2026-04-24: **タスク 1 完了**（trainer.py 拡張、単体テスト追加）
+
+---
+
+## 10. 実装進捗ログ
+
+### 2026-04-24 — タスク 1 完了（trainer.py の config 対応）
+
+**変更内容**:
+- [ml/src/model/trainer.py](ml/src/model/trainer.py) の `train()` を以下の keyword-only 引数で拡張:
+  - `lgb_params: dict | None` — LGB_PARAMS にマージする上書き（`_merge_lgb_params` で副作用なくマージ）
+  - `num_boost_round: int = 1000`
+  - `early_stopping_rounds: int = 50`
+  - `sample_weight: np.ndarray | None` — `lgb.Dataset(..., weight=...)` に渡す。train split 側のみ切り出し。
+  - `return_metrics: bool = False` — True で dict `{model_path, metrics, best_iteration, params}` を返す
+- 既存呼び出し（`train(X, y, version)`）は Path を返す動作のまま維持（後方互換）
+- `metrics` 内容: `ece_rank1_raw`, `ece_rank1_calibrated`, `n_train`, `n_val`
+
+**既存呼び出し側への影響**: なし
+- 確認済み: `run_retrain.py` / `run_walkforward.py` / `run_backtest.py` / `run_grid_search.py` / `run_calibration.py` の 5 箇所すべて `train(X, y, version)` 形式で `Path` を受け取るのみ。keyword-only 追加 + デフォルト挙動維持で非破壊。
+
+**追加テスト**: [ml/tests/test_trainer_config.py](ml/tests/test_trainer_config.py)（合成データ、7 ケース、10 秒前後で完走）
+1. 後方互換: `train(X, y, version)` が `Path` を返す
+2. `return_metrics=True` で dict を返し、必要キーが揃う
+3. `lgb_params` で `num_leaves` / `learning_rate` / `min_child_samples` が上書きされ、`LGB_PARAMS` 本体は不変
+4. `num_boost_round=10` 指定で `best_iteration ≤ 10`
+5. `sample_weight` を渡しても完走・保存
+6. `sample_weight` 長さ不一致で `ValueError`
+7. 保存形式 `{"booster": ..., "softmax_calibrators": [...]}`（長さ 6）維持
+
+**テスト結果**:
+```
+py -3.12 -m pytest ml/tests/test_trainer_config.py -v
+=> 7 passed in 10.67s
+```
+
+既存テストの `test_no_regression.py` は KPI 履歴（2025-12/2026-03）に基づく回帰検知で失敗しているが、
+これは本変更以前からの既存状態であり、trainer.py 変更とは無関係（既存 KPI データを参照するだけのテスト）。
+
+**次のアクション**: タスク 2（`run_walkforward.py` の config 対応）。
+- `get_model_for_month` に trial config を注入
+- `sample_weight` 生成ロジック（`mode: "recency"` / `"exp_decay"`）
+- `lgb_params` / `num_boost_round` / `early_stopping_rounds` を `train()` に渡す
+- 注意: `feature_builder.py` の返り値に `race_date` が残っていない可能性があり、sample_weight 生成用に日付配列を別ルートで保持する必要がある（§6-3 落とし穴 3）

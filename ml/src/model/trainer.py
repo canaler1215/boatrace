@@ -10,6 +10,12 @@ Session 6 変更点:
 
 Session 5 変更点（廃止済み）:
   - Temperature Scaling: T≈1.0 に収束しグローバルスカラーでは解決不可能と確定
+
+Model Loop 拡張（2026-04-24〜）:
+  - keyword-only 引数で lgb_params / num_boost_round / early_stopping_rounds / sample_weight を注入可能に
+  - 戻り値を dict 化: {"model_path": Path, "metrics": {...}, "best_iteration": int}
+  - 既存呼び出し (train(X, y, version)) は後方互換のため Path を直接返す動作も維持するが、
+    新規コードは戻り値を dict として扱うこと。内部では _train_impl に分離。
 """
 import lightgbm as lgb
 import numpy as np
@@ -57,7 +63,27 @@ def _ece(prob: np.ndarray, true_bin: np.ndarray, n_bins: int = 10) -> float:
     return ece
 
 
-def train(X: pd.DataFrame, y: pd.Series, version: str) -> Path:
+def _merge_lgb_params(overrides: dict | None) -> dict:
+    """LGB_PARAMS をベースに overrides をマージ。overrides が None なら LGB_PARAMS をそのまま返す。"""
+    merged = dict(LGB_PARAMS)
+    if overrides:
+        # objective/num_class/metric/n_jobs/verbose はベース側を尊重しつつ上書き可能
+        for k, v in overrides.items():
+            merged[k] = v
+    return merged
+
+
+def train(
+    X: pd.DataFrame,
+    y: pd.Series,
+    version: str,
+    *,
+    lgb_params: dict | None = None,
+    num_boost_round: int = 1000,
+    early_stopping_rounds: int = 50,
+    sample_weight: np.ndarray | None = None,
+    return_metrics: bool = False,
+) -> Path | dict:
     """
     モデルを学習して artifacts/model_{version}.pkl に保存する。
 
@@ -71,10 +97,24 @@ def train(X: pd.DataFrame, y: pd.Series, version: str) -> Path:
     X : pd.DataFrame  特徴量 (FEATURE_COLUMNS)
     y : pd.Series     ラベル  着順 - 1  (0=1着, 1=2着, ..., 5=6着)
     version : str     バージョン文字列 (例: "202504")
+    lgb_params : dict | None
+        LGB_PARAMS にマージする上書きパラメータ。None なら既定のまま。
+    num_boost_round : int
+        最大ブースティングラウンド数（デフォルト 1000）
+    early_stopping_rounds : int
+        early stopping の我慢回数（デフォルト 50）
+    sample_weight : np.ndarray | None
+        学習サンプルの重み（X と同じ行数、train split 側のみが使われる）。
+        None なら均等重み。
+    return_metrics : bool
+        True の場合、dict を返す（model_path / metrics / best_iteration / params）。
+        False（デフォルト）の場合、後方互換のため Path のみを返す。
 
     Returns
     -------
-    Path  保存されたモデルファイルのパス
+    Path または dict
+        return_metrics=False: 保存されたモデルファイルのパス（後方互換）
+        return_metrics=True:  {"model_path": Path, "metrics": {...}, "best_iteration": int, "params": dict}
     """
     # --- 時系列 split: 最後の 10% を val ---
     n = len(X)
@@ -82,18 +122,33 @@ def train(X: pd.DataFrame, y: pd.Series, version: str) -> Path:
     X_train, X_val = X.iloc[:-n_val], X.iloc[-n_val:]
     y_train, y_val = y.iloc[:-n_val], y.iloc[-n_val:]
 
-    print(f"Train: {len(X_train):,} samples  Val: {len(X_val):,} samples  (時系列 split)")
+    # sample_weight の split（指定があれば）
+    w_train = None
+    if sample_weight is not None:
+        sw = np.asarray(sample_weight)
+        if len(sw) != n:
+            raise ValueError(
+                f"sample_weight length ({len(sw)}) must match X length ({n})"
+            )
+        w_train = sw[:-n_val]
 
-    dtrain = lgb.Dataset(X_train, label=y_train)
+    print(f"Train: {len(X_train):,} samples  Val: {len(X_val):,} samples  (時系列 split)")
+    if w_train is not None:
+        print(f"  sample_weight: min={w_train.min():.3f} max={w_train.max():.3f} "
+              f"mean={w_train.mean():.3f}")
+
+    dtrain = lgb.Dataset(X_train, label=y_train, weight=w_train)
     dval   = lgb.Dataset(X_val,   label=y_val, reference=dtrain)
 
+    params = _merge_lgb_params(lgb_params)
+
     booster = lgb.train(
-        LGB_PARAMS,
+        params,
         dtrain,
-        num_boost_round=1000,
+        num_boost_round=num_boost_round,
         valid_sets=[dval],
         callbacks=[
-            lgb.early_stopping(stopping_rounds=50, verbose=True),
+            lgb.early_stopping(stopping_rounds=early_stopping_rounds, verbose=True),
             lgb.log_evaluation(period=100),
         ],
     )
@@ -132,4 +187,17 @@ def train(X: pd.DataFrame, y: pd.Series, version: str) -> Path:
     out_path = MODEL_DIR / f"model_{version}.pkl"
     joblib.dump(model_pkg, out_path)
     print(f"Model saved: {out_path}  (best iteration: {booster.best_iteration})")
+
+    if return_metrics:
+        return {
+            "model_path": out_path,
+            "metrics": {
+                "ece_rank1_raw": float(ece_before),
+                "ece_rank1_calibrated": float(ece_after),
+                "n_train": int(len(X_train)),
+                "n_val": int(len(X_val)),
+            },
+            "best_iteration": int(booster.best_iteration or 0),
+            "params": params,
+        }
     return out_path
