@@ -4,7 +4,7 @@
 セッション開始時にこのファイルをまず読み、記載通りに実装を進めること。
 
 最終更新: 2026-04-24
-ステータス: **タスク1・2・3・4 完了、タスク5（/model-loop スラッシュコマンド）以降 未着手**
+ステータス: **タスク1・2・3・4・5 完了、タスク6（ドキュメント更新）以降 未着手**
 
 ---
 
@@ -467,6 +467,7 @@ argument-hint: `[trial_id | all]`
 - 2026-04-24: **タスク 2 完了**（run_walkforward.py の config 対応、sample_weight 生成、単体テスト追加）
 - 2026-04-24: **タスク 3 完了**（run_model_loop.py 新規作成、trials/ ディレクトリ構造、単体テスト追加）
 - 2026-04-24: **タスク 4 完了**（初期 trial seeds 8 本を配置、YAML 妥当性テスト追加）
+- 2026-04-24: **タスク 5 完了**（`.claude/commands/model-loop.md` 新規作成、スラッシュコマンド登録確認）
 
 ---
 
@@ -705,3 +706,51 @@ py -3.12 ml/src/scripts/run_model_loop.py --trial T00_baseline
 - 連続実行合意のため、途中報告は最小限。全 trial 完了後に results.jsonl を読んでまとめて報告する設計
 - タスク 6（CLAUDE.md / AUTO_LOOP_PLAN.md 追記）も後続で対応
 - 設計書 §7-6 の動作確認（T00_baseline + T01 の実行）はタスク 5 完了後、ユーザーがローカルで実 Walk-Forward を走らせる段で実施
+
+### 2026-04-24 — タスク 5 完了（/model-loop スラッシュコマンド）
+
+**変更内容**:
+
+[.claude/commands/model-loop.md](.claude/commands/model-loop.md) を新規作成。設計書 §4 タスク 5 準拠。
+
+- `description`: 「モデル構造自律改善ループを実行する（ローカルで学習ハイパラ・学習窓・sample_weight を探索）」
+- `argument-hint`: `[trial_id | all]`
+- 既存 `/inner-loop`（GitHub Actions 経由、フィルタ探索）との違いを冒頭で明示（変更対象・実行場所・1 trial の時間）
+- **前提チェック**: Python 3.12 / 依存パッケージ（lightgbm, yaml, pandas, sklearn）/ データキャッシュ（2023-01〜2026-04）を事前確認するコマンド群を記載。欠落時のユーザー誘導文も明記
+- **実行フロー**: Step 1〜7 で構成
+  - Step 1: 引数パース（空 / `all` → 全 trial、それ以外 → 単発）
+  - Step 2: `trials/pending/*.yaml` 有無を確認。空なら `results.jsonl` を読んで新 trial 設計フェーズへ
+  - Step 3: 実行開始通知（対象 trial / 見積もり時間 / 途中報告しない方針）
+  - Step 4: `py -3.12 ml/src/scripts/run_model_loop.py [--trial <id>]` を実行。長時間化を前提に `run_in_background: true` + `BashOutput` ポーリング推奨
+  - Step 5: `trials/results.jsonl` を pandas で整形
+  - Step 6: verdict / primary_score / ROI / worst_month / plus_ratio / ECE(calibrated) のテーブルを添えて報告
+  - Step 7: 設計書 §5 の判定ルールで次アクション提案（上位 trial 近傍 / 構造変更 / 撤退）
+- **エラーハンドリング**: 1 trial 失敗時も run_model_loop.py が次 trial に進む／pending に残って再実行可能／traceback は `artifacts/model_loop_<trial_id>_error.log` に保存、という仕様を明記
+- **絶対にやってはいけないこと**: `strategy_default.yaml` 変更禁止／複数パラメータ同時変更禁止／`strategy` セクションの trial ごとの変更禁止／GitHub Actions 使用禁止／途中キャンセル禁止／`ml/src/collector/` と `ml/src/features/` への変更禁止（§6-4 準拠）
+- **撤退条件**: 10 trial 回しても verdict=pass 0 本 / 5 trial 連続で非改善 / 実行時間超過
+
+**テスト結果**:
+
+```
+py -3.12 -m pytest ml/tests/test_trainer_config.py ml/tests/test_walkforward_config.py \
+    ml/tests/test_model_loop.py ml/tests/test_trial_seeds.py -v
+=> 80 passed in 5.60s
+```
+
+動作確認:
+- `py -3.12 ml/src/scripts/run_model_loop.py --help` が正常に引数解釈される（`--trial` / `--all` を表示）
+- Claude Code ハーネスのスキル一覧に `model-loop` が登録されたことを確認（`/model-loop` で発火可能）
+
+**既存呼び出し側への影響**: なし（新規 md ファイルのみ）。
+
+**md 内リンクの妥当性確認**:
+- `MODEL_LOOP_PLAN.md` ✓ 存在
+- `ml/src/scripts/run_model_loop.py` ✓ 存在
+- `ml/src/scripts/run_collect.py` ✓ 存在
+- `ml/requirements.txt` ✓ 存在
+
+**次のアクション**: タスク 6（ドキュメント更新）
+- `CLAUDE.md` に「モデル構造ループ（/model-loop）」セクション追加（`/inner-loop` との用途分けを明示）
+- `AUTO_LOOP_PLAN.md` に「フェーズ 6: モデル構造ループ」を追記
+- `trials/README.md` はタスク 3 で既に作成済みなので追加更新は不要の可能性（要確認）
+- その後、設計書 §7-6 の動作確認（T00_baseline + T01 を実際に走らせて results.jsonl に 2 行追記されることを確認）→ §7-9 の残 6 trial 連続実行へ進む
