@@ -1,0 +1,266 @@
+name: Auto Backtest Loop (Monthly)
+
+on:
+  schedule:
+    # 毎月1日 00:00 UTC（JST 09:00）に前月分を自動実行
+    - cron: "0 0 1 * *"
+  workflow_dispatch:
+    inputs:
+      year:
+        description: '対象年（省略時: 前月の年）'
+        required: false
+        default: ''
+      month:
+        description: '対象月（省略時: 前月）'
+        required: false
+        default: ''
+      force_issue:
+        description: 'ゾーン問わず Issue を強制起票（デバッグ用）'
+        required: false
+        default: false
+        type: boolean
+
+jobs:
+  backtest-and-gate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 360
+
+    permissions:
+      contents: write
+      issues: write
+
+    outputs:
+      year: ${{ steps.period.outputs.year }}
+      month: ${{ steps.period.outputs.month }}
+      period: ${{ steps.period.outputs.period }}
+      zone: ${{ steps.gate.outputs.zone }}
+      roi: ${{ steps.gate.outputs.roi }}
+      gate_summary: ${{ steps.gate.outputs.summary }}
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Determine target period
+        id: period
+        run: |
+          if [ -n "${{ inputs.year }}" ] && [ -n "${{ inputs.month }}" ]; then
+            YEAR="${{ inputs.year }}"
+            MONTH="${{ inputs.month }}"
+          else
+            # 前月を計算
+            YEAR=$(date -d "$(date +%Y-%m-01) -1 day" +%Y)
+            MONTH=$(date -d "$(date +%Y-%m-01) -1 day" +%-m)
+          fi
+          PERIOD="${YEAR}-$(printf '%02d' ${MONTH})"
+          echo "year=${YEAR}" >> $GITHUB_OUTPUT
+          echo "month=${MONTH}" >> $GITHUB_OUTPUT
+          echo "period=${PERIOD}" >> $GITHUB_OUTPUT
+          echo "[auto-loop] Target period: ${PERIOD}"
+
+      - name: Install system dependencies
+        run: sudo apt-get install -y lhasa
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: 'pip'
+          cache-dependency-path: ml/requirements.txt
+
+      - name: Install Python dependencies
+        run: pip install -r ml/requirements.txt
+
+      # オッズ parquet キャッシュ復元
+      - name: Restore odds cache
+        uses: actions/cache@v4
+        with:
+          path: data/odds/
+          key: odds-v2-${{ steps.period.outputs.year }}-${{ steps.period.outputs.month }}-trifecta-${{ github.run_id }}
+          restore-keys: |
+            odds-v2-${{ steps.period.outputs.year }}-${{ steps.period.outputs.month }}-trifecta-
+            odds-v2-${{ steps.period.outputs.year }}-${{ steps.period.outputs.month }}-
+
+      # GitHub Releases から最新モデルをダウンロード
+      - name: Download latest model
+        id: download_model
+        run: python ml/src/scripts/download_model.py
+        continue-on-error: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+
+      # モデルが存在しない場合は再学習
+      - name: Run backtest with real odds
+        run: |
+          RETRAIN_FLAG=""
+          if [ "${{ steps.download_model.outcome }}" != "success" ]; then
+            RETRAIN_FLAG="--retrain"
+          fi
+
+          python ml/src/scripts/run_backtest.py \
+            --year ${{ steps.period.outputs.year }} \
+            --month ${{ steps.period.outputs.month }} \
+            --real-odds \
+            --prob-threshold 0.07 \
+            --ev-threshold 2.0 \
+            --exclude-courses 2 4 5 \
+            --min-odds 100 \
+            --exclude-stadiums 11 \
+            $RETRAIN_FLAG \
+            --output artifacts/backtest_${{ steps.period.outputs.year }}$(printf '%02d' ${{ steps.period.outputs.month }}).csv
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+
+      # 評価ゲート実行（kpi_history に追記 + JSON 保存）
+      - name: Run gate check
+        id: gate
+        run: |
+          YYYYMM="${{ steps.period.outputs.year }}$(printf '%02d' ${{ steps.period.outputs.month }})"
+          python ml/src/scripts/run_gate_check.py \
+            --year ${{ steps.period.outputs.year }} \
+            --month ${{ steps.period.outputs.month }} \
+            --csv artifacts/backtest_${YYYYMM}.csv \
+            2>&1 | tee /tmp/gate_output.txt
+
+          # gate_result JSON からゾーンと ROI を取得
+          GATE_JSON="artifacts/gate_result_${YYYYMM}.json"
+          ZONE=$(python -c "import json,sys; d=json.load(open('${GATE_JSON}')); print(d['zone'])")
+          ROI=$(python -c "import json,sys; d=json.load(open('${GATE_JSON}')); print(d['roi_pct'])")
+          BETS=$(python -c "import json,sys; d=json.load(open('${GATE_JSON}')); print(d['total_bets'])")
+          WINS=$(python -c "import json,sys; d=json.load(open('${GATE_JSON}')); print(d['wins'])")
+          AVG_ODDS=$(python -c "import json,sys; d=json.load(open('${GATE_JSON}')); print(d['avg_odds'])")
+
+          echo "zone=${ZONE}" >> $GITHUB_OUTPUT
+          echo "roi=${ROI}" >> $GITHUB_OUTPUT
+          echo "summary=ROI ${ROI}% | ベット ${BETS}点 | 的中 ${WINS}件 | 平均オッズ ${AVG_ODDS}x" >> $GITHUB_OUTPUT
+          echo "[auto-loop] zone=${ZONE} ROI=${ROI}%"
+        continue-on-error: true  # gate 失敗でも後続の commit/Issue ステップを実行
+
+      # kpi_history と gate_result を git commit して push
+      - name: Commit KPI history
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add artifacts/kpi_history.jsonl artifacts/gate_result_*.json || true
+          if git diff --cached --quiet; then
+            echo "[auto-loop] No changes to commit"
+          else
+            git commit -m "chore(auto-loop): KPI history ${{ steps.period.outputs.period }} zone=${{ steps.gate.outputs.zone }}"
+            git push
+          fi
+
+      - name: Upload artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: auto-loop-${{ steps.period.outputs.period }}-run${{ github.run_number }}
+          path: |
+            artifacts/backtest_*.csv
+            artifacts/gate_result_*.json
+            artifacts/kpi_history.jsonl
+            data/odds/odds_*.parquet
+          retention-days: 90
+
+  # 異常ゾーン（warning / danger）または force_issue 時に Issue を起票
+  create-issue:
+    needs: backtest-and-gate
+    runs-on: ubuntu-latest
+    if: |
+      needs.backtest-and-gate.outputs.zone == 'warning' ||
+      needs.backtest-and-gate.outputs.zone == 'danger' ||
+      inputs.force_issue == true
+
+    permissions:
+      issues: write
+      contents: read
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Read KPI history for context
+        id: kpi_context
+        run: |
+          if [ -f artifacts/kpi_history.jsonl ]; then
+            # 直近 6 ヶ月分の ROI を取得
+            HISTORY=$(tail -6 artifacts/kpi_history.jsonl | python -c "
+          import sys, json
+          rows = [json.loads(l) for l in sys.stdin if l.strip()]
+          lines = []
+          for r in rows:
+              lines.append(f\"| {r['period']} | {r['roi_pct']:+.1f}% | {r['zone']} |\")
+          print('\n'.join(lines))
+          ")
+            echo "history<<EOF" >> $GITHUB_OUTPUT
+            echo "${HISTORY}" >> $GITHUB_OUTPUT
+            echo "EOF" >> $GITHUB_OUTPUT
+          else
+            echo "history=（履歴なし）" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Create alert Issue
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const zone = '${{ needs.backtest-and-gate.outputs.zone }}';
+            const roi  = '${{ needs.backtest-and-gate.outputs.roi }}';
+            const period = '${{ needs.backtest-and-gate.outputs.period }}';
+            const summary = '${{ needs.backtest-and-gate.outputs.gate_summary }}';
+            const history = `${{ steps.kpi_context.outputs.history }}`;
+            const runUrl = `https://github.com/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}`;
+
+            const zoneEmoji = zone === 'danger' ? '🔴' : '🟡';
+            const zoneLabel = zone === 'danger' ? 'DANGER（即時停止）' : 'WARNING（一時停止検討）';
+
+            const body = `## ${zoneEmoji} 自動バックテスト異常検知: ${period}
+
+            **ゾーン**: ${zoneLabel}
+            **サマリ**: ${summary}
+
+            ## KPI サマリ
+
+            | 項目 | 値 |
+            |------|-----|
+            | 期間 | ${period} |
+            | ROI | ${roi}% |
+            | ゾーン | ${zone} |
+
+            ## 直近 6 ヶ月 ROI 推移
+
+            | 月 | ROI | ゾーン |
+            |----|-----|--------|
+            ${history}
+
+            ## 想定原因チェックリスト
+
+            - [ ] オッズデータ取得エラー（boatrace.jp の HTML 変更など）
+            - [ ] モデルのドリフト（直近データとの乖離）
+            - [ ] 購入ルールの有効性低下（コース・EV 閾値の見直し）
+            - [ ] 季節性の影響（3 月・6 月は歴史的に低 ROI）
+            - [ ] レース環境の変化（新設場・規則改正等）
+
+            ## 推奨アクション
+
+            ${zone === 'danger' ? `**即時停止**: ROI < 0% のため本番 predict を一時停止してください。
+            1. \`run_calibration.py\` でキャリブレーション確認
+            2. \`run_segment_analysis.py\` でセグメント別 ROI 確認
+            3. 原因特定後 \`run_retrain.py\` で再学習` :
+            `**WARNING ゾーン**: 様子見または一時停止を検討してください。
+            1. \`run_segment_analysis.py\` でセグメント別 ROI 確認
+            2. 2 ヶ月連続 WARNING の場合は \`run_retrain.py\` 再学習`}
+
+            ## Artifacts
+
+            - [GitHub Actions Run](${runUrl})
+
+            ---
+            *このIssueは auto_backtest_loop.yml により自動起票されました。*
+            *詳細は [AUTO_LOOP_PLAN.md](AUTO_LOOP_PLAN.md) および [BET_RULE_REVIEW_202509_202512.md](BET_RULE_REVIEW_202509_202512.md) を参照してください。*`;
+
+            await github.rest.issues.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              title: `[auto-loop] ${period} ROI ${roi}% (${zone} zone)`,
+              body: body,
+              labels: ['auto-loop', 'needs-investigation'],
+            });
