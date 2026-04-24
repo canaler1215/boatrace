@@ -91,39 +91,45 @@ try:
     else:
         model = joblib.load(models[0])
 
+        from collector.history_downloader import extract_lzh, parse_result_file
         from features.feature_builder import build_features_from_history
         from backtest.engine import run_race
 
-        # 1 日分の K ファイルキャッシュを探す（直近 30 日以内）
+        # 1 日分の K ファイルキャッシュを探す（直近 400 日以内、.lzh）
         data_dir = Path(__file__).parents[3] / "data"
-        sample_csv = None
-        for i in range(30):
+        sample_lzh = None
+        for i in range(400):
             d = date.today() - timedelta(days=i + 1)
-            pattern = f"k{str(d.year)[2:]}{d.month:02d}{d.day:02d}.csv"
+            pattern = f"k{str(d.year)[2:]}{d.month:02d}{d.day:02d}.lzh"
             candidates = list(data_dir.rglob(pattern))
             if candidates:
-                sample_csv = candidates[0]
+                sample_lzh = candidates[0]
                 break
 
-        if sample_csv is None:
+        if sample_lzh is None:
             print("[SKIP] キャッシュデータが見つからないため 1 日バックテストをスキップします")
-            print("       run_backtest.py を一度実行してデータをキャッシュしてください")
+            print("       run_retrain.py を一度実行してデータをキャッシュしてください")
         else:
-            df_day = pd.read_csv(sample_csv)
+            import tempfile
+            tmpdir = Path(tempfile.mkdtemp())
+            files = extract_lzh(sample_lzh, tmpdir)
+            records = [r for f in files for r in parse_result_file(f)]
+            df_day = pd.DataFrame(records)
             if df_day.empty:
-                print(f"[SKIP] {sample_csv} が空のためスキップ")
+                print(f"[SKIP] {sample_lzh.name} のパース結果が空のためスキップ")
             else:
-                features = build_features_from_history(df_day)
-                race_ids = features["race_id"].unique()[:3]
+                X, _ = build_features_from_history(df_day)
+                race_ids = df_day.loc[X.index, "race_id"].unique()[:3]
                 for rid in race_ids:
-                    df_race = features[features["race_id"] == rid]
+                    idx = X.index[df_day.loc[X.index, "race_id"] == rid]
+                    df_race = df_day.loc[idx]
                     run_race(
                         race_df=df_race,
                         model=model,
                         prob_threshold=0.07,
                         bet_amount=100,
                         max_bets_per_race=5,
-                        race_odds=None,  # 合成オッズ使用
+                        race_odds=None,
                         ev_threshold=2.0,
                         exclude_courses=[2, 4, 5],
                         min_odds=100,
