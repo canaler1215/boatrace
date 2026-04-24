@@ -1,66 +1,64 @@
-name: Claude Code Auto Fix (Inner Loop)
+name: Inner Loop Analysis (Claude Orchestrator用)
 
-# トリガ1: Issue に @claude メンション（issue_comment）
-# トリガ2: auto-loop ラベルが付いた Issue が開かれた時（issues.opened）
+# Claude がオーケストレーターとしてこのワークフローをキックし、
+# 結果 artifacts を取得して分析・対策・再実行を判断する。
+#
+# 使い方（Claude から gh CLI で実行）:
+#   gh workflow run claude_fix.yml -f year=2025 -f month=12
+#   gh run watch <run-id>
+#   gh run download <run-id> -D /tmp/results
+
 on:
-  issue_comment:
-    types: [created]
-  issues:
-    types: [labeled]
+  workflow_dispatch:
+    inputs:
+      year:
+        description: '対象年'
+        required: true
+        default: '2025'
+      month:
+        description: '対象月 (1-12)'
+        required: true
+        default: '12'
+      prob_threshold:
+        description: '確率閾値（例: 0.07）'
+        required: false
+        default: '0.07'
+      ev_threshold:
+        description: 'EV閾値（例: 2.0）'
+        required: false
+        default: '2.0'
+      exclude_courses:
+        description: '除外コース（スペース区切り、例: "2"）'
+        required: false
+        default: '2'
+      min_odds:
+        description: '最低オッズ（例: 100）'
+        required: false
+        default: '100'
+      exclude_stadiums:
+        description: '除外場ID（スペース区切り、例: "11"）'
+        required: false
+        default: '11'
+      retrain:
+        description: 'モデルを再学習する'
+        required: false
+        default: false
+        type: boolean
+      label:
+        description: 'ラン識別ラベル（baseline / candidate など）'
+        required: false
+        default: 'baseline'
 
 jobs:
-  # ── トリガ判定（@claude メンション or auto-loop ラベルか確認）────────────────
-  check-trigger:
+  analysis:
     runs-on: ubuntu-latest
-    outputs:
-      should_run: ${{ steps.check.outputs.should_run }}
-      issue_number: ${{ steps.check.outputs.issue_number }}
-
-    steps:
-      - name: Check trigger conditions
-        id: check
-        uses: actions/github-script@v7
-        with:
-          script: |
-            let shouldRun = false;
-            let issueNumber = null;
-
-            if (context.eventName === 'issue_comment') {
-              // @claude メンションがあるか確認
-              const body = context.payload.comment.body || '';
-              if (body.includes('@claude')) {
-                shouldRun = true;
-                issueNumber = context.payload.issue.number;
-              }
-            } else if (context.eventName === 'issues') {
-              // auto-loop ラベルが付いた Issue の open
-              const label = context.payload.label?.name;
-              if (label === 'auto-loop') {
-                shouldRun = true;
-                issueNumber = context.payload.issue.number;
-              }
-            }
-
-            core.setOutput('should_run', shouldRun.toString());
-            core.setOutput('issue_number', issueNumber?.toString() ?? '');
-            console.log(`should_run=${shouldRun}, issue_number=${issueNumber}`);
-
-  # ── Claude Code による自律修正 ──────────────────────────────────────────
-  claude-fix:
-    needs: check-trigger
-    if: needs.check-trigger.outputs.should_run == 'true'
-    runs-on: ubuntu-latest
-    timeout-minutes: 60
+    timeout-minutes: 480
 
     permissions:
-      contents: write
-      issues: write
-      pull-requests: write
+      contents: read
 
     steps:
       - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
 
       - name: Install system dependencies
         run: sudo apt-get install -y lhasa
@@ -74,54 +72,112 @@ jobs:
       - name: Install Python dependencies
         run: pip install -r ml/requirements.txt
 
-      # 最新モデルをダウンロード
+      - name: Restore odds cache
+        uses: actions/cache@v4
+        with:
+          path: data/odds/
+          key: odds-v2-${{ inputs.year }}-${{ inputs.month }}-trifecta-${{ github.run_id }}
+          restore-keys: |
+            odds-v2-${{ inputs.year }}-${{ inputs.month }}-trifecta-
+            odds-v2-${{ inputs.year }}-${{ inputs.month }}-
+
       - name: Download latest model
+        id: download_model
         run: python ml/src/scripts/download_model.py
         continue-on-error: true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GITHUB_REPOSITORY: ${{ github.repository }}
 
-      # オッズキャッシュ復元
-      - name: Restore odds cache
-        uses: actions/cache@v4
-        with:
-          path: data/odds/
-          key: odds-v2-latest-trifecta-${{ github.run_id }}
-          restore-keys: |
-            odds-v2-
+      # ── 1. バックテスト ────────────────────────────────────────────────
+      - name: Run backtest
+        run: |
+          RETRAIN_FLAG=""
+          if [ "${{ inputs.retrain }}" == "true" ] || [ "${{ steps.download_model.outcome }}" != "success" ]; then
+            RETRAIN_FLAG="--retrain"
+          fi
 
-      # ── Claude Code Action ─────────────────────────────────────────
-      - name: Run Claude Code agent
-        uses: anthropics/claude-code-action@beta
-        with:
-          anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
+          EXCLUDE_COURSES_FLAG=""
+          if [ -n "${{ inputs.exclude_courses }}" ]; then
+            EXCLUDE_COURSES_FLAG="--exclude-courses ${{ inputs.exclude_courses }}"
+          fi
 
-          # Issue の内容と AGENT_BRIEF.md を合わせてプロンプト生成
-          prompt: |
-            あなたは競艇バックテストシステムの自律改善エージェントです。
-            以下の Issue を分析し、`.claude/AGENT_BRIEF.md` の手順に従って修正を行ってください。
+          EXCLUDE_STADIUMS_FLAG=""
+          if [ -n "${{ inputs.exclude_stadiums }}" ]; then
+            EXCLUDE_STADIUMS_FLAG="--exclude-stadiums ${{ inputs.exclude_stadiums }}"
+          fi
 
-            ## Issue 情報
-            - Issue番号: #${{ needs.check-trigger.outputs.issue_number }}
-            - リポジトリ: ${{ github.repository }}
+          YYYYMM="${{ inputs.year }}$(printf '%02d' ${{ inputs.month }})"
 
-            ## タスク
-            1. `cat .claude/AGENT_BRIEF.md` を読んで手順を確認する
-            2. AGENT_BRIEF.md の「分析ステップ」に従い診断コマンドを実行する
-            3. 問題が特定できた場合: `ml/configs/strategy_default.yaml` を修正して PR を作成する
-               - ブランチ名: `auto-loop/fix-$(date +%Y%m)-<brief-desc>`
-               - ラベル: `auto-loop-candidate`
-            4. 問題が特定できない場合 / 撤退条件に該当する場合:
-               Issue にコメントして終了する
-
-            ## 重要な制約
-            - `ml/configs/` 以外のファイルは変更しないこと
-            - PR のベースブランチは `main`
-            - 最大3回のイテレーション（過去コメントを確認して回数を守ること）
-
-          # 許可するツール（ファイル読み書き・診断コマンド・Git・PR作成）
-          allowed_tools: "Bash,Read,Write,Edit,Glob,Grep"
+          python ml/src/scripts/run_backtest.py \
+            --year ${{ inputs.year }} \
+            --month ${{ inputs.month }} \
+            --real-odds \
+            --prob-threshold ${{ inputs.prob_threshold }} \
+            --ev-threshold ${{ inputs.ev_threshold }} \
+            --exclude-courses ${{ inputs.exclude_courses }} \
+            --min-odds ${{ inputs.min_odds }} \
+            $EXCLUDE_STADIUMS_FLAG \
+            $RETRAIN_FLAG \
+            --output artifacts/backtest_${YYYYMM}_${{ inputs.label }}.csv
         env:
           DATABASE_URL: ${{ secrets.BACKTEST_DATABASE_URL }}
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      # ── 2. 評価ゲート ──────────────────────────────────────────────────
+      - name: Run gate check
+        id: gate
+        run: |
+          YYYYMM="${{ inputs.year }}$(printf '%02d' ${{ inputs.month }})"
+          python ml/src/scripts/run_gate_check.py \
+            --year ${{ inputs.year }} \
+            --month ${{ inputs.month }} \
+            --csv artifacts/backtest_${YYYYMM}_${{ inputs.label }}.csv \
+            --no-append \
+            2>&1 | tee artifacts/gate_result_${YYYYMM}_${{ inputs.label }}.txt
+
+          GATE_JSON="artifacts/gate_result_${YYYYMM}.json"
+          if [ -f "$GATE_JSON" ]; then
+            ZONE=$(python -c "import json; d=json.load(open('${GATE_JSON}')); print(d['zone'])")
+            ROI=$(python -c "import json; d=json.load(open('${GATE_JSON}')); print(d['roi_pct'])")
+            echo "zone=${ZONE}" >> $GITHUB_OUTPUT
+            echo "roi=${ROI}" >> $GITHUB_OUTPUT
+          fi
+        continue-on-error: true
+
+      # ── 3. セグメント分析（コース/場/確率帯/EV帯 別 ROI）──────────────
+      - name: Run segment analysis
+        run: |
+          YYYYMM="${{ inputs.year }}$(printf '%02d' ${{ inputs.month }})"
+          COMBO_FILE="artifacts/combos_${YYYYMM}.csv"
+
+          if [ -f "$COMBO_FILE" ]; then
+            python ml/src/scripts/run_segment_analysis.py \
+              --combos-csv "$COMBO_FILE" \
+              --prob-threshold ${{ inputs.prob_threshold }} \
+              --ev-threshold ${{ inputs.ev_threshold }} \
+              2>&1 | tee artifacts/segment_${YYYYMM}_${{ inputs.label }}.txt
+          else
+            python ml/src/scripts/run_segment_analysis.py \
+              --year ${{ inputs.year }} \
+              --month ${{ inputs.month }} \
+              --prob-threshold ${{ inputs.prob_threshold }} \
+              --ev-threshold ${{ inputs.ev_threshold }} \
+              --real-odds \
+              2>&1 | tee artifacts/segment_${YYYYMM}_${{ inputs.label }}.txt
+          fi
+        continue-on-error: true
+
+      # ── 4. すべての結果を artifacts にアップロード（Claude がダウンロード）
+      - name: Upload all results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: inner-loop-${{ inputs.year }}-${{ inputs.month }}-${{ inputs.label }}-run${{ github.run_number }}
+          path: |
+            artifacts/backtest_*.csv
+            artifacts/gate_result_*.json
+            artifacts/gate_result_*.txt
+            artifacts/segment_*.txt
+            artifacts/segment_*.csv
+            artifacts/combos_*.csv
+          retention-days: 30
