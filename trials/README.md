@@ -44,6 +44,25 @@ python ml/src/scripts/run_model_loop.py --trial T01_window_2024
 - `walkforward.real_odds` (bool, 既定: true)
 - `strategy.max_bets`, `min_odds`, `exclude_courses`, `exclude_stadiums`, `bet_type`
 
+## 生成される artifacts
+
+1 trial の実行で以下が `artifacts/` に保存される:
+
+- `walkforward_<trial_id>.csv` — Walk-Forward の raw 結果
+- `walkforward_<trial_id>_summary.json` — KPI + primary_score + verdict + monthly_roi
+- `model_loop_<trial_id>_<YYYYMM>.pkl` — retrain したモデルの trial 固有コピー
+  （本番設定では 1 trial あたり 4 ファイル、8 trial で約 1.6GB）
+- `model_loop_<trial_id>_error.log` — エラー時の traceback（成功時は作られない）
+
+### trial 固有モデルの用途
+
+共有ファイル `model_<train_end>_from<train_start>_wf.pkl` は同じ `train_start` を使う
+別 trial の retrain で上書きされるため、trial 完了後は最後に実行した trial の内容に
+なってしまう。`model_loop_<trial_id>_<YYYYMM>.pkl` は上書きされない永続コピー。
+
+`/trial-design` 等で過去 trial のモデルを再参照したい場合はこちらを使う。
+検証完了後は不要な trial のファイルを削除して良い（例: `rm artifacts/model_loop_T04_*.pkl`）。
+
 ## results.jsonl の見方
 
 - `status`: "success" | "error"

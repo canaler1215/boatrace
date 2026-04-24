@@ -406,3 +406,94 @@ def test_execute_trial_invalid_yaml(tmp_path, monkeypatch):
     assert record["status"] == "error"
     assert record["error_type"] == "ValueError"
     assert yaml_path.exists()
+
+
+# ---------------------------------------------------------------------------
+# F. _copy_trial_model（trial 固有モデルの永続コピー）
+# ---------------------------------------------------------------------------
+
+def test_copy_trial_model_success(tmp_path, monkeypatch):
+    """retrain 直後の model_path が trial_id 付きでコピーされる。"""
+    monkeypatch.setattr(rml, "ARTIFACTS_DIR", tmp_path)
+
+    src = tmp_path / "model_202504_from202301_wf.pkl"
+    src.write_bytes(b"dummy-pickle-bytes")
+
+    dst = rml._copy_trial_model(
+        {"model_path": src, "metrics": {}},
+        trial_id="T00_baseline",
+        test_year=2025,
+        test_month=5,
+    )
+
+    assert dst is not None
+    assert dst == tmp_path / "model_loop_T00_baseline_202505.pkl"
+    assert dst.exists()
+    assert dst.read_bytes() == b"dummy-pickle-bytes"
+    # 元ファイルは残っている（shutil.copy2 なので移動ではない）
+    assert src.exists()
+
+
+def test_copy_trial_model_overwrites_previous_trial(tmp_path, monkeypatch):
+    """
+    同じ train_start を使う別 trial 実行時、共有 src を別 trial の学習結果に
+    上書きされても、前 trial の trial_id 付きコピーは残り続けることを確認。
+    """
+    monkeypatch.setattr(rml, "ARTIFACTS_DIR", tmp_path)
+    src = tmp_path / "model_202504_from202301_wf.pkl"
+
+    # T00 の retrain 結果
+    src.write_bytes(b"T00-content")
+    rml._copy_trial_model(
+        {"model_path": src}, "T00_baseline", 2025, 5,
+    )
+    # T04（同じ train_start=2023/1、別ハイパラ）の retrain で src が上書きされる想定
+    src.write_bytes(b"T04-content")
+    rml._copy_trial_model(
+        {"model_path": src}, "T04_lgbm_regularized", 2025, 5,
+    )
+
+    t00 = tmp_path / "model_loop_T00_baseline_202505.pkl"
+    t04 = tmp_path / "model_loop_T04_lgbm_regularized_202505.pkl"
+    assert t00.read_bytes() == b"T00-content"
+    assert t04.read_bytes() == b"T04-content"
+
+
+def test_copy_trial_model_missing_path_returns_none(tmp_path, monkeypatch, caplog):
+    """model_path が存在しないファイルなら警告ログ + None を返し、例外を出さない。"""
+    monkeypatch.setattr(rml, "ARTIFACTS_DIR", tmp_path)
+    missing = tmp_path / "does_not_exist.pkl"
+
+    with caplog.at_level("WARNING"):
+        result = rml._copy_trial_model(
+            {"model_path": missing}, "T00_baseline", 2025, 5,
+        )
+
+    assert result is None
+    assert any("trial コピーをスキップ" in r.message for r in caplog.records)
+
+
+def test_copy_trial_model_non_dict_returns_none(tmp_path, monkeypatch):
+    """train_result が dict でない（後方互換の Path 返却など）の場合は None。"""
+    monkeypatch.setattr(rml, "ARTIFACTS_DIR", tmp_path)
+    assert rml._copy_trial_model(None, "T00", 2025, 5) is None
+    assert rml._copy_trial_model(Path("x"), "T00", 2025, 5) is None
+
+
+def test_copy_trial_model_dict_without_model_path_returns_none(tmp_path, monkeypatch):
+    """dict だが model_path キーがない場合も None（例外は出さない）。"""
+    monkeypatch.setattr(rml, "ARTIFACTS_DIR", tmp_path)
+    assert rml._copy_trial_model({"metrics": {}}, "T00", 2025, 5) is None
+
+
+def test_copy_trial_model_filename_format(tmp_path, monkeypatch):
+    """命名規則: model_loop_<trial_id>_<YYYY><MM>.pkl（MM は 0 埋め 2 桁）。"""
+    monkeypatch.setattr(rml, "ARTIFACTS_DIR", tmp_path)
+    src = tmp_path / "model_x.pkl"
+    src.write_bytes(b"x")
+
+    dst = rml._copy_trial_model({"model_path": src}, "T01", 2026, 1)
+    assert dst.name == "model_loop_T01_202601.pkl"
+
+    dst2 = rml._copy_trial_model({"model_path": src}, "T07_window_2024_plus_weight", 2025, 12)
+    assert dst2.name == "model_loop_T07_window_2024_plus_weight_202512.pkl"

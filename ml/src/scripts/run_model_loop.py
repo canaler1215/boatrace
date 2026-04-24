@@ -182,6 +182,59 @@ def classify_verdict(kpi: dict) -> str:
 
 
 # ---------------------------------------------------------------------------
+# trial モデル永続化
+# ---------------------------------------------------------------------------
+
+def _copy_trial_model(
+    train_result: dict,
+    trial_id: str,
+    test_year: int,
+    test_month: int,
+) -> Path | None:
+    """
+    retrain 直後の model_path を trial_id を含む名前で artifacts/ にコピーする。
+
+    共有ファイル（model_<train_end>_from<train_start>_wf.pkl）は同じ train_start を
+    使う別 trial の retrain で上書きされるため、trial_id 付きコピーを残しておく。
+    これにより後から /trial-design 等で個別 trial のモデルを再参照できる。
+
+    命名: artifacts/model_loop_<trial_id>_<test_year><test_month>.pkl
+    （test_year/month はそのモデルを使うテスト月を示す。学習末尾月はその前月）
+
+    Parameters
+    ----------
+    train_result : dict
+        trainer.train(return_metrics=True) または
+        get_model_for_month(return_metrics=True) が返す dict。"model_path" キー必須。
+    trial_id : str
+    test_year, test_month : int
+        この retrain で作ったモデルを適用するテスト月。
+
+    Returns
+    -------
+    Path | None
+        コピー先のパス。model_path が取れない場合は None。
+    """
+    if not isinstance(train_result, dict):
+        return None
+    src = train_result.get("model_path")
+    if src is None:
+        return None
+    src_path = Path(src)
+    if not src_path.exists():
+        logger.warning(
+            "[%s] model_path %s が見つからず、trial コピーをスキップ",
+            trial_id, src_path,
+        )
+        return None
+    dst = ARTIFACTS_DIR / f"model_loop_{trial_id}_{test_year}{test_month:02d}.pkl"
+    dst.parent.mkdir(parents=True, exist_ok=True)
+    shutil.copy2(src_path, dst)
+    logger.info("[%s] trial モデルを保存: %s", trial_id, dst.name)
+    return dst
+
+
+# ---------------------------------------------------------------------------
 # Walk-Forward 実行
 # ---------------------------------------------------------------------------
 
@@ -259,6 +312,10 @@ def run_trial_walkforward(trial: dict, trial_id: str) -> TrialRunResult:
             )
             if isinstance(train_result, dict) and "metrics" in train_result:
                 last_metrics = train_result
+            # trial 固有の永続コピーを保存（MODEL_LOOP_PLAN §3-1 準拠）
+            # 共有ファイル model_<train_end>_from<train_start>_wf.pkl は後続 trial に
+            # 上書きされるため、trial_id を含む名前で別コピーを残す。
+            _copy_trial_model(train_result, trial_id, test_year, test_month)
         else:
             model = run_walkforward.get_model_for_month(
                 test_year, test_month,

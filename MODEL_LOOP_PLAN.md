@@ -4,7 +4,7 @@
 セッション開始時にこのファイルをまず読み、記載通りに実装を進めること。
 
 最終更新: 2026-04-24
-ステータス: **タスク1〜6 完了、§7-6 smoke 動作確認合格、本番 8 trial 実行（§7-9）は実オッズ DL 完了待ち**
+ステータス: **タスク1〜6 完了、案 X（trial 固有モデル永続コピー）実装済み、§7-6 smoke 動作確認合格、本番 8 trial 実行（§7-9）は実オッズ DL 完了待ち**
 
 ---
 
@@ -469,6 +469,7 @@ argument-hint: `[trial_id | all]`
 - 2026-04-24: **タスク 4 完了**（初期 trial seeds 8 本を配置、YAML 妥当性テスト追加）
 - 2026-04-24: **タスク 5 完了**（`.claude/commands/model-loop.md` 新規作成、スラッシュコマンド登録確認）
 - 2026-04-24: **タスク 6 完了**（CLAUDE.md に「モデル構造自律改善ループ（/model-loop）」章を追加、AUTO_LOOP_PLAN.md にフェーズ 6 を追記、trials/README.md はタスク 3 作成分のまま据え置き）
+- 2026-04-24: **案 X 実装**（trial 固有モデルの永続コピー）。`run_model_loop.py` に `_copy_trial_model` を追加し、retrain 直後に `artifacts/model_loop_<trial_id>_<YYYYMM>.pkl` として `shutil.copy2`。同じ `train_start` を共有する trial 間で共有ファイルが上書きされる問題を回避（設計書 §3-1 準拠）。テスト 6 ケース追加、全 86 件パス。
 
 ---
 
@@ -918,3 +919,71 @@ py -3.12 -m pytest ml/tests/test_trainer_config.py ml/tests/test_walkforward_con
 2. DL 完了後 `/model-loop` で本番 8 trial 連続実行 → §7-9
 3. **results.jsonl を読んで `/trial-design` スキルを設計**（本追記で確定した方針）
 4. `/trial-design` → `/model-loop` のサイクルで §7-10 を回す
+
+### 2026-04-24 — 案 X 実装（trial 固有モデルの永続コピー）
+
+**背景**:
+
+`run_walkforward.get_model_for_month` が生成するモデルファイルの命名は
+`model_<train_end>_from<train_start>_wf.pkl` で、**trial_id / lgb_params / sample_weight を含まない**。
+同じ `train_start` を使う trial（T00_baseline / T03_sample_weight_recency / T04_lgbm_regularized /
+T05_lgbm_conservative_lr / T06_early_stop_tight の 5 本が `2023/1` 共有、T01 / T07 が `2024/1` 共有）が
+同名ファイルを上書きし合う。
+
+- **同一 trial 内**: `cached_model` 変数で持ち回るため結果の正確性には影響なし
+- **trial 間**: 次の trial の retrain で上書きされるため、**完了後に trial 個別のモデルを再参照できない**
+- §3-1 「`artifacts/model_loop_<trial_id>.pkl` 学習済みモデル」は設計書に明記されていたが未実装だった
+
+**変更内容**:
+
+1. [ml/src/scripts/run_model_loop.py](ml/src/scripts/run_model_loop.py)
+   - `_copy_trial_model(train_result, trial_id, test_year, test_month)` 関数を新設
+   - `run_trial_walkforward` 内の retrain 直後（`should_retrain` 分岐の末尾）で呼び出し、
+     `train_result["model_path"]` を `artifacts/model_loop_<trial_id>_<YYYY><MM>.pkl` として `shutil.copy2`
+   - 非 retrain 月（`cached_model` 使用）では呼ばれない
+   - 異常系（`train_result` が dict でない / `model_path` キー欠落 / 実ファイル不在）は警告ログのみで
+     例外を送出しない（既存のバックテストフローを壊さない）
+
+2. 命名規則: `model_loop_<trial_id>_<test_year><test_month:02>.pkl`
+   - `test_year`/`test_month` は「このモデルを適用するテスト月」（学習末尾はその前月末）
+   - 1 trial あたり retrain 回数分（本番設定 = 4 回）のコピーが作られる
+   - ディスク: 50MB × 4 × 8 trial = 約 **1.6GB 追加**（§6-2 の削除方針でフォロー可能）
+
+3. [ml/tests/test_model_loop.py](ml/tests/test_model_loop.py) にグループ F を追加（6 ケース）:
+   - 正常コピー（コピー先ファイル名・中身・元ファイルが残ること）
+   - 複数 trial が共有 src を上書きしても各 trial_id 付きコピーが独立に残ること
+   - `model_path` が実ファイルでない場合の警告ログ + None 返却
+   - `train_result` が dict でない場合の None 返却
+   - `model_path` キー欠落時の None 返却
+   - 命名規則（2 桁 0 埋め、長い trial_id）
+
+**テスト結果**:
+
+```
+py -3.12 -m pytest ml/tests/test_trainer_config.py ml/tests/test_walkforward_config.py \
+    ml/tests/test_model_loop.py ml/tests/test_trial_seeds.py -v
+=> 86 passed in 5.84s（既存 80 + 新規 6）
+```
+
+`py -3.12 ml/src/scripts/run_model_loop.py --help` も正常解釈。
+
+**既存呼び出し側への影響**: なし
+- `run_walkforward.get_model_for_month` / `trainer.train` は未変更
+- 非 retrain 月は `cached_model` 経由で従来通り
+- 案 Y（version 命名に trial_id を含める）を採らなかったので、`run_walkforward.py` の
+  `retrain=False` 時の glob フォールバック（`ARTIFACTS_DIR.glob("model_*.pkl")`）も影響なし
+
+**ディスク運用の注意**（設計書 §6-2 準拠）:
+
+本番 8 trial × 4 retrain × 50MB = **約 1.6GB** の追加容量を消費する。
+検証完了後、不要な trial の `artifacts/model_loop_*.pkl` は安全に削除可能。
+例: `rm artifacts/model_loop_T*_smoke*.pkl`（smoke 由来）、
+`rm artifacts/model_loop_T0{4,5,6}_*.pkl`（primary_score 下位 trial）等。
+
+**案 Y を採らなかった理由**（対話ログより）:
+- 案 Y（version に trial_id を含める）は 32 中間ファイルが実行中に分散生成され、
+  `run_walkforward.py` の `retrain=False` 時の glob フォールバックと衝突するリスクがあった
+- 案 X は `run_model_loop.py` 1 ファイルに変更が閉じ、既存機能への影響ゼロ
+- ディスク消費量は両案同等
+
+**次のアクション**: 変更なし（本番 8 trial 実行待ち）
