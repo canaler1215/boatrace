@@ -754,3 +754,61 @@ py -3.12 -m pytest ml/tests/test_trainer_config.py ml/tests/test_walkforward_con
 - `AUTO_LOOP_PLAN.md` に「フェーズ 6: モデル構造ループ」を追記
 - `trials/README.md` はタスク 3 で既に作成済みなので追加更新は不要の可能性（要確認）
 - その後、設計書 §7-6 の動作確認（T00_baseline + T01 を実際に走らせて results.jsonl に 2 行追記されることを確認）→ §7-9 の残 6 trial 連続実行へ進む
+
+### 2026-04-24 — §7-6 動作確認 合格（smoke trial 経路）
+
+**経緯**:
+
+本番 T00_baseline / T01_window_2024 を走らせるには WF 期間 2025-05〜2026-04 の実オッズが必要だが、
+`data/odds/` の実測で `odds_202505.partial.parquet` / `odds_202512.partial.parquet` の 2 件のみ
+（いずれも未完了キャッシュ）であることが判明。本来の期間全 12 ヶ月に対して **10 ヶ月分の実オッズが未取得**。
+
+本番データ揃え（`download_odds.py` × 10〜12 ヶ月、1 ヶ月 ≈ 90 分、合計 15〜18 時間）を待たずに
+パイプラインの動作確認だけ先行するため、以下 2 本の **smoke 用 trial** を一時的に作成して実行:
+
+| trial_id | WF 期間 | real_odds | 学習設定 | 追加検証 |
+|---|---|---|---|---|
+| T00_smoke | 2025-12（単月） | **false（合成オッズ）** | train_start=2023/1, LGB_PARAMS デフォルト | 基本経路 |
+| T01_smoke | 2025-12（単月） | **false（合成オッズ）** | train_start=2024/1, sample_weight.mode=recency(12mo, ×3), lgb_params override | sample_weight 生成 / lgb_params 上書き伝搬 |
+
+**実行結果**（`py -3.12 ml/src/scripts/run_model_loop.py --trial T00_smoke` → `T01_smoke`、所要 10〜15 分）:
+
+| 判定項目 | 期待 | 実測 | 結果 |
+|---|---|---|---|
+| ① `trials/results.jsonl` に 2 行追記 | 2 | 2 | ✅ |
+| ② 各行 status=success、KPI（roi_total / worst_month_roi / ece_rank1_calibrated 等）が数値 | 数値 | T00: roi=119.05, ece=0.001589 / T01: roi=12.22, ece=0.001928 | ✅ |
+| ③ YAML が `trials/completed/` へ移動 | 2 ファイル | 2 ファイル | ✅ |
+| ④ artifacts（WF CSV + summary.json）生成 | 4 ファイル | 4 ファイル（CSV 350KB 前後） | ✅ |
+| ⑤ `artifacts/model_loop_*_error.log` が空 | 空 | 空 | ✅ |
+
+**副次検証**:
+- `sample_weight.mode=recency`（T01_smoke）→ `build_sample_weight` が `np.ndarray` を生成し `train()` に渡り完走
+- `lgb_params` 上書き（T01_smoke: `learning_rate=0.05, num_leaves=63`）→ `_merge_lgb_params` 経由で LightGBM に反映・完走
+- 単月 WF（start=end=2025-12）でも `run_trial_walkforward` 内の月ループが正しく終了
+- 合成オッズ経路（`real_odds=false`）でも `run_backtest_batch` が問題なく KPI を算出
+
+**smoke 由来の verdict について（運用メモ）**:
+
+T00_smoke / T01_smoke ともに `verdict=pass` が出たが、これは**単月 WF の構造的副作用**:
+- `plus_month_ratio` が 0% or 100% の二択になる
+- `worst_month_roi == roi_total` のため `primary_score` ペナルティ 0
+- 合成オッズの payout は艇番ベース全国平均で過大気味、ROI も過大推定
+
+したがって**この pass 判定は本番戦略評価の根拠にしない**。本番判定は §7-9 で本番 trial（WF 12 ヶ月・real_odds=true）を回した際の `results.jsonl` に基づく。
+
+**後始末**:
+
+smoke 実行の副産物は本番データと混在させないため以下を削除:
+- `trials/results.jsonl`（本番実行時に新規作成される）
+- `trials/completed/T00_smoke.yaml`, `T01_smoke.yaml`
+- `artifacts/walkforward_T00_smoke.csv|_summary.json`, `T01_smoke.csv|_summary.json`
+- `artifacts/model_202511_from202301_wf.pkl`（T00_smoke 副産物、本番時に再作成される）
+- `artifacts/model_202511_from202401_wf.pkl`（T01_smoke 副産物、本番時に再作成される）
+
+pending 側の本番 trial 8 本（T00_baseline, T01_window_2024, ...）は一切触っていない。
+
+**次のアクション**:
+
+1. **並行進行中**: `download_odds.py` を 2025-05〜2026-04 の 12 ヶ月で直列実行（ユーザーのローカル、別 PowerShell ウィンドウ）。所要 15〜18 時間
+2. A 完了後（翌日以降）: `py -3.12 ml/src/scripts/run_model_loop.py` で本番 8 trial を連続実行 → §7-9
+3. 先行可能なら タスク 6（CLAUDE.md / AUTO_LOOP_PLAN.md 追記）を並行で進められる
