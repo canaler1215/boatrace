@@ -4,7 +4,7 @@
 セッション開始時にこのファイルをまず読み、記載通りに実装を進めること。
 
 最終更新: 2026-04-24
-ステータス: **タスク1〜6 完了、案 X（trial 固有モデル永続コピー）実装済み、§7-6 smoke 動作確認合格、本番 8 trial 実行（§7-9）は実オッズ DL 完了待ち**
+ステータス: **タスク1〜6 完了、案 X（trial 固有モデル永続コピー）実装済み、§7-6 smoke 動作確認合格、本番 10 trial 実行（§7-9、2026-04-24 改訂で 8→10）は実オッズ DL 完了待ち**
 
 ---
 
@@ -359,17 +359,27 @@ python ml/src/scripts/run_model_loop.py --trial T01_window_2024
 
 ### タスク 4: 初期 trial seeds を作成
 
-`trials/pending/` に以下 7 本の YAML を作成:
+> **2026-04-24 改訂**: 相互レビュー指摘を受けて以下を変更。
+> - T06 を `early_stop_tight`（T04 と同方向のキャパシティ減）から
+>   `feature_subsample`（feature_fraction=0.5 / bagging_fraction=0.6、木間ランダム性↑）に差し替え
+> - Nice 1 として T08_baseline_seed1 / T09_baseline_seed2 を追加
+>   （T00 と同一設定で `lgb_params.seed` のみ変える trial 内ばらつき測定用）
+> - 結果として pending は 10 本（T00〜T09）
+
+`trials/pending/` に以下の YAML を作成:
 
 | trial_id | 変更点 |
 |---|---|
+| T00_baseline | trainer.py 既定のまま（比較基準） |
 | T01_window_2024 | train_start_year=2024 |
 | T02_window_2025 | train_start_year=2025 |
 | T03_sample_weight_recency | train_start=2023, sample_weight mode=recency, recency_months=12, recency_weight=3.0 |
-| T04_lgbm_regularized | num_leaves=31, min_child_samples=200 |
+| T04_lgbm_regularized | num_leaves=31, min_child_samples=200（木の複雑度↓） |
 | T05_lgbm_conservative_lr | learning_rate=0.02, num_boost_round=2000 |
-| T06_early_stop_tight | early_stopping_rounds=30 |
+| T06_feature_subsample | feature_fraction=0.5, bagging_fraction=0.6（木間ランダム性↑、2026-04-24 差し替え）|
 | T07_window_2024_plus_weight | train_start_year=2024 + sample_weight recency_months=6 recency_weight=2.0 |
+| T08_baseline_seed1 | T00 と同一 + `lgb_params.seed=1`（2026-04-24 追加）|
+| T09_baseline_seed2 | T00 と同一 + `lgb_params.seed=2`（2026-04-24 追加）|
 
 `strategy` セクションは全 trial で統一（案 A ベース、下記）:
 
@@ -765,12 +775,12 @@ py -3.12 -m pytest ml/tests/test_trainer_config.py ml/tests/test_walkforward_con
 2. **データキャッシュ**: `data/history/` / `data/program/` / `data/odds/` に 2023-01〜2026-04 の K/B/オッズファイルがあること
    （設計書 §2-1 「本計画書の期間については既にダウンロード済み」の前提）
 3. **DB 接続不要**: `run_backtest.py` / `run_walkforward.py` はファイルキャッシュだけで完結するため `BACKTEST_DATABASE_URL` は不要
-4. **ディスク容量**: モデル 1 本 ~50MB × 8 trial = 400MB、CSV 数 MB × 8 = 数十 MB
-5. **実行時間見積もり**: 1 trial あたり 15〜25 分、8 本で 2〜3 時間（夜間回し想定）
+4. **ディスク容量**: モデル 1 本 ~50MB × 10 trial = 500MB、CSV 数 MB × 10 = 数十 MB（2026-04-24 改訂で 8→10）
+5. **実行時間見積もり**: 1 trial あたり 15〜25 分、10 本で 2.5〜4 時間（夜間回し想定）
 
 単発実行例（タスク 5 完了前でも動く）:
 ```bash
-# 全 8 本を連続実行
+# 全 10 本を連続実行
 py -3.12 ml/src/scripts/run_model_loop.py
 
 # T00_baseline のみ先行実行

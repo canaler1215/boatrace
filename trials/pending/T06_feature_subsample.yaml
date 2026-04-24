@@ -1,0 +1,42 @@
+trial_id: T06_feature_subsample
+description: "LGB の feature_fraction / bagging_fraction を下げ、木ごとのランダム性を上げる"
+hypothesis: |
+  旧 T06（early_stopping_rounds=30）は T04（num_leaves=31 + min_child_samples=200）と
+  「キャパシティを下げる」方向で同方向の変種であり、独立軸として弱いとの相互レビュー
+  指摘（2026-04-24）を受けて差し替え。
+
+  新 T06 は feature_fraction 0.8→0.5 / bagging_fraction 0.8→0.6 に下げ、各木が
+  特定特徴量や特定サンプルに強く依存しないようにして汎化を図る。T04 の「木の複雑度を
+  下げる」方向とは独立の「木間の多様性を増やす」方向。
+
+  限界: レビュー指摘の根本課題（1着識別能力のランダム性）は特徴量情報量の問題に
+  起因する可能性が高く、本 trial のような LGB 内部のランダム性調整では根本解決に
+  至らない可能性が大きい。本 trial は「正則化系の独立軸として T04 とどちらが効くか」
+  を測る補助実験と位置づける。特徴量拡張 / 目的関数変更は別 epic で取り組む。
+
+training:
+  train_start_year: 2023
+  train_start_month: 1
+  sample_weight:
+    mode: null
+
+lgb_params:
+  feature_fraction: 0.5
+  bagging_fraction: 0.6
+  # bagging_freq は LGB_PARAMS 既定の 5 を維持
+
+walkforward:
+  start: "2025-05"
+  end: "2026-04"
+  retrain_interval: 3
+  real_odds: true
+
+strategy:
+  prob_threshold: 0.07
+  ev_threshold: 2.0
+  min_odds: 100.0
+  exclude_courses: []
+  exclude_stadiums: [2, 3, 4, 9, 11, 14, 16, 17, 21, 23]
+  bet_amount: 100
+  max_bets: 5
+  bet_type: trifecta

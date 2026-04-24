@@ -1,0 +1,33 @@
+trial_id: T09_baseline_seed2
+description: "T00_baseline と同一設定で LightGBM seed=2 の反復 trial（trial 内ばらつき測定）"
+hypothesis: |
+  2026-04-24 相互レビューの Nice 1 対応。T08（seed=1）とペアで、baseline 設定における
+  trial 内ばらつきの 3 点観測点を取る。T00（seed 未指定）と T08（seed=1）と合わせて
+  primary_score / worst_month_roi / roi_ci_low_90 の標準偏差を算出する。
+
+  詳細は T08_baseline_seed1.yaml を参照。
+
+training:
+  train_start_year: 2023
+  train_start_month: 1
+  sample_weight:
+    mode: null
+
+lgb_params:
+  seed: 2
+
+walkforward:
+  start: "2025-05"
+  end: "2026-04"
+  retrain_interval: 3
+  real_odds: true
+
+strategy:
+  prob_threshold: 0.07
+  ev_threshold: 2.0
+  min_odds: 100.0
+  exclude_courses: []
+  exclude_stadiums: [2, 3, 4, 9, 11, 14, 16, 17, 21, 23]
+  bet_amount: 100
+  max_bets: 5
+  bet_type: trifecta

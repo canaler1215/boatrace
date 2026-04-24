@@ -1,0 +1,40 @@
+trial_id: T08_baseline_seed1
+description: "T00_baseline と同一設定で LightGBM seed=1 の反復 trial（trial 内ばらつき測定）"
+hypothesis: |
+  2026-04-24 相互レビューの Nice 1 対応。T00_baseline は seed 未指定（LightGBM 既定）
+  で回すため、本 trial（seed=1）および T09（seed=2）と並べて 3 点で primary_score /
+  worst_month_roi / roi_ci_low_90 の trial 内ばらつき（標準偏差相当）を実測する。
+
+  目的: 本番 8 trial の評価ノイズの下限を把握する。もし baseline 3 本の
+  primary_score 標準偏差が ±20 を超えるなら、他 trial 同士の微差は偶然の範疇と
+  判断する基準線になる。seed だけを変えた 3 本の差が大きい場合、評価手法そのものを
+  見直す必要があるとの判断材料にもなる。
+
+  注意: T08 / T09 は baseline と完全に同一の設定（train_start / lgb_params 他）で
+  LGB の seed だけ変える。LightGBM で seed を 1 つだけ指定すると feature_fraction_seed
+  / bagging_seed / data_random_seed の既定値が連動する（LightGBM 仕様）。
+
+training:
+  train_start_year: 2023
+  train_start_month: 1
+  sample_weight:
+    mode: null
+
+lgb_params:
+  seed: 1
+
+walkforward:
+  start: "2025-05"
+  end: "2026-04"
+  retrain_interval: 3
+  real_odds: true
+
+strategy:
+  prob_threshold: 0.07
+  ev_threshold: 2.0
+  min_odds: 100.0
+  exclude_courses: []
+  exclude_stadiums: [2, 3, 4, 9, 11, 14, 16, 17, 21, 23]
+  bet_amount: 100
+  max_bets: 5
+  bet_type: trifecta
