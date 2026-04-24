@@ -65,6 +65,9 @@ CLAUDE.md の運用ルール（ROI 300/500%/負値）を自動判定し、後続
 
 ## フェーズ 2: 外ループ（GitHub Actions で定期実行）
 
+> **方針（2026-04-24 確定）**: バックテスト・Walk-Forward はすべて `--real-odds`（実オッズ）を使用する。
+> 合成オッズは使用しない。boatrace.jp からのダウンロードキャッシュは `data/` に保存済みのものを再利用する。
+
 cron で定期バックテストを回し、異常検知で Issue を自動起票する。
 
 - [ ] **2-1. `.github/workflows/auto_backtest_loop.yml` 新規作成**
