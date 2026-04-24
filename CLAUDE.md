@@ -307,6 +307,76 @@ Claude Code セッションで `/inner-loop <year> <month> [max-iter]` を実行
 
 詳細: `.claude/commands/inner-loop.md`, `.claude/AGENT_BRIEF.md`, `AUTO_LOOP_PLAN.md`
 
+## モデル構造自律改善ループ（/model-loop）の運用
+
+**用途の違い**: `/inner-loop` と `/model-loop` は変更対象が異なる。両立する。
+
+| 観点 | `/inner-loop` | `/model-loop` |
+|---|---|---|
+| 変更対象 | `ml/configs/strategy_default.yaml`（購入フィルタ 1 パラメータ） | 学習ハイパラ・学習窓・sample_weight（`trials/pending/*.yaml`） |
+| 実行場所 | GitHub Actions 強制 | **ローカル**（Windows / Python 3.12） |
+| 1 trial の時間 | 数分〜数十分 | 15〜25 分（Walk-Forward 12 ヶ月 + 3 ヶ月おき再学習） |
+| 判定基準 | ROI 500% 基準 | 通算ROI ≥ 0% + 最悪月 ≥ -50% + プラス月 ≥ 60% |
+| 背景 | フィルタ探索 | `BET_RULE_REVIEW_202509_202512.md` §30-32 の結論：フィルタでは out-of-sample 黒字化不能 → モデル側の再設計が必要 |
+
+### 実行方法
+
+Claude Code セッションで `/model-loop [trial_id | all]` を実行する。例:
+
+```
+/model-loop              # trials/pending/ の全 trial を連続実行
+/model-loop T01_window_2024   # 単発
+```
+
+`/model-loop` は以下のフローを自動実行する:
+
+1. `trials/pending/*.yaml` の有無を確認（空なら新 trial 設計フェーズへ）
+2. `py -3.12 ml/src/scripts/run_model_loop.py [--trial <id>]` を実行
+3. 各 trial で `get_model_for_month` → `run_backtest_batch` を Walk-Forward 方式で回す
+4. KPI を算出して `trials/results.jsonl` に 1 行追記、成功時は YAML を `completed/` へ移動
+5. 全 trial 完了後、`primary_score` 順にテーブル形式で報告
+6. 設計書 §5 判定ルールで次アクション提案（上位近傍 / 構造変更 / 撤退）
+
+### 前提（ローカル環境）
+
+- **Python 3.12** (`py -3.12 --version`)、`pip install -r ml/requirements.txt` 済み
+- データキャッシュが揃っていること:
+  - `data/history/`, `data/program/` — 2023-01〜2026-04
+  - `data/odds/` — 2025-05〜2026-04 の 12 ヶ月実オッズ（`download_odds.py` で取得）
+- **DB 接続不要**（`run_backtest.py` / `run_walkforward.py` はファイルキャッシュだけで完結）
+- ディスク容量: モデル ~50MB × 8 trial = 400MB、CSV 数十 MB
+
+### なぜローカル実行か
+
+- 1 trial で 3 回 LightGBM を再学習するため GitHub Actions のタイムアウト内に収まらない
+- ローカルならモデル `.pkl` を再利用できる（同月は再学習スキップ）
+- `/inner-loop` と違い artifacts キャッシュの優位性が小さい
+
+### 代表的な trial 構造
+
+`trials/pending/T01_window_2024.yaml`（例）:
+
+```yaml
+trial_id: T01_window_2024
+training:
+  train_start_year: 2024
+  sample_weight: { mode: recency, recency_months: 12, recency_weight: 3.0 }
+lgb_params: { learning_rate: 0.02, num_leaves: 31 }
+walkforward: { start: "2025-05", end: "2026-04", retrain_interval: 3, real_odds: true }
+strategy:  # 比較統一のため全 trial で同一
+  prob_threshold: 0.07
+  ev_threshold: 2.0
+  min_odds: 100.0
+  exclude_stadiums: [2, 3, 4, 9, 11, 14, 16, 17, 21, 23]
+  bet_amount: 100
+  max_bets: 5
+  bet_type: trifecta
+```
+
+**重要**: `strategy` は全 trial で統一すること。モデル側の差分だけを比較する設計。
+
+詳細: `.claude/commands/model-loop.md`, `MODEL_LOOP_PLAN.md`, `trials/README.md`
+
 ## よく使うコマンド
 
 ```bash
