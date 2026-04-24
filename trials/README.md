@@ -68,8 +68,31 @@ python ml/src/scripts/run_model_loop.py --trial T01_window_2024
 - `status`: "success" | "error"
 - `kpi.roi_total`: 期間通算 ROI(%)
 - `kpi.worst_month_roi`: 最悪月 ROI(%)
+- `kpi.broken_months`: 月次 ROI < -50% の月数（2026-04-24 追加）
+- `kpi.cvar20_month_roi`: 下位 20% 月次 ROI 平均（2026-04-24 追加）
+- `kpi.roi_ci_low_90` / `roi_ci_high_90`: 通算 ROI の block bootstrap 90% CI（2026-04-24 追加）
 - `kpi.plus_month_ratio`: プラス月の比率（0〜1）
-- `primary_score`: ROI - `max(0, -50 - worst) * 2`（高いほど良い）
-- `verdict`: `pass`（合格）/ `marginal`（ROI≥0 だが月次安定性不足）/ `fail`
+- `primary_score`: `roi_total + 0.5 * cvar20 - 10 * broken_months`（2026-04-24 改訂、高いほど良い）
+- `verdict`: `pass`（合格）/ `marginal`（ROI≥0 だが pass 条件未達）/ `fail`
+  - pass 条件: `roi≥+10% AND broken_months==0 AND plus_ratio≥0.60 AND roi_ci_low_90≥0`
 
-詳細は [MODEL_LOOP_PLAN.md](../MODEL_LOOP_PLAN.md) を参照。
+詳細は [MODEL_LOOP_PLAN.md](../MODEL_LOOP_PLAN.md) §3-4 / §3-5 を参照。
+
+## 現在の pending trials（2026-04-24 改訂）
+
+| trial_id | 変更軸 |
+|---|---|
+| T00_baseline | trainer 既定（比較基準） |
+| T01_window_2024 | train_start_year=2024 |
+| T02_window_2025 | train_start_year=2025 |
+| T03_sample_weight_recency | recency 12ヶ月 × 3.0 |
+| T04_lgbm_regularized | num_leaves=31 / min_child_samples=200（木の複雑度↓）|
+| T05_lgbm_conservative_lr | lr=0.02 / num_boost_round=2000 |
+| T06_feature_subsample | feature_fraction=0.5 / bagging_fraction=0.6（木間ランダム性↑、2026-04-24 差し替え）|
+| T07_window_2024_plus_weight | T01 + recency 6ヶ月 × 2.0 |
+| T08_baseline_seed1 | T00 と同一 + `lgb_params.seed=1`（trial 内ばらつき測定、Nice 1）|
+| T09_baseline_seed2 | T00 と同一 + `lgb_params.seed=2`（同上）|
+
+**差し替え履歴**:
+- 旧 T06_early_stop_tight（`early_stopping_rounds=30`）は T04 と同方向のキャパシティ減で
+  独立軸として弱いとの相互レビュー指摘（2026-04-24）を受けて T06_feature_subsample に差し替え。
