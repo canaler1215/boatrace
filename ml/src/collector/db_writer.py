@@ -5,6 +5,12 @@ import os
 import psycopg
 from typing import Any
 
+try:
+    from dotenv import load_dotenv
+    load_dotenv()
+except ImportError:
+    pass
+
 
 def get_connection() -> psycopg.Connection:
     return psycopg.connect(os.environ["DATABASE_URL"])
