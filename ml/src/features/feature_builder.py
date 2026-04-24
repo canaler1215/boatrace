@@ -60,7 +60,11 @@ def build_features(
     return df[FEATURE_COLUMNS].fillna(0)
 
 
-def build_features_from_history(df: pd.DataFrame) -> tuple[pd.DataFrame, pd.Series]:
+def build_features_from_history(
+    df: pd.DataFrame,
+    *,
+    return_dates: bool = False,
+):
     """
     history_downloader で取得した生データから特徴量とラベルを生成する。
     (retrain.yml / run_retrain.py から呼ぶ)
@@ -68,11 +72,15 @@ def build_features_from_history(df: pd.DataFrame) -> tuple[pd.DataFrame, pd.Seri
     Parameters
     ----------
     df : history_downloader.load_history_range() の返り値
+    return_dates : bool
+        True の場合、(X, y, race_dates) を返す。race_dates は X と同じ行順・同じ長さの
+        pd.Series（dtype=datetime64[ns]、インデックスは X と一致）。
+        sample_weight 生成（recency 重み付け）のために使う。
+        False（デフォルト）は従来通り (X, y)。
 
     Returns
     -------
-    X : pd.DataFrame  特徴量 (FEATURE_COLUMNS)
-    y : pd.Series     ラベル (finish_position - 1, 0=1着 ... 5=6着)
+    (X, y) または (X, y, race_dates)
     """
     # 着順が欠損しているレコードは除外
     df = df.dropna(subset=["finish_position"]).copy()
@@ -102,6 +110,10 @@ def build_features_from_history(df: pd.DataFrame) -> tuple[pd.DataFrame, pd.Seri
     X = df[FEATURE_COLUMNS].fillna(0)
     y = (df["finish_position"] - 1).astype(int)
 
+    if return_dates:
+        race_dates = pd.to_datetime(df["race_date"]) if "race_date" in df.columns else pd.Series(pd.NaT, index=df.index)
+        race_dates.index = df.index
+        return X, y, race_dates
     return X, y
 
 

@@ -4,7 +4,7 @@
 セッション開始時にこのファイルをまず読み、記載通りに実装を進めること。
 
 最終更新: 2026-04-24
-ステータス: **タスク1完了、タスク2以降 未着手**
+ステータス: **タスク1・2完了、タスク3（run_model_loop.py）以降 未着手**
 
 ---
 
@@ -464,6 +464,7 @@ argument-hint: `[trial_id | all]`
 
 - 2026-04-24: 初版作成（設計確定、実装未着手）
 - 2026-04-24: **タスク 1 完了**（trainer.py 拡張、単体テスト追加）
+- 2026-04-24: **タスク 2 完了**（run_walkforward.py の config 対応、sample_weight 生成、単体テスト追加）
 
 ---
 
@@ -507,3 +508,64 @@ py -3.12 -m pytest ml/tests/test_trainer_config.py -v
 - `sample_weight` 生成ロジック（`mode: "recency"` / `"exp_decay"`）
 - `lgb_params` / `num_boost_round` / `early_stopping_rounds` を `train()` に渡す
 - 注意: `feature_builder.py` の返り値に `race_date` が残っていない可能性があり、sample_weight 生成用に日付配列を別ルートで保持する必要がある（§6-3 落とし穴 3）
+
+### 2026-04-24 — タスク 2 完了（run_walkforward.py の config 対応）
+
+**変更内容**:
+
+1. [ml/src/features/feature_builder.py](ml/src/features/feature_builder.py) の `build_features_from_history()` を拡張:
+   - `return_dates: bool = False` keyword-only 引数を追加
+   - `return_dates=True` で `(X, y, race_dates)` を返す。`race_dates` は X と同じインデックス・長さの `pd.Series (datetime64[ns])`
+   - 既存呼び出し（9 箇所の `X, y = build_features_from_history(df)`）は後方互換のまま維持
+   - sample_weight 生成時の§6-3 落とし穴 3 を解消（`dropna`/`sort_values` 後の行順と一致する race_date を取得可能に）
+
+2. [ml/src/scripts/run_walkforward.py](ml/src/scripts/run_walkforward.py):
+   - `build_sample_weight(race_dates, ref_date, config)` 関数を新設:
+     - `mode: "recency"` → `ref_date - recency_months` 以降を `recency_weight` 倍、それ以前は 1.0
+     - `mode: "exp_decay"` → `exp(-decay_k * age_months)`（age は ref_date 起点、未来は 0 扱い）
+     - `config=None` / `{}` / `{"mode": None}` で None 返却
+     - 未知 mode は `ValueError`
+   - `get_model_for_month()` に keyword-only 引数 `trial_config: dict | None` と `return_metrics: bool = False` を追加:
+     - `trial_config["training"]["sample_weight"]` → build_sample_weight で重み配列化
+     - `trial_config["training"]["num_boost_round"]` / `["early_stopping_rounds"]` / `trial_config["lgb_params"]` を `train()` に渡す
+     - `return_metrics=True` で `(model, metrics_dict)` を返す（trainer.train の dict をそのまま）
+     - retrain=False / trial_config=None / sample_weight 未指定 はすべて従来挙動を維持
+   - sample_weight 生成時のみ `build_features_from_history(df, return_dates=True)` を呼ぶ（不要時は従来のまま）
+   - ref_date は「学習期間末月の末日」（test_month の前月末）
+
+3. CLI 引数は追加していない（トライアル注入は `run_model_loop.py`（タスク 3）経由で想定）
+
+**追加テスト**: [ml/tests/test_walkforward_config.py](ml/tests/test_walkforward_config.py)（11 ケース、ネットワーク・DB 不要）
+
+- `build_sample_weight`:
+  1. config=None / mode=None → None
+  2. recency 境界（cutoff 前後で 1.0 / N 倍が正しく切り替わる）
+  3. recency 既定値（recency_months=12, weight=3.0）
+  4. exp_decay 単調非増加、ref_date 同日で約 1.0
+  5. 未知 mode → ValueError
+- `build_features_from_history`:
+  6. 後方互換: 戻り値が `(X, y)` の 2 要素
+  7. `return_dates=True` で `(X, y, dates)`、長さ・インデックス・dtype 整合
+- `get_model_for_month`（依存関係を monkeypatch でモック）:
+  8. trial_config=None → `train()` に既定値が渡る（後方互換）
+  9. `lgb_params` / `num_boost_round` / `early_stopping_rounds` が `train()` に伝搬
+  10. sample_weight.mode=recency 指定時、`train()` に `np.ndarray` が渡る（最大値=recency_weight, 最小値=1.0）
+  11. `return_metrics=True` で `(model, metrics_dict)` が返る
+
+**テスト結果**:
+```
+py -3.12 -m pytest ml/tests/test_trainer_config.py ml/tests/test_walkforward_config.py -v
+=> 18 passed in 5.93s
+```
+
+**既存呼び出し側への影響**: なし
+- `build_features_from_history` は全 9 箇所とも `X, y = ...` の形で受け取っており、`return_dates` デフォルト False を追加しただけなので非破壊
+- `get_model_for_month` は内部関数で外部から呼ばれていない（`run_walkforward.py` の `main()` からのみ）
+- `run_walkforward.py --help` で CLI 引数が正常に解釈される（import エラーなし）
+
+**次のアクション**: タスク 3（`run_model_loop.py` の新規作成）
+- `trials/pending/*.yaml` を glob して順次実行するランナー
+- `run_walkforward.py` の `main()` をライブラリ呼び出しできるようリファクタするか、
+  `get_model_for_month` + `run_backtest_batch` を直接組み立てる
+- `results.jsonl` へ KPI 追記、trial を `pending/` → `completed/` へ移動
+- 設計書 §3.1, §3.3, §3.4, §3.5 に準拠

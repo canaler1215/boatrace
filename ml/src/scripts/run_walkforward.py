@@ -30,6 +30,7 @@ Walk-Forward バックテスト（複数月連続検証）
 import argparse
 import calendar
 import logging
+import math
 import shutil
 import sys
 import tempfile
@@ -38,6 +39,7 @@ from datetime import date
 from pathlib import Path
 
 import joblib
+import numpy as np
 import pandas as pd
 
 sys.path.insert(0, str(Path(__file__).parents[1]))
@@ -141,6 +143,66 @@ def load_month_data(year: int, month: int, max_workers: int = 8) -> pd.DataFrame
 
 
 # ---------------------------------------------------------------------------
+# sample_weight 生成（MODEL_LOOP タスク 2）
+# ---------------------------------------------------------------------------
+
+def build_sample_weight(
+    race_dates: pd.Series,
+    ref_date: pd.Timestamp,
+    config: dict | None,
+) -> np.ndarray | None:
+    """
+    trial config の sample_weight セクションから学習サンプル重みを生成する。
+
+    Parameters
+    ----------
+    race_dates : pd.Series (dtype=datetime64[ns])
+        X と同じ行順・長さの race_date 列。
+    ref_date : pd.Timestamp
+        基準日（通常は学習期間の末日 = テスト月の前月末日）。
+        「直近 N ヶ月」は ref_date 起点で数える。
+    config : dict | None
+        {"mode": "recency", "recency_months": 12, "recency_weight": 3.0} など。
+        None / {"mode": None} なら重み無し（None を返す）。
+
+    Returns
+    -------
+    np.ndarray | None
+        shape = (len(race_dates),) の重み配列。None なら均等重み（trainer 側でデフォルト扱い）。
+    """
+    if not config:
+        return None
+    mode = config.get("mode")
+    if not mode:
+        return None
+
+    dates = pd.to_datetime(race_dates).to_numpy()
+    n = len(dates)
+
+    if mode == "recency":
+        months = int(config.get("recency_months", 12))
+        weight = float(config.get("recency_weight", 3.0))
+        # ref_date から months ヶ月前以降を weight 倍、それ以前は 1.0
+        cutoff = pd.Timestamp(ref_date) - pd.DateOffset(months=months)
+        cutoff_np = np.datetime64(cutoff)
+        w = np.ones(n, dtype=np.float64)
+        w[dates >= cutoff_np] = weight
+        return w
+
+    if mode == "exp_decay":
+        # weight = exp(-k * age_months)、age_months = (ref_date - race_date).days / 30
+        k = float(config.get("decay_k", 0.1))
+        ref_np = np.datetime64(pd.Timestamp(ref_date))
+        age_days = (ref_np - dates) / np.timedelta64(1, "D")
+        age_months = age_days.astype(np.float64) / 30.0
+        # age < 0（ref_date より未来のデータ、基本起きない）は age=0 扱い
+        age_months = np.clip(age_months, 0.0, None)
+        return np.exp(-k * age_months)
+
+    raise ValueError(f"Unknown sample_weight mode: {mode!r}")
+
+
+# ---------------------------------------------------------------------------
 # モデル取得 / 再学習
 # ---------------------------------------------------------------------------
 
@@ -151,22 +213,40 @@ def get_model_for_month(
     train_start_year: int,
     train_start_month: int,
     cached_model=None,
+    *,
+    trial_config: dict | None = None,
+    return_metrics: bool = False,
 ):
     """
     テスト月用のモデルを返す。
 
     retrain=True  : テスト月直前データで再学習したモデルを返す
     retrain=False : cached_model があればそのまま返す。なければ artifacts/ の最新を使う
+
+    Parameters
+    ----------
+    trial_config : dict | None
+        MODEL_LOOP の trial YAML のうち学習側のサブ dict。想定キー:
+          - training.sample_weight : {"mode": ..., ...}
+          - training.num_boost_round : int
+          - training.early_stopping_rounds : int
+          - lgb_params : dict
+        retrain=False の場合は無視される。
+    return_metrics : bool
+        True かつ retrain=True の場合、(model_obj, metrics_dict) を返す。
+        metrics_dict は trainer.train() の戻り値 dict。
+        retrain=False または False の場合は model_obj のみ（後方互換）。
     """
     if not retrain:
         if cached_model is not None:
-            return cached_model
+            return (cached_model, None) if return_metrics else cached_model
         existing = sorted(ARTIFACTS_DIR.glob("model_*.pkl"), reverse=True)
         if not existing:
             logger.error("No model found in %s. Use --retrain or run_retrain.py first.", ARTIFACTS_DIR)
             sys.exit(1)
         logger.info("Using existing model: %s", existing[0])
-        return joblib.load(existing[0])
+        model = joblib.load(existing[0])
+        return (model, None) if return_metrics else model
 
     # テスト月の前月末までを学習データとする
     train_end_year, train_end_month = prev_month(test_year, test_month)
@@ -196,14 +276,54 @@ def get_model_for_month(
     )
     df_train = merge_program_data(df_train, df_prog)
 
-    X, y = build_features_from_history(df_train)
+    # trial config 抽出
+    trial_config = trial_config or {}
+    training_cfg = trial_config.get("training", {}) or {}
+    sw_cfg = training_cfg.get("sample_weight")
+    lgb_params = trial_config.get("lgb_params")
+    num_boost_round = int(training_cfg.get("num_boost_round", 1000))
+    early_stopping_rounds = int(training_cfg.get("early_stopping_rounds", 50))
+
+    need_dates = bool(sw_cfg and sw_cfg.get("mode"))
+    if need_dates:
+        X, y, race_dates = build_features_from_history(df_train, return_dates=True)
+    else:
+        X, y = build_features_from_history(df_train)
+        race_dates = None
+
+    sample_weight = None
+    if need_dates and race_dates is not None:
+        # 基準日: 学習期間の末日（前月末日）
+        last_day = calendar.monthrange(train_end_year, train_end_month)[1]
+        ref_date = pd.Timestamp(train_end_year, train_end_month, last_day)
+        sample_weight = build_sample_weight(race_dates, ref_date, sw_cfg)
+        if sample_weight is not None:
+            logger.info(
+                "  sample_weight mode=%s (min=%.3f, max=%.3f, mean=%.3f)",
+                sw_cfg.get("mode"),
+                float(sample_weight.min()),
+                float(sample_weight.max()),
+                float(sample_weight.mean()),
+            )
+
     version = (
         f"{train_end_year}{train_end_month:02d}"
         f"_from{train_start_year}{train_start_month:02d}"
         f"_wf"
     )
-    model_path = train(X, y, version)
-    return joblib.load(model_path)
+    result = train(
+        X, y, version,
+        lgb_params=lgb_params,
+        num_boost_round=num_boost_round,
+        early_stopping_rounds=early_stopping_rounds,
+        sample_weight=sample_weight,
+        return_metrics=return_metrics,
+    )
+    if return_metrics:
+        model_path = result["model_path"]
+        model = joblib.load(model_path)
+        return model, result
+    return joblib.load(result)
 
 
 # ---------------------------------------------------------------------------
