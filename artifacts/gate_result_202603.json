@@ -1,0 +1,18 @@
+{
+  "timestamp": "2026-04-24T06:29:42.351310+00:00",
+  "period": "2026-03",
+  "zone": "danger",
+  "commit_sha": "dd8e4f4",
+  "model_version": "model_latest",
+  "period_from": "2026-03-01",
+  "period_to": "2026-03-31",
+  "total_bets": 2559,
+  "total_wagered": 255900.0,
+  "total_payout": 177420.0,
+  "profit": -78480.0,
+  "roi_pct": -30.67,
+  "wins": 8,
+  "win_rate_pct": 0.3126,
+  "avg_odds": 221.78,
+  "avg_top_prob": 0.091127
+}
