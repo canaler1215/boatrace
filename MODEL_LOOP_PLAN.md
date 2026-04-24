@@ -869,3 +869,52 @@ py -3.12 -m pytest ml/tests/test_trainer_config.py ml/tests/test_walkforward_con
    - 所要 2〜3 時間（夜間回し推奨）
    - 途中報告は最小限、全 trial 完了後に `primary_score` 順で報告
 3. §7-10 次イテレーション設計（上位 trial 近傍 2〜3 本追加、または構造変更提案）
+
+### 2026-04-24 — スキル化方針の決定（`/trial-design` は本番 8 trial 完了後に設計）
+
+**経緯**:
+
+タスク 6 完了後、これまでの作業でスキル化できる候補を洗い出した。候補と評価:
+
+| 候補 | 評価 |
+|---|---|
+| `/trial-design`（results.jsonl を読み、primary_score 上位近傍の新 trial YAML を `trials/pending/` に生成） | §7-10 で必ず発生する作業。スキル化でイテレーション速度が上がる |
+| `/trial-report`（results.jsonl を primary_score 順で表・MODEL_LOOP_RESULTS.md 自動生成） | §7-9 完了時に必要だが、pandas 数行で書ける軽量処理 |
+| `/odds-download-status`、smoke クリーンアップ、バックテストラッパー等 | スキル化のメリットが小さい／既存 CLI で十分 |
+
+**決定（2026-04-24、ユーザー合意）**:
+
+**`/trial-design` は本番 8 trial 完了後に設計する**。
+
+**理由**:
+- results.jsonl が 0 行の現状では近傍探索テンプレが設計できない（baseline の ROI すら未確定）
+- 上位 trial の傾向（window 系が強いか、lgb_params 系が強いか、sample_weight が効くか）を見ないと
+  「近傍探索」の粒度・方向が決まらない
+- 先行実装すると実データと合わずに作り直しになるリスク
+- §7-9 で実データを見てから設計するのが正しい順序
+
+**進め方**:
+
+1. §7-9（本番 8 trial 連続実行）完了 → `trials/results.jsonl` に 8 行が追記される
+2. `primary_score` 順で並べ、上位・下位の傾向を観察
+3. その知見をベースに `.claude/commands/trial-design.md` を新規作成
+   - 入力: 任意（現 results.jsonl を読んで自動判断）または「T0X 近傍を N 本」のようなヒント
+   - 出力: `trials/pending/T0Xb_*.yaml` などの新 trial YAML
+   - 探索ルール（MODEL_LOOP_PLAN §5 準拠）: 上位近傍を探る／下位方向は避ける／5 trial 連続非改善で構造変更提案／10 trial で pass 0 なら撤退
+4. スキル完成後は `/trial-design` → `/model-loop` のサイクルで §7-10 を回す
+
+**`/trial-report` について**: 現時点では `/model-loop` 末尾の報告処理で十分。独立スキル化は保留。
+もし §7-9 実行時に報告テンプレが複雑化するようなら、その段階で切り出しを再検討する。
+
+**スキル化しないと決めたもの**（参考）:
+- `/odds-download-status` — `ls data/odds/*.parquet` で足りる
+- smoke クリーンアップ系 — 一度きりの処理
+- バックテスト／再学習ラッパー — 既存 CLI が十分シンプル
+- trial YAML 検証 — `run_model_loop.py` のスキーマ検証で既に担保済み
+
+**次のアクション（更新）**:
+
+1. **（ユーザー作業）**: 実オッズ DL の完走を待つ（本節より上に記載済み）
+2. DL 完了後 `/model-loop` で本番 8 trial 連続実行 → §7-9
+3. **results.jsonl を読んで `/trial-design` スキルを設計**（本追記で確定した方針）
+4. `/trial-design` → `/model-loop` のサイクルで §7-10 を回す
