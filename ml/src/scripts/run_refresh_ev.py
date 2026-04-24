@@ -20,7 +20,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).parents[1]))
 
-from collector.db_writer import get_connection, insert_odds_history_batch
+from collector.db_writer import get_connection  # insert_odds_history_batch: C-1 保留中
 from collector.openapi_client import fetch_odds as http_fetch_odds
 
 logging.basicConfig(
@@ -157,7 +157,9 @@ def main() -> None:
     # --- DB 更新（シリアル）---
     total_updated = 0
     total_alerts = 0
-    history_rows: list[tuple[str, str, float]] = []
+    # オッズ履歴の蓄積は一旦保留（2026-04-24）。再開するときは下記と insert 呼び出しを戻す。
+    # C-1: ODDS_FRESHNESS_IMPROVEMENT
+    # history_rows: list[tuple[str, str, float]] = []
 
     with get_connection() as conn:
         for race_id, updates, new_odds in results:
@@ -168,21 +170,18 @@ def main() -> None:
             total_updated += n
             total_alerts += alerts
             logger.info("Race %s: %d EVs updated (%d alerts)", race_id, n, alerts)
-            # オッズ履歴には取得できた全組合せを蓄積（EV 対象外の組合せも推移分析で必要）
-            # C-1: ODDS_FRESHNESS_IMPROVEMENT
-            for combo, val in new_odds.items():
-                history_rows.append((race_id, combo, val))
+            # for combo, val in new_odds.items():
+            #     history_rows.append((race_id, combo, val))
 
-        if history_rows:
-            insert_odds_history_batch(conn, history_rows)
+        # if history_rows:
+        #     insert_odds_history_batch(conn, history_rows)
         conn.commit()
 
     logger.info(
-        "=== refresh_ev done: %d races, %d predictions updated, %d alerts, %d history rows ===",
+        "=== refresh_ev done: %d races, %d predictions updated, %d alerts ===",
         len([r for r in results if r[1]]),
         total_updated,
         total_alerts,
-        len(history_rows),
     )
 
 
