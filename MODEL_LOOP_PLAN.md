@@ -4,7 +4,7 @@
 セッション開始時にこのファイルをまず読み、記載通りに実装を進めること。
 
 最終更新: 2026-04-24
-ステータス: **タスク1・2完了、タスク3（run_model_loop.py）以降 未着手**
+ステータス: **タスク1・2・3 完了、タスク4（初期 trial seeds）以降 未着手**
 
 ---
 
@@ -465,6 +465,7 @@ argument-hint: `[trial_id | all]`
 - 2026-04-24: 初版作成（設計確定、実装未着手）
 - 2026-04-24: **タスク 1 完了**（trainer.py 拡張、単体テスト追加）
 - 2026-04-24: **タスク 2 完了**（run_walkforward.py の config 対応、sample_weight 生成、単体テスト追加）
+- 2026-04-24: **タスク 3 完了**（run_model_loop.py 新規作成、trials/ ディレクトリ構造、単体テスト追加）
 
 ---
 
@@ -569,3 +570,60 @@ py -3.12 -m pytest ml/tests/test_trainer_config.py ml/tests/test_walkforward_con
   `get_model_for_month` + `run_backtest_batch` を直接組み立てる
 - `results.jsonl` へ KPI 追記、trial を `pending/` → `completed/` へ移動
 - 設計書 §3.1, §3.3, §3.4, §3.5 に準拠
+
+### 2026-04-24 — タスク 3 完了（run_model_loop.py 新規作成）
+
+**変更内容**:
+
+1. [ml/src/scripts/run_model_loop.py](ml/src/scripts/run_model_loop.py) を新規作成。以下を実装:
+   - **YAML スキーマ検証** (`load_trial_yaml` / `validate_trial_schema`)
+     - 必須キー: `trial_id`, `walkforward.{start,end}`, `strategy.{prob_threshold,ev_threshold,bet_amount}`
+     - 任意キー: `description`, `hypothesis`, `training.*`, `lgb_params`, `walkforward.{retrain_interval,real_odds}`, `strategy.{max_bets,min_odds,exclude_courses,exclude_stadiums,bet_type}`
+   - **trial 実行** (`run_trial_walkforward`)
+     - `run_walkforward.main()` をコピーせず、ライブラリ関数 `get_model_for_month` + `run_backtest_batch` を直接組み立てる方針を採用（§4 タスク 3 設計方針に準拠）
+     - 各月ごとに `retrain_interval` に応じて再学習判定、trial_config（`lgb_params` / `training.sample_weight` / `num_boost_round` / `early_stopping_rounds`）を `get_model_for_month(..., trial_config=..., return_metrics=True)` 経由で `trainer.train` に伝搬
+     - 最後の再学習月の metrics dict（`ece_rank1_calibrated` を含む）を保持し KPI に同梱
+     - `real_odds=True` のとき bet_type に応じて `load_or_download_month_odds` / `load_or_download_month_trio_odds` を呼び分け
+   - **KPI 計算** (`compute_kpi`): 設計書 §3-3 の schema に一致。`roi_total` / `worst_month_roi` / `best_month_roi` / `plus_months` / `plus_month_ratio` / `avg_hit_odds` / `hit_rate_per_bet` を算出。wagered=0 や空 DataFrame でも落ちない。
+   - **primary_score / classify_verdict** (§3-4 / §3-5 完全準拠)
+     - `primary_score = roi_total - max(0, -50 - worst) * 2`
+     - `pass`: roi≥0 かつ worst≥-50 かつ plus_ratio≥0.60、`marginal`: roi≥0 のみ、それ以外 `fail`
+   - **ファイル出力**
+     - `artifacts/walkforward_<trial_id>.csv` — Walk-Forward の raw 結果
+     - `artifacts/walkforward_<trial_id>_summary.json` — KPI + primary_score + verdict + monthly_roi
+     - `trials/results.jsonl` — 1 trial 1 行の append-only ログ
+     - `artifacts/model_loop_<trial_id>_error.log` — エラー時の traceback
+   - **成功時のみ** `trials/pending/<trial_id>.yaml` を `trials/completed/` へ移動（失敗時は pending に残して再実行可能）
+   - **CLI**: `--trial <trial_id>` で単発実行、省略時は pending 全実行
+
+2. [trials/](trials/) ディレクトリを新規作成:
+   - `trials/pending/` (`.gitkeep`)
+   - `trials/completed/` (`.gitkeep`)
+   - `trials/README.md` — ディレクトリ運用ガイド
+
+**追加テスト**: [ml/tests/test_model_loop.py](ml/tests/test_model_loop.py)（22 ケース、ネットワーク・DB 不要）
+
+- A. スキーマ検証（5 ケース）: 正常系 / トップレベル必須欠落 / walkforward 必須欠落 / strategy 必須欠落 / mapping 不正
+- B. KPI 計算（3 ケース）: 基本ケース（月別 ROI / avg_hit_odds / plus_month_ratio の整合性）/ 空 DataFrame / wagered=0 月
+- C. primary_score / classify_verdict（8 ケース）: ペナルティ有無の境界 / verdict 3 分類 + 境界条件
+- D. `discover_pending_trials`（3 ケース）: 指定 trial 欠落時の FileNotFoundError / `.yaml` と `.yml` 両対応 / 特定 trial 指定時の厳密マッチ
+- E. `execute_trial_file`（3 ケース）:
+  - 成功: YAML が pending → completed へ移動、results.jsonl に 1 行、summary.json 作成
+  - 失敗（`run_trial_walkforward` が raise）: YAML は pending に残り、status=error、error.log が traceback 付きで生成
+  - YAML 不正: 実行前スキーマ検証で失敗、pending に残り status=error、`run_trial_walkforward` は呼ばれない
+
+**テスト結果**:
+```
+py -3.12 -m pytest ml/tests/test_trainer_config.py ml/tests/test_walkforward_config.py ml/tests/test_model_loop.py -v
+=> 40 passed in 5.99s
+```
+
+さらに `python ml/src/scripts/run_model_loop.py --help` と空 pending 実行でスモーク確認済み（CLI 引数解釈 OK、pending 空時の早期 return OK）。
+
+**既存呼び出し側への影響**: なし（新規スクリプト／新規ディレクトリのみ）。`run_walkforward.py` / `trainer.py` は本タスクで変更していない（タスク 1・2 で整えた API をそのまま利用）。
+
+**次のアクション**: タスク 4（初期 trial seeds 作成）
+- `trials/pending/` に T00_baseline, T01_window_2024, T02_window_2025, T03_sample_weight_recency, T04_lgbm_regularized, T05_lgbm_conservative_lr, T06_early_stop_tight, T07_window_2024_plus_weight を配置
+- `strategy` セクションは全 trial 統一（設計書 §4 タスク 4 準拠）
+- 実行前に baseline（T00）の Walk-Forward が実際に完走することを確認（設計書 §7-1）
+- タスク 5（`/model-loop` スラッシュコマンド）, タスク 6（ドキュメント更新）も後続で対応
