@@ -1,0 +1,127 @@
+name: Claude Code Auto Fix (Inner Loop)
+
+# トリガ1: Issue に @claude メンション（issue_comment）
+# トリガ2: auto-loop ラベルが付いた Issue が開かれた時（issues.opened）
+on:
+  issue_comment:
+    types: [created]
+  issues:
+    types: [labeled]
+
+jobs:
+  # ── トリガ判定（@claude メンション or auto-loop ラベルか確認）────────────────
+  check-trigger:
+    runs-on: ubuntu-latest
+    outputs:
+      should_run: ${{ steps.check.outputs.should_run }}
+      issue_number: ${{ steps.check.outputs.issue_number }}
+
+    steps:
+      - name: Check trigger conditions
+        id: check
+        uses: actions/github-script@v7
+        with:
+          script: |
+            let shouldRun = false;
+            let issueNumber = null;
+
+            if (context.eventName === 'issue_comment') {
+              // @claude メンションがあるか確認
+              const body = context.payload.comment.body || '';
+              if (body.includes('@claude')) {
+                shouldRun = true;
+                issueNumber = context.payload.issue.number;
+              }
+            } else if (context.eventName === 'issues') {
+              // auto-loop ラベルが付いた Issue の open
+              const label = context.payload.label?.name;
+              if (label === 'auto-loop') {
+                shouldRun = true;
+                issueNumber = context.payload.issue.number;
+              }
+            }
+
+            core.setOutput('should_run', shouldRun.toString());
+            core.setOutput('issue_number', issueNumber?.toString() ?? '');
+            console.log(`should_run=${shouldRun}, issue_number=${issueNumber}`);
+
+  # ── Claude Code による自律修正 ──────────────────────────────────────────
+  claude-fix:
+    needs: check-trigger
+    if: needs.check-trigger.outputs.should_run == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+
+    permissions:
+      contents: write
+      issues: write
+      pull-requests: write
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Install system dependencies
+        run: sudo apt-get install -y lhasa
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: 'pip'
+          cache-dependency-path: ml/requirements.txt
+
+      - name: Install Python dependencies
+        run: pip install -r ml/requirements.txt
+
+      # 最新モデルをダウンロード
+      - name: Download latest model
+        run: python ml/src/scripts/download_model.py
+        continue-on-error: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+
+      # オッズキャッシュ復元
+      - name: Restore odds cache
+        uses: actions/cache@v4
+        with:
+          path: data/odds/
+          key: odds-v2-latest-trifecta-${{ github.run_id }}
+          restore-keys: |
+            odds-v2-
+
+      # ── Claude Code Action ─────────────────────────────────────────
+      - name: Run Claude Code agent
+        uses: anthropics/claude-code-action@beta
+        with:
+          anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
+
+          # Issue の内容と AGENT_BRIEF.md を合わせてプロンプト生成
+          prompt: |
+            あなたは競艇バックテストシステムの自律改善エージェントです。
+            以下の Issue を分析し、`.claude/AGENT_BRIEF.md` の手順に従って修正を行ってください。
+
+            ## Issue 情報
+            - Issue番号: #${{ needs.check-trigger.outputs.issue_number }}
+            - リポジトリ: ${{ github.repository }}
+
+            ## タスク
+            1. `cat .claude/AGENT_BRIEF.md` を読んで手順を確認する
+            2. AGENT_BRIEF.md の「分析ステップ」に従い診断コマンドを実行する
+            3. 問題が特定できた場合: `ml/configs/strategy_default.yaml` を修正して PR を作成する
+               - ブランチ名: `auto-loop/fix-$(date +%Y%m)-<brief-desc>`
+               - ラベル: `auto-loop-candidate`
+            4. 問題が特定できない場合 / 撤退条件に該当する場合:
+               Issue にコメントして終了する
+
+            ## 重要な制約
+            - `ml/configs/` 以外のファイルは変更しないこと
+            - PR のベースブランチは `main`
+            - 最大3回のイテレーション（過去コメントを確認して回数を守ること）
+
+          # 許可するツール（ファイル読み書き・診断コマンド・Git・PR作成）
+          allowed_tools: "Bash,Read,Write,Edit,Glob,Grep"
+        env:
+          DATABASE_URL: ${{ secrets.BACKTEST_DATABASE_URL }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

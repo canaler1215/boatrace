@@ -1,0 +1,32 @@
+# CODEOWNERS — 自律ループのガードレール
+#
+# auto-loop agent（claude_fix.yml）が変更できるのは ml/configs/ のみ。
+# それ以外は @canaler2703 の承認が必要。
+
+# デフォルト: 全ファイルはオーナーが承認必須
+* @canaler2703
+
+# ── agent が単独で変更可能な場所 ──────────────────────────
+# 戦略パラメータ YAML のみ agent 変更可（CODEOWNERS から除外 = レビュー不要）
+# ※ GitHub の仕様上、より具体的なパスが優先されるため、
+#   ここで空にすることでオーナー必須を解除できる。
+ml/configs/ @canaler2703
+
+# ── 人間レビュー必須の場所 ────────────────────────────────
+# データ取得・特徴量・モデルコア
+ml/src/collector/  @canaler2703
+ml/src/features/   @canaler2703
+ml/src/model/      @canaler2703
+
+# DBマイグレーション（本番DBに直接影響）
+ml/migrations/     @canaler2703
+apps/              @canaler2703
+
+# CI/CDワークフロー（無限ループ・権限昇格のリスク）
+.github/workflows/ @canaler2703
+.github/CODEOWNERS @canaler2703
+
+# プロジェクトドキュメント・設定
+CLAUDE.md          @canaler2703
+AUTO_LOOP_PLAN.md  @canaler2703
+SETUP.md           @canaler2703

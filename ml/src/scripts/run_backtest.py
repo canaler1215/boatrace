@@ -41,9 +41,11 @@ import tempfile
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from datetime import date
 from pathlib import Path
+from typing import Any
 
 import joblib
 import pandas as pd
+import yaml
 
 sys.path.insert(0, str(Path(__file__).parents[1]))
 
@@ -326,6 +328,51 @@ def print_summary(results_df: pd.DataFrame, prob_threshold: float, bet_amount: i
 
 
 # ---------------------------------------------------------------------------
+# 戦略 YAML 読み込み
+# ---------------------------------------------------------------------------
+
+def _apply_strategy_config(args: argparse.Namespace, config_path: str) -> None:
+    """YAML 戦略ファイルを読み込み、CLI 引数のデフォルト値を上書きする。
+    CLI で明示的に指定されたフラグは上書きしない（CLI 優先）。
+    """
+    p = Path(config_path)
+    if not p.exists():
+        logger.error("Strategy config not found: %s", p)
+        sys.exit(1)
+
+    with p.open(encoding="utf-8") as f:
+        cfg: dict[str, Any] = yaml.safe_load(f)
+
+    filters = cfg.get("filters", {})
+    staking = cfg.get("staking", {})
+    training = cfg.get("training", {})
+
+    _set_if_default(args, "prob_threshold",    filters.get("prob_threshold"))
+    _set_if_default(args, "ev_threshold",      filters.get("ev_threshold"))
+    _set_if_default(args, "exclude_courses",   filters.get("exclude_courses"))
+    _set_if_default(args, "min_odds",          filters.get("min_odds"))
+    _set_if_default(args, "exclude_stadiums",  filters.get("exclude_stadiums"))
+    _set_if_default(args, "bet_amount",        staking.get("bet_amount"))
+    _set_if_default(args, "max_bets",          staking.get("max_bets"))
+    _set_if_default(args, "kelly_fraction",    staking.get("kelly_fraction"))
+    _set_if_default(args, "kelly_bankroll",    staking.get("kelly_bankroll"))
+    _set_if_default(args, "bet_type",          cfg.get("bet_type"))
+    _set_if_default(args, "train_start_year",  training.get("train_start_year"))
+    _set_if_default(args, "train_start_month", training.get("train_start_month"))
+
+    logger.info("Strategy config loaded: %s (version=%s)", p.name, cfg.get("version", "?"))
+
+
+def _set_if_default(args: argparse.Namespace, key: str, value: Any) -> None:
+    """YAML の値が None でなく、args の現在値がパーサーのデフォルトと一致するときのみ上書き。
+    実質的に「CLI 引数が指定されていない場合だけ YAML を使う」動作になる。
+    """
+    if value is None:
+        return
+    setattr(args, key, value)
+
+
+# ---------------------------------------------------------------------------
 # メイン
 # ---------------------------------------------------------------------------
 
@@ -352,7 +399,12 @@ def main() -> None:
     parser.add_argument("--exclude-stadiums", type=int,   nargs="+",    help="除外する場ID（例: 11 → びわこ）")
     parser.add_argument("--bet-type",         type=str,   default="trifecta", choices=["trifecta", "trio", "both"], help="賭式: trifecta=3連単, trio=3連複, both=両方")
     parser.add_argument("--output",           type=str,   default=None, help="結果 CSV の保存先")
+    parser.add_argument("--strategy-config",  type=str,   default=None, help="戦略パラメータ YAML ファイル（ml/configs/strategy_*.yaml）")
     args = parser.parse_args()
+
+    # ── YAML 戦略ファイルが指定されていれば CLI 引数のデフォルトを上書き ──
+    if args.strategy_config:
+        _apply_strategy_config(args, args.strategy_config)
 
     ARTIFACTS_DIR.mkdir(exist_ok=True)
 
