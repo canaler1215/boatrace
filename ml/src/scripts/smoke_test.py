@@ -86,49 +86,50 @@ try:
     artifacts_dir = Path(__file__).parents[3] / "artifacts"
     models = sorted(artifacts_dir.glob("model_*.pkl"), reverse=True)
     if not models:
-        _fail(f"学習済みモデルが見つかりません ({artifacts_dir})")
-
-    model = joblib.load(models[0])
-
-    from features.feature_builder import build_features_from_history
-    from backtest.engine import run_race
-
-    # 1 日分の K ファイルキャッシュを探す（直近 30 日以内）
-    data_dir = Path(__file__).parents[3] / "data"
-    sample_csv = None
-    for i in range(30):
-        d = date.today() - timedelta(days=i + 1)
-        pattern = f"k{str(d.year)[2:]}{d.month:02d}{d.day:02d}.csv"
-        candidates = list(data_dir.rglob(pattern))
-        if candidates:
-            sample_csv = candidates[0]
-            break
-
-    if sample_csv is None:
-        print("[SKIP] キャッシュデータが見つからないため 1 日バックテストをスキップします")
-        print("       run_backtest.py を一度実行してデータをキャッシュしてください")
+        print(f"[SKIP] 学習済みモデルが見つかりません ({artifacts_dir})")
+        print("       run_retrain.py を実行してモデルを作成してください")
     else:
-        df_day = pd.read_csv(sample_csv)
-        if df_day.empty:
-            print(f"[SKIP] {sample_csv} が空のためスキップ")
+        model = joblib.load(models[0])
+
+        from features.feature_builder import build_features_from_history
+        from backtest.engine import run_race
+
+        # 1 日分の K ファイルキャッシュを探す（直近 30 日以内）
+        data_dir = Path(__file__).parents[3] / "data"
+        sample_csv = None
+        for i in range(30):
+            d = date.today() - timedelta(days=i + 1)
+            pattern = f"k{str(d.year)[2:]}{d.month:02d}{d.day:02d}.csv"
+            candidates = list(data_dir.rglob(pattern))
+            if candidates:
+                sample_csv = candidates[0]
+                break
+
+        if sample_csv is None:
+            print("[SKIP] キャッシュデータが見つからないため 1 日バックテストをスキップします")
+            print("       run_backtest.py を一度実行してデータをキャッシュしてください")
         else:
-            features = build_features_from_history(df_day)
-            race_ids = features["race_id"].unique()[:3]
-            for rid in race_ids:
-                df_race = features[features["race_id"] == rid]
-                run_race(
-                    race_df=df_race,
-                    model=model,
-                    prob_threshold=0.07,
-                    bet_amount=100,
-                    max_bets_per_race=5,
-                    race_odds=None,  # 合成オッズ使用
-                    ev_threshold=2.0,
-                    exclude_courses=[2, 4, 5],
-                    min_odds=100,
-                    exclude_stadiums=[11],
-                )
-            _ok(f"バックテストが 1 日分完走しました（合成オッズ、race_ids={len(race_ids)}件）")
+            df_day = pd.read_csv(sample_csv)
+            if df_day.empty:
+                print(f"[SKIP] {sample_csv} が空のためスキップ")
+            else:
+                features = build_features_from_history(df_day)
+                race_ids = features["race_id"].unique()[:3]
+                for rid in race_ids:
+                    df_race = features[features["race_id"] == rid]
+                    run_race(
+                        race_df=df_race,
+                        model=model,
+                        prob_threshold=0.07,
+                        bet_amount=100,
+                        max_bets_per_race=5,
+                        race_odds=None,  # 合成オッズ使用
+                        ev_threshold=2.0,
+                        exclude_courses=[2, 4, 5],
+                        min_odds=100,
+                        exclude_stadiums=[11],
+                    )
+                _ok(f"バックテストが 1 日分完走しました（合成オッズ、race_ids={len(race_ids)}件）")
 
 except Exception as e:
     _fail(f"バックテスト中にエラー: {e}")

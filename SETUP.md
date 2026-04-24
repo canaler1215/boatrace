@@ -53,26 +53,26 @@ docker compose ps
 
 ### 4. Python 依存関係をインストール
 
-```bash
+> **Python バージョン**: **3.12 を推奨**。pandas 2.2.3 等のビルド済みホイールが 3.12 向けに提供されており、3.13 以上ではビルドエラーになる場合があります。
+
+```cmd
+rem Windows: py ランチャーで 3.12 を明示
+py -3.12 -m venv .venv
+.venv\Scripts\activate
 pip install -r ml/requirements.txt
 ```
 
-仮想環境推奨:
-
 ```bash
-python -m venv .venv
-# Windows PowerShell:
-.venv\Scripts\Activate.ps1
-# Linux / macOS / WSL:
+# Linux / macOS / WSL
+python3.12 -m venv .venv
 source .venv/bin/activate
-
 pip install -r ml/requirements.txt
 ```
 
 ### 5. Smoke test で疎通確認
 
-```bash
-python ml/src/scripts/smoke_test.py
+```cmd
+py -3.12 ml/src/scripts/smoke_test.py
 ```
 
 以下が出力されれば OK:
