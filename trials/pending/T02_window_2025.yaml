@@ -1,0 +1,27 @@
+trial_id: T02_window_2025
+description: "学習窓をさらに 2025-01〜 に絞る（超直近のみ、過学習リスク検証）"
+hypothesis: |
+  T01 よりさらに窓を絞り、2025 年以降のデータのみで学習。直近の分布変化により
+  強く適応できるか、またはサンプル不足で過学習するかを検証する。
+
+training:
+  train_start_year: 2025
+  train_start_month: 1
+  sample_weight:
+    mode: null
+
+walkforward:
+  start: "2025-05"
+  end: "2026-04"
+  retrain_interval: 3
+  real_odds: true
+
+strategy:
+  prob_threshold: 0.07
+  ev_threshold: 2.0
+  min_odds: 100.0
+  exclude_courses: []
+  exclude_stadiums: [2, 3, 4, 9, 11, 14, 16, 17, 21, 23]
+  bet_amount: 100
+  max_bets: 5
+  bet_type: trifecta
