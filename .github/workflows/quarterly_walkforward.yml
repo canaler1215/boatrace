@@ -136,7 +136,7 @@ jobs:
             $MIN_ODDS_FLAG \
             $EXCLUDE_STADIUMS_FLAG
         env:
-          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          DATABASE_URL: ${{ secrets.BACKTEST_DATABASE_URL }}
 
       # 各月の gate_check を走らせて kpi_history を更新
       - name: Run gate check for each month

@@ -144,9 +144,10 @@ GitHub リポジトリの **Settings → Secrets and variables → Actions → N
 
 | Secret 名 | 値 | 用途 |
 |-----------|-----|------|
-| `DATABASE_URL` | Neon の接続文字列（`postgresql://...`） | `run_backtest.py` からの DB 接続（再学習時に必要） |
+| `BACKTEST_DATABASE_URL` | Neon の接続文字列（`postgresql://...`） | `run_backtest.py` からの DB 接続（再学習時に必要） |
 
-> **注意**: `DATABASE_URL` がなくてもバックテスト本体（ファイルキャッシュ利用）は動きますが、`--retrain` 実行時に model_versions テーブルへの書き込みが失敗します。
+> **注意**: `DATABASE_URL` は本番用（predict/collect 等）で別途使用中のため、バックテスト専用に `BACKTEST_DATABASE_URL` という別名を使います。
+> `BACKTEST_DATABASE_URL` がなくてもバックテスト本体（ファイルキャッシュ利用）は動きますが、`--retrain` 実行時に model_versions テーブルへの書き込みが失敗します。
 
 ### 2. GitHub Labels の作成
 

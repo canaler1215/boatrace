@@ -110,7 +110,7 @@ jobs:
             $RETRAIN_FLAG \
             --output artifacts/backtest_${{ steps.period.outputs.year }}$(printf '%02d' ${{ steps.period.outputs.month }}).csv
         env:
-          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          DATABASE_URL: ${{ secrets.BACKTEST_DATABASE_URL }}
 
       # 評価ゲート実行（kpi_history に追記 + JSON 保存）
       - name: Run gate check
