@@ -4,9 +4,15 @@ name: Inner Loop Analysis (Claude Orchestrator用)
 # 結果 artifacts を取得して分析・対策・再実行を判断する。
 #
 # 使い方（Claude から gh CLI で実行）:
-#   gh workflow run claude_fix.yml -f year=2025 -f month=12
+#   gh workflow run claude_fix.yml -f year=2025 -f month=12 -f label=baseline
 #   gh run watch <run-id>
 #   gh run download <run-id> -D /tmp/results
+#
+# 方針（2026-04-24 レビュー結果 C3/C4/C5 反映）:
+#   - 戦略パラメータはすべて ml/configs/strategy_default.yaml から読み込む。
+#   - CLI 引数で閾値を差し替えることは廃止（CODEOWNERS 迂回の遮断）。
+#   - パラメータを変えたい場合は ml/configs/strategy_default.yaml を書き換えてから
+#     このワークフローをキックすること。
 
 on:
   workflow_dispatch:
@@ -19,33 +25,13 @@ on:
         description: '対象月 (1-12)'
         required: true
         default: '12'
-      prob_threshold:
-        description: '確率閾値（例: 0.07）'
-        required: false
-        default: '0.07'
-      ev_threshold:
-        description: 'EV閾値（例: 2.0）'
-        required: false
-        default: '2.0'
-      exclude_courses:
-        description: '除外コース（スペース区切り、例: "2"）'
-        required: false
-        default: '2'
-      min_odds:
-        description: '最低オッズ（例: 100）'
-        required: false
-        default: '100'
-      exclude_stadiums:
-        description: '除外場ID（スペース区切り、例: "11"）'
-        required: false
-        default: '11'
       retrain:
         description: 'モデルを再学習する'
         required: false
         default: false
         type: boolean
       label:
-        description: 'ラン識別ラベル（baseline / candidate など）'
+        description: 'ラン識別ラベル（baseline / candidate-iter1 など）'
         required: false
         default: 'baseline'
 
@@ -56,6 +42,9 @@ jobs:
 
     permissions:
       contents: read
+
+    env:
+      STRATEGY_CONFIG: ml/configs/strategy_default.yaml
 
     steps:
       - uses: actions/checkout@v4
@@ -73,6 +62,15 @@ jobs:
         run: |
           pip install -r ml/requirements.txt
           pip install pyyaml
+
+      - name: Extract thresholds from strategy YAML
+        id: strategy
+        run: |
+          PROB=$(python -c "import yaml; print(yaml.safe_load(open('${STRATEGY_CONFIG}'))['filters']['prob_threshold'])")
+          EV=$(python -c "import yaml; print(yaml.safe_load(open('${STRATEGY_CONFIG}'))['filters']['ev_threshold'])")
+          echo "prob_threshold=${PROB}" >> $GITHUB_OUTPUT
+          echo "ev_threshold=${EV}" >> $GITHUB_OUTPUT
+          echo "[strategy] prob=${PROB} ev=${EV} (from ${STRATEGY_CONFIG})"
 
       - name: Restore odds cache
         uses: actions/cache@v4
@@ -99,27 +97,13 @@ jobs:
             RETRAIN_FLAG="--retrain"
           fi
 
-          EXCLUDE_COURSES_FLAG=""
-          if [ -n "${{ inputs.exclude_courses }}" ]; then
-            EXCLUDE_COURSES_FLAG="--exclude-courses ${{ inputs.exclude_courses }}"
-          fi
-
-          EXCLUDE_STADIUMS_FLAG=""
-          if [ -n "${{ inputs.exclude_stadiums }}" ]; then
-            EXCLUDE_STADIUMS_FLAG="--exclude-stadiums ${{ inputs.exclude_stadiums }}"
-          fi
-
           YYYYMM="${{ inputs.year }}$(printf '%02d' ${{ inputs.month }})"
 
           python ml/src/scripts/run_backtest.py \
             --year ${{ inputs.year }} \
             --month ${{ inputs.month }} \
             --real-odds \
-            --prob-threshold ${{ inputs.prob_threshold }} \
-            --ev-threshold ${{ inputs.ev_threshold }} \
-            --exclude-courses ${{ inputs.exclude_courses }} \
-            --min-odds ${{ inputs.min_odds }} \
-            $EXCLUDE_STADIUMS_FLAG \
+            --strategy-config ${STRATEGY_CONFIG} \
             $RETRAIN_FLAG \
             --output artifacts/backtest_${YYYYMM}_${{ inputs.label }}.csv
         env:
@@ -134,10 +118,11 @@ jobs:
             --year ${{ inputs.year }} \
             --month ${{ inputs.month }} \
             --csv artifacts/backtest_${YYYYMM}_${{ inputs.label }}.csv \
+            --label ${{ inputs.label }} \
             --no-append \
             2>&1 | tee artifacts/gate_result_${YYYYMM}_${{ inputs.label }}.txt
 
-          GATE_JSON="artifacts/gate_result_${YYYYMM}.json"
+          GATE_JSON="artifacts/gate_result_${YYYYMM}_${{ inputs.label }}.json"
           if [ -f "$GATE_JSON" ]; then
             ZONE=$(python -c "import json; d=json.load(open('${GATE_JSON}')); print(d['zone'])")
             ROI=$(python -c "import json; d=json.load(open('${GATE_JSON}')); print(d['roi_pct'])")
@@ -151,19 +136,21 @@ jobs:
         run: |
           YYYYMM="${{ inputs.year }}$(printf '%02d' ${{ inputs.month }})"
           COMBO_FILE="artifacts/combos_${YYYYMM}.csv"
+          PROB="${{ steps.strategy.outputs.prob_threshold }}"
+          EV="${{ steps.strategy.outputs.ev_threshold }}"
 
           if [ -f "$COMBO_FILE" ]; then
             python ml/src/scripts/run_segment_analysis.py \
               --combos-csv "$COMBO_FILE" \
-              --prob-threshold ${{ inputs.prob_threshold }} \
-              --ev-threshold ${{ inputs.ev_threshold }} \
+              --prob-threshold "${PROB}" \
+              --ev-threshold "${EV}" \
               2>&1 | tee artifacts/segment_${YYYYMM}_${{ inputs.label }}.txt
           else
             python ml/src/scripts/run_segment_analysis.py \
               --year ${{ inputs.year }} \
               --month ${{ inputs.month }} \
-              --prob-threshold ${{ inputs.prob_threshold }} \
-              --ev-threshold ${{ inputs.ev_threshold }} \
+              --prob-threshold "${PROB}" \
+              --ev-threshold "${EV}" \
               --real-odds \
               2>&1 | tee artifacts/segment_${YYYYMM}_${{ inputs.label }}.txt
           fi
