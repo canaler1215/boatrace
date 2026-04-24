@@ -141,21 +141,49 @@ gh label create "auto-loop-candidate" --color "0e8a16" --description "auto-loop 
 - Require approvals: 1
 - Require review from Code Owners: ✅（CODEOWNERS が有効になる）
 
-### 3. 動作確認（Claude セッションから実行）
+### 3. `gh` CLI のインストール・認証（Claude がキックに使用）
 
-Claude Code セッション（VS Code や CLI）を開いて、以下を依頼するだけで内ループが動きます。
+Windows:
+```powershell
+winget install --id GitHub.cli
+gh auth login   # ブラウザ経由で認証
+```
+
+確認:
+```bash
+gh --version
+gh auth status
+gh repo view --json nameWithOwner -q '.nameWithOwner'
+# → "canaler1215/boatrace" と出力されればOK
+```
+
+### 4. 動作確認（Claude セッションから `/inner-loop` で実行）
+
+Claude Code セッションを開き、スラッシュコマンドを入力するだけで内ループが動きます。
 
 ```
-「2025年12月のバックテストを回して、結果を分析して改善案を出してください」
+/inner-loop 2025 12
 ```
 
-Claude は以下を自動で行います:
+または最大イテレーション数を指定:
+
+```
+/inner-loop 2025 12 3
+```
+
+Claude は `.claude/commands/inner-loop.md` の手順に従い、以下を自動実行します:
+
 1. `gh workflow run claude_fix.yml -f year=2025 -f month=12 -f label=baseline` でキック
-2. `gh run watch` で完了を待機
-3. `gh run download` で artifacts（CSV/JSON/TXT）を取得
-4. セグメント分析・ゲート判定を読んで対策を立案
-5. `strategy_default.yaml` を修正して候補パラメータで再実行
-6. 改善確認 → PR 作成
+2. `gh run watch <run-id> --exit-status` で完了を待機
+3. `gh run download <run-id> -D /tmp/inner-loop/baseline` で artifacts を取得
+4. `gate_result_*.json` と `segment_*.txt` を読んで分析
+5. `ml/configs/strategy_default.yaml` を 1 パラメータだけ修正
+6. 修正後のパラメータで `label=candidate-iter1` として再キック
+7. baseline vs candidate を比較
+8. 改善確認 → PR 作成、改善不十分 → 次イテレーション、最大イテレーション到達 → 撤退
+
+**重要**: `/inner-loop` は必ず GitHub Actions 経由で実行されます。
+ローカルで `python ml/src/scripts/run_backtest.py` を呼ぶことはありません。
 
 ### 4. ワークフローの権限確認
 
@@ -281,3 +309,4 @@ gh workflow run quarterly_walkforward.yml \
 - 2026-04-24: フェーズ 2 完了（`auto_backtest_loop.yml`, `auto_loop_alert.md`, `quarterly_walkforward.yml`）。ローカル構築手順は下記「フェーズ2 ローカル設定手順」セクション参照。
 - 2026-04-24: フェーズ 3 完了（`claude_fix.yml`, `.claude/AGENT_BRIEF.md`, `ml/configs/strategy_default.yaml`, `.github/CODEOWNERS`）。`run_backtest.py` に `--strategy-config` オプション追加。ローカル設定手順は「フェーズ3 ローカル設定手順」セクション参照。
 - 2026-04-24: フェーズ 3 設計変更: ANTHROPIC_API_KEY 不要な構成に変更。Claude（ローカルセッション）がオーケストレーターとなり `gh workflow run` で GitHub Actions をキック → artifacts 取得 → 分析・修正・再実行のループを回す。`claude_fix.yml` を `workflow_dispatch` のみのシンプルなワークフローに書き直し。
+- 2026-04-24: `/inner-loop` スラッシュコマンドを追加（`.claude/commands/inner-loop.md`）。CLAUDE.md に内ループ運用章を追記し、「バックテストは GitHub Actions 経由必須」を明記。AGENT_BRIEF.md をパラメータ調整ガイドラインに整理。
