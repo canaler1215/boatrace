@@ -11,9 +11,8 @@
 | Git | 任意 | ソース管理 |
 | lhasa | 任意（Linux/WSL） | LZH 展開（データ取得に必要） |
 
-> **Windows ユーザーへ**: `lhasa` は Windows ネイティブで動作しません。
-> データ取得（`run_collect.py`）は **WSL2 上の Ubuntu** で実行してください。
-> バックテスト・予測・再学習は Windows / WSL どちらでも動作します。
+> **Windows ユーザーへ**: `lhafile` (pip) を使えば WSL 不要で Windows ネイティブのまま動作します。
+> `ml/requirements.txt` に含まれているため `pip install -r ml/requirements.txt` で自動インストールされます。
 
 ---
 
@@ -131,13 +130,12 @@ docker compose logs db
 
 ポート 5432 が占有されている場合は `docker-compose.yml` の `ports` を変更してください。
 
-### `lhasa: command not found`
+### LZH 展開エラー
 
-WSL2 (Ubuntu) で実行してください:
+`pip install lhafile` で解決します（`ml/requirements.txt` に含まれています）:
 
-```bash
-sudo apt-get install -y lhasa
+```cmd
+pip install lhafile
 ```
 
-Windows の場合はデータ取得をスキップして既存の `data/` キャッシュを利用するか、
-WSL 環境でデータ取得後に Windows 側でバックテストを実行してください。
+`lhasa` コマンドは不要です。`lhafile` が優先して使われます。

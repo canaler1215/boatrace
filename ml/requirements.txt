@@ -6,6 +6,7 @@ scipy>=1.13.0
 psycopg[binary]==3.2.3
 requests==2.32.3
 python-dotenv==1.0.1
+lhafile==0.3.1
 joblib==1.4.2
 beautifulsoup4==4.12.3
 lxml==5.3.0

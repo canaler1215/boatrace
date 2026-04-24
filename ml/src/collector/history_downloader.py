@@ -136,13 +136,30 @@ def download_day_data(
 # ---------------------------------------------------------------------------
 
 def extract_lzh(lzh_path: Path, extract_dir: Path) -> list[Path]:
-    """LZH ファイルを展開してファイルリストを返す。lhasa が必要。"""
+    """LZH ファイルを展開してファイルリストを返す。
+
+    優先順位:
+      1. lhafile (pip install lhafile) — Windows/Linux/macOS で動作する Python 実装
+      2. lhasa コマンド — Linux/WSL での従来の方法
+    """
     extract_dir.mkdir(parents=True, exist_ok=True)
+
+    try:
+        import lhafile
+        with lhafile.LhaFile(str(lzh_path)) as lha:
+            for name in lha.namelist():
+                data = lha.read(name)
+                out_path = extract_dir / Path(name).name
+                out_path.write_bytes(data)
+        return [f for f in extract_dir.rglob("*") if f.is_file()]
+    except ImportError:
+        pass
 
     if not shutil.which("lhasa"):
         raise RuntimeError(
-            "lhasa コマンドが見つかりません。"
-            "Ubuntu: sudo apt-get install -y lhasa"
+            "LZH 展開に失敗しました。以下のいずれかをインストールしてください:\n"
+            "  pip install lhafile          # Windows/Linux/macOS 共通（推奨）\n"
+            "  sudo apt-get install lhasa   # Linux/WSL のみ"
         )
 
     result = subprocess.run(
