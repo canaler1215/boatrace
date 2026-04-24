@@ -332,8 +332,11 @@ def print_summary(results_df: pd.DataFrame, prob_threshold: float, bet_amount: i
 # ---------------------------------------------------------------------------
 
 def _apply_strategy_config(args: argparse.Namespace, config_path: str) -> None:
-    """YAML 戦略ファイルを読み込み、CLI 引数のデフォルト値を上書きする。
-    CLI で明示的に指定されたフラグは上書きしない（CLI 優先）。
+    """YAML 戦略ファイルを読み込み、args の対応フィールドを上書きする。
+
+    注意: 現実装では YAML 側の値が優先される（CLI で明示指定した値も上書きされる）。
+    CLI と --strategy-config を同時に使わないこと。GitHub Actions の claude_fix.yml は
+    --strategy-config のみを使い、閾値は YAML 経由で渡す運用（2026-04-24 C5 対応）。
     """
     p = Path(config_path)
     if not p.exists():
@@ -364,8 +367,11 @@ def _apply_strategy_config(args: argparse.Namespace, config_path: str) -> None:
 
 
 def _set_if_default(args: argparse.Namespace, key: str, value: Any) -> None:
-    """YAML の値が None でなく、args の現在値がパーサーのデフォルトと一致するときのみ上書き。
-    実質的に「CLI 引数が指定されていない場合だけ YAML を使う」動作になる。
+    """YAML の値が None でなければ args を上書きする。
+
+    歴史的な関数名だが実態は「YAML 優先の無条件上書き」。
+    CLI デフォルト判定は行っていない（argparse のデフォルトと明示指定の判別には
+    sentinel が必要なため、現状は簡素化している）。
     """
     if value is None:
         return

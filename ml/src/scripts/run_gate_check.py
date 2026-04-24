@@ -7,8 +7,8 @@
   python ml/src/scripts/run_gate_check.py --year 2025 --month 12 --no-append  # kpi_history に追記しない
 
 出力:
-  artifacts/gate_result_YYYYMM.json  ... ゾーン判定 + KPI
-  artifacts/kpi_history.jsonl        ... 1 ラン 1 行追記（--no-append で無効）
+  artifacts/gate_result_YYYYMM[_<label>].json  ... ゾーン判定 + KPI（--label 指定時はサフィックス付与）
+  artifacts/kpi_history.jsonl                  ... 1 ラン 1 行追記（--no-append で無効）
 
 exit code:
   0  ... normal / caution（ROI >= 300%）
@@ -99,9 +99,9 @@ def get_model_version() -> str:
     return models[0].stem if models else "unknown"
 
 
-def build_gate_result(kpi: dict, year: int, month: int) -> dict:
+def build_gate_result(kpi: dict, year: int, month: int, label: str | None = None) -> dict:
     zone = classify_zone(kpi["roi_pct"])
-    return {
+    result = {
         "timestamp": datetime.now(timezone.utc).isoformat(),
         "period": f"{year}-{month:02d}",
         "zone": zone,
@@ -109,6 +109,9 @@ def build_gate_result(kpi: dict, year: int, month: int) -> dict:
         "model_version": get_model_version(),
         **kpi,
     }
+    if label:
+        result["label"] = label
+    return result
 
 
 def append_kpi_history(record: dict) -> None:
@@ -127,6 +130,7 @@ def main() -> None:
     parser.add_argument("--month", type=int, help="テスト月（--csv 未指定時に使用）")
     parser.add_argument("--csv",   type=str, default=None, help="バックテスト結果 CSV のパス")
     parser.add_argument("--no-append", action="store_true", help="kpi_history.jsonl に追記しない")
+    parser.add_argument("--label",     type=str, default=None, help="ラン識別ラベル（baseline / candidate-iter1 など）。JSON ファイル名のサフィックスに付与")
     args = parser.parse_args()
 
     # CSV パスの解決
@@ -155,7 +159,7 @@ def main() -> None:
 
     df = pd.read_csv(csv_path)
     kpi = compute_kpi(df)
-    result = build_gate_result(kpi, year, month)
+    result = build_gate_result(kpi, year, month, label=args.label)
 
     # --- ゾーン表示 ---
     zone = result["zone"]
@@ -184,7 +188,8 @@ def main() -> None:
 
     # --- JSON 保存 ---
     ARTIFACTS_DIR.mkdir(exist_ok=True)
-    out_path = ARTIFACTS_DIR / f"gate_result_{year}{month:02d}.json"
+    suffix = f"_{args.label}" if args.label else ""
+    out_path = ARTIFACTS_DIR / f"gate_result_{year}{month:02d}{suffix}.json"
     with open(out_path, "w", encoding="utf-8") as f:
         json.dump(result, f, ensure_ascii=False, indent=2)
     print(f"[gate] Result saved: {out_path}")
