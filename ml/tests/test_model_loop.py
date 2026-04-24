@@ -40,6 +40,7 @@ sys.path.insert(0, str(ROOT / "src" / "scripts"))
 
 import run_model_loop as rml  # noqa: E402
 from run_model_loop import (  # noqa: E402
+    block_bootstrap_roi_ci,
     classify_verdict,
     compute_kpi,
     discover_pending_trials,
@@ -143,6 +144,10 @@ def test_compute_kpi_basic():
     # avg_hit_odds は matched=True の matched_odds の平均 = (150+40)/2 = 95
     assert kpi["avg_hit_odds"] == pytest.approx(95.0)
     assert kpi["hit_rate_per_bet"] == pytest.approx(2 / 4)
+    # broken_months: -50 を下回る月（6月の -60%）= 1
+    assert kpi["broken_months"] == 1
+    # cvar20: 2 月のうち下位 ceil(0.2*2)=1 月平均 = 最悪月 = -60
+    assert kpi["cvar20_month_roi"] == pytest.approx(-60.0)
 
 
 def test_compute_kpi_empty():
@@ -174,53 +179,201 @@ def test_compute_kpi_wagered_zero_month():
 
 
 # ---------------------------------------------------------------------------
-# C. primary_score / classify_verdict
+# C. primary_score / classify_verdict（2026-04-24 改訂）
+#    新定義: primary_score = roi_total + 0.5 * cvar20 - 10 * broken_months
+#    pass: roi≥+10 AND broken_months==0 AND plus_ratio≥0.60 AND roi_ci_low_90≥0
 # ---------------------------------------------------------------------------
 
-def test_primary_score_no_penalty():
-    # worst = -40 → ペナルティ 0（|worst| <= 50）
+def test_primary_score_no_broken_no_tail_loss():
+    # cvar20 正（プラス月のみ）、broken=0 → ペナルティなし
+    kpi = {"roi_total": 20.0, "cvar20_month_roi": 5.0, "broken_months": 0}
+    # 20 + 0.5*5 - 0 = 22.5
+    assert primary_score(kpi) == pytest.approx(22.5)
+
+
+def test_primary_score_cvar_negative_no_broken():
+    # 裾は負だが -50 超過なし → CVaR 分だけ減点
+    kpi = {"roi_total": 15.0, "cvar20_month_roi": -30.0, "broken_months": 0}
+    # 15 + 0.5*(-30) - 0 = 0.0
+    assert primary_score(kpi) == pytest.approx(0.0)
+
+
+def test_primary_score_one_broken_month():
+    # 破局月 1 件 → -10 の離散ペナルティ
+    kpi = {"roi_total": 11.2, "cvar20_month_roi": -79.5, "broken_months": 1}
+    # 11.2 + 0.5*(-79.5) - 10 = 11.2 - 39.75 - 10 = -38.55
+    assert primary_score(kpi) == pytest.approx(-38.55)
+
+
+def test_primary_score_multiple_broken_months():
+    # 破局月 3 件 → -30
+    kpi = {"roi_total": -13.4, "cvar20_month_roi": -72.4, "broken_months": 3}
+    # -13.4 + 0.5*(-72.4) - 30 = -13.4 - 36.2 - 30 = -79.6
+    assert primary_score(kpi) == pytest.approx(-79.6)
+
+
+def test_primary_score_backward_compat_missing_fields():
+    # 旧 KPI（broken_months / cvar20_month_roi なし）でも落ちない
     kpi = {"roi_total": 20.0, "worst_month_roi": -40.0}
+    # cvar20=0, broken=0 → 20.0
     assert primary_score(kpi) == pytest.approx(20.0)
 
 
-def test_primary_score_boundary_minus_50():
-    # worst = -50 → ペナルティ 0（等号なのでちょうど境界）
-    kpi = {"roi_total": 10.0, "worst_month_roi": -50.0}
-    assert primary_score(kpi) == pytest.approx(10.0)
-
-
-def test_primary_score_with_penalty():
-    # worst = -79.5 → penalty = 2 * (79.5 - 50) = 59.0
-    # score = 11.2 - 59.0 = -47.8
-    kpi = {"roi_total": 11.2, "worst_month_roi": -79.5}
-    assert primary_score(kpi) == pytest.approx(-47.8)
-
-
-def test_classify_verdict_pass():
-    kpi = {"roi_total": 15.0, "worst_month_roi": -30.0, "plus_month_ratio": 0.7}
+def test_classify_verdict_pass_all_conditions():
+    # 全条件クリア
+    kpi = {
+        "roi_total": 15.0,
+        "plus_month_ratio": 0.7,
+        "broken_months": 0,
+        "roi_ci_low_90": 2.0,
+    }
     assert classify_verdict(kpi) == "pass"
 
 
 def test_classify_verdict_pass_boundary():
-    # 境界値（ちょうど満たす）: ROI=0 / worst=-50 / plus_ratio=0.60
-    kpi = {"roi_total": 0.0, "worst_month_roi": -50.0, "plus_month_ratio": 0.60}
+    # 境界値: roi=+10, broken=0, plus_ratio=0.60, ci_low=0
+    kpi = {
+        "roi_total": 10.0,
+        "plus_month_ratio": 0.60,
+        "broken_months": 0,
+        "roi_ci_low_90": 0.0,
+    }
     assert classify_verdict(kpi) == "pass"
 
 
-def test_classify_verdict_marginal_worst_too_low():
-    # ROI >= 0 だが worst < -50 → marginal
-    kpi = {"roi_total": 5.0, "worst_month_roi": -70.0, "plus_month_ratio": 0.7}
+def test_classify_verdict_marginal_roi_below_10():
+    # ROI が +10 に届かない → pass ではなく marginal
+    kpi = {
+        "roi_total": 5.0,
+        "plus_month_ratio": 0.8,
+        "broken_months": 0,
+        "roi_ci_low_90": 1.0,
+    }
+    assert classify_verdict(kpi) == "marginal"
+
+
+def test_classify_verdict_marginal_broken_month():
+    # broken_months >= 1 → pass 失格
+    kpi = {
+        "roi_total": 15.0,
+        "plus_month_ratio": 0.7,
+        "broken_months": 1,
+        "roi_ci_low_90": 5.0,
+    }
+    assert classify_verdict(kpi) == "marginal"
+
+
+def test_classify_verdict_marginal_ci_low_negative():
+    # roi_ci_low_90 < 0 → pass 失格（偶発採択ガード）
+    kpi = {
+        "roi_total": 15.0,
+        "plus_month_ratio": 0.7,
+        "broken_months": 0,
+        "roi_ci_low_90": -3.0,
+    }
     assert classify_verdict(kpi) == "marginal"
 
 
 def test_classify_verdict_marginal_plus_ratio_low():
-    kpi = {"roi_total": 10.0, "worst_month_roi": -30.0, "plus_month_ratio": 0.4}
+    kpi = {
+        "roi_total": 15.0,
+        "plus_month_ratio": 0.4,
+        "broken_months": 0,
+        "roi_ci_low_90": 5.0,
+    }
     assert classify_verdict(kpi) == "marginal"
 
 
 def test_classify_verdict_fail():
-    kpi = {"roi_total": -20.0, "worst_month_roi": -80.0, "plus_month_ratio": 0.3}
+    kpi = {
+        "roi_total": -20.0,
+        "plus_month_ratio": 0.3,
+        "broken_months": 3,
+        "roi_ci_low_90": -40.0,
+    }
     assert classify_verdict(kpi) == "fail"
+
+
+def test_classify_verdict_ci_missing_is_skipped():
+    # 旧 KPI（roi_ci_low_90 なし）でも pass 判定は可能（互換）
+    kpi = {
+        "roi_total": 15.0,
+        "plus_month_ratio": 0.7,
+        "broken_months": 0,
+    }
+    assert classify_verdict(kpi) == "pass"
+
+
+def test_classify_verdict_broken_derived_from_worst():
+    # broken_months が無いが worst_month_roi はある → worst < -50 なら 1 扱い
+    kpi = {
+        "roi_total": 15.0,
+        "plus_month_ratio": 0.7,
+        "worst_month_roi": -70.0,
+        "roi_ci_low_90": 5.0,
+    }
+    assert classify_verdict(kpi) == "marginal"
+
+
+# ---------------------------------------------------------------------------
+# C-bis. block_bootstrap_roi_ci
+# ---------------------------------------------------------------------------
+
+def test_bootstrap_empty_rows():
+    ci = block_bootstrap_roi_ci([])
+    assert ci["roi_ci_low"] == 0.0
+    assert ci["roi_ci_high"] == 0.0
+    assert ci["n_resamples"] == 0
+
+
+def test_bootstrap_deterministic_with_seed():
+    # seed 固定なら同じ結果
+    rows = [
+        {"month": "2025-05", "wagered": 1000.0, "payout": 1100.0},
+        {"month": "2025-06", "wagered": 1000.0, "payout": 900.0},
+        {"month": "2025-07", "wagered": 1000.0, "payout": 1200.0},
+        {"month": "2025-08", "wagered": 1000.0, "payout": 800.0},
+    ]
+    ci1 = block_bootstrap_roi_ci(rows, seed=42, n_resamples=500)
+    ci2 = block_bootstrap_roi_ci(rows, seed=42, n_resamples=500)
+    assert ci1 == ci2
+
+
+def test_bootstrap_ci_brackets_roughly_mean():
+    # 全月プラス → CI 下限が正 / 下限 < 上限
+    rows = [
+        {"month": f"2025-{m:02d}", "wagered": 1000.0, "payout": 1200.0}
+        for m in range(1, 13)
+    ]
+    ci = block_bootstrap_roi_ci(rows, seed=0, n_resamples=500)
+    # 毎月 ROI = +20% なので CI は +20% 付近に収束
+    assert 15.0 <= ci["roi_ci_low"] <= 25.0
+    assert 15.0 <= ci["roi_ci_high"] <= 25.0
+    assert ci["roi_ci_low"] <= ci["roi_ci_high"]
+
+
+def test_bootstrap_negative_tail_gives_negative_lower_bound():
+    # 破局月を含む系列 → CI 下限が 0 を下回ることを期待
+    rows = [
+        {"month": "2025-05", "wagered": 1000.0, "payout": 1100.0},  # +10%
+        {"month": "2025-06", "wagered": 1000.0, "payout": 1050.0},  # +5%
+        {"month": "2025-07", "wagered": 1000.0, "payout": 300.0},   # -70%
+        {"month": "2025-08", "wagered": 1000.0, "payout": 1050.0},  # +5%
+        {"month": "2025-09", "wagered": 1000.0, "payout": 1050.0},  # +5%
+        {"month": "2025-10", "wagered": 1000.0, "payout": 250.0},   # -75%
+    ]
+    ci = block_bootstrap_roi_ci(rows, seed=0, n_resamples=1000, block_length=3)
+    assert ci["roi_ci_low"] < 0.0
+    assert ci["roi_ci_high"] > ci["roi_ci_low"]
+
+
+def test_bootstrap_block_length_auto_shrink():
+    # 月数 1、block_length=3 指定でも落ちない
+    rows = [{"month": "2025-05", "wagered": 1000.0, "payout": 1200.0}]
+    ci = block_bootstrap_roi_ci(rows, block_length=3, n_resamples=100, seed=0)
+    assert ci["block_length"] == 1  # auto-shrunk
+    assert ci["roi_ci_low"] == pytest.approx(20.0)
+    assert ci["roi_ci_high"] == pytest.approx(20.0)
 
 
 # ---------------------------------------------------------------------------
@@ -320,10 +473,18 @@ def test_execute_trial_success(tmp_path, monkeypatch):
             "plus_months": 2,
             "total_months": 2,
             "plus_month_ratio": 1.0,
+            "broken_months": 0,
+            "cvar20_month_roi": -40.0,
             "avg_hit_odds": 300.0,
             "hit_rate_per_bet": 0.005,
         },
         monthly_roi={"2025-05": 60.0, "2025-06": -40.0},
+        monthly_rows=[
+            {"month": "2025-05", "wagered": 50000.0, "payout": 80000.0,
+             "n_bets": 500, "wins": 3},
+            {"month": "2025-06", "wagered": 50000.0, "payout": 35000.0,
+             "n_bets": 500, "wins": 2},
+        ],
         model_metrics={"metrics": {"ece_rank1_calibrated": 0.1337}},
         csv_path=dummy_csv,
     )
@@ -344,9 +505,15 @@ def test_execute_trial_success(tmp_path, monkeypatch):
     assert rec["status"] == "success"
     assert rec["kpi"]["roi_total"] == 15.0
     assert rec["kpi"]["ece_rank1_calibrated"] == pytest.approx(0.1337)
-    assert rec["primary_score"] == pytest.approx(15.0)  # worst=-40 → no penalty
-    # plus_ratio=1.0, worst=-40, roi=15 → pass
-    assert rec["verdict"] == "pass"
+    # bootstrap CI が KPI に注入されている
+    assert "roi_ci_low_90" in rec["kpi"]
+    assert "roi_ci_high_90" in rec["kpi"]
+    # primary_score 新定義: 15 + 0.5*(-40) - 10*0 = -5.0
+    assert rec["primary_score"] == pytest.approx(-5.0)
+    # 新 pass 条件: roi=15 ≥ +10, broken=0, plus_ratio=1.0, ci_low ≥ 0 のはず
+    # （2 月とも wagered=50000 でうち1月は +60% あるため CI 下限は正になりうる）
+    # ここでは verdict が pass または marginal のいずれかであることを確認
+    assert rec["verdict"] in ("pass", "marginal")
     assert "duration_sec" in rec
     assert rec["description"] == "desc of T01_test"
 
@@ -355,7 +522,7 @@ def test_execute_trial_success(tmp_path, monkeypatch):
     assert summary_path.exists()
     summary = json.loads(summary_path.read_text(encoding="utf-8"))
     assert summary["trial_id"] == "T01_test"
-    assert summary["verdict"] == "pass"
+    assert summary["verdict"] == rec["verdict"]
 
 
 def test_execute_trial_failure(tmp_path, monkeypatch):

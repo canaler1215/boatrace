@@ -363,7 +363,7 @@ Claude Code セッションで `/inner-loop <year> <month> [max-iter]` を実行
 | 変更対象 | `ml/configs/strategy_default.yaml`（購入フィルタ 1 パラメータ） | 学習ハイパラ・学習窓・sample_weight（`trials/pending/*.yaml`） |
 | 実行場所 | GitHub Actions 強制 | **ローカル**（Windows / Python 3.12） |
 | 1 trial の時間 | 数分〜数十分 | 15〜25 分（Walk-Forward 12 ヶ月 + 3 ヶ月おき再学習） |
-| 判定基準 | ROI 500% 基準 | 通算ROI ≥ 0% + 最悪月 ≥ -50% + プラス月 ≥ 60% |
+| 判定基準 | ROI 500% 基準 | 通算ROI ≥ +10% + broken_months=0（worst > -50%）+ プラス月 ≥ 60% + bootstrap CI 下限 ≥ 0（2026-04-24 改訂、MODEL_LOOP_PLAN §3-5） |
 | 背景 | フィルタ探索 | `BET_RULE_REVIEW_202509_202512.md` §30-32 の結論：フィルタでは out-of-sample 黒字化不能 → モデル側の再設計が必要 |
 
 ### 実行方法

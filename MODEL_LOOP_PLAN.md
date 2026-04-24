@@ -168,6 +168,10 @@ strategy:
     "plus_months": 7,
     "total_months": 11,
     "plus_month_ratio": 0.636,
+    "broken_months": 1,
+    "cvar20_month_roi": -72.4,
+    "roi_ci_low_90": -8.3,
+    "roi_ci_high_90": 24.5,
     "avg_hit_odds": 261.0,
     "hit_rate_per_bet": 0.0035,
     "ece_rank1_calibrated": 0.1337
@@ -177,45 +181,103 @@ strategy:
     "2025-06": 104.0,
     ...
   },
-  "primary_score": -48.3,
-  "verdict": "fail",
-  "notes": "breakdown月が2026-01, 2026-04 で発生、改善なし"
+  "primary_score": -32.55,
+  "verdict": "marginal",
+  "notes": "breakdown月が2026-01 で発生、CI 下限が負なので pass 失格"
 }
 ```
 
-### 3-4. primary_score の定義
+### 3-4. primary_score の定義（2026-04-24 改訂）
 
 ```python
 def primary_score(kpi: dict) -> float:
     """
-    合計 ROI から、最悪月のペナルティを差し引いた複合スコア。
-    高いほど良い。正で合格圏、負は不合格。
+    CVaR20 ベースの複合スコア（高いほど良い）。
 
-    worst_month_roi が -50% を下回るごとに、超過分の 2 倍をペナルティ。
-    例: worst_month_roi = -79.5% → penalty = 2.0 * (79.5 - 50) = 59.0
+    定義:
+        primary_score = roi_total + 0.5 * cvar20 - 10 * broken_months
+
+    ここで:
+      cvar20          = 下位 20% 月次 ROI の平均（裾の平均、最低 1 月）
+      broken_months   = 月次 ROI < -50% の月数（離散カウント）
+
+    例: roi_total=11.2, cvar20=-79.5, broken=1
+        → 11.2 + 0.5*(-79.5) - 10 = -38.55
     """
     roi = kpi["roi_total"]
-    worst = kpi["worst_month_roi"]
-    penalty = 2.0 * max(0.0, -50.0 - worst)   # worst < -50 のときだけ発動
-    return roi - penalty
+    cvar20 = kpi.get("cvar20_month_roi", 0.0)
+    broken = kpi.get("broken_months", 0)
+    return roi + 0.5 * cvar20 - 10.0 * broken
 ```
 
-### 3-5. verdict 判定ルール
+**設計意図（2026-04-24 レビュー指摘反映）**:
+
+旧定義 `roi - 2 * max(0, -50 - worst)` には以下の問題があった:
+
+- `worst_month` が単月の偶発的事故に支配され、primary_score も 1 月の当落で大きく振れる
+- roi_total にも worst 月の損失は含まれており、penalty と合わせて **二重カウント**
+  （例: worst=-80% なら roi_total 側で -80、penalty 側で +60 ×2 = -140 相当のインパクト）
+- -50 閾値の直前後で挙動が急変（連続関数だが勾配が急）
+
+新定義は:
+
+- **CVaR20（裾の「平均」）** で単月事故への過度な感度を緩和（2〜3 月分の情報を使う）
+- **broken_months（離散カウント）** で -50% 超過を階段状に罰する（1 件 -10、2 件 -20、…）
+- 係数 0.5 / 10 は「通算 ROI と同じ桁の単位」で解釈可能
+
+### 3-5. verdict 判定ルール（2026-04-24 改訂）
+
+pass 基準を CLAUDE.md「現行の運用方針」の実運用再開条件
+（通算 ROI ≥ +10% かつ最悪月 > -50%）と完全整合させる。
 
 ```python
+# 閾値（CLAUDE.md 実運用再開条件と一致）
+PASS_ROI_MIN = 10.0         # 通算 ROI ≥ +10%
+PASS_PLUS_RATIO_MIN = 0.60  # プラス月比率 ≥ 60%
+PASS_BROKEN_MAX = 0         # 破局月 0 本（worst > -50% と等価）
+PASS_CI_LOW_MIN = 0.0       # block bootstrap CI 下限 ≥ 0
+
 def classify_verdict(kpi: dict) -> str:
     roi = kpi["roi_total"]
-    worst = kpi["worst_month_roi"]
     plus_ratio = kpi["plus_month_ratio"]
+    broken = kpi.get("broken_months", 0)
+    ci_low = kpi.get("roi_ci_low_90")  # 無ければチェックスキップ（互換）
 
-    # 合格: 3 基準すべて満たす
-    if roi >= 0 and worst >= -50 and plus_ratio >= 0.60:
+    pass_ok = (
+        roi >= PASS_ROI_MIN
+        and broken <= PASS_BROKEN_MAX
+        and plus_ratio >= PASS_PLUS_RATIO_MIN
+        and (ci_low is None or ci_low >= PASS_CI_LOW_MIN)
+    )
+    if pass_ok:
         return "pass"
-    # 準合格: ROI >= 0 だが月次安定性が不足
     if roi >= 0:
         return "marginal"
     return "fail"
 ```
+
+**設計意図**:
+
+- 旧基準 `roi ≥ 0` は「通算黒字化」だったが、CLAUDE.md 再開条件は「+10% 以上」。
+  verdict pass と実運用再開を同じ閾値に揃え、「pass なのに再開条件未達」の
+  運用事故を防ぐ。
+- `roi_ci_low_90` を必要条件に追加: ブロック長 3（= retrain 周期）の
+  block bootstrap で通算 ROI の 90% 信頼区間を計算し、下限が 0 を下回る
+  trial は **偶発的に黒字が出ただけの可能性が高い** として pass から落とす。
+  旧 KPI（CI フィールド無し）との互換のため、キー不在時はチェックをスキップ。
+- `broken_months` を pass 条件に使うことで、worst 1 点に依存しない離散判定に。
+
+### 3-6. block bootstrap による通算 ROI CI
+
+`build_success_record` で `run_model_loop.block_bootstrap_roi_ci(monthly_rows, ...)` を
+呼び、`roi_ci_low_90` / `roi_ci_high_90` を KPI に注入する。
+
+- **ブロック長**: 3（= retrain_interval、月次 ROI の系列相関を緩和）
+- **再サンプル回数**: 2000
+- **信頼水準**: 90%（片側 5%/95% パーセンタイル）
+- **seed**: 0 固定（再現性確保）
+
+月数が短い smoke ランでは block_length を自動縮小（`min(block_length, n_months)`）。
 
 ---
 
@@ -352,14 +414,27 @@ argument-hint: `[trial_id | all]`
 
 初期 7 trial 完了後、Claude は以下のルールで次の trial を設計:
 
-1. results.jsonl を読み、primary_score でソート
+1. results.jsonl を読み、primary_score（2026-04-24 改訂定義: CVaR20 + broken_months ベース）でソート
 2. 上位 trial のパラメータ近傍を探る（例: T01 が良ければ T01b として train_start_year=2024_06 など）
 3. 下位 trial の方向は避ける
-4. **5 trial 連続で primary_score が baseline 比 非改善** → 構造変更（LambdaRank 等）を提案して停止
+4. **5 trial 連続で primary_score が baseline 比 非改善** → 構造変更提案フェーズへ進む検討
 5. 合格（verdict=pass）trial が出たら即報告、以降は確証のため近傍を 2〜3 本追加して打ち止め
 
-撤退条件:
-- 10 trial 回しても verdict=pass が 0 本 → モデル構造変更フェーズに進む提案をユーザーに出す
+撤退条件（2026-04-24 改訂）:
+
+単純な「10 trial pass 0 → LambdaRank」は統計的に早すぎる（p=15% 仮定で 10 回全失敗確率 ≒ 20%）
+ため、段階化する:
+
+- **10 trial 時点で評価**: pass 事後確率 P(p>10%) を β(1,1) 事前 + 観測で更新し、
+  20% 超なら追加 5 trial（合計 15）まで延長。
+- **15 trial pass 0** または **5 trial 連続で primary_score が baseline 比 非改善** →
+  構造変更提案フェーズへ。
+- 構造変更の候補は LambdaRank 単独指名ではなく、以下のツリーから期待値で選ぶ:
+  1. 特徴量拡張（最小工数・期待値高い。例: 直前気象差分、場×コース交互作用、ST ばらつき）
+  2. 目的関数変更（binary top-1 / pairwise / LambdaRank）
+  3. キャリブレーション再設計（per-class IR → 結合 IR / Dirichlet）
+  4. Purged/Embargoed time-series CV
+- いずれも本格投入前に **単月 val top-1 accuracy の小規模 PoC** で筋を確認する。
 
 ---
 
