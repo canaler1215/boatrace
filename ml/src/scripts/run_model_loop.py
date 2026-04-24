@@ -22,6 +22,8 @@ import argparse
 import calendar
 import json
 import logging
+import math
+import random
 import shutil
 import sys
 import traceback
@@ -140,6 +142,18 @@ def compute_kpi(all_results: pd.DataFrame, monthly_rows: list[dict]) -> dict:
         worst_month_roi = 0.0
         best_month_roi = 0.0
 
+    # broken_months: -50% を下回った月数（離散カウント。単月事故の二重罰を避ける）
+    broken_months = sum(1 for v in monthly_roi.values() if v < -50.0)
+
+    # CVaR20: 下位 20% の月次 ROI 平均（最低 1 月）。裾の「平均」なので
+    # 単月 min と違い 2〜3 月分の情報を使う。月数 < 5 の smoke ランでも最低 1 月で動く。
+    if monthly_roi:
+        sorted_vals = sorted(monthly_roi.values())
+        k = max(1, math.ceil(0.20 * total_months))
+        cvar20 = sum(sorted_vals[:k]) / k
+    else:
+        cvar20 = 0.0
+
     return {
         "total_bets": total_bets,
         "total_wagered": total_wagered,
@@ -151,30 +165,155 @@ def compute_kpi(all_results: pd.DataFrame, monthly_rows: list[dict]) -> dict:
         "plus_months": plus_months,
         "total_months": total_months,
         "plus_month_ratio": round(plus_month_ratio, 4),
+        "broken_months": broken_months,
+        "cvar20_month_roi": round(cvar20, 2),
         "avg_hit_odds": round(avg_hit_odds, 2),
         "hit_rate_per_bet": round(hit_rate_per_bet, 6),
     }
 
 
+def block_bootstrap_roi_ci(
+    monthly_rows: list[dict],
+    block_length: int = 3,
+    n_resamples: int = 2000,
+    ci_level: float = 0.90,
+    seed: int = 0,
+) -> dict:
+    """
+    月次 (wagered, payout) を block bootstrap で再サンプリングし、
+    通算 ROI の信頼区間を返す。
+
+    retrain 周期 3 ヶ月を念頭にブロック長 3 を既定値とする（独立仮定の破れを緩和）。
+    seed 固定で決定論的。月数 < block_length*2 の場合はブロック長を自動縮小する。
+
+    Parameters
+    ----------
+    monthly_rows : list[dict]
+        compute_kpi と同じ形式。{"month", "wagered", "payout", ...}
+    block_length : int
+        ブロック長（既定 3 = 再学習間隔）
+    n_resamples : int
+        ブートストラップ反復数
+    ci_level : float
+        片側信頼水準（既定 0.90 → 5% / 95% パーセンタイル）
+    seed : int
+
+    Returns
+    -------
+    dict : {"roi_ci_low", "roi_ci_high", "n_resamples", "block_length"}
+        月数 0 の場合は low=high=0.0。
+    """
+    n = len(monthly_rows)
+    if n == 0:
+        return {
+            "roi_ci_low": 0.0,
+            "roi_ci_high": 0.0,
+            "n_resamples": 0,
+            "block_length": block_length,
+        }
+
+    # ブロック長はサンプル月数を超えないように調整
+    bl = max(1, min(block_length, n))
+    n_blocks = math.ceil(n / bl)
+
+    wagered = [float(r["wagered"]) for r in monthly_rows]
+    payout = [float(r["payout"]) for r in monthly_rows]
+
+    rng = random.Random(seed)
+    rois: list[float] = []
+    for _ in range(n_resamples):
+        # circular block bootstrap: 開始位置を n 個からランダム選択、n 月分に切り詰め
+        w_sum = 0.0
+        p_sum = 0.0
+        collected = 0
+        for _b in range(n_blocks):
+            start = rng.randrange(n)
+            for k in range(bl):
+                if collected >= n:
+                    break
+                idx = (start + k) % n
+                w_sum += wagered[idx]
+                p_sum += payout[idx]
+                collected += 1
+            if collected >= n:
+                break
+        if w_sum > 0:
+            rois.append((p_sum / w_sum - 1.0) * 100.0)
+        else:
+            rois.append(0.0)
+
+    rois.sort()
+    alpha = (1.0 - ci_level) / 2.0
+    lo_idx = max(0, int(math.floor(alpha * n_resamples)))
+    hi_idx = min(n_resamples - 1, int(math.ceil((1.0 - alpha) * n_resamples)) - 1)
+    return {
+        "roi_ci_low": round(rois[lo_idx], 2),
+        "roi_ci_high": round(rois[hi_idx], 2),
+        "n_resamples": n_resamples,
+        "block_length": bl,
+    }
+
+
 def primary_score(kpi: dict) -> float:
     """
-    合計 ROI から最悪月のペナルティを差し引いた複合スコア（高いほど良い）。
-    MODEL_LOOP_PLAN §3-4 準拠。
+    CVaR20 ベースの複合スコア（高いほど良い）。
+
+    定義:
+        primary_score = roi_total + 0.5 * cvar20 - 10 * broken_months
+
+    設計意図:
+      - 旧式の `roi - 2*max(0, -50-worst)` は worst_month が単月事故で
+        振れると primary_score も大きく動き、さらに roi_total と二重に
+        worst 月を参照する非対称性があった（レビュー 2026-04-24 指摘）。
+      - 新定義では裾の指標を「CVaR20（下位20%月の平均）」に置き換え、
+        -50% 超過は離散カウント（broken_months）× 係数 10 で階段状に罰則。
+      - 月次事故が 1 件あっても -10 のペナルティで済み、他 11 ヶ月の
+        実績が見える。2 件超でも線形にしか増えない。
     """
     roi = kpi.get("roi_total", 0.0)
-    worst = kpi.get("worst_month_roi", 0.0)
-    penalty = 2.0 * max(0.0, -50.0 - worst)
-    return round(roi - penalty, 2)
+    cvar20 = kpi.get("cvar20_month_roi", 0.0)
+    broken = kpi.get("broken_months", 0)
+    return round(roi + 0.5 * cvar20 - 10.0 * broken, 2)
+
+
+# verdict 判定の閾値（CLAUDE.md「現行の運用方針」実運用再開条件と整合）
+PASS_ROI_MIN = 10.0         # 通算 ROI ≥ +10%
+PASS_PLUS_RATIO_MIN = 0.60  # プラス月比率 ≥ 60%
+PASS_BROKEN_MAX = 0         # 破局月 0 本（worst > -50% と等価）
+PASS_CI_LOW_MIN = 0.0       # bootstrap CI 下限 ≥ 0
 
 
 def classify_verdict(kpi: dict) -> str:
     """
-    合否判定: pass / marginal / fail。MODEL_LOOP_PLAN §3-5 準拠。
+    合否判定: pass / marginal / fail。
+
+    pass 必要条件（すべて満たすこと）:
+      - roi_total ≥ +10%           … CLAUDE.md 実運用再開条件
+      - broken_months == 0          … worst_month_roi > -50% と等価
+      - plus_month_ratio ≥ 0.60
+      - roi_ci_low_90 ≥ 0           … block bootstrap 下限（偶発採択ガード）
+        ※ `roi_ci_low_90` が kpi に無い場合はチェックをスキップ（互換）
+
+    marginal: roi_total ≥ 0（pass は満たさないが、通算は黒字）
+    fail: それ以外
     """
     roi = kpi.get("roi_total", 0.0)
-    worst = kpi.get("worst_month_roi", 0.0)
     plus_ratio = kpi.get("plus_month_ratio", 0.0)
-    if roi >= 0 and worst >= -50 and plus_ratio >= 0.60:
+    broken = kpi.get("broken_months", None)
+    ci_low = kpi.get("roi_ci_low_90", None)
+
+    # broken_months が無い旧 KPI では worst_month_roi から導出
+    if broken is None:
+        worst = kpi.get("worst_month_roi", 0.0)
+        broken = 1 if worst < -50.0 else 0
+
+    pass_ok = (
+        roi >= PASS_ROI_MIN
+        and broken <= PASS_BROKEN_MAX
+        and plus_ratio >= PASS_PLUS_RATIO_MIN
+        and (ci_low is None or ci_low >= PASS_CI_LOW_MIN)
+    )
+    if pass_ok:
         return "pass"
     if roi >= 0:
         return "marginal"
@@ -242,6 +381,7 @@ def _copy_trial_model(
 class TrialRunResult:
     kpi: dict
     monthly_roi: dict[str, float]
+    monthly_rows: list[dict]  # block bootstrap 再計算のために生の月次集計を保持
     model_metrics: dict | None  # trainer.train の return_metrics dict（最後の学習月分）
     csv_path: Path
 
@@ -390,6 +530,7 @@ def run_trial_walkforward(trial: dict, trial_id: str) -> TrialRunResult:
     return TrialRunResult(
         kpi=kpi,
         monthly_roi=monthly_roi,
+        monthly_rows=monthly_rows,
         model_metrics=last_metrics,
         csv_path=csv_path,
     )
@@ -418,6 +559,18 @@ def build_success_record(
         ece = run_result.model_metrics["metrics"].get("ece_rank1_calibrated")
         if ece is not None:
             kpi["ece_rank1_calibrated"] = round(float(ece), 6)
+
+    # block bootstrap で通算 ROI の 90% CI を算出し、verdict 必要条件に使う。
+    # ブロック長 3 = retrain 周期（MODEL_LOOP_PLAN §3-2）。
+    ci = block_bootstrap_roi_ci(
+        run_result.monthly_rows,
+        block_length=3,
+        n_resamples=2000,
+        ci_level=0.90,
+        seed=0,
+    )
+    kpi["roi_ci_low_90"] = ci["roi_ci_low"]
+    kpi["roi_ci_high_90"] = ci["roi_ci_high"]
 
     summary_path = ARTIFACTS_DIR / f"walkforward_{trial_id}_summary.json"
     summary = {
