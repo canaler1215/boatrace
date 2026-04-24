@@ -1,0 +1,27 @@
+trial_id: T01_window_2024
+description: "学習窓を 2024-01〜 に短縮（直近データ重視仮説の検証）"
+hypothesis: |
+  BET_RULE_REVIEW §32 候補 1。2023 年からの古いデータが直近の分布シフトを
+  吸収しきれていない可能性があるため、train_start_year=2024 に短縮して検証する。
+
+training:
+  train_start_year: 2024
+  train_start_month: 1
+  sample_weight:
+    mode: null
+
+walkforward:
+  start: "2025-05"
+  end: "2026-04"
+  retrain_interval: 3
+  real_odds: true
+
+strategy:
+  prob_threshold: 0.07
+  ev_threshold: 2.0
+  min_odds: 100.0
+  exclude_courses: []
+  exclude_stadiums: [2, 3, 4, 9, 11, 14, 16, 17, 21, 23]
+  bet_amount: 100
+  max_bets: 5
+  bet_type: trifecta

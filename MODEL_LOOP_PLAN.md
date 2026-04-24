@@ -4,7 +4,7 @@
 セッション開始時にこのファイルをまず読み、記載通りに実装を進めること。
 
 最終更新: 2026-04-24
-ステータス: **タスク1・2・3 完了、タスク4（初期 trial seeds）以降 未着手**
+ステータス: **タスク1・2・3・4 完了、タスク5（/model-loop スラッシュコマンド）以降 未着手**
 
 ---
 
@@ -466,6 +466,7 @@ argument-hint: `[trial_id | all]`
 - 2026-04-24: **タスク 1 完了**（trainer.py 拡張、単体テスト追加）
 - 2026-04-24: **タスク 2 完了**（run_walkforward.py の config 対応、sample_weight 生成、単体テスト追加）
 - 2026-04-24: **タスク 3 完了**（run_model_loop.py 新規作成、trials/ ディレクトリ構造、単体テスト追加）
+- 2026-04-24: **タスク 4 完了**（初期 trial seeds 8 本を配置、YAML 妥当性テスト追加）
 
 ---
 
@@ -627,3 +628,80 @@ py -3.12 -m pytest ml/tests/test_trainer_config.py ml/tests/test_walkforward_con
 - `strategy` セクションは全 trial 統一（設計書 §4 タスク 4 準拠）
 - 実行前に baseline（T00）の Walk-Forward が実際に完走することを確認（設計書 §7-1）
 - タスク 5（`/model-loop` スラッシュコマンド）, タスク 6（ドキュメント更新）も後続で対応
+
+### 2026-04-24 — タスク 4 完了（初期 trial seeds 8 本を配置）
+
+**変更内容**:
+
+1. [trials/pending/](trials/pending/) に 8 本の trial YAML を配置（設計書 §4 タスク 4 準拠）:
+
+   | trial_id | 変更点 | 仮説 |
+   |---|---|---|
+   | T00_baseline | 現行 trainer.py 既定（train_start=2023/1, LGB_PARAMS デフォルト） | 他 trial の比較基準 |
+   | T01_window_2024 | train_start_year=2024 | 古いデータが直近の分布シフトを吸収しきれていないか |
+   | T02_window_2025 | train_start_year=2025 | さらに超直近のみで過学習リスクを検証 |
+   | T03_sample_weight_recency | 窓 2023〜 + recency_months=12, recency_weight=3.0 | 古いデータを捨てず直近を強調する折衷案 |
+   | T04_lgbm_regularized | num_leaves=31, min_child_samples=200 | 過学習抑制で汎化性能を回復 |
+   | T05_lgbm_conservative_lr | learning_rate=0.02, num_boost_round=2000 | 細かい収束で粗さ/過学習を解消 |
+   | T06_early_stop_tight | early_stopping_rounds=30 | 早期停止で汎化に強い iter を採用 |
+   | T07_window_2024_plus_weight | window=2024 + recency_months=6, recency_weight=2.0 | T01 × recency の複合効果 |
+
+2. 全 8 本で `strategy` セクションを統一（BET_RULE_REVIEW 案 A ベース、比較可能性を保証）:
+   ```yaml
+   prob_threshold: 0.07, ev_threshold: 2.0, min_odds: 100.0,
+   exclude_courses: [], exclude_stadiums: [2, 3, 4, 9, 11, 14, 16, 17, 21, 23],
+   bet_amount: 100, max_bets: 5, bet_type: trifecta
+   ```
+
+3. 全 8 本で `walkforward` を `2025-05 〜 2026-04, retrain_interval=3, real_odds=true` に統一（§1-3 合意事項）。
+
+**追加テスト**: [ml/tests/test_trial_seeds.py](ml/tests/test_trial_seeds.py)（40 ケース、全て静的検証・重い学習なし）
+
+- 期待される 8 本が trials/pending/ に揃っていること
+- 各 YAML が `load_trial_yaml` を通過、`trial_id` がファイル名と一致すること
+- `strategy` セクションが 8 本すべてで統一されていること（比較統一性の回帰検知）
+- `walkforward` 期間・retrain_interval・real_odds が統一されていること
+- `sample_weight.mode` が `null` / `"recency"` / `"exp_decay"` の妥当値であること
+- T00〜T07 それぞれの変更点が仕様通りであること（per-trial 検証）
+
+**テスト結果**:
+```
+py -3.12 -m pytest ml/tests/test_trial_seeds.py -v
+=> 40 passed in 4.38s
+
+py -3.12 -m pytest ml/tests/test_trainer_config.py ml/tests/test_walkforward_config.py \
+    ml/tests/test_model_loop.py ml/tests/test_trial_seeds.py -v
+=> 80 passed in 5.84s
+```
+
+さらに `discover_pending_trials()` スモーク確認で 8 本すべてが列挙・load できることを確認済み。
+
+**既存呼び出し側への影響**: なし（新規 YAML と新規テストのみ）。
+
+**ユーザーのローカル環境で必要な準備（設計書 §2 前提、実行前確認）**:
+
+タスク 5（`/model-loop` スラッシュコマンド）の実装を待たずに、ユーザーが先に baseline（T00）を手動で
+走らせる場合の前提条件を以下にまとめる。すべて既存ワークフローの再確認であり、新規要件はない:
+
+1. **Python 3.12 環境**: `py -3.12 --version` で確認。`pip install -r ml/requirements.txt` 済みであること
+2. **データキャッシュ**: `data/history/` / `data/program/` / `data/odds/` に 2023-01〜2026-04 の K/B/オッズファイルがあること
+   （設計書 §2-1 「本計画書の期間については既にダウンロード済み」の前提）
+3. **DB 接続不要**: `run_backtest.py` / `run_walkforward.py` はファイルキャッシュだけで完結するため `BACKTEST_DATABASE_URL` は不要
+4. **ディスク容量**: モデル 1 本 ~50MB × 8 trial = 400MB、CSV 数 MB × 8 = 数十 MB
+5. **実行時間見積もり**: 1 trial あたり 15〜25 分、8 本で 2〜3 時間（夜間回し想定）
+
+単発実行例（タスク 5 完了前でも動く）:
+```bash
+# 全 8 本を連続実行
+py -3.12 ml/src/scripts/run_model_loop.py
+
+# T00_baseline のみ先行実行
+py -3.12 ml/src/scripts/run_model_loop.py --trial T00_baseline
+```
+
+**次のアクション**: タスク 5（`/model-loop` スラッシュコマンド `.claude/commands/model-loop.md` を新規作成）
+- argument-hint: `[trial_id | all]`
+- pending に YAML があれば `run_model_loop.py` を実行、なければ次 trial 設計フェーズへ
+- 連続実行合意のため、途中報告は最小限。全 trial 完了後に results.jsonl を読んでまとめて報告する設計
+- タスク 6（CLAUDE.md / AUTO_LOOP_PLAN.md 追記）も後続で対応
+- 設計書 §7-6 の動作確認（T00_baseline + T01 の実行）はタスク 5 完了後、ユーザーがローカルで実 Walk-Forward を走らせる段で実施

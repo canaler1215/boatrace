@@ -1,0 +1,31 @@
+trial_id: T00_baseline
+description: "現行 trainer.py 既定のまま Walk-Forward（他 trial の比較基準）"
+hypothesis: |
+  MODEL_LOOP_PLAN §4 タスク 4。train_start=2023/1, LGB_PARAMS 既定,
+  sample_weight なしで Walk-Forward 2025-05〜2026-04 を 1 本回し、
+  results.jsonl の先頭行として他 trial の primary_score 比較基準にする。
+
+training:
+  train_start_year: 2023
+  train_start_month: 1
+  sample_weight:
+    mode: null
+
+# lgb_params 未指定 → trainer.py の LGB_PARAMS 既定を使用
+# num_boost_round / early_stopping_rounds も trainer の既定（1000 / 50）
+
+walkforward:
+  start: "2025-05"
+  end: "2026-04"
+  retrain_interval: 3
+  real_odds: true
+
+strategy:
+  prob_threshold: 0.07
+  ev_threshold: 2.0
+  min_odds: 100.0
+  exclude_courses: []
+  exclude_stadiums: [2, 3, 4, 9, 11, 14, 16, 17, 21, 23]
+  bet_amount: 100
+  max_bets: 5
+  bet_type: trifecta

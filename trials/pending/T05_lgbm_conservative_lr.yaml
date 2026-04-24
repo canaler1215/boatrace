@@ -1,0 +1,33 @@
+trial_id: T05_lgbm_conservative_lr
+description: "learning_rate を半減・num_boost_round を倍増した保守的学習"
+hypothesis: |
+  learning_rate=0.05 での 1000 iter では収束が粗い、または逆に過学習している
+  可能性を検証する。lr=0.02 へ下げ、num_boost_round=2000 で細かく学習させ、
+  early_stopping_rounds=50 のまま val で止める。
+
+training:
+  train_start_year: 2023
+  train_start_month: 1
+  sample_weight:
+    mode: null
+  num_boost_round: 2000
+  early_stopping_rounds: 50
+
+lgb_params:
+  learning_rate: 0.02
+
+walkforward:
+  start: "2025-05"
+  end: "2026-04"
+  retrain_interval: 3
+  real_odds: true
+
+strategy:
+  prob_threshold: 0.07
+  ev_threshold: 2.0
+  min_odds: 100.0
+  exclude_courses: []
+  exclude_stadiums: [2, 3, 4, 9, 11, 14, 16, 17, 21, 23]
+  bet_amount: 100
+  max_bets: 5
+  bet_type: trifecta

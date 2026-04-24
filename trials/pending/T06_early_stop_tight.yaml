@@ -1,0 +1,29 @@
+trial_id: T06_early_stop_tight
+description: "early_stopping_rounds を 50→30 に絞り、学習を早めに切る"
+hypothesis: |
+  val loss の改善が少ない段階でも 50 ラウンド待つため、過学習側に振れた
+  モデルが採用されている可能性を検証する。early_stopping_rounds=30 で
+  より早期に停止し、汎化に強い best_iteration を選ばせる。
+
+training:
+  train_start_year: 2023
+  train_start_month: 1
+  sample_weight:
+    mode: null
+  early_stopping_rounds: 30
+
+walkforward:
+  start: "2025-05"
+  end: "2026-04"
+  retrain_interval: 3
+  real_odds: true
+
+strategy:
+  prob_threshold: 0.07
+  ev_threshold: 2.0
+  min_odds: 100.0
+  exclude_courses: []
+  exclude_stadiums: [2, 3, 4, 9, 11, 14, 16, 17, 21, 23]
+  bet_amount: 100
+  max_bets: 5
+  bet_type: trifecta

@@ -1,0 +1,33 @@
+trial_id: T04_lgbm_regularized
+description: "LightGBM の木を浅く・最小葉サンプル数を増やして過学習抑制"
+hypothesis: |
+  全ビンで1着確率がランダムに近い（~16〜17%）原因として、
+  LightGBM が細かい枝分かれで学習データの周縁ノイズに適合してしまい
+  汎化性能を失っている可能性を検証する。num_leaves を 63→31 に、
+  min_child_samples を 50→200 に引き上げて正則化を強める。
+
+training:
+  train_start_year: 2023
+  train_start_month: 1
+  sample_weight:
+    mode: null
+
+lgb_params:
+  num_leaves: 31
+  min_child_samples: 200
+
+walkforward:
+  start: "2025-05"
+  end: "2026-04"
+  retrain_interval: 3
+  real_odds: true
+
+strategy:
+  prob_threshold: 0.07
+  ev_threshold: 2.0
+  min_odds: 100.0
+  exclude_courses: []
+  exclude_stadiums: [2, 3, 4, 9, 11, 14, 16, 17, 21, 23]
+  bet_amount: 100
+  max_bets: 5
+  bet_type: trifecta
