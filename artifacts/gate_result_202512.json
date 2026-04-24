@@ -1,0 +1,18 @@
+{
+  "timestamp": "2026-04-24T04:48:50.706873+00:00",
+  "period": "2025-12",
+  "zone": "warning",
+  "commit_sha": "e0d3c11",
+  "model_version": "model_202604",
+  "period_from": "2025-12-01",
+  "period_to": "2025-12-31",
+  "total_bets": 16641,
+  "total_wagered": 1664100.0,
+  "total_payout": 2362614.0,
+  "profit": 698514.0,
+  "roi_pct": 41.98,
+  "wins": 225,
+  "win_rate_pct": 1.3521,
+  "avg_odds": 105.01,
+  "avg_top_prob": 0.086631
+}
