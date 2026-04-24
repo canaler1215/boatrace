@@ -5,6 +5,7 @@
   python ml/src/scripts/run_gate_check.py --year 2025 --month 12
   python ml/src/scripts/run_gate_check.py --csv artifacts/backtest_202512.csv
   python ml/src/scripts/run_gate_check.py --year 2025 --month 12 --no-append  # kpi_history に追記しない
+  python ml/src/scripts/run_gate_check.py --year 2025 --month 12 --source model-loop  # 由来記録
 
 出力:
   artifacts/gate_result_YYYYMM[_<label>].json  ... ゾーン判定 + KPI（--label 指定時はサフィックス付与）
@@ -19,9 +20,17 @@ exit code:
   caution ... 300% <= ROI < 500%
   warning ... 0% <= ROI < 300%
   danger  ... ROI < 0%
+
+サニティチェック（2026-04-24 H3 対応）:
+  avg_odds が過去 kpi_history の中央値比で大きく乖離している場合、
+  sanity.avg_odds_check に "suspicious" / "warning" を記録する。
+  2026-04-24 発覚のオッズパースバグ（avg_odds が異常に高く ROI +794% が幻影だった事例）を
+  早期検知する目的。判定のみで exit code には影響しない。
 """
 import argparse
+import hashlib
 import json
+import statistics
 import subprocess
 import sys
 from datetime import datetime, timezone
@@ -37,6 +46,22 @@ ZONE_THRESHOLDS = {
     "caution": 300.0,
     "warning": 0.0,
     # danger: ROI < 0%
+}
+
+# サニティチェック: avg_odds の中央値比による乖離警告（H3 対応）
+SANITY_HISTORY_WINDOW = 12      # 過去何ランまでを参照するか
+SANITY_MIN_SAMPLES = 3          # 判定に必要な最小サンプル数
+SANITY_SUSPICIOUS_RATIO = 2.0   # 中央値の 2 倍以上で "suspicious"
+SANITY_WARNING_RATIO = 3.0      # 中央値の 3 倍以上で "warning"
+
+# kpi_history の source として許容する値（H4 対応）
+VALID_SOURCES = {
+    "manual",              # 手動実行（デフォルト）
+    "inner-loop",          # /inner-loop（現在凍結中）
+    "model-loop",          # /model-loop
+    "auto-backtest-loop",  # フェーズ2 の定期ワークフロー
+    "quarterly-walkforward",
+    "production",          # 本番 predict 結果
 }
 
 
@@ -99,15 +124,104 @@ def get_model_version() -> str:
     return models[0].stem if models else "unknown"
 
 
-def build_gate_result(kpi: dict, year: int, month: int, label: str | None = None) -> dict:
+def get_model_version_hash() -> str:
+    """最新モデルファイルの内容ハッシュ（短縮 SHA256）を返す（H4 対応）。
+
+    同じ model_version_* 名でも中身が違えば別モデルとして区別できるように、
+    実ファイルのハッシュを kpi_history に残す。kpi 行がどのモデルで
+    生成されたかを事後に厳密に突合できる。
+    """
+    models = sorted(ARTIFACTS_DIR.glob("model_*.pkl"), reverse=True)
+    if not models:
+        return "unknown"
+    try:
+        h = hashlib.sha256()
+        with open(models[0], "rb") as f:
+            for chunk in iter(lambda: f.read(65536), b""):
+                h.update(chunk)
+        return h.hexdigest()[:12]
+    except Exception:
+        return "unknown"
+
+
+def load_recent_avg_odds(window: int = SANITY_HISTORY_WINDOW) -> list[float]:
+    """kpi_history.jsonl から直近 window 件の avg_odds を取得（H3 対応）。"""
+    history_path = ARTIFACTS_DIR / "kpi_history.jsonl"
+    if not history_path.exists():
+        return []
+    values: list[float] = []
+    try:
+        with open(history_path, encoding="utf-8") as f:
+            for line in f:
+                line = line.strip()
+                if not line:
+                    continue
+                try:
+                    rec = json.loads(line)
+                except json.JSONDecodeError:
+                    continue
+                odds = rec.get("avg_odds")
+                if isinstance(odds, (int, float)) and odds > 0:
+                    values.append(float(odds))
+    except Exception:
+        return []
+    return values[-window:]
+
+
+def check_avg_odds_sanity(avg_odds: float) -> dict:
+    """avg_odds が過去の中央値比で大きく乖離していないか判定（H3 対応）。
+
+    2026-04-24 のオッズパースバグでは avg_odds が異常値となり ROI +794% が
+    幻影となった。同様の破損を早期検知するため、過去 N 件の中央値との
+    比率でサニティチェックする。
+    """
+    history = load_recent_avg_odds()
+    if len(history) < SANITY_MIN_SAMPLES:
+        return {
+            "avg_odds_check": "insufficient_data",
+            "avg_odds_history_n": len(history),
+            "avg_odds_median": None,
+            "avg_odds_ratio": None,
+        }
+    median = statistics.median(history)
+    ratio = avg_odds / median if median > 0 else None
+
+    if ratio is None:
+        status = "insufficient_data"
+    elif ratio >= SANITY_WARNING_RATIO or ratio <= 1.0 / SANITY_WARNING_RATIO:
+        status = "warning"
+    elif ratio >= SANITY_SUSPICIOUS_RATIO or ratio <= 1.0 / SANITY_SUSPICIOUS_RATIO:
+        status = "suspicious"
+    else:
+        status = "ok"
+
+    return {
+        "avg_odds_check": status,
+        "avg_odds_history_n": len(history),
+        "avg_odds_median": round(median, 2),
+        "avg_odds_ratio": round(ratio, 3) if ratio is not None else None,
+    }
+
+
+def build_gate_result(
+    kpi: dict,
+    year: int,
+    month: int,
+    label: str | None = None,
+    source: str = "manual",
+) -> dict:
     zone = classify_zone(kpi["roi_pct"])
+    sanity = check_avg_odds_sanity(kpi["avg_odds"])
     result = {
         "timestamp": datetime.now(timezone.utc).isoformat(),
         "period": f"{year}-{month:02d}",
         "zone": zone,
+        "source": source,
         "commit_sha": get_commit_sha(),
         "model_version": get_model_version(),
+        "model_version_hash": get_model_version_hash(),
         **kpi,
+        "sanity": sanity,
     }
     if label:
         result["label"] = label
@@ -131,6 +245,7 @@ def main() -> None:
     parser.add_argument("--csv",   type=str, default=None, help="バックテスト結果 CSV のパス")
     parser.add_argument("--no-append", action="store_true", help="kpi_history.jsonl に追記しない")
     parser.add_argument("--label",     type=str, default=None, help="ラン識別ラベル（baseline / candidate-iter1 など）。JSON ファイル名のサフィックスに付与")
+    parser.add_argument("--source",    type=str, default="manual", choices=sorted(VALID_SOURCES), help="kpi_history に記録する由来（H4 対応）")
     args = parser.parse_args()
 
     # CSV パスの解決
@@ -159,7 +274,7 @@ def main() -> None:
 
     df = pd.read_csv(csv_path)
     kpi = compute_kpi(df)
-    result = build_gate_result(kpi, year, month, label=args.label)
+    result = build_gate_result(kpi, year, month, label=args.label, source=args.source)
 
     # --- ゾーン表示 ---
     zone = result["zone"]
@@ -182,7 +297,36 @@ def main() -> None:
     print(f"  平均オッズ: {result['avg_odds']:.1f}x")
     print(f"  avg prob  : {result['avg_top_prob']:.4f}")
     print(f"  model     : {result['model_version']}")
+    print(f"  model hash: {result['model_version_hash']}")
+    print(f"  source    : {result['source']}")
     print(f"  commit    : {result['commit_sha']}")
+
+    # サニティチェック表示（H3 対応）
+    sanity = result["sanity"]
+    check = sanity["avg_odds_check"]
+    SANITY_LABELS = {
+        "ok":                "[SANITY OK  ]",
+        "suspicious":        "[SANITY WARN]",
+        "warning":           "[SANITY ALERT]",
+        "insufficient_data": "[SANITY SKIP]",
+    }
+    sanity_label = SANITY_LABELS.get(check, f"[SANITY {check}]")
+    if sanity["avg_odds_median"] is not None:
+        print(
+            f"  sanity    : {sanity_label} avg_odds ratio={sanity['avg_odds_ratio']} "
+            f"(median={sanity['avg_odds_median']}, n={sanity['avg_odds_history_n']})"
+        )
+    else:
+        print(f"  sanity    : {sanity_label} n={sanity['avg_odds_history_n']}")
+
+    if check == "warning":
+        print()
+        print("  ⚠️  avg_odds が過去中央値から大きく乖離しています。")
+        print("     オッズパースバグの再発（2026-04-24 発覚事例）を疑ってください。")
+        print("     run_backtest.py / odds_downloader.py の出力を手動で確認することを推奨。")
+    elif check == "suspicious":
+        print(f"  ⚠️  avg_odds が中央値の {sanity['avg_odds_ratio']}x 乖離。監視対象。")
+
     print("=" * 62)
     print()
 
