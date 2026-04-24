@@ -70,7 +70,9 @@ jobs:
           cache-dependency-path: ml/requirements.txt
 
       - name: Install Python dependencies
-        run: pip install -r ml/requirements.txt
+        run: |
+          pip install -r ml/requirements.txt
+          pip install pyyaml
 
       - name: Restore odds cache
         uses: actions/cache@v4
