@@ -146,11 +146,11 @@ def extract_lzh(lzh_path: Path, extract_dir: Path) -> list[Path]:
 
     try:
         import lhafile
-        with lhafile.LhaFile(str(lzh_path)) as lha:
-            for name in lha.namelist():
-                data = lha.read(name)
-                out_path = extract_dir / Path(name).name
-                out_path.write_bytes(data)
+        lha = lhafile.LhaFile(str(lzh_path))
+        for name in lha.namelist():
+            data = lha.read(name)
+            out_path = extract_dir / Path(name).name
+            out_path.write_bytes(data)
         return [f for f in extract_dir.rglob("*") if f.is_file()]
     except ImportError:
         pass
