@@ -1,7 +1,9 @@
-# MODEL_LOOP_RESULTS — 本番 10 trial 実行結果
+# MODEL_LOOP_RESULTS — 本番 13 trial 実行結果
 
-最終更新: 2026-04-25
-対象: `trials/pending/T00〜T09`（[MODEL_LOOP_PLAN.md §4 タスク 4](MODEL_LOOP_PLAN.md) 準拠、2026-04-24 改訂版）
+最終更新: 2026-04-25（T10〜T12 追記）
+対象:
+- 初回 10 trial（T00〜T09）: [MODEL_LOOP_PLAN.md §4 タスク 4](MODEL_LOOP_PLAN.md) 準拠、2026-04-24 改訂版
+- 追加 3 trial（T10〜T12）: T07_window_2024_plus_weight pass の確証サイクル（本書 §「T10〜T12 追加サイクル」参照）
 
 ## 実行条件
 
@@ -93,13 +95,89 @@ T07 を確証するため、以下 3 本を `trials/pending/` に追加して `/
 - **T10/T11 の 0/2 が pass** → T07 は seed ガチャ確定、構造変更フェーズへ移行
 - **T12 が T07 超え** → 直近強調はもう 1 段攻めてよい方向として追加探索
 
+---
+
+## T10〜T12 追加サイクル（2026-04-25 実行、タスク 6-9 完了）
+
+### 実行条件
+
+- 初回 10 trial と完全同一（Walk-Forward 期間 / retrain_interval / real_odds / strategy セクション全て統一）
+- エラー 0、全 YAML `completed/` 移動済み
+- 実行ログ: `artifacts/model_loop_logs/run_*_T10T12.log`
+
+### 結果テーブル（T07 と T10〜T12 比較）
+
+| trial_id | 構成 | verdict | primary_score | ROI | worst_month | plus_ratio | broken | CI 下限 | CI 上限 | ECE(cal) |
+|---|---|---|---:|---:|---:|---:|---:|---:|---:|---:|
+| T07_window_2024_plus_weight | baseline seed | **pass** | +1.59 | +15.30% | -35.16% | 66.7% | 0 | +1.94 | +28.94 | 0.00121 |
+| T10_window_2024_weight_seed1 | seed=1 | fail | -49.31 | **-17.19%** | -51.43% | **8.3%** | 1 | -26.79 | -6.33 | 0.00159 |
+| T11_window_2024_weight_seed2 | seed=2 | marginal | -20.55 | +9.47% | -55.31% | 58.3% | 1 | -4.31 | +23.21 | 0.00147 |
+| T12_window_2024_weight_strong | recency_months=3, ×3.0 | fail | -33.96 | -1.93% | -59.44% | 41.7% | 1 | -12.04 | +8.14 | 0.00134 |
+
+### 判定: T07 pass は seed ガチャ確定
+
+**T10/T11（T07 と同設定で seed のみ変更）の再現性:**
+
+- pass: **0/2**（T10 fail / T11 marginal）
+- T10 に至っては plus_ratio 8.3%（12 ヶ月中 1 月しかプラスなし）で T07 +15.30% から **-32.49pp** 振れ
+
+**T07/T10/T11 の散らばり（seed 耐性の定量評価）:**
+
+- ROI: mean +2.53%, **std 17.32pp, range 32.49pp**
+- worst: mean -47.30%, std 10.69pp, range 20.15pp
+
+これは初回の baseline seed 反復（T00/T08/T09、ROI range 9.3pp / worst range 26.4pp）を更に上回る分散。
+「窓 2024〜 + 直近 6mo×2 倍重み」の構造自体にロバストな改善効果はなく、**T07 単独の ROI +15.30% は
+偶発採択**と確定。
+
+### T12（直近強調強化）も敗北
+
+T12 は窓 2024〜 + 直近 3mo×3.0 倍重み（T07 より攻めた設定）。結果は ROI -1.93%, broken=1, worst -59.44%。
+直近強調を強めるほど裾リスクが増える方向で、**攻めの方向も存在しない**。
+
+### 13 trial 全体の seed 分散まとめ
+
+| グループ | n | ROI 平均 | ROI std | worst 平均 | worst std |
+|---|---|---:|---:|---:|---:|
+| T00/T08/T09（baseline 反復） | 3 | -3.64% | 5.33 | -47.29% | 13.65 |
+| T07/T10/T11（2024+weight 反復） | 3 | +2.53% | 17.32 | -47.30% | 10.69 |
+
+2 グループとも worst 平均が -47% で、**構造を問わず本データセットは seed ノイズが大きい**。
+現状のパラメータ探索の枠内では CLAUDE.md 再開条件（通算 ROI ≥ +10% かつ worst > -50%）の
+再現可能な達成は困難。
+
+### 撤退判定（MODEL_LOOP_PLAN §5 / タスク 6-10 発動）
+
+- 本番通算 **13 trial で pass 再現 0 本**
+- 設計書 §5 の「10 trial 時点で pass 事後確率 P(p>10%) が 20% 超なら追加 5 trial まで延長」に対し、
+  β(1,1) 事前 + 観測 1 pass / 13 trial では P(p>10%) ≒ 15% に低下、延長の経済合理性も乏しい
+- **構造変更フェーズ（タスク 6-10）への移行が妥当**
+
+## 次アクション（タスク 6-10）
+
+パラメータ探索を打ち止めて構造変更に移行する。設計書 §5 のツリーから PoC で 1 項目ずつ検証:
+
+1. **特徴量拡張**（推奨着手、最小工数・期待値高）— 直前気象差分、場×コース交互作用、ST ばらつき等
+2. **目的関数変更** — binary top-1 / pairwise / LambdaRank
+3. **キャリブレーション再設計** — per-class IR → 結合 IR / Dirichlet
+4. **Purged/Embargoed time-series CV**
+
+第一着手は **1. 特徴量拡張**:
+- 現状 ECE は全 13 trial で 0.001〜0.0016 に収束し、prediction quality の飽和を示唆
+- 入力情報の追加が最も費用対効果高く、既存 pipeline 拡張のみで PoC 可能
+- 他 3 項目は実装工数が大きい割に seed 分散を下げる保証がない
+
+特徴量拡張 PoC に進む前に、`ml/src/features/` を変更禁止パスから解除する合意が必要
+（MODEL_LOOP_PLAN §6-4）。解除後は単月 val top-1 accuracy の小規模 PoC で筋を確認し、
+効果が見えた特徴量のみ `run_model_loop` に組み込んで再び Walk-Forward で検証する。
+
 ## 成果物
 
-- `trials/results.jsonl` — 10 行（trial ごとに 1 行 append）
-- `artifacts/walkforward_T*_summary.json` — 10 ファイル（KPI + monthly_roi）
-- `artifacts/walkforward_T*.csv` — 10 ファイル（raw Walk-Forward 出力）
-- `artifacts/model_loop_logs/run_*.log` — 実行ログ
-- `trials/completed/T00〜T09.yaml` — 使用済み trial 定義
+- `trials/results.jsonl` — 13 行（trial ごとに 1 行 append、T00〜T12）
+- `artifacts/walkforward_T*_summary.json` — 13 ファイル（KPI + monthly_roi）
+- `artifacts/walkforward_T*.csv` — 13 ファイル（raw Walk-Forward 出力）
+- `artifacts/model_loop_logs/run_*.log` — 実行ログ（初回 10 trial / T10〜T12 追加サイクル）
+- `trials/completed/T00〜T12.yaml` — 使用済み trial 定義
 
 ## 参考
 
