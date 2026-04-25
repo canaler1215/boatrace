@@ -1,4 +1,4 @@
-# 次セッション用プロンプト — タスク 6-10-c キャリブレーション再設計 / Purged CV
+# 次セッション用プロンプト — タスク 6-10-d R1 LambdaRank 本体統合 + Walk-Forward 検証
 
 以下を次セッションの最初のユーザープロンプトとして貼り付けてください。
 
@@ -6,121 +6,150 @@
 
 ## プロンプト本文
 
-boatrace プロジェクトのタスク 6-10-c「構造変更フェーズ」第三着手として、構造変更ツリー §5 の
-**残り候補（キャリブレーション再設計 / Purged CV）** を進めてほしい。
-背景と進め方は以下のとおり。作業開始前に必ず以下のファイルを読むこと:
+boatrace プロジェクトのタスク 6-10-d として、**6-10-b で保留ゾーン入りした R1 (LambdaRank)
+を本体統合し、Walk-Forward 12 ヶ月で検証**してほしい。これは構造変更ツリー §5 全 4 候補
+（特徴量拡張 / 目的関数変更 / Purged CV / キャリブレーション再設計）すべて採用 0 となった
+あとの **最後の保留ゾーン候補**であり、フェーズ 6 撤退判定の最終ゲートになる。
 
-- `OBJECTIVE_POC_RESULTS.md`（タスク 6-10-b 結果と案 Y 撤退判定）
-- `FEATURE_POC_RESULTS.md`（タスク 6-10-a 結果）
-- `MODEL_LOOP_PLAN.md §5`（構造変更ツリー）
-- `CLAUDE.md`（「重大発見」=「1 着識別能力が全予測ビンで均一」）
+作業開始前に必ず以下を読むこと:
+
+- `OBJECTIVE_POC_RESULTS.md`（タスク 6-10-b 結果、R1 が +0.63pp 保留ゾーン入り）
+- `PURGED_CV_POC_RESULTS.md`（タスク 6-10-c 第 1 候補、leak フリー判定）
+- `CALIBRATION_POC_RESULTS.md`（タスク 6-10-c 第 2 候補、確率質改善は限定的）
+- `MODEL_LOOP_PLAN.md §3-5`（採用基準、Walk-Forward 評価条件）
+- `CLAUDE.md`（実運用再開条件「ROI ≥ +10% / worst > -50%」、重大発見「全ビン均一」）
+- `ml/src/model/trainer.py` / `predictor.py` / `engine.py`（統合対象の本体コード）
+- `ml/src/scripts/run_objective_poc.py`（R1 を実装した PoC ハーネス、参考）
 
 ### これまでの経緯（要約）
 
 | タスク | 内容 | 結果 |
 |---|---|---|
 | 6-1〜6-9 | パラメータ探索（学習窓・sample_weight・LightGBM ハイパラ） | 13 trial で verdict=pass 再現 0、撤退 |
-| 6-10-a | 特徴量拡張 PoC（c/b/a/複合）| 採用 0、撤退（top-1 ±0.3pp） |
-| 6-10-b | 目的関数変更 PoC（B1/R1/P1）| 採用 0、撤退（R1 のみ +0.63pp で保留ゾーン入りだったが案 Y で撤退確定） |
+| 6-10-a | 特徴量拡張 PoC（c/b/a/複合） | 採用 0、撤退 |
+| 6-10-b | 目的関数変更 PoC（B1/R1/P1） | R1 のみ +0.63pp で保留、案 Y で一旦撤退 |
+| 6-10-c PCV | Purged/Embargoed CV PoC | 採用 0、leak フリー判定 |
+| 6-10-c CAL | C1 Dirichlet / C2 結合 IR PoC | 採用 0（trifecta ECE -10.4% は出るが top-1 動かず） |
 
-すべて **CLAUDE.md「重大発見」=「全予測ビンで 1 着率均一」** に対して
-入力情報増（特徴量）でも学習目的変更（objective）でも改善幅が seed 分散に飲まれる規模。
+→ **構造変更ツリー §5 全 4 候補消費完了。R1 LambdaRank が最後の保留ゾーン候補**。
 
-### タスク 6-10-c で試す候補
+### タスク 6-10-d で行うこと
 
-MODEL_LOOP_PLAN §5 の残り 2 候補:
+**R1 (LambdaRank) を trainer.py / predictor.py / engine.py に統合し、Walk-Forward
+12 ヶ月で評価する**。
 
-| code | 概要 | 期待効果 |
-|---|---|---|
-| **C1** | per-class IsotonicRegression → **Dirichlet calibration**（多クラス結合 IR）| sum-to-1 制約と多クラス結合補正で trifecta 確率の質を改善 |
-| **C2** | per-class IR → **結合 IR**（多変量 IR / matrix-IR）| C1 の中間案、Dirichlet ほど強くないが実装軽い |
-| **PCV** | **Purged / Embargoed time-series CV**（leak 排除）| train/val 境界の情報リーク（同一開催の前後日）を排除し、汎化性能の真値推定 |
+#### Step 1: 単月再現テスト（着手前の sanity check）
 
-### 着手順序の推奨
+`run_objective_poc.py --objective lambdarank` の結果（top1=0.5773 / NDCG@1=0.6969）が
+seed 分散 ~0.5pp の中で再現するかを確認する。**LightGBM の seed を固定して 3 回実行**し、
+top-1 の標準偏差を測る。標準偏差が ≥ 0.4pp なら **6-10-b の +0.63pp 改善は seed ノイズに
+飲まれている可能性が高く、Walk-Forward 検証はスキップしてフェーズ 6 撤退**を提案する。
 
-1. **PCV から始めるべき理由**: 6-10-a/b の baseline 自体が leak 含み（同一場・隣接日の特徴量が
-   train→val でリーク）の可能性。leak 排除後の baseline で 6-10-a/b を再評価すると改善が
-   見えるかもしれない。**leak 排除は他のすべての PoC のベースとなる**。
-2. **C1/C2 はその後**: PCV 適用後の clean baseline に対してキャリブレーション再設計を試す。
+#### Step 2: trainer.py への LambdaRank モード統合
 
-ただしユーザーと**順序の合意を 1 行で取ってから着手**すること。「PCV 先か、C1/C2 先か」。
+ユーザーと合意してから着手:
+- `trainer.py` に `objective="lambdarank"` モードを追加（既存 multiclass モードと共存、CLI 引数で切替）
+- ranking 系では race_id 順ソート + group ベクトル必須（`run_objective_poc.py` の `_sort_for_ranking` / `_build_groups` 移植）
+- 出力は (N, 1) スコア → レース内 softmax で 1 着確率 (N, 6) に変換するアダプタを書く
+- ECE キャリブレーションは引き続き per-class IR + softmax 再正規化で動かす（Plackett-Luce 互換）
 
-### 最初に合意が必要なこと
+#### Step 3: predictor.py / engine.py 互換調整
 
-トリッキーなのは PCV の影響範囲:
+- 保存形式は既存と同じ `{"booster": ..., "softmax_calibrators": [...]}` を維持
+- `predictor.py` で booster の objective を読み取って multiclass / lambdarank を分岐
+- LambdaRank の場合は **booster.predict() が (N, 1) を返す** ので、レース内 softmax 後に
+  6 クラス確率にブロードキャストして既存 IR キャリブレーションを通す
+- engine.py の API（`get_model_for_month` / `run_backtest_batch`）は触らない
 
-- PCV を入れるとデータ split ロジック（trainer.py / 6-10-a/b ハーネス）に手を入れる必要
-- 同じく Walk-Forward (`run_walkforward.py`) も影響を受ける可能性
-- ただし trainer.py 本体は変更せず、**PoC 専用ハーネスに閉じ込める**方針（6-10-b と同じ）
+#### Step 4: Walk-Forward 12 ヶ月検証
+
+- `trials/pending/T13_lambdarank.yaml` を作成
+- 学習設定: train_start_year=2023, sample_weight=null（baseline 同条件）
+- LightGBM: objective=lambdarank, label_gain=[0,1,3,7,15,31], ndcg_eval_at=[1,3]
+- walkforward: start=2025-05, end=2026-04, retrain_interval=3, real_odds=true
+- strategy: 全 trial 統一（CLAUDE.md 既定値）
+- `/model-loop T13_lambdarank` で実行
+
+#### Step 5: 採用判断
+
+MODEL_LOOP_PLAN §3 採用基準:
+- **採用**: 通算ROI ≥ +10% **かつ** broken_months=0（worst > -50%）**かつ** プラス月 ≥ 60% **かつ** bootstrap CI 下限 ≥ 0
+- **保留**: 通算ROI ≥ 0% かつ broken_months=0
+- **却下**: 上記いずれも未達
+
+### 厳守事項
+
+- ❌ Step 1 の sanity check（seed 固定 3 回反復で std 測定）を**スキップしない**
+  - 6-10-b の +0.63pp が真の改善か seed ノイズか未確定
+  - std ≥ 0.4pp なら Walk-Forward 検証は時間とディスクの無駄
+- ❌ trainer.py / predictor.py / engine.py の本体統合は**ユーザー合意を取ってから**着手
+  - これまでの 6-10-a/b/c は本体不変方針だった。本タスクは初の本体変更
+- ❌ multiclass 既存モードを壊さない（`run_predict.py` / `run_backtest.py` が回帰しないこと）
+- ❌ strategy セクションの変更（全 trial 統一）
+
+### Step 1 の具体実装案（着手前合意ポイント）
+
+`run_objective_poc.py` に `--seed` 引数を追加し、LightGBM params に `seed=N`,
+`bagging_seed=N`, `feature_fraction_seed=N` を渡せるようにする。または新規ハーネス
+`run_lambdarank_seed_check.py` を作る。3 回（seed=42, 123, 7）走らせ、top-1 の
+mean / std / min / max を出す。実行時間は ~7 分 × 3 = 21 分の見込み。
 
 **合意したい 1 行**:
-> タスク 6-10-c でも `ml/src/model/trainer.py` / `predictor.py` / `engine.py` は変更せず、
-> PoC は新規スクリプト（例: `run_calibration_poc.py` / `run_purged_cv_poc.py`）に閉じ込める。
-> 採用された手法のみ、別タスクで本体統合を検討する。
+> Step 1 は seed 固定 3 回反復で R1 LambdaRank の top-1 std を測る。
+> std < 0.3pp なら +0.63pp は真の改善とみなして Step 2〜5 へ進む。
+> std ≥ 0.4pp なら Walk-Forward は無駄と判定してフェーズ 6 撤退を提案する。
+> 0.3〜0.4pp はグレーゾーンとして判断委譲する。
 
-### PoC プロトコル（共通）
+### 採用判断のサニティチェック
 
-1. **特徴量はベースライン 12 次元のまま固定**（6-10-a/b の知見）
-2. val=2025-12 単月で評価:
-   - top-1 accuracy
-   - NDCG@1 / NDCG@3
-   - 1 着 ECE（C1/C2 では特に重要、PCV では参考値）
-   - **trifecta ECE**（CLAUDE.md「全ビン均一」の改善有無を直接見る）
-3. 結果は `artifacts/{tag}_poc_results.jsonl` に append、ログは `artifacts/{tag}_poc_logs/` に保存
+R1 LambdaRank で Walk-Forward 採用基準が出たとしても、CLAUDE.md「重大発見（全ビン均一）」
+が解消するレベルではない。あくまで **「ROI ≥ +10% を達成できる戦略」** として最低限の
+実用性を確認するだけ。本番運用再開はその後の運用ルール再策定（資金管理、月次モニタリング
+基準）が前提となる。
 
-### 採用判断基準
+### 終了条件と次手の判断
 
-タスク 6-10-b と同じく厳しめ設定:
-
-- **採用**: top-1 accuracy +1.0pp 以上
-- **保留**: top-1 accuracy +0.5〜+1.0pp（複合検証や Walk-Forward に進む価値あり）
-- **却下**: top-1 accuracy +0.5pp 未満
-
-PCV のみ別評価軸あり:
-- **PCV の効果検証**: 同条件で leak あり/なし baseline を比較し、val ROI 差が +5pp 以上なら採用
+- **R1 採用基準達成**: `trials/pending/T13_lambdarank.yaml` を `completed/` へ移動。
+  運用再開準備フェーズ（資金管理 / 月次モニタリング基準策定）へ移行する提案を出す
+- **R1 保留**: bootstrap CI 下限 < 0 などで「ギリ達成、信頼度低」の場合、
+  追加 seed で 2〜3 trial 反復するか、フェーズ 6 撤退かを判断委譲
+- **R1 却下**: フェーズ 6 撤退確定。CLAUDE.md「実運用再開条件」を別アプローチで
+  攻めるか、運用停止継続をユーザーに判断委譲する
+- **Step 1 で std ≥ 0.4pp**: 即フェーズ 6 撤退提案（Walk-Forward に進まない）
 
 ### 成果物
 
-1. `ml/src/scripts/run_calibration_poc.py` および/または `run_purged_cv_poc.py`（新規）
-2. `CALIBRATION_POC_RESULTS.md` および/または `PURGED_CV_POC_RESULTS.md`（新規）
-3. `artifacts/calibration_poc_results.jsonl` / `artifacts/purged_cv_poc_results.jsonl`
-4. 採用された手法のみ Walk-Forward で最終検証
-5. `AUTO_LOOP_PLAN.md` フェーズ 6 タスク 6-10-c 進捗更新
-
-### 絶対にやってはいけないこと
-
-- ❌ `ml/src/model/trainer.py` / `predictor.py` / `engine.py` の本体変更
-- ❌ `strategy` セクションの変更（全 trial 統一）
-- ❌ 6-10-b の R1 (LambdaRank) を Walk-Forward に進める（案 Y で撤退確定済み）
-- ❌ 単月 val 効果測定をスキップして Walk-Forward に直行する
-- ❌ ベースライン特徴量を変える（PoC c/b/a の知見と混ざる）
+1. `run_lambdarank_seed_check.py`（または `run_objective_poc.py` に `--seed` 追加）
+2. `LAMBDARANK_SEED_CHECK_RESULTS.md`（Step 1 結果）
+3. **以下は Step 1 通過時のみ作成**:
+   - trainer.py / predictor.py に LambdaRank モード追加（PR 分割推奨）
+   - `trials/pending/T13_lambdarank.yaml`
+   - `LAMBDARANK_WALKFORWARD_RESULTS.md`
+   - artifacts/walkforward_T13_lambdarank.csv / _summary.json
+4. AUTO_LOOP_PLAN.md フェーズ 6 タスク 6-10-d 進捗更新
 
 ### 実行環境
 
 - Python 3.12（`py -3.12`）
 - ローカル（Windows）、DB 接続不要
 - データキャッシュ: `data/history/`, `data/program/` に 2023-01〜2026-04 揃い
-- 1 PoC は約 7〜10 分（タスク 6-10-a/b と同等）
-
-### 終了条件と次手の判断
-
-- **3 候補（C1/C2/PCV）すべて採用基準未達**: 構造変更ツリー §5 のすべての候補を
-  消費したことになる。フェーズ 6 全体の撤退を検討し、CLAUDE.md「実運用再開条件
-  （ROI ≥ +10% / worst > -50%）」を別アプローチで攻めるか、運用停止を継続するかを
-  ユーザーに判断委譲する
-- **どれか 1 つ採用**: Walk-Forward 検証フェーズへ進み、`trials/pending/TXX_*.yaml` を作成
-- **保留 (+0.5〜+1.0pp) 1 つ以上**: 複合検証（PCV + C1 など）を 1 ラウンド試す
+- 実オッズキャッシュ: `data/odds/2025-05〜2026-04` 揃い（Walk-Forward 用）
+- Step 1: 約 21 分（7 分 × 3 seed）
+- Step 4: 約 3〜4 時間（Walk-Forward 12 ヶ月、3 ヶ月毎再学習）
 
 ### 参照すべきドキュメント
 
-- [OBJECTIVE_POC_RESULTS.md](OBJECTIVE_POC_RESULTS.md) — タスク 6-10-b 結果と案 Y 撤退理由
-- [FEATURE_POC_RESULTS.md](FEATURE_POC_RESULTS.md) — タスク 6-10-a 結果
+- [OBJECTIVE_POC_RESULTS.md](OBJECTIVE_POC_RESULTS.md) — タスク 6-10-b 結果、R1 +0.63pp 保留
+- [PURGED_CV_POC_RESULTS.md](PURGED_CV_POC_RESULTS.md) — leak フリー判定
+- [CALIBRATION_POC_RESULTS.md](CALIBRATION_POC_RESULTS.md) — C1/C2 撤退、確率質改善は限定的
 - [MODEL_LOOP_RESULTS.md](MODEL_LOOP_RESULTS.md) — 13 trial 結果、seed 分散
-- [MODEL_LOOP_PLAN.md](MODEL_LOOP_PLAN.md) §5 — 構造変更ツリー
-- [CLAUDE.md](CLAUDE.md) — 「重大発見」（1 着識別能力の全ビン均一）
+- [MODEL_LOOP_PLAN.md](MODEL_LOOP_PLAN.md) §3-5 — 採用基準、構造変更ツリー
+- [CLAUDE.md](CLAUDE.md) — 「重大発見」（1 着識別能力の全ビン均一）、実運用再開条件
 - [AUTO_LOOP_PLAN.md](AUTO_LOOP_PLAN.md) フェーズ 6 タスク 6-10
-- [ml/src/scripts/run_objective_poc.py](ml/src/scripts/run_objective_poc.py) — 6-10-b ハーネス（参考）
-- [ml/src/scripts/run_feature_poc.py](ml/src/scripts/run_feature_poc.py) — 6-10-a ハーネス（参考）
-- [ml/src/model/trainer.py](ml/src/model/trainer.py) — 現行 multiclass + per-class IR
+- [ml/src/scripts/run_objective_poc.py](ml/src/scripts/run_objective_poc.py) — R1 実装の参考
+- [ml/src/scripts/run_calibration_poc.py](ml/src/scripts/run_calibration_poc.py) — cal split 設計の参考
+- [ml/src/model/trainer.py](ml/src/model/trainer.py) — 統合対象（multiclass 現行）
+- [ml/src/model/predictor.py](ml/src/model/predictor.py) — 統合対象
+- [ml/src/backtest/engine.py](ml/src/backtest/engine.py) — API は不変だが互換性確認
 
-以上。trainer.py 等不変方針の合意と、PCV/C1/C2 の着手順序合意を確認してから着手してほしい。
+以上。**Step 1（seed 固定 3 回 std 測定）の合意を取ってから着手してほしい**。
