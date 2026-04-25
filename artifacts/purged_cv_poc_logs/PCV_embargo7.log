@@ -1,0 +1,34 @@
+[PCV-PoC] tag=PCV_embargo7 split=embargo7 train_start=2023-01 val=2025-12
+[1/5] history load
+  history rows: 989,337
+[2/5] program load + merge
+  after merge: 989,776
+[3/5] build features (baseline 12 dims)
+  features shape: (981475, 12)
+  train samples: 947,686 (baseline 953,302, reduction 0.0059)  val samples: 28,173  (val races ~ 4,718)
+[4/5] LightGBM train (objective=multiclass)
+Training until validation scores don't improve for 50 rounds
+[100]	valid_0's multi_logloss: 1.60502
+[200]	valid_0's multi_logloss: 1.60454
+Early stopping, best iteration is:
+[173]	valid_0's multi_logloss: 1.60444
+[5/5] evaluate
+---- RESULT ----
+  tag: PCV_embargo7
+  split_mode: embargo7
+  val_period: 2025-12
+  train_start: 2023-01
+  n_train: 947686
+  n_train_baseline: 953302
+  train_reduction_ratio: 0.005891102714564722
+  n_val: 28173
+  n_features: 12
+  best_iteration: 173
+  top1_accuracy_raw: 0.5750213128729753
+  top1_accuracy_norm: 0.5750213128729753
+  ndcg_at_1: 0.6910258388796314
+  ndcg_at_3: 0.761074816398534
+  ece_rank1_raw: 0.0060891200811876095
+  ece_rank1_norm: 0.02020610567156458
+  multi_logloss_raw: 1.6044350379878982
+appended Å® C:\Users\claude\workspace\boatrace\artifacts\purged_cv_poc_results.jsonl
