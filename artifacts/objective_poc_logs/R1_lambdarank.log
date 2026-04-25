@@ -1,0 +1,31 @@
+[obj-PoC] tag=R1_lambdarank obj=lambdarank train=2023-01Å`2025-11 val=2025-12
+[1/5] history load
+  history rows: 989,337
+[2/5] program load + merge
+  after merge: 989,776
+[3/5] build features (baseline 12 dims)
+  features shape: (981475, 12)
+  train samples: 953,302  val samples: 28,173  (val races ~ 4,718)
+[4/5] LightGBM train (objective=lambdarank)
+Training until validation scores don't improve for 50 rounds
+[100]	valid_0's ndcg@1: 0.695974	valid_0's ndcg@3: 0.763784
+Early stopping, best iteration is:
+[103]	valid_0's ndcg@1: 0.696932	valid_0's ndcg@3: 0.764454
+[5/5] evaluate
+---- RESULT ----
+  tag: R1_lambdarank
+  objective: lambdarank
+  val_period: 2025-12
+  train_start: 2023-01
+  n_train: 953302
+  n_val: 28173
+  n_features: 12
+  best_iteration: 103
+  top1_accuracy_raw: 0.5773415831021975
+  top1_accuracy_norm: 0.5773415831021975
+  ndcg_at_1: 0.6969316452531046
+  ndcg_at_3: 0.7644543868820742
+  ece_rank1_raw: 0.012606161571214854
+  ece_rank1_norm: 0.012606161571214854
+  multi_logloss_raw: nan
+appended Å® c:\Users\claude\workspace\boatrace\artifacts\objective_poc_results.jsonl

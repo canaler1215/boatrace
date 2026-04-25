@@ -1,0 +1,32 @@
+[obj-PoC] tag=baseline_multiclass obj=multiclass train=2023-01Å`2025-11 val=2025-12
+[1/5] history load
+  history rows: 989,337
+[2/5] program load + merge
+  after merge: 989,776
+[3/5] build features (baseline 12 dims)
+  features shape: (981475, 12)
+  train samples: 953,302  val samples: 28,173  (val races ~ 4,718)
+[4/5] LightGBM train (objective=multiclass)
+Training until validation scores don't improve for 50 rounds
+[100]	valid_0's multi_logloss: 1.60486
+[200]	valid_0's multi_logloss: 1.60401
+Early stopping, best iteration is:
+[212]	valid_0's multi_logloss: 1.60397
+[5/5] evaluate
+---- RESULT ----
+  tag: baseline_multiclass
+  objective: multiclass
+  val_period: 2025-12
+  train_start: 2023-01
+  n_train: 953302
+  n_val: 28173
+  n_features: 12
+  best_iteration: 212
+  top1_accuracy_raw: 0.5710330138445154
+  top1_accuracy_norm: 0.5710330138445154
+  ndcg_at_1: 0.6909786294148176
+  ndcg_at_3: 0.760775728556139
+  ece_rank1_raw: 0.006700421303076745
+  ece_rank1_norm: 0.01808742102965303
+  multi_logloss_raw: 1.6039686304165248
+appended Å® C:\Users\claude\workspace\boatrace\artifacts\objective_poc_results.jsonl
