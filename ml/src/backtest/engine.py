@@ -233,7 +233,9 @@ def run_race(
         return None
 
     # ── 3. 1 着確率予測（キャリブレーション補正済み）────────────
-    raw_probs = predict_win_prob(model, X)
+    # ranking モデル対応のため race_ids を渡す（multiclass では無視される）
+    race_ids_for_pred = race_df.loc[X.index, "race_id"] if "race_id" in race_df.columns else None
+    raw_probs = predict_win_prob(model, X, race_ids=race_ids_for_pred)
     # multiclass: shape (6, 6) → クラス 0 (1 着) の確率列を取得
     first_place_probs = raw_probs[:, 0] if raw_probs.ndim == 2 else raw_probs
 
@@ -346,7 +348,9 @@ def run_backtest_batch(
     df_valid = df_test.loc[X_all.index].copy()
 
     # ── 2. 全艇分を一括予測（キャリブレーション補正済み、1 回のみ）──
-    raw_probs = predict_win_prob(model, X_all)
+    # ranking モデル対応のため race_ids を渡す（multiclass では無視される）
+    race_ids_all = df_valid["race_id"] if "race_id" in df_valid.columns else None
+    raw_probs = predict_win_prob(model, X_all, race_ids=race_ids_all)
     # multiclass: shape (N, 6) → クラス 0 (1 着) の確率列
     first_place_probs = raw_probs[:, 0] if raw_probs.ndim == 2 else raw_probs
     df_valid["_fp"] = first_place_probs

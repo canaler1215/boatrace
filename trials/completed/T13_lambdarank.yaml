@@ -1,0 +1,53 @@
+trial_id: T13_lambdarank
+description: "R1 LambdaRank を本体統合し Walk-Forward 12 ヶ月で検証（タスク 6-10-d Step 4-5）"
+hypothesis: |
+  タスク 6-10-b で R1 (LambdaRank) が単月 val (2025-12) で baseline +0.63pp の保留入り、
+  タスク 6-10-d Step 1 (LAMBDARANK_SEED_CHECK_RESULTS) で seed=42/123/7 反復により
+  Δ_obs=+0.609pp, std_pooled=0.241pp, 2σ 基準で「seed ノイズではない」と確認済み。
+  本 trial では trainer.py 統合後の lambdarank モードを Walk-Forward 12 ヶ月で評価し、
+  通算 ROI ≥ +10%、broken_months=0、プラス月 ≥ 60%、bootstrap CI 下限 ≥ 0 を達成できるか
+  測定する。
+
+training:
+  train_start_year: 2023
+  train_start_month: 1
+  sample_weight:
+    mode: null
+
+# lambdarank モード: trainer.py が race_id 順ソート + group + relevance=5-y で学習し、
+# val 後段で booster.predict (N,) → race-softmax → (N,6) ブロードキャスト → per-class IR
+# → softmax 再正規化 のパスを通る。
+# label_gain / ndcg_eval_at は trainer.py 側で default が補完される（明示も可）。
+lgb_params:
+  objective: lambdarank
+  metric: ndcg
+  learning_rate: 0.05
+  num_leaves: 63
+  min_child_samples: 50
+  feature_fraction: 0.8
+  bagging_fraction: 0.8
+  bagging_freq: 5
+  label_gain: [0, 1, 3, 7, 15, 31]
+  ndcg_eval_at: [1, 3]
+  # seed 4 系統を一括固定（Step 1 の合意通り、再現性確保）
+  seed: 42
+  bagging_seed: 42
+  feature_fraction_seed: 42
+  data_random_seed: 42
+
+walkforward:
+  start: "2025-05"
+  end: "2026-04"
+  retrain_interval: 3
+  real_odds: true
+
+# strategy は全 trial 統一（CLAUDE.md 既定値、T00 と同一）
+strategy:
+  prob_threshold: 0.07
+  ev_threshold: 2.0
+  min_odds: 100.0
+  exclude_courses: []
+  exclude_stadiums: [2, 3, 4, 9, 11, 14, 16, 17, 21, 23]
+  bet_amount: 100
+  max_bets: 5
+  bet_type: trifecta

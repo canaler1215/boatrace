@@ -1,0 +1,33 @@
+[obj-PoC] tag=baseline_seed123 obj=multiclass train=2023-01Å`2025-11 val=2025-12
+[1/5] history load
+  history rows: 989,337
+[2/5] program load + merge
+  after merge: 989,776
+[3/5] build features (baseline 12 dims)
+  features shape: (981475, 12)
+  train samples: 953,302  val samples: 28,173  (val races ~ 4,716)
+[4/5] LightGBM train (objective=multiclass)
+Training until validation scores don't improve for 50 rounds
+[100]	valid_0's multi_logloss: 1.60479
+[200]	valid_0's multi_logloss: 1.60402
+Early stopping, best iteration is:
+[183]	valid_0's multi_logloss: 1.60398
+[5/5] evaluate
+---- RESULT ----
+  tag: baseline_seed123
+  objective: multiclass
+  seed: 123
+  val_period: 2025-12
+  train_start: 2023-01
+  n_train: 953302
+  n_val: 28173
+  n_features: 12
+  best_iteration: 183
+  top1_accuracy_raw: 0.5687193692733858
+  top1_accuracy_norm: 0.5687193692733858
+  ndcg_at_1: 0.6871193140584916
+  ndcg_at_3: 0.7598027098175785
+  ece_rank1_raw: 0.005585174945548707
+  ece_rank1_norm: 0.020159968913712262
+  multi_logloss_raw: 1.603976556898446
+appended Å® C:\Users\claude\workspace\boatrace\artifacts\lambdarank_seed_check_results.jsonl

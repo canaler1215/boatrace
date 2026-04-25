@@ -188,6 +188,13 @@ def main() -> None:
     p.add_argument("--num-boost-round", type=int, default=1000)
     p.add_argument("--early-stopping-rounds", type=int, default=50)
     p.add_argument(
+        "--seed",
+        type=int,
+        default=None,
+        help="LightGBM seed (seed/bagging_seed/feature_fraction_seed/data_random_seed を一括固定). "
+             "未指定の場合は LightGBM デフォルト挙動（seed 揺れあり）。",
+    )
+    p.add_argument(
         "--out-jsonl",
         type=str,
         default=str(ROOT / "artifacts" / "objective_poc_results.jsonl"),
@@ -294,6 +301,18 @@ def main() -> None:
     else:
         raise RuntimeError(f"unknown objective {args.objective}")
 
+    # seed 固定（指定時のみ。LightGBM の確率的要素 4 系統を一括固定）
+    if args.seed is not None:
+        params.update(
+            {
+                "seed": int(args.seed),
+                "bagging_seed": int(args.seed),
+                "feature_fraction_seed": int(args.seed),
+                "data_random_seed": int(args.seed),
+                "deterministic": True,
+            }
+        )
+
     booster = lgb.train(
         params,
         dtrain,
@@ -345,6 +364,7 @@ def main() -> None:
     result = {
         "tag": args.tag,
         "objective": args.objective,
+        "seed": int(args.seed) if args.seed is not None else None,
         "val_period": str(val_period),
         "train_start": f"{args.train_start_year}-{args.train_start_month:02d}",
         "n_train": int(len(X_train)),

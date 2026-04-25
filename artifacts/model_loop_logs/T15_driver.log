@@ -1,0 +1,546 @@
+2026-04-25 15:23:20,264 INFO __main__: pending trial: 1 本
+2026-04-25 15:23:20,265 INFO __main__: ==============================================================
+2026-04-25 15:23:20,265 INFO __main__:   実行: T15_lambdarank_seed7.yaml
+2026-04-25 15:23:20,265 INFO __main__: ==============================================================
+2026-04-25 15:23:20,268 INFO __main__: [T15_lambdarank_seed7] Walk-Forward: 2025-05 ～ 2026-04 (12 ヶ月, retrain_interval=3, real_odds=True)
+2026-04-25 15:23:20,268 INFO __main__: [T15_lambdarank_seed7] ── 2025-05 開始 ──
+2026-04-25 15:23:20,268 INFO run_walkforward: Training model for 2025-05: train 2023-01 → 2025-04
+2026-04-25 15:23:20,777 INFO collector.history_downloader: 2023-01: +30114 records (total 30114)
+2026-04-25 15:23:21,302 INFO collector.history_downloader: 2023-02: +25254 records (total 55368)
+2026-04-25 15:23:21,800 INFO collector.history_downloader: 2023-03: +27752 records (total 83120)
+2026-04-25 15:23:22,263 INFO collector.history_downloader: 2023-04: +26988 records (total 110108)
+2026-04-25 15:23:22,744 INFO collector.history_downloader: 2023-05: +28466 records (total 138574)
+2026-04-25 15:23:23,265 INFO collector.history_downloader: 2023-06: +28308 records (total 166882)
+2026-04-25 15:23:23,714 INFO collector.history_downloader: 2023-07: +29032 records (total 195914)
+2026-04-25 15:23:24,210 INFO collector.history_downloader: 2023-08: +29758 records (total 225672)
+2026-04-25 15:23:24,629 INFO collector.history_downloader: 2023-09: +25968 records (total 251640)
+2026-04-25 15:23:25,062 INFO collector.history_downloader: 2023-10: +25683 records (total 277323)
+2026-04-25 15:23:25,443 INFO collector.history_downloader: 2023-11: +23386 records (total 300709)
+2026-04-25 15:23:25,972 INFO collector.history_downloader: 2023-12: +29450 records (total 330159)
+2026-04-25 15:23:26,437 INFO collector.history_downloader: 2024-01: +29779 records (total 359938)
+2026-04-25 15:23:27,035 INFO collector.history_downloader: 2024-02: +26306 records (total 386244)
+2026-04-25 15:23:27,688 INFO collector.history_downloader: 2024-03: +26689 records (total 412933)
+2026-04-25 15:23:28,295 INFO collector.history_downloader: 2024-04: +26537 records (total 439470)
+2026-04-25 15:23:29,021 INFO collector.history_downloader: 2024-05: +28581 records (total 468051)
+2026-04-25 15:23:29,676 INFO collector.history_downloader: 2024-06: +27817 records (total 495868)
+2026-04-25 15:23:30,405 INFO collector.history_downloader: 2024-07: +29149 records (total 525017)
+2026-04-25 15:23:31,122 INFO collector.history_downloader: 2024-08: +28843 records (total 553860)
+2026-04-25 15:23:31,779 INFO collector.history_downloader: 2024-09: +26132 records (total 579992)
+2026-04-25 15:23:32,469 INFO collector.history_downloader: 2024-10: +26039 records (total 606031)
+2026-04-25 15:23:33,139 INFO collector.history_downloader: 2024-11: +24674 records (total 630705)
+2026-04-25 15:23:33,856 INFO collector.history_downloader: 2024-12: +29494 records (total 660199)
+2026-04-25 15:23:34,644 INFO collector.history_downloader: 2025-01: +29806 records (total 690005)
+2026-04-25 15:23:35,346 INFO collector.history_downloader: 2025-02: +25909 records (total 715914)
+2026-04-25 15:23:36,033 INFO collector.history_downloader: 2025-03: +26990 records (total 742904)
+2026-04-25 15:23:36,643 INFO collector.history_downloader: 2025-04: +25187 records (total 768091)
+2026-04-25 15:23:38,860 INFO collector.history_downloader: Total records loaded: 768091
+2026-04-25 15:23:39,534 INFO collector.program_downloader: Program data: 21772 records for 2023-01
+2026-04-25 15:23:39,598 INFO collector.program_downloader: Program 2023-01: +21772 records (total 21772)
+2026-04-25 15:23:40,095 INFO collector.program_downloader: Program data: 18500 records for 2023-02
+2026-04-25 15:23:40,142 INFO collector.program_downloader: Program 2023-02: +18500 records (total 40272)
+2026-04-25 15:23:40,750 INFO collector.program_downloader: Program data: 19776 records for 2023-03
+2026-04-25 15:23:40,813 INFO collector.program_downloader: Program 2023-03: +19776 records (total 60048)
+2026-04-25 15:23:41,389 INFO collector.program_downloader: Program data: 19599 records for 2023-04
+2026-04-25 15:23:41,442 INFO collector.program_downloader: Program 2023-04: +19599 records (total 79647)
+2026-04-25 15:23:41,871 INFO collector.program_downloader: Program data: 20482 records for 2023-05
+2026-04-25 15:23:41,919 INFO collector.program_downloader: Program 2023-05: +20482 records (total 100129)
+2026-04-25 15:23:42,292 INFO collector.program_downloader: Program data: 20543 records for 2023-06
+2026-04-25 15:23:42,339 INFO collector.program_downloader: Program 2023-06: +20543 records (total 120672)
+2026-04-25 15:23:42,758 INFO collector.program_downloader: Program data: 21264 records for 2023-07
+2026-04-25 15:23:42,822 INFO collector.program_downloader: Program 2023-07: +21264 records (total 141936)
+2026-04-25 15:23:43,242 INFO collector.program_downloader: Program data: 22230 records for 2023-08
+2026-04-25 15:23:43,293 INFO collector.program_downloader: Program 2023-08: +22230 records (total 164166)
+2026-04-25 15:23:43,662 INFO collector.program_downloader: Program data: 18867 records for 2023-09
+2026-04-25 15:23:43,709 INFO collector.program_downloader: Program 2023-09: +18867 records (total 183033)
+2026-04-25 15:23:44,042 INFO collector.program_downloader: Program data: 18296 records for 2023-10
+2026-04-25 15:23:44,094 INFO collector.program_downloader: Program 2023-10: +18296 records (total 201329)
+2026-04-25 15:23:44,394 INFO collector.program_downloader: Program data: 16856 records for 2023-11
+2026-04-25 15:23:44,435 INFO collector.program_downloader: Program 2023-11: +16856 records (total 218185)
+2026-04-25 15:23:44,851 INFO collector.program_downloader: Program data: 21255 records for 2023-12
+2026-04-25 15:23:44,937 INFO collector.program_downloader: Program 2023-12: +21255 records (total 239440)
+2026-04-25 15:23:45,412 INFO collector.program_downloader: Program data: 21857 records for 2024-01
+2026-04-25 15:23:45,459 INFO collector.program_downloader: Program 2024-01: +21857 records (total 261297)
+2026-04-25 15:23:45,799 INFO collector.program_downloader: Program data: 19661 records for 2024-02
+2026-04-25 15:23:45,849 INFO collector.program_downloader: Program 2024-02: +19661 records (total 280958)
+2026-04-25 15:23:46,216 INFO collector.program_downloader: Program data: 19874 records for 2024-03
+2026-04-25 15:23:46,269 INFO collector.program_downloader: Program 2024-03: +19874 records (total 300832)
+2026-04-25 15:23:46,616 INFO collector.program_downloader: Program data: 19164 records for 2024-04
+2026-04-25 15:23:46,664 INFO collector.program_downloader: Program 2024-04: +19164 records (total 319996)
+2026-04-25 15:23:47,066 INFO collector.program_downloader: Program data: 20730 records for 2024-05
+2026-04-25 15:23:47,129 INFO collector.program_downloader: Program 2024-05: +20730 records (total 340726)
+2026-04-25 15:23:47,498 INFO collector.program_downloader: Program data: 19945 records for 2024-06
+2026-04-25 15:23:47,547 INFO collector.program_downloader: Program 2024-06: +19945 records (total 360671)
+2026-04-25 15:23:47,918 INFO collector.program_downloader: Program data: 20938 records for 2024-07
+2026-04-25 15:23:47,966 INFO collector.program_downloader: Program 2024-07: +20938 records (total 381609)
+2026-04-25 15:23:48,364 INFO collector.program_downloader: Program data: 21482 records for 2024-08
+2026-04-25 15:23:48,416 INFO collector.program_downloader: Program 2024-08: +21482 records (total 403091)
+2026-04-25 15:23:48,766 INFO collector.program_downloader: Program data: 18798 records for 2024-09
+2026-04-25 15:23:48,814 INFO collector.program_downloader: Program 2024-09: +18798 records (total 421889)
+2026-04-25 15:23:49,228 INFO collector.program_downloader: Program data: 18688 records for 2024-10
+2026-04-25 15:23:49,263 INFO collector.program_downloader: Program 2024-10: +18688 records (total 440577)
+2026-04-25 15:23:49,634 INFO collector.program_downloader: Program data: 17824 records for 2024-11
+2026-04-25 15:23:49,681 INFO collector.program_downloader: Program 2024-11: +17824 records (total 458401)
+2026-04-25 15:23:50,050 INFO collector.program_downloader: Program data: 21427 records for 2024-12
+2026-04-25 15:23:50,101 INFO collector.program_downloader: Program 2024-12: +21427 records (total 479828)
+2026-04-25 15:23:50,463 INFO collector.program_downloader: Program data: 22224 records for 2025-01
+2026-04-25 15:23:50,517 INFO collector.program_downloader: Program 2025-01: +22224 records (total 502052)
+2026-04-25 15:23:50,866 INFO collector.program_downloader: Program data: 19811 records for 2025-02
+2026-04-25 15:23:50,929 INFO collector.program_downloader: Program 2025-02: +19811 records (total 521863)
+2026-04-25 15:23:51,299 INFO collector.program_downloader: Program data: 19935 records for 2025-03
+2026-04-25 15:23:51,347 INFO collector.program_downloader: Program 2025-03: +19935 records (total 541798)
+2026-04-25 15:23:51,679 INFO collector.program_downloader: Program data: 17742 records for 2025-04
+2026-04-25 15:23:51,726 INFO collector.program_downloader: Program 2025-04: +17742 records (total 559540)
+2026-04-25 15:23:52,864 INFO collector.program_downloader: Program range total: 559540 records
+2026-04-25 15:23:53,412 INFO collector.program_downloader: merge_program_data: 549343 / 768435 rows matched with B file data
+2026-04-25 15:24:57,050 INFO __main__: [T15_lambdarank_seed7] trial モデルを保存: model_loop_T15_lambdarank_seed7_202505.pkl
+2026-04-25 15:24:58,635 INFO collector.program_downloader: Program data: 21599 records for 2025-05
+2026-04-25 15:24:58,674 INFO collector.program_downloader: merge_program_data: 21120 / 29986 rows matched with B file data
+2026-04-25 15:24:58,674 INFO collector.odds_downloader: Loading odds cache: C:\Users\claude\workspace\boatrace\data\odds\odds_202505.parquet
+2026-04-25 15:24:59,915 INFO collector.odds_downloader: Loaded 5026 races from cache
+2026-04-25 15:24:59,920 INFO __main__: [T15_lambdarank_seed7] 実オッズ: 5026 レース分取得
+2026-04-25 15:25:08,891 INFO __main__: [T15_lambdarank_seed7] 2025-05 完了 レース=2709 スキップ=2282
+2026-04-25 15:25:08,907 INFO __main__: [T15_lambdarank_seed7] ── 2025-06 開始 ──
+2026-04-25 15:25:10,317 INFO collector.program_downloader: Program data: 20230 records for 2025-06
+2026-04-25 15:25:10,333 INFO collector.program_downloader: merge_program_data: 20049 / 28479 rows matched with B file data
+2026-04-25 15:25:10,349 INFO collector.odds_downloader: Loading odds cache: C:\Users\claude\workspace\boatrace\data\odds\odds_202506.parquet
+2026-04-25 15:25:11,093 INFO collector.odds_downloader: Loaded 4766 races from cache
+2026-04-25 15:25:11,093 INFO __main__: [T15_lambdarank_seed7] 実オッズ: 4766 レース分取得
+2026-04-25 15:25:17,996 INFO __main__: [T15_lambdarank_seed7] 2025-06 完了 レース=2713 スキップ=2026
+2026-04-25 15:25:18,012 INFO __main__: [T15_lambdarank_seed7] ── 2025-07 開始 ──
+2026-04-25 15:25:19,057 INFO collector.program_downloader: Program data: 21469 records for 2025-07
+2026-04-25 15:25:19,089 INFO collector.program_downloader: merge_program_data: 21140 / 30689 rows matched with B file data
+2026-04-25 15:25:19,105 INFO collector.odds_downloader: Loading odds cache: C:\Users\claude\workspace\boatrace\data\odds\odds_202507.parquet
+2026-04-25 15:25:19,794 INFO collector.odds_downloader: Loaded 5144 races from cache
+2026-04-25 15:25:19,794 INFO __main__: [T15_lambdarank_seed7] 実オッズ: 5144 レース分取得
+2026-04-25 15:25:27,425 INFO __main__: [T15_lambdarank_seed7] 2025-07 完了 レース=2990 スキップ=2115
+2026-04-25 15:25:27,429 INFO __main__: [T15_lambdarank_seed7] ── 2025-08 開始 ──
+2026-04-25 15:25:27,429 INFO run_walkforward: Training model for 2025-08: train 2023-01 → 2025-07
+2026-04-25 15:25:28,130 INFO collector.history_downloader: 2023-01: +30114 records (total 30114)
+2026-04-25 15:25:28,745 INFO collector.history_downloader: 2023-02: +25254 records (total 55368)
+2026-04-25 15:25:29,393 INFO collector.history_downloader: 2023-03: +27752 records (total 83120)
+2026-04-25 15:25:29,970 INFO collector.history_downloader: 2023-04: +26988 records (total 110108)
+2026-04-25 15:25:30,621 INFO collector.history_downloader: 2023-05: +28466 records (total 138574)
+2026-04-25 15:25:31,225 INFO collector.history_downloader: 2023-06: +28308 records (total 166882)
+2026-04-25 15:25:31,929 INFO collector.history_downloader: 2023-07: +29032 records (total 195914)
+2026-04-25 15:25:32,660 INFO collector.history_downloader: 2023-08: +29758 records (total 225672)
+2026-04-25 15:25:33,266 INFO collector.history_downloader: 2023-09: +25968 records (total 251640)
+2026-04-25 15:25:33,881 INFO collector.history_downloader: 2023-10: +25683 records (total 277323)
+2026-04-25 15:25:34,521 INFO collector.history_downloader: 2023-11: +23386 records (total 300709)
+2026-04-25 15:25:35,203 INFO collector.history_downloader: 2023-12: +29450 records (total 330159)
+2026-04-25 15:25:35,883 INFO collector.history_downloader: 2024-01: +29779 records (total 359938)
+2026-04-25 15:25:36,566 INFO collector.history_downloader: 2024-02: +26306 records (total 386244)
+2026-04-25 15:25:37,219 INFO collector.history_downloader: 2024-03: +26689 records (total 412933)
+2026-04-25 15:25:37,842 INFO collector.history_downloader: 2024-04: +26537 records (total 439470)
+2026-04-25 15:25:38,613 INFO collector.history_downloader: 2024-05: +28581 records (total 468051)
+2026-04-25 15:25:39,369 INFO collector.history_downloader: 2024-06: +27817 records (total 495868)
+2026-04-25 15:25:40,145 INFO collector.history_downloader: 2024-07: +29149 records (total 525017)
+2026-04-25 15:25:40,878 INFO collector.history_downloader: 2024-08: +28843 records (total 553860)
+2026-04-25 15:25:41,528 INFO collector.history_downloader: 2024-09: +26132 records (total 579992)
+2026-04-25 15:25:41,931 INFO collector.history_downloader: 2024-10: +26039 records (total 606031)
+2026-04-25 15:25:42,316 INFO collector.history_downloader: 2024-11: +24674 records (total 630705)
+2026-04-25 15:25:42,714 INFO collector.history_downloader: 2024-12: +29494 records (total 660199)
+2026-04-25 15:25:43,180 INFO collector.history_downloader: 2025-01: +29806 records (total 690005)
+2026-04-25 15:25:43,680 INFO collector.history_downloader: 2025-02: +25909 records (total 715914)
+2026-04-25 15:25:44,231 INFO collector.history_downloader: 2025-03: +26990 records (total 742904)
+2026-04-25 15:25:44,709 INFO collector.history_downloader: 2025-04: +25187 records (total 768091)
+2026-04-25 15:25:45,219 INFO collector.history_downloader: 2025-05: +29974 records (total 798065)
+2026-04-25 15:25:45,670 INFO collector.history_downloader: 2025-06: +28460 records (total 826525)
+2026-04-25 15:25:46,151 INFO collector.history_downloader: 2025-07: +30679 records (total 857204)
+2026-04-25 15:25:48,334 INFO collector.history_downloader: Total records loaded: 857204
+2026-04-25 15:25:48,866 INFO collector.program_downloader: Program data: 21772 records for 2023-01
+2026-04-25 15:25:48,946 INFO collector.program_downloader: Program 2023-01: +21772 records (total 21772)
+2026-04-25 15:25:49,369 INFO collector.program_downloader: Program data: 18500 records for 2023-02
+2026-04-25 15:25:49,434 INFO collector.program_downloader: Program 2023-02: +18500 records (total 40272)
+2026-04-25 15:25:49,898 INFO collector.program_downloader: Program data: 19776 records for 2023-03
+2026-04-25 15:25:49,971 INFO collector.program_downloader: Program 2023-03: +19776 records (total 60048)
+2026-04-25 15:25:50,405 INFO collector.program_downloader: Program data: 19599 records for 2023-04
+2026-04-25 15:25:50,487 INFO collector.program_downloader: Program 2023-04: +19599 records (total 79647)
+2026-04-25 15:25:50,934 INFO collector.program_downloader: Program data: 20482 records for 2023-05
+2026-04-25 15:25:50,998 INFO collector.program_downloader: Program 2023-05: +20482 records (total 100129)
+2026-04-25 15:25:51,513 INFO collector.program_downloader: Program data: 20543 records for 2023-06
+2026-04-25 15:25:51,588 INFO collector.program_downloader: Program 2023-06: +20543 records (total 120672)
+2026-04-25 15:25:52,043 INFO collector.program_downloader: Program data: 21264 records for 2023-07
+2026-04-25 15:25:52,122 INFO collector.program_downloader: Program 2023-07: +21264 records (total 141936)
+2026-04-25 15:25:52,606 INFO collector.program_downloader: Program data: 22230 records for 2023-08
+2026-04-25 15:25:52,690 INFO collector.program_downloader: Program 2023-08: +22230 records (total 164166)
+2026-04-25 15:25:53,137 INFO collector.program_downloader: Program data: 18867 records for 2023-09
+2026-04-25 15:25:53,216 INFO collector.program_downloader: Program 2023-09: +18867 records (total 183033)
+2026-04-25 15:25:53,634 INFO collector.program_downloader: Program data: 18296 records for 2023-10
+2026-04-25 15:25:53,696 INFO collector.program_downloader: Program 2023-10: +18296 records (total 201329)
+2026-04-25 15:25:54,065 INFO collector.program_downloader: Program data: 16856 records for 2023-11
+2026-04-25 15:25:54,129 INFO collector.program_downloader: Program 2023-11: +16856 records (total 218185)
+2026-04-25 15:25:54,579 INFO collector.program_downloader: Program data: 21255 records for 2023-12
+2026-04-25 15:25:54,668 INFO collector.program_downloader: Program 2023-12: +21255 records (total 239440)
+2026-04-25 15:25:55,125 INFO collector.program_downloader: Program data: 21857 records for 2024-01
+2026-04-25 15:25:55,204 INFO collector.program_downloader: Program 2024-01: +21857 records (total 261297)
+2026-04-25 15:25:55,608 INFO collector.program_downloader: Program data: 19661 records for 2024-02
+2026-04-25 15:25:55,671 INFO collector.program_downloader: Program 2024-02: +19661 records (total 280958)
+2026-04-25 15:25:56,122 INFO collector.program_downloader: Program data: 19874 records for 2024-03
+2026-04-25 15:25:56,197 INFO collector.program_downloader: Program 2024-03: +19874 records (total 300832)
+2026-04-25 15:25:56,600 INFO collector.program_downloader: Program data: 19164 records for 2024-04
+2026-04-25 15:25:56,669 INFO collector.program_downloader: Program 2024-04: +19164 records (total 319996)
+2026-04-25 15:25:57,276 INFO collector.program_downloader: Program data: 20730 records for 2024-05
+2026-04-25 15:25:57,371 INFO collector.program_downloader: Program 2024-05: +20730 records (total 340726)
+2026-04-25 15:25:57,897 INFO collector.program_downloader: Program data: 19945 records for 2024-06
+2026-04-25 15:25:57,963 INFO collector.program_downloader: Program 2024-06: +19945 records (total 360671)
+2026-04-25 15:25:58,525 INFO collector.program_downloader: Program data: 20938 records for 2024-07
+2026-04-25 15:25:58,599 INFO collector.program_downloader: Program 2024-07: +20938 records (total 381609)
+2026-04-25 15:25:59,204 INFO collector.program_downloader: Program data: 21482 records for 2024-08
+2026-04-25 15:25:59,269 INFO collector.program_downloader: Program 2024-08: +21482 records (total 403091)
+2026-04-25 15:25:59,800 INFO collector.program_downloader: Program data: 18798 records for 2024-09
+2026-04-25 15:25:59,872 INFO collector.program_downloader: Program 2024-09: +18798 records (total 421889)
+2026-04-25 15:26:00,381 INFO collector.program_downloader: Program data: 18688 records for 2024-10
+2026-04-25 15:26:00,460 INFO collector.program_downloader: Program 2024-10: +18688 records (total 440577)
+2026-04-25 15:26:00,988 INFO collector.program_downloader: Program data: 17824 records for 2024-11
+2026-04-25 15:26:01,035 INFO collector.program_downloader: Program 2024-11: +17824 records (total 458401)
+2026-04-25 15:26:01,671 INFO collector.program_downloader: Program data: 21427 records for 2024-12
+2026-04-25 15:26:01,727 INFO collector.program_downloader: Program 2024-12: +21427 records (total 479828)
+2026-04-25 15:26:02,263 INFO collector.program_downloader: Program data: 22224 records for 2025-01
+2026-04-25 15:26:02,327 INFO collector.program_downloader: Program 2025-01: +22224 records (total 502052)
+2026-04-25 15:26:02,807 INFO collector.program_downloader: Program data: 19811 records for 2025-02
+2026-04-25 15:26:02,875 INFO collector.program_downloader: Program 2025-02: +19811 records (total 521863)
+2026-04-25 15:26:03,433 INFO collector.program_downloader: Program data: 19935 records for 2025-03
+2026-04-25 15:26:03,505 INFO collector.program_downloader: Program 2025-03: +19935 records (total 541798)
+2026-04-25 15:26:04,044 INFO collector.program_downloader: Program data: 17742 records for 2025-04
+2026-04-25 15:26:04,096 INFO collector.program_downloader: Program 2025-04: +17742 records (total 559540)
+2026-04-25 15:26:04,698 INFO collector.program_downloader: Program data: 21599 records for 2025-05
+2026-04-25 15:26:04,769 INFO collector.program_downloader: Program 2025-05: +21599 records (total 581139)
+2026-04-25 15:26:05,353 INFO collector.program_downloader: Program data: 20230 records for 2025-06
+2026-04-25 15:26:05,418 INFO collector.program_downloader: Program 2025-06: +20230 records (total 601369)
+2026-04-25 15:26:05,962 INFO collector.program_downloader: Program data: 21469 records for 2025-07
+2026-04-25 15:26:06,032 INFO collector.program_downloader: Program 2025-07: +21469 records (total 622838)
+2026-04-25 15:26:07,706 INFO collector.program_downloader: Program range total: 622838 records
+2026-04-25 15:26:08,530 INFO collector.program_downloader: merge_program_data: 611652 / 857589 rows matched with B file data
+2026-04-25 15:27:23,279 INFO __main__: [T15_lambdarank_seed7] trial モデルを保存: model_loop_T15_lambdarank_seed7_202508.pkl
+2026-04-25 15:27:24,723 INFO collector.program_downloader: Program data: 20730 records for 2025-08
+2026-04-25 15:27:24,770 INFO collector.program_downloader: merge_program_data: 20570 / 30176 rows matched with B file data
+2026-04-25 15:27:24,796 INFO collector.odds_downloader: Loading odds cache: C:\Users\claude\workspace\boatrace\data\odds\odds_202508.parquet
+2026-04-25 15:27:26,044 INFO collector.odds_downloader: Loaded 5048 races from cache
+2026-04-25 15:27:26,044 INFO __main__: [T15_lambdarank_seed7] 実オッズ: 5048 レース分取得
+2026-04-25 15:27:35,863 INFO __main__: [T15_lambdarank_seed7] 2025-08 完了 レース=2714 スキップ=2300
+2026-04-25 15:27:35,876 INFO __main__: [T15_lambdarank_seed7] ── 2025-09 開始 ──
+2026-04-25 15:27:37,141 INFO collector.program_downloader: Program data: 17062 records for 2025-09
+2026-04-25 15:27:37,157 INFO collector.program_downloader: merge_program_data: 16860 / 25354 rows matched with B file data
+2026-04-25 15:27:37,173 INFO collector.odds_downloader: Loading odds cache: C:\Users\claude\workspace\boatrace\data\odds\odds_202509.parquet
+2026-04-25 15:27:37,845 INFO collector.odds_downloader: Loaded 4248 races from cache
+2026-04-25 15:27:37,848 INFO __main__: [T15_lambdarank_seed7] 実オッズ: 4248 レース分取得
+2026-04-25 15:27:44,454 INFO __main__: [T15_lambdarank_seed7] 2025-09 完了 レース=2178 スキップ=2039
+2026-04-25 15:27:44,458 INFO __main__: [T15_lambdarank_seed7] ── 2025-10 開始 ──
+2026-04-25 15:27:45,342 INFO collector.program_downloader: Program data: 16742 records for 2025-10
+2026-04-25 15:27:45,359 INFO collector.program_downloader: merge_program_data: 16566 / 24638 rows matched with B file data
+2026-04-25 15:27:45,373 INFO collector.odds_downloader: Loading odds cache: C:\Users\claude\workspace\boatrace\data\odds\odds_202510.parquet
+2026-04-25 15:27:45,983 INFO collector.odds_downloader: Loaded 4128 races from cache
+2026-04-25 15:27:45,983 INFO __main__: [T15_lambdarank_seed7] 実オッズ: 4128 レース分取得
+2026-04-25 15:27:52,406 INFO __main__: [T15_lambdarank_seed7] 2025-10 完了 レース=2555 スキップ=1543
+2026-04-25 15:27:52,406 INFO __main__: [T15_lambdarank_seed7] ── 2025-11 開始 ──
+2026-04-25 15:27:52,406 INFO run_walkforward: Training model for 2025-11: train 2023-01 → 2025-10
+2026-04-25 15:27:52,925 INFO collector.history_downloader: 2023-01: +30114 records (total 30114)
+2026-04-25 15:27:53,388 INFO collector.history_downloader: 2023-02: +25254 records (total 55368)
+2026-04-25 15:27:53,874 INFO collector.history_downloader: 2023-03: +27752 records (total 83120)
+2026-04-25 15:27:54,331 INFO collector.history_downloader: 2023-04: +26988 records (total 110108)
+2026-04-25 15:27:54,864 INFO collector.history_downloader: 2023-05: +28466 records (total 138574)
+2026-04-25 15:27:55,353 INFO collector.history_downloader: 2023-06: +28308 records (total 166882)
+2026-04-25 15:27:55,873 INFO collector.history_downloader: 2023-07: +29032 records (total 195914)
+2026-04-25 15:27:56,382 INFO collector.history_downloader: 2023-08: +29758 records (total 225672)
+2026-04-25 15:27:56,848 INFO collector.history_downloader: 2023-09: +25968 records (total 251640)
+2026-04-25 15:27:57,489 INFO collector.history_downloader: 2023-10: +25683 records (total 277323)
+2026-04-25 15:27:58,036 INFO collector.history_downloader: 2023-11: +23386 records (total 300709)
+2026-04-25 15:27:58,782 INFO collector.history_downloader: 2023-12: +29450 records (total 330159)
+2026-04-25 15:27:59,456 INFO collector.history_downloader: 2024-01: +29779 records (total 359938)
+2026-04-25 15:28:00,098 INFO collector.history_downloader: 2024-02: +26306 records (total 386244)
+2026-04-25 15:28:00,670 INFO collector.history_downloader: 2024-03: +26689 records (total 412933)
+2026-04-25 15:28:01,264 INFO collector.history_downloader: 2024-04: +26537 records (total 439470)
+2026-04-25 15:28:01,999 INFO collector.history_downloader: 2024-05: +28581 records (total 468051)
+2026-04-25 15:28:02,708 INFO collector.history_downloader: 2024-06: +27817 records (total 495868)
+2026-04-25 15:28:03,422 INFO collector.history_downloader: 2024-07: +29149 records (total 525017)
+2026-04-25 15:28:04,157 INFO collector.history_downloader: 2024-08: +28843 records (total 553860)
+2026-04-25 15:28:04,868 INFO collector.history_downloader: 2024-09: +26132 records (total 579992)
+2026-04-25 15:28:05,534 INFO collector.history_downloader: 2024-10: +26039 records (total 606031)
+2026-04-25 15:28:06,200 INFO collector.history_downloader: 2024-11: +24674 records (total 630705)
+2026-04-25 15:28:06,872 INFO collector.history_downloader: 2024-12: +29494 records (total 660199)
+2026-04-25 15:28:07,662 INFO collector.history_downloader: 2025-01: +29806 records (total 690005)
+2026-04-25 15:28:08,334 INFO collector.history_downloader: 2025-02: +25909 records (total 715914)
+2026-04-25 15:28:08,950 INFO collector.history_downloader: 2025-03: +26990 records (total 742904)
+2026-04-25 15:28:09,636 INFO collector.history_downloader: 2025-04: +25187 records (total 768091)
+2026-04-25 15:28:10,331 INFO collector.history_downloader: 2025-05: +29974 records (total 798065)
+2026-04-25 15:28:11,051 INFO collector.history_downloader: 2025-06: +28460 records (total 826525)
+2026-04-25 15:28:11,661 INFO collector.history_downloader: 2025-07: +30679 records (total 857204)
+2026-04-25 15:28:12,110 INFO collector.history_downloader: 2025-08: +30163 records (total 887367)
+2026-04-25 15:28:12,545 INFO collector.history_downloader: 2025-09: +25343 records (total 912710)
+2026-04-25 15:28:12,916 INFO collector.history_downloader: 2025-10: +24631 records (total 937341)
+2026-04-25 15:28:15,208 INFO collector.history_downloader: Total records loaded: 937341
+2026-04-25 15:28:15,709 INFO collector.program_downloader: Program data: 21772 records for 2023-01
+2026-04-25 15:28:15,768 INFO collector.program_downloader: Program 2023-01: +21772 records (total 21772)
+2026-04-25 15:28:16,123 INFO collector.program_downloader: Program data: 18500 records for 2023-02
+2026-04-25 15:28:16,187 INFO collector.program_downloader: Program 2023-02: +18500 records (total 40272)
+2026-04-25 15:28:16,561 INFO collector.program_downloader: Program data: 19776 records for 2023-03
+2026-04-25 15:28:16,637 INFO collector.program_downloader: Program 2023-03: +19776 records (total 60048)
+2026-04-25 15:28:17,066 INFO collector.program_downloader: Program data: 19599 records for 2023-04
+2026-04-25 15:28:17,134 INFO collector.program_downloader: Program 2023-04: +19599 records (total 79647)
+2026-04-25 15:28:17,562 INFO collector.program_downloader: Program data: 20482 records for 2023-05
+2026-04-25 15:28:17,648 INFO collector.program_downloader: Program 2023-05: +20482 records (total 100129)
+2026-04-25 15:28:18,077 INFO collector.program_downloader: Program data: 20543 records for 2023-06
+2026-04-25 15:28:18,161 INFO collector.program_downloader: Program 2023-06: +20543 records (total 120672)
+2026-04-25 15:28:18,680 INFO collector.program_downloader: Program data: 21264 records for 2023-07
+2026-04-25 15:28:18,755 INFO collector.program_downloader: Program 2023-07: +21264 records (total 141936)
+2026-04-25 15:28:19,238 INFO collector.program_downloader: Program data: 22230 records for 2023-08
+2026-04-25 15:28:19,317 INFO collector.program_downloader: Program 2023-08: +22230 records (total 164166)
+2026-04-25 15:28:19,751 INFO collector.program_downloader: Program data: 18867 records for 2023-09
+2026-04-25 15:28:19,815 INFO collector.program_downloader: Program 2023-09: +18867 records (total 183033)
+2026-04-25 15:28:20,263 INFO collector.program_downloader: Program data: 18296 records for 2023-10
+2026-04-25 15:28:20,317 INFO collector.program_downloader: Program 2023-10: +18296 records (total 201329)
+2026-04-25 15:28:20,694 INFO collector.program_downloader: Program data: 16856 records for 2023-11
+2026-04-25 15:28:20,758 INFO collector.program_downloader: Program 2023-11: +16856 records (total 218185)
+2026-04-25 15:28:21,225 INFO collector.program_downloader: Program data: 21255 records for 2023-12
+2026-04-25 15:28:21,288 INFO collector.program_downloader: Program 2023-12: +21255 records (total 239440)
+2026-04-25 15:28:21,754 INFO collector.program_downloader: Program data: 21857 records for 2024-01
+2026-04-25 15:28:21,835 INFO collector.program_downloader: Program 2024-01: +21857 records (total 261297)
+2026-04-25 15:28:22,252 INFO collector.program_downloader: Program data: 19661 records for 2024-02
+2026-04-25 15:28:22,320 INFO collector.program_downloader: Program 2024-02: +19661 records (total 280958)
+2026-04-25 15:28:22,821 INFO collector.program_downloader: Program data: 19874 records for 2024-03
+2026-04-25 15:28:22,891 INFO collector.program_downloader: Program 2024-03: +19874 records (total 300832)
+2026-04-25 15:28:23,314 INFO collector.program_downloader: Program data: 19164 records for 2024-04
+2026-04-25 15:28:23,378 INFO collector.program_downloader: Program 2024-04: +19164 records (total 319996)
+2026-04-25 15:28:23,830 INFO collector.program_downloader: Program data: 20730 records for 2024-05
+2026-04-25 15:28:23,910 INFO collector.program_downloader: Program 2024-05: +20730 records (total 340726)
+2026-04-25 15:28:24,352 INFO collector.program_downloader: Program data: 19945 records for 2024-06
+2026-04-25 15:28:24,421 INFO collector.program_downloader: Program 2024-06: +19945 records (total 360671)
+2026-04-25 15:28:24,874 INFO collector.program_downloader: Program data: 20938 records for 2024-07
+2026-04-25 15:28:24,943 INFO collector.program_downloader: Program 2024-07: +20938 records (total 381609)
+2026-04-25 15:28:25,404 INFO collector.program_downloader: Program data: 21482 records for 2024-08
+2026-04-25 15:28:25,481 INFO collector.program_downloader: Program 2024-08: +21482 records (total 403091)
+2026-04-25 15:28:25,884 INFO collector.program_downloader: Program data: 18798 records for 2024-09
+2026-04-25 15:28:25,947 INFO collector.program_downloader: Program 2024-09: +18798 records (total 421889)
+2026-04-25 15:28:26,350 INFO collector.program_downloader: Program data: 18688 records for 2024-10
+2026-04-25 15:28:26,430 INFO collector.program_downloader: Program 2024-10: +18688 records (total 440577)
+2026-04-25 15:28:26,892 INFO collector.program_downloader: Program data: 17824 records for 2024-11
+2026-04-25 15:28:26,971 INFO collector.program_downloader: Program 2024-11: +17824 records (total 458401)
+2026-04-25 15:28:27,578 INFO collector.program_downloader: Program data: 21427 records for 2024-12
+2026-04-25 15:28:27,658 INFO collector.program_downloader: Program 2024-12: +21427 records (total 479828)
+2026-04-25 15:28:28,257 INFO collector.program_downloader: Program data: 22224 records for 2025-01
+2026-04-25 15:28:28,337 INFO collector.program_downloader: Program 2025-01: +22224 records (total 502052)
+2026-04-25 15:28:28,826 INFO collector.program_downloader: Program data: 19811 records for 2025-02
+2026-04-25 15:28:28,897 INFO collector.program_downloader: Program 2025-02: +19811 records (total 521863)
+2026-04-25 15:28:29,473 INFO collector.program_downloader: Program data: 19935 records for 2025-03
+2026-04-25 15:28:29,543 INFO collector.program_downloader: Program 2025-03: +19935 records (total 541798)
+2026-04-25 15:28:30,059 INFO collector.program_downloader: Program data: 17742 records for 2025-04
+2026-04-25 15:28:30,117 INFO collector.program_downloader: Program 2025-04: +17742 records (total 559540)
+2026-04-25 15:28:30,767 INFO collector.program_downloader: Program data: 21599 records for 2025-05
+2026-04-25 15:28:30,833 INFO collector.program_downloader: Program 2025-05: +21599 records (total 581139)
+2026-04-25 15:28:31,381 INFO collector.program_downloader: Program data: 20230 records for 2025-06
+2026-04-25 15:28:31,445 INFO collector.program_downloader: Program 2025-06: +20230 records (total 601369)
+2026-04-25 15:28:32,069 INFO collector.program_downloader: Program data: 21469 records for 2025-07
+2026-04-25 15:28:32,142 INFO collector.program_downloader: Program 2025-07: +21469 records (total 622838)
+2026-04-25 15:28:32,684 INFO collector.program_downloader: Program data: 20730 records for 2025-08
+2026-04-25 15:28:32,740 INFO collector.program_downloader: Program 2025-08: +20730 records (total 643568)
+2026-04-25 15:28:33,301 INFO collector.program_downloader: Program data: 17062 records for 2025-09
+2026-04-25 15:28:33,351 INFO collector.program_downloader: Program 2025-09: +17062 records (total 660630)
+2026-04-25 15:28:33,833 INFO collector.program_downloader: Program data: 16742 records for 2025-10
+2026-04-25 15:28:33,881 INFO collector.program_downloader: Program 2025-10: +16742 records (total 677372)
+2026-04-25 15:28:35,727 INFO collector.program_downloader: Program range total: 677372 records
+2026-04-25 15:28:36,609 INFO collector.program_downloader: merge_program_data: 665648 / 937757 rows matched with B file data
+2026-04-25 15:30:07,135 INFO __main__: [T15_lambdarank_seed7] trial モデルを保存: model_loop_T15_lambdarank_seed7_202511.pkl
+2026-04-25 15:30:08,509 INFO collector.program_downloader: Program data: 15539 records for 2025-11
+2026-04-25 15:30:08,543 INFO collector.program_downloader: merge_program_data: 15440 / 23517 rows matched with B file data
+2026-04-25 15:30:08,556 INFO collector.odds_downloader: Loading odds cache: C:\Users\claude\workspace\boatrace\data\odds\odds_202511.parquet
+2026-04-25 15:30:09,527 INFO collector.odds_downloader: Loaded 3937 races from cache
+2026-04-25 15:30:09,529 INFO __main__: [T15_lambdarank_seed7] 実オッズ: 3937 レース分取得
+2026-04-25 15:30:16,342 INFO __main__: [T15_lambdarank_seed7] 2025-11 完了 レース=2540 スキップ=1363
+2026-04-25 15:30:16,349 INFO __main__: [T15_lambdarank_seed7] ── 2025-12 開始 ──
+2026-04-25 15:30:17,340 INFO collector.program_downloader: Program data: 19573 records for 2025-12
+2026-04-25 15:30:17,373 INFO collector.program_downloader: merge_program_data: 19409 / 28502 rows matched with B file data
+2026-04-25 15:30:17,390 INFO collector.odds_downloader: Loading odds cache: C:\Users\claude\workspace\boatrace\data\odds\odds_202512.parquet
+2026-04-25 15:30:18,052 INFO collector.odds_downloader: Loaded 4771 races from cache
+2026-04-25 15:30:18,052 INFO __main__: [T15_lambdarank_seed7] 実オッズ: 4771 レース分取得
+2026-04-25 15:30:25,175 INFO __main__: [T15_lambdarank_seed7] 2025-12 完了 レース=2782 スキップ=1934
+2026-04-25 15:30:25,194 INFO __main__: [T15_lambdarank_seed7] ── 2026-01 開始 ──
+2026-04-25 15:30:26,235 INFO collector.program_downloader: Program data: 22190 records for 2026-01
+2026-04-25 15:30:26,266 INFO collector.program_downloader: merge_program_data: 21359 / 30801 rows matched with B file data
+2026-04-25 15:30:26,282 INFO collector.odds_downloader: Loading odds cache: C:\Users\claude\workspace\boatrace\data\odds\odds_202601.parquet
+2026-04-25 15:30:27,036 INFO collector.odds_downloader: Loaded 5166 races from cache
+2026-04-25 15:30:27,038 INFO __main__: [T15_lambdarank_seed7] 実オッズ: 5166 レース分取得
+2026-04-25 15:30:36,248 INFO __main__: [T15_lambdarank_seed7] 2026-01 完了 レース=2941 スキップ=2177
+2026-04-25 15:30:36,256 INFO __main__: [T15_lambdarank_seed7] ── 2026-02 開始 ──
+2026-04-25 15:30:36,256 INFO run_walkforward: Training model for 2026-02: train 2023-01 → 2026-01
+2026-04-25 15:30:36,954 INFO collector.history_downloader: 2023-01: +30114 records (total 30114)
+2026-04-25 15:30:37,598 INFO collector.history_downloader: 2023-02: +25254 records (total 55368)
+2026-04-25 15:30:38,351 INFO collector.history_downloader: 2023-03: +27752 records (total 83120)
+2026-04-25 15:30:39,055 INFO collector.history_downloader: 2023-04: +26988 records (total 110108)
+2026-04-25 15:30:39,770 INFO collector.history_downloader: 2023-05: +28466 records (total 138574)
+2026-04-25 15:30:40,367 INFO collector.history_downloader: 2023-06: +28308 records (total 166882)
+2026-04-25 15:30:41,123 INFO collector.history_downloader: 2023-07: +29032 records (total 195914)
+2026-04-25 15:30:41,722 INFO collector.history_downloader: 2023-08: +29758 records (total 225672)
+2026-04-25 15:30:42,121 INFO collector.history_downloader: 2023-09: +25968 records (total 251640)
+2026-04-25 15:30:42,524 INFO collector.history_downloader: 2023-10: +25683 records (total 277323)
+2026-04-25 15:30:42,918 INFO collector.history_downloader: 2023-11: +23386 records (total 300709)
+2026-04-25 15:30:43,392 INFO collector.history_downloader: 2023-12: +29450 records (total 330159)
+2026-04-25 15:30:43,852 INFO collector.history_downloader: 2024-01: +29779 records (total 359938)
+2026-04-25 15:30:44,256 INFO collector.history_downloader: 2024-02: +26306 records (total 386244)
+2026-04-25 15:30:44,657 INFO collector.history_downloader: 2024-03: +26689 records (total 412933)
+2026-04-25 15:30:45,092 INFO collector.history_downloader: 2024-04: +26537 records (total 439470)
+2026-04-25 15:30:45,529 INFO collector.history_downloader: 2024-05: +28581 records (total 468051)
+2026-04-25 15:30:45,972 INFO collector.history_downloader: 2024-06: +27817 records (total 495868)
+2026-04-25 15:30:46,469 INFO collector.history_downloader: 2024-07: +29149 records (total 525017)
+2026-04-25 15:30:46,959 INFO collector.history_downloader: 2024-08: +28843 records (total 553860)
+2026-04-25 15:30:47,416 INFO collector.history_downloader: 2024-09: +26132 records (total 579992)
+2026-04-25 15:30:47,869 INFO collector.history_downloader: 2024-10: +26039 records (total 606031)
+2026-04-25 15:30:48,328 INFO collector.history_downloader: 2024-11: +24674 records (total 630705)
+2026-04-25 15:30:48,882 INFO collector.history_downloader: 2024-12: +29494 records (total 660199)
+2026-04-25 15:30:49,605 INFO collector.history_downloader: 2025-01: +29806 records (total 690005)
+2026-04-25 15:30:50,192 INFO collector.history_downloader: 2025-02: +25909 records (total 715914)
+2026-04-25 15:30:50,878 INFO collector.history_downloader: 2025-03: +26990 records (total 742904)
+2026-04-25 15:30:51,533 INFO collector.history_downloader: 2025-04: +25187 records (total 768091)
+2026-04-25 15:30:52,220 INFO collector.history_downloader: 2025-05: +29974 records (total 798065)
+2026-04-25 15:30:52,886 INFO collector.history_downloader: 2025-06: +28460 records (total 826525)
+2026-04-25 15:30:53,612 INFO collector.history_downloader: 2025-07: +30679 records (total 857204)
+2026-04-25 15:30:54,316 INFO collector.history_downloader: 2025-08: +30163 records (total 887367)
+2026-04-25 15:30:54,932 INFO collector.history_downloader: 2025-09: +25343 records (total 912710)
+2026-04-25 15:30:55,519 INFO collector.history_downloader: 2025-10: +24631 records (total 937341)
+2026-04-25 15:30:56,194 INFO collector.history_downloader: 2025-11: +23508 records (total 960849)
+2026-04-25 15:30:56,942 INFO collector.history_downloader: 2025-12: +28488 records (total 989337)
+2026-04-25 15:30:57,512 INFO collector.history_downloader: 2026-01: +30791 records (total 1020128)
+2026-04-25 15:31:00,440 INFO collector.history_downloader: Total records loaded: 1020128
+2026-04-25 15:31:01,156 INFO collector.program_downloader: Program data: 21772 records for 2023-01
+2026-04-25 15:31:01,219 INFO collector.program_downloader: Program 2023-01: +21772 records (total 21772)
+2026-04-25 15:31:01,743 INFO collector.program_downloader: Program data: 18500 records for 2023-02
+2026-04-25 15:31:01,795 INFO collector.program_downloader: Program 2023-02: +18500 records (total 40272)
+2026-04-25 15:31:02,374 INFO collector.program_downloader: Program data: 19776 records for 2023-03
+2026-04-25 15:31:02,443 INFO collector.program_downloader: Program 2023-03: +19776 records (total 60048)
+2026-04-25 15:31:03,018 INFO collector.program_downloader: Program data: 19599 records for 2023-04
+2026-04-25 15:31:03,066 INFO collector.program_downloader: Program 2023-04: +19599 records (total 79647)
+2026-04-25 15:31:03,674 INFO collector.program_downloader: Program data: 20482 records for 2023-05
+2026-04-25 15:31:03,738 INFO collector.program_downloader: Program 2023-05: +20482 records (total 100129)
+2026-04-25 15:31:04,332 INFO collector.program_downloader: Program data: 20543 records for 2023-06
+2026-04-25 15:31:04,401 INFO collector.program_downloader: Program 2023-06: +20543 records (total 120672)
+2026-04-25 15:31:04,958 INFO collector.program_downloader: Program data: 21264 records for 2023-07
+2026-04-25 15:31:05,038 INFO collector.program_downloader: Program 2023-07: +21264 records (total 141936)
+2026-04-25 15:31:05,569 INFO collector.program_downloader: Program data: 22230 records for 2023-08
+2026-04-25 15:31:05,639 INFO collector.program_downloader: Program 2023-08: +22230 records (total 164166)
+2026-04-25 15:31:06,148 INFO collector.program_downloader: Program data: 18867 records for 2023-09
+2026-04-25 15:31:06,200 INFO collector.program_downloader: Program 2023-09: +18867 records (total 183033)
+2026-04-25 15:31:06,665 INFO collector.program_downloader: Program data: 18296 records for 2023-10
+2026-04-25 15:31:06,712 INFO collector.program_downloader: Program 2023-10: +18296 records (total 201329)
+2026-04-25 15:31:07,250 INFO collector.program_downloader: Program data: 16856 records for 2023-11
+2026-04-25 15:31:07,318 INFO collector.program_downloader: Program 2023-11: +16856 records (total 218185)
+2026-04-25 15:31:07,909 INFO collector.program_downloader: Program data: 21255 records for 2023-12
+2026-04-25 15:31:07,990 INFO collector.program_downloader: Program 2023-12: +21255 records (total 239440)
+2026-04-25 15:31:08,547 INFO collector.program_downloader: Program data: 21857 records for 2024-01
+2026-04-25 15:31:08,594 INFO collector.program_downloader: Program 2024-01: +21857 records (total 261297)
+2026-04-25 15:31:09,122 INFO collector.program_downloader: Program data: 19661 records for 2024-02
+2026-04-25 15:31:09,185 INFO collector.program_downloader: Program 2024-02: +19661 records (total 280958)
+2026-04-25 15:31:09,682 INFO collector.program_downloader: Program data: 19874 records for 2024-03
+2026-04-25 15:31:09,729 INFO collector.program_downloader: Program 2024-03: +19874 records (total 300832)
+2026-04-25 15:31:10,206 INFO collector.program_downloader: Program data: 19164 records for 2024-04
+2026-04-25 15:31:10,270 INFO collector.program_downloader: Program 2024-04: +19164 records (total 319996)
+2026-04-25 15:31:10,878 INFO collector.program_downloader: Program data: 20730 records for 2024-05
+2026-04-25 15:31:10,937 INFO collector.program_downloader: Program 2024-05: +20730 records (total 340726)
+2026-04-25 15:31:11,492 INFO collector.program_downloader: Program data: 19945 records for 2024-06
+2026-04-25 15:31:11,571 INFO collector.program_downloader: Program 2024-06: +19945 records (total 360671)
+2026-04-25 15:31:11,934 INFO collector.program_downloader: Program data: 20938 records for 2024-07
+2026-04-25 15:31:12,004 INFO collector.program_downloader: Program 2024-07: +20938 records (total 381609)
+2026-04-25 15:31:12,369 INFO collector.program_downloader: Program data: 21482 records for 2024-08
+2026-04-25 15:31:12,416 INFO collector.program_downloader: Program 2024-08: +21482 records (total 403091)
+2026-04-25 15:31:12,739 INFO collector.program_downloader: Program data: 18798 records for 2024-09
+2026-04-25 15:31:12,787 INFO collector.program_downloader: Program 2024-09: +18798 records (total 421889)
+2026-04-25 15:31:13,143 INFO collector.program_downloader: Program data: 18688 records for 2024-10
+2026-04-25 15:31:13,206 INFO collector.program_downloader: Program 2024-10: +18688 records (total 440577)
+2026-04-25 15:31:13,571 INFO collector.program_downloader: Program data: 17824 records for 2024-11
+2026-04-25 15:31:13,639 INFO collector.program_downloader: Program 2024-11: +17824 records (total 458401)
+2026-04-25 15:31:14,089 INFO collector.program_downloader: Program data: 21427 records for 2024-12
+2026-04-25 15:31:14,151 INFO collector.program_downloader: Program 2024-12: +21427 records (total 479828)
+2026-04-25 15:31:14,532 INFO collector.program_downloader: Program data: 22224 records for 2025-01
+2026-04-25 15:31:14,612 INFO collector.program_downloader: Program 2025-01: +22224 records (total 502052)
+2026-04-25 15:31:15,029 INFO collector.program_downloader: Program data: 19811 records for 2025-02
+2026-04-25 15:31:15,092 INFO collector.program_downloader: Program 2025-02: +19811 records (total 521863)
+2026-04-25 15:31:15,497 INFO collector.program_downloader: Program data: 19935 records for 2025-03
+2026-04-25 15:31:15,561 INFO collector.program_downloader: Program 2025-03: +19935 records (total 541798)
+2026-04-25 15:31:15,931 INFO collector.program_downloader: Program data: 17742 records for 2025-04
+2026-04-25 15:31:15,979 INFO collector.program_downloader: Program 2025-04: +17742 records (total 559540)
+2026-04-25 15:31:16,411 INFO collector.program_downloader: Program data: 21599 records for 2025-05
+2026-04-25 15:31:16,491 INFO collector.program_downloader: Program 2025-05: +21599 records (total 581139)
+2026-04-25 15:31:16,908 INFO collector.program_downloader: Program data: 20230 records for 2025-06
+2026-04-25 15:31:16,972 INFO collector.program_downloader: Program 2025-06: +20230 records (total 601369)
+2026-04-25 15:31:17,406 INFO collector.program_downloader: Program data: 21469 records for 2025-07
+2026-04-25 15:31:17,485 INFO collector.program_downloader: Program 2025-07: +21469 records (total 622838)
+2026-04-25 15:31:17,934 INFO collector.program_downloader: Program data: 20730 records for 2025-08
+2026-04-25 15:31:17,999 INFO collector.program_downloader: Program 2025-08: +20730 records (total 643568)
+2026-04-25 15:31:18,387 INFO collector.program_downloader: Program data: 17062 records for 2025-09
+2026-04-25 15:31:18,435 INFO collector.program_downloader: Program 2025-09: +17062 records (total 660630)
+2026-04-25 15:31:18,877 INFO collector.program_downloader: Program data: 16742 records for 2025-10
+2026-04-25 15:31:18,966 INFO collector.program_downloader: Program 2025-10: +16742 records (total 677372)
+2026-04-25 15:31:19,445 INFO collector.program_downloader: Program data: 15539 records for 2025-11
+2026-04-25 15:31:19,492 INFO collector.program_downloader: Program 2025-11: +15539 records (total 692911)
+2026-04-25 15:31:20,005 INFO collector.program_downloader: Program data: 19573 records for 2025-12
+2026-04-25 15:31:20,072 INFO collector.program_downloader: Program 2025-12: +19573 records (total 712484)
+2026-04-25 15:31:20,644 INFO collector.program_downloader: Program data: 22190 records for 2026-01
+2026-04-25 15:31:20,708 INFO collector.program_downloader: Program 2026-01: +22190 records (total 734674)
+2026-04-25 15:31:22,574 INFO collector.program_downloader: Program range total: 734674 records
+2026-04-25 15:31:23,476 INFO collector.program_downloader: merge_program_data: 721856 / 1020577 rows matched with B file data
+2026-04-25 15:32:40,417 INFO __main__: [T15_lambdarank_seed7] trial モデルを保存: model_loop_T15_lambdarank_seed7_202602.pkl
+2026-04-25 15:32:41,400 INFO collector.program_downloader: Program data: 17710 records for 2026-02
+2026-04-25 15:32:41,432 INFO collector.program_downloader: merge_program_data: 17497 / 24898 rows matched with B file data
+2026-04-25 15:32:41,448 INFO collector.odds_downloader: Loading odds cache: C:\Users\claude\workspace\boatrace\data\odds\odds_202602.parquet
+2026-04-25 15:32:42,217 INFO collector.odds_downloader: Loaded 4171 races from cache
+2026-04-25 15:32:42,217 INFO __main__: [T15_lambdarank_seed7] 実オッズ: 4171 レース分取得
+2026-04-25 15:32:48,253 INFO __main__: [T15_lambdarank_seed7] 2026-02 完了 レース=2331 スキップ=1803
+2026-04-25 15:32:48,269 INFO __main__: [T15_lambdarank_seed7] ── 2026-03 開始 ──
+2026-04-25 15:32:49,189 INFO collector.program_downloader: Program data: 19117 records for 2026-03
+2026-04-25 15:32:49,205 INFO collector.program_downloader: merge_program_data: 18932 / 27800 rows matched with B file data
+2026-04-25 15:32:49,221 INFO collector.odds_downloader: Loading odds cache: C:\Users\claude\workspace\boatrace\data\odds\odds_202603.parquet
+2026-04-25 15:32:49,832 INFO collector.odds_downloader: Loaded 4653 races from cache
+2026-04-25 15:32:49,848 INFO __main__: [T15_lambdarank_seed7] 実オッズ: 4653 レース分取得
+2026-04-25 15:32:56,361 INFO __main__: [T15_lambdarank_seed7] 2026-03 完了 レース=2734 スキップ=1878
+2026-04-25 15:32:56,378 INFO __main__: [T15_lambdarank_seed7] ── 2026-04 開始 ──
+2026-04-25 15:32:57,070 INFO collector.program_downloader: Program data: 14055 records for 2026-04
+2026-04-25 15:32:57,086 INFO collector.program_downloader: merge_program_data: 12443 / 18618 rows matched with B file data
+2026-04-25 15:32:57,110 INFO collector.odds_downloader: Loading odds cache: C:\Users\claude\workspace\boatrace\data\odds\odds_202604.parquet
+2026-04-25 15:32:57,520 INFO collector.odds_downloader: Loaded 3121 races from cache
+2026-04-25 15:32:57,520 INFO __main__: [T15_lambdarank_seed7] 実オッズ: 3121 レース分取得
+2026-04-25 15:33:01,961 INFO __main__: [T15_lambdarank_seed7] 2026-04 完了 レース=1729 スキップ=1369
+2026-04-25 15:33:02,249 INFO __main__: [T15_lambdarank_seed7] 結果 CSV: C:\Users\claude\workspace\boatrace\artifacts\walkforward_T15_lambdarank_seed7.csv
+2026-04-25 15:33:02,280 INFO __main__: [T15_lambdarank_seed7] \u2705 完了 → C:\Users\claude\workspace\boatrace\trials\completed\T15_lambdarank_seed7.yaml
+2026-04-25 15:33:02,280 INFO __main__: [T15_lambdarank_seed7] ROI=-6.1% worst=-40.5% primary=-24.0 verdict=fail
+2026-04-25 15:33:02,280 INFO __main__: ==============================================================
+2026-04-25 15:33:02,280 INFO __main__:   全 trial 完了 サマリー
+2026-04-25 15:33:02,280 INFO __main__: ==============================================================
+2026-04-25 15:33:02,280 INFO __main__:   [T15_lambdarank_seed7] success  ROI=-6.1% worst=-40.5% primary=-24.0 verdict=fail
+Train: 685,674 samples  Val: 76,185 samples  (時系列 split)
+  objective=lambdarank  is_ranking=True
+Training until validation scores don't improve for 50 rounds
+[100]	valid_0's ndcg@1: 0.702675	valid_0's ndcg@3: 0.76733
+[200]	valid_0's ndcg@1: 0.704003	valid_0's ndcg@3: 0.769141
+Early stopping, best iteration is:
+[184]	valid_0's ndcg@1: 0.704748	valid_0's ndcg@3: 0.76939
+  [Softmax + Isotonic Regression]
+  [1着 ECE]  before=0.01031 → after=0.00655
+Model saved: C:\Users\claude\workspace\boatrace\artifacts\model_202504_from202301_wf.pkl  (best iteration: 184)
+Train: 765,355 samples  Val: 85,039 samples  (時系列 split)
+  objective=lambdarank  is_ranking=True
+Training until validation scores don't improve for 50 rounds
+[100]	valid_0's ndcg@1: 0.68118	valid_0's ndcg@3: 0.75819
+[200]	valid_0's ndcg@1: 0.683087	valid_0's ndcg@3: 0.758781
+Early stopping, best iteration is:
+[194]	valid_0's ndcg@1: 0.682779	valid_0's ndcg@3: 0.758808
+  [Softmax + Isotonic Regression]
+  [1着 ECE]  before=0.00687 → after=0.00729
+Model saved: C:\Users\claude\workspace\boatrace\artifacts\model_202507_from202301_wf.pkl  (best iteration: 194)
+Train: 836,994 samples  Val: 92,999 samples  (時系列 split)
+  objective=lambdarank  is_ranking=True
+Training until validation scores don't improve for 50 rounds
+[100]	valid_0's ndcg@1: 0.683478	valid_0's ndcg@3: 0.756196
+[200]	valid_0's ndcg@1: 0.684991	valid_0's ndcg@3: 0.757666
+[300]	valid_0's ndcg@1: 0.68502	valid_0's ndcg@3: 0.758079
+Early stopping, best iteration is:
+[264]	valid_0's ndcg@1: 0.685734	valid_0's ndcg@3: 0.758156
+  [Softmax + Isotonic Regression]
+  [1着 ECE]  before=0.00709 → after=0.00645
+Model saved: C:\Users\claude\workspace\boatrace\artifacts\model_202510_from202301_wf.pkl  (best iteration: 264)
+Train: 910,786 samples  Val: 101,198 samples  (時系列 split)
+  objective=lambdarank  is_ranking=True
+Training until validation scores don't improve for 50 rounds
+[100]	valid_0's ndcg@1: 0.697731	valid_0's ndcg@3: 0.764274
+Early stopping, best iteration is:
+[113]	valid_0's ndcg@1: 0.698454	valid_0's ndcg@3: 0.76471
+  [Softmax + Isotonic Regression]
+  [1着 ECE]  before=0.01046 → after=0.00662
+Model saved: C:\Users\claude\workspace\boatrace\artifacts\model_202601_from202301_wf.pkl  (best iteration: 113)

@@ -4,6 +4,11 @@
 Session 6 変更点:
   - predict_win_prob: softmax_calibrators がある場合 → 正規化 → IR → 再正規化（最優先）
   - 後方互換性: temperature（S5）/ calibrators（S3）/ raw（S1） の順にフォールバック
+
+タスク 6-10-d 拡張（2026-04-25〜）:
+  - booster.params の objective を読み、lambdarank / rank_xendcg なら
+    race-level softmax で (N,) → 1 着確率 → (N, 6) にブロードキャスト
+  - 引数 race_ids が必要（None だとエラー）。multiclass モデルでは race_ids 無視
 """
 import lightgbm as lgb
 import pandas as pd
@@ -13,6 +18,40 @@ from itertools import permutations, combinations
 from pathlib import Path
 
 EV_THRESHOLD = 1.2
+
+RANKING_OBJECTIVES = {"lambdarank", "rank_xendcg"}
+
+
+def _race_softmax_pred(score: np.ndarray, race_ids: np.ndarray) -> np.ndarray:
+    """レース単位で score を softmax 正規化して 1 着確率（per-row）を返す。"""
+    out = np.zeros_like(score, dtype=float)
+    df = pd.DataFrame({"race_id": race_ids, "score": score})
+    for _, idx in df.groupby("race_id", sort=False).groups.items():
+        s = score[idx]
+        s = s - s.max()
+        e = np.exp(s)
+        total = e.sum()
+        out[idx] = (e / total) if total > 0 else (1.0 / len(s))
+    return out
+
+
+def _broadcast_first_to_six(p_first: np.ndarray) -> np.ndarray:
+    """1 着確率 (N,) を (N, 6) に展開（trainer._broadcast_first_to_six と同実装）。"""
+    n = len(p_first)
+    out = np.zeros((n, 6), dtype=float)
+    out[:, 0] = p_first
+    rest = np.clip(1.0 - p_first, 0.0, 1.0) / 5.0
+    out[:, 1:] = rest[:, None]
+    return out
+
+
+def _booster_objective(booster: "lgb.Booster") -> str:
+    """booster.params から objective を取得。取れなければ multiclass を仮定。"""
+    try:
+        obj = (booster.params or {}).get("objective", "multiclass")
+    except Exception:
+        obj = "multiclass"
+    return obj or "multiclass"
 
 
 def load_model(model_path: Path):
@@ -37,15 +76,29 @@ def _softmax_normalize(probs: np.ndarray) -> np.ndarray:
     return probs / np.maximum(row_sum, 1e-9)
 
 
-def predict_win_prob(model, X: pd.DataFrame) -> np.ndarray:
+def predict_win_prob(
+    model,
+    X: pd.DataFrame,
+    race_ids: pd.Series | np.ndarray | None = None,
+) -> np.ndarray:
     """
     各艇の1着確率を推定 (shape: [n_races, 6])
 
     優先順位:
       1. softmax_calibrators → 正規化 → IR → 再正規化（Session 6 新形式）
+         - lambdarank モデルの場合は booster.predict (N,) → race-level softmax →
+           (N, 6) ブロードキャスト → 上記パス（race_ids 引数が必須）
       2. temperature → Temperature Scaling（Session 5 旧形式）
       3. calibrators → Isotonic Regression（Session 3 旧形式、非推奨）
       4. なし → raw softmax 確率をそのまま返す
+
+    Parameters
+    ----------
+    model : dict   load_model の戻り値
+    X : pd.DataFrame  特徴量
+    race_ids : pd.Series | np.ndarray | None
+        ranking 系（lambdarank / rank_xendcg）モデルでは必須。
+        multiclass モデルでは無視される。長さは X と一致すること。
     """
     booster             = model["booster"]
     softmax_calibrators = model.get("softmax_calibrators", None)
@@ -54,7 +107,25 @@ def predict_win_prob(model, X: pd.DataFrame) -> np.ndarray:
 
     if softmax_calibrators is not None:
         # Session 6: raw probs → softmax 正規化 → IR → 再正規化
-        raw_probs  = booster.predict(X)               # (N, 6)
+        objective = _booster_objective(booster)
+        if objective in RANKING_OBJECTIVES:
+            if race_ids is None:
+                raise ValueError(
+                    f"ranking model (objective={objective}) requires race_ids "
+                    f"argument to predict_win_prob"
+                )
+            rid_arr = np.asarray(
+                race_ids.values if hasattr(race_ids, "values") else race_ids
+            )
+            if len(rid_arr) != len(X):
+                raise ValueError(
+                    f"race_ids length ({len(rid_arr)}) must match X length ({len(X)})"
+                )
+            scores = booster.predict(X)               # (N,)
+            p_first = _race_softmax_pred(scores, rid_arr)
+            raw_probs = _broadcast_first_to_six(p_first)
+        else:
+            raw_probs = booster.predict(X)            # (N, 6)
         normalized = _softmax_normalize(raw_probs)    # sum-to-1 per race
         cal_raw = np.stack(
             [softmax_calibrators[k].predict(normalized[:, k]) for k in range(6)], axis=1

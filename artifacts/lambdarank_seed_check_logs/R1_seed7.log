@@ -1,0 +1,32 @@
+[obj-PoC] tag=R1_seed7 obj=lambdarank train=2023-01Å`2025-11 val=2025-12
+[1/5] history load
+  history rows: 989,337
+[2/5] program load + merge
+  after merge: 989,776
+[3/5] build features (baseline 12 dims)
+  features shape: (981475, 12)
+  train samples: 953,302  val samples: 28,173  (val races ~ 4,719)
+[4/5] LightGBM train (objective=lambdarank)
+Training until validation scores don't improve for 50 rounds
+[100]	valid_0's ndcg@1: 0.690148	valid_0's ndcg@3: 0.764338
+Early stopping, best iteration is:
+[74]	valid_0's ndcg@1: 0.693169	valid_0's ndcg@3: 0.764208
+[5/5] evaluate
+---- RESULT ----
+  tag: R1_seed7
+  objective: lambdarank
+  seed: 7
+  val_period: 2025-12
+  train_start: 2023-01
+  n_train: 953302
+  n_val: 28173
+  n_features: 12
+  best_iteration: 74
+  top1_accuracy_raw: 0.5738648475804733
+  top1_accuracy_norm: 0.5738648475804733
+  ndcg_at_1: 0.6931691312922984
+  ndcg_at_3: 0.7642075387566982
+  ece_rank1_raw: 0.019750404094049212
+  ece_rank1_norm: 0.019750404094049212
+  multi_logloss_raw: nan
+appended Å® C:\Users\claude\workspace\boatrace\artifacts\lambdarank_seed_check_results.jsonl

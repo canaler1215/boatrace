@@ -291,6 +291,16 @@ def get_model_for_month(
         X, y = build_features_from_history(df_train)
         race_dates = None
 
+    # ranking 系 objective なら race_ids を trainer.train に渡す（タスク 6-10-d）
+    objective = (lgb_params or {}).get("objective", "multiclass")
+    race_ids_for_train: pd.Series | None = None
+    if objective in {"lambdarank", "rank_xendcg"}:
+        if "race_id" not in df_train.columns:
+            raise RuntimeError(
+                f"ranking objective '{objective}' requires race_id column in df_train"
+            )
+        race_ids_for_train = df_train.loc[X.index, "race_id"].reset_index(drop=True)
+
     sample_weight = None
     if need_dates and race_dates is not None:
         # 基準日: 学習期間の末日（前月末日）
@@ -317,6 +327,7 @@ def get_model_for_month(
         num_boost_round=num_boost_round,
         early_stopping_rounds=early_stopping_rounds,
         sample_weight=sample_weight,
+        race_ids=race_ids_for_train,
         return_metrics=return_metrics,
     )
     if return_metrics:

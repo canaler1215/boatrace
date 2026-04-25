@@ -1,0 +1,38 @@
+{
+  "trial_id": "T13_lambdarank",
+  "kpi": {
+    "total_bets": 55311,
+    "total_wagered": 5531100.0,
+    "total_payout": 5138280.0,
+    "wins": 160,
+    "roi_total": -7.1,
+    "worst_month_roi": -56.33,
+    "best_month_roi": 93.93,
+    "plus_months": 5,
+    "total_months": 12,
+    "plus_month_ratio": 0.4167,
+    "broken_months": 1,
+    "cvar20_month_roi": -49.71,
+    "avg_hit_odds": 321.14,
+    "hit_rate_per_bet": 0.002893,
+    "ece_rank1_calibrated": 0.006705,
+    "roi_ci_low_90": -23.21,
+    "roi_ci_high_90": 9.69
+  },
+  "monthly_roi": {
+    "2025-05": 38.88,
+    "2025-06": -48.56,
+    "2025-07": -44.23,
+    "2025-08": 13.2,
+    "2025-09": -56.33,
+    "2025-10": -35.43,
+    "2025-11": -4.78,
+    "2025-12": 93.93,
+    "2026-01": -44.09,
+    "2026-02": 17.83,
+    "2026-03": -40.86,
+    "2026-04": 39.57
+  },
+  "primary_score": -41.95,
+  "verdict": "fail"
+}
