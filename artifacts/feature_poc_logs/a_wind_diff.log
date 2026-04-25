@@ -1,0 +1,33 @@
+[PoC] tag=a_wind_diff  train=2023-01Å`2025-11  val=2025-12
+[1/5] history load
+  history rows: 989,337
+[2/5] program load + merge
+  after merge: 989,776
+[3/5] build features (extras=['wind_speed_diff'])
+  features shape: (981475, 13)  columns: ['exhibition_time', 'motor_win_rate', 'boat_win_rate', 'boat_no', 'racer_win_rate', 'racer_grade_encoded', 'racer_avg_st', 'tidal_level', 'tidal_type_encoded', 'in_win_rate', 'wind_direction_encoded', 'wind_speed', 'wind_speed_diff']
+  train samples: 953,302  val samples: 28,173
+[4/5] LightGBM train
+Training until validation scores don't improve for 50 rounds
+[100]	valid_0's multi_logloss: 1.60488
+[200]	valid_0's multi_logloss: 1.60398
+Early stopping, best iteration is:
+[208]	valid_0's multi_logloss: 1.60393
+[5/5] evaluate
+---- RESULT ----
+  tag: a_wind_diff
+  val_period: 2025-12
+  train_start: 2023-01
+  n_train: 953302
+  n_val: 28173
+  n_features: 13
+  best_iteration: 208
+  top1_accuracy_raw: 0.5765458422174841
+  top1_accuracy_norm: 0.5765458422174841
+  top1_accuracy_calibrated: 0.5763326226012793
+  ece_rank1_raw: 0.005367805693658712
+  ece_rank1_norm: 0.005367805693658722
+  ece_rank1_calibrated: 0.0021743283831068593
+  multi_logloss_raw: 1.6039324256241616
+  multi_logloss_norm: 1.603932425624161
+  multi_logloss_calibrated: 1.598051686475277
+appended Å® C:\Users\claude\workspace\boatrace\artifacts\feature_poc_results.jsonl

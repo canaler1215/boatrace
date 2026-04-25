@@ -1,0 +1,34 @@
+[PoC] tag=baseline  train=2023-01Å`2025-11  val=2025-12
+[1/5] history load
+  history rows: 989,337
+[2/5] program load + merge
+  after merge: 989,776
+[3/5] build features
+  features shape: (981475, 12)  columns: ['exhibition_time', 'motor_win_rate', 'boat_win_rate', 'boat_no', 'racer_win_rate', 'racer_grade_encoded', 'racer_avg_st', 'tidal_level', 'tidal_type_encoded', 'in_win_rate', 'wind_direction_encoded', 'wind_speed']
+  train samples: 953,302  val samples: 28,173
+[4/5] LightGBM train
+Training until validation scores don't improve for 50 rounds
+[100]	valid_0's multi_logloss: 1.60486
+[200]	valid_0's multi_logloss: 1.60401
+Early stopping, best iteration is:
+[212]	valid_0's multi_logloss: 1.60397
+[5/5] evaluate
+---- RESULT ----
+  tag: baseline
+  val_period: 2025-12
+  train_start: 2023-01
+  n_train: 953302
+  n_val: 28173
+  n_features: 12
+  best_iteration: 212
+  top1_accuracy_raw: 0.566339590443686
+  top1_accuracy_norm: 0.566339590443686
+  top1_accuracy_calibrated: 0.5659129692832765
+  ece_rank1_raw: 0.006700421303076745
+  ece_rank1_norm: 0.006700421303076745
+  ece_rank1_calibrated: 0.0021719154225596756
+  multi_logloss_raw: 1.6039686304165248
+  multi_logloss_norm: 1.6039686304165248
+  multi_logloss_calibrated: 1.5981404825276986
+appended Å® C:\Users\claude\workspace\boatrace\artifacts\feature_poc_results.jsonl
+

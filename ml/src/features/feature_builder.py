@@ -4,7 +4,7 @@
 """
 import pandas as pd
 from .tidal_features import add_tidal_features, add_tidal_features_estimated
-from .stadium_features import add_stadium_features
+from .stadium_features import add_stadium_features, add_stadium_course_features
 
 # 級別エンコーディング (高いほど上位)
 GRADE_ENCODE = {"A1": 3, "A2": 2, "B1": 1, "B2": 0}
@@ -28,6 +28,15 @@ FEATURE_COLUMNS = [
     "wind_direction_encoded",
     "wind_speed",
 ]
+
+# PoC 拡張用: build_features_from_history(extra_features=...) で動的に追加可能。
+# 採用が確定したら FEATURE_COLUMNS 本体に統合する。
+EXTRA_FEATURE_REGISTRY = {
+    "racer_st_std",       # PoC c
+    "racer_late_rate",    # PoC c
+    "course_win_rate",    # PoC b: 場×コース勝率（24×6 ハードコードテーブル参照）
+    "wind_speed_diff",    # PoC a: 当該レース風速 - 場の過去平均風速
+}
 
 
 def build_features(
@@ -64,6 +73,7 @@ def build_features_from_history(
     df: pd.DataFrame,
     *,
     return_dates: bool = False,
+    extra_features: list[str] | None = None,
 ):
     """
     history_downloader で取得した生データから特徴量とラベルを生成する。
@@ -107,7 +117,22 @@ def build_features_from_history(
     # 選手の過去 ST 平均を計算（ルックアヘッドなし）
     df = _add_racer_avg_st(df)
 
-    X = df[FEATURE_COLUMNS].fillna(0)
+    # ---- PoC 拡張特徴量（タスク 6-10）---------------------------------
+    extras = list(extra_features or [])
+    unknown = [c for c in extras if c not in EXTRA_FEATURE_REGISTRY]
+    if unknown:
+        raise ValueError(f"unknown extra_features: {unknown}. "
+                         f"許可: {sorted(EXTRA_FEATURE_REGISTRY)}")
+    if {"racer_st_std", "racer_late_rate"} & set(extras):
+        df = _add_racer_st_dispersion(df)
+    if "course_win_rate" in extras:
+        df = add_stadium_course_features(df)
+    if "wind_speed_diff" in extras:
+        df = _add_wind_speed_diff(df)
+
+    feature_columns = list(FEATURE_COLUMNS) + extras
+
+    X = df[feature_columns].fillna(0)
     y = (df["finish_position"] - 1).astype(int)
 
     if return_dates:
@@ -225,6 +250,80 @@ def _add_racer_avg_st(df: pd.DataFrame) -> pd.DataFrame:
         df["racer_avg_st"] = global_mean
 
     df["racer_avg_st"] = df["racer_avg_st"].fillna(global_mean)
+    return df
+
+
+_LATE_ST_THRESHOLD = 0.20  # ST が 0.20 秒以上は実質「遅刻スタート」相当
+
+
+def _add_wind_speed_diff(df: pd.DataFrame) -> pd.DataFrame:
+    """
+    PoC a: 当該レースの風速と「その場の過去レース平均風速」の差分。
+
+    場ごと expanding mean を取り、shift(1) で自身を除く（ルックアヘッド禁止）。
+    履歴ゼロ場は全データ平均で補完。
+    """
+    df = df.copy()
+    if "wind_speed" not in df.columns or "stadium_id" not in df.columns:
+        df["wind_speed_diff"] = 0.0
+        return df
+
+    df["wind_speed"] = pd.to_numeric(df["wind_speed"], errors="coerce")
+    raw_mean = df["wind_speed"].mean()
+    global_mean = float(raw_mean) if pd.notna(raw_mean) else 0.0
+
+    df = df.sort_values(["race_date", "race_id", "boat_no"])
+
+    # 同一レース内の 6 行は同じ wind_speed → race 単位で一意化してから expanding
+    # （行単位 expanding でも結果は変わらないが、計算量を抑える意図はない。素直に行単位で）
+    stadium_avg = (
+        df.groupby("stadium_id")["wind_speed"]
+        .transform(lambda s: s.shift(1).expanding().mean())
+    )
+    stadium_avg = stadium_avg.fillna(global_mean)
+
+    df["wind_speed_diff"] = (df["wind_speed"].fillna(global_mean) - stadium_avg).astype(float)
+    return df
+
+
+def _add_racer_st_dispersion(df: pd.DataFrame) -> pd.DataFrame:
+    """
+    選手ごとの過去 ST のばらつきを示す特徴量を追加する（ルックアヘッドなし）。
+
+    - racer_st_std    : 過去 ST の expanding 標準偏差（1 件目は NaN → 全体平均で補完）
+    - racer_late_rate : 過去 ST のうち >= _LATE_ST_THRESHOLD だった割合の expanding 平均
+
+    `_add_racer_avg_st` と同じく自身の行は除いて計算する（shift(1)）。
+    """
+    df = df.copy()
+    if "start_timing" not in df.columns or df["start_timing"].isna().all():
+        df["racer_st_std"] = 0.0
+        df["racer_late_rate"] = 0.0
+        return df
+
+    if "racer_id" not in df.columns:
+        df["racer_st_std"] = float(df["start_timing"].std() or 0.0)
+        df["racer_late_rate"] = float((df["start_timing"] >= _LATE_ST_THRESHOLD).mean())
+        return df
+
+    df = df.sort_values(["race_date", "race_id", "boat_no"])
+
+    grp_st = df.groupby("racer_id")["start_timing"]
+    df["racer_st_std"] = grp_st.transform(
+        lambda s: s.shift(1).expanding(min_periods=2).std()
+    )
+    is_late = (df["start_timing"] >= _LATE_ST_THRESHOLD).astype(float)
+    df["racer_late_rate"] = is_late.groupby(df["racer_id"]).transform(
+        lambda s: s.shift(1).expanding().mean()
+    )
+
+    # 履歴不足行はデータセット全体の平均で補完
+    raw_std = df["start_timing"].std()
+    global_std = float(raw_std) if pd.notna(raw_std) else 0.0
+    raw_late = is_late.mean()
+    global_late = float(raw_late) if pd.notna(raw_late) else 0.0
+    df["racer_st_std"] = df["racer_st_std"].fillna(global_std)
+    df["racer_late_rate"] = df["racer_late_rate"].fillna(global_late)
     return df
 
 
