@@ -1,0 +1,33 @@
+[PoC] tag=combined_abc  train=2023-01Å`2025-11  val=2025-12
+[1/5] history load
+  history rows: 989,337
+[2/5] program load + merge
+  after merge: 989,776
+[3/5] build features (extras=['racer_st_std', 'racer_late_rate', 'course_win_rate', 'wind_speed_diff'])
+  features shape: (981475, 16)  columns: ['exhibition_time', 'motor_win_rate', 'boat_win_rate', 'boat_no', 'racer_win_rate', 'racer_grade_encoded', 'racer_avg_st', 'tidal_level', 'tidal_type_encoded', 'in_win_rate', 'wind_direction_encoded', 'wind_speed', 'racer_st_std', 'racer_late_rate', 'course_win_rate', 'wind_speed_diff']
+  train samples: 953,302  val samples: 28,173
+[4/5] LightGBM train
+Training until validation scores don't improve for 50 rounds
+[100]	valid_0's multi_logloss: 1.60336
+[200]	valid_0's multi_logloss: 1.60231
+Early stopping, best iteration is:
+[248]	valid_0's multi_logloss: 1.6021
+[5/5] evaluate
+---- RESULT ----
+  tag: combined_abc
+  val_period: 2025-12
+  train_start: 2023-01
+  n_train: 953302
+  n_val: 28173
+  n_features: 16
+  best_iteration: 248
+  top1_accuracy_raw: 0.5725858026007248
+  top1_accuracy_norm: 0.5725858026007248
+  top1_accuracy_calibrated: 0.5719462801108506
+  ece_rank1_raw: 0.004228217266324235
+  ece_rank1_norm: 0.004228217266324232
+  ece_rank1_calibrated: 0.0013046434001839123
+  multi_logloss_raw: 1.6020953841481307
+  multi_logloss_norm: 1.6020953841481307
+  multi_logloss_calibrated: 1.596513958880154
+appended Å® C:\Users\claude\workspace\boatrace\artifacts\feature_poc_results.jsonl
