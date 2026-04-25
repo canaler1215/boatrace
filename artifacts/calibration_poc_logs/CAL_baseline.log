@@ -1,0 +1,36 @@
+[CAL-PoC] tag=CAL_baseline cal=per_class_ir train=2023-01Å`2025-10 cal=2025-11 val=2025-12
+[1/6] history load
+  history rows: 989,337
+[2/6] program load + merge
+  after merge: 989,776
+[3/6] build features (baseline 12 dims)
+  features shape: (981475, 12)
+  train: 929,993  cal: 23,309  val: 28,173 (val races ~ 4,718)
+[4/6] LightGBM train (objective=multiclass)
+Training until validation scores don't improve for 50 rounds
+[100]	valid_0's multi_logloss: 1.6052
+[200]	valid_0's multi_logloss: 1.60445
+Early stopping, best iteration is:
+[163]	valid_0's multi_logloss: 1.60437
+[5/6] fit calibrator (per_class_ir) on cal split
+[6/6] evaluate
+---- RESULT ----
+  tag: CAL_baseline
+  calibrator: per_class_ir
+  val_period: 2025-12
+  cal_period: 2025-11
+  train_end: 2025-10
+  n_train: 929993
+  n_cal: 23309
+  n_val: 28173
+  n_features: 12
+  best_iteration: 163
+  top1_accuracy_raw: 0.5749307183969303
+  top1_accuracy_cal: 0.5755702408868045
+  ndcg_at_1: 0.6924548205421731
+  ndcg_at_3: 0.7602857674256841
+  ece_rank1_raw: 0.005755291637345523
+  ece_rank1_cal: 0.008187596906659685
+  trifecta_ece_cal: 0.008576586979377937
+  multi_logloss_cal: 1.6192133501695725
+appended Å® c:\Users\claude\workspace\boatrace\artifacts\calibration_poc_results.jsonl
