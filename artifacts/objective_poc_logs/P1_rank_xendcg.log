@@ -1,0 +1,31 @@
+[obj-PoC] tag=P1_rank_xendcg obj=rank_xendcg train=2023-01Å`2025-11 val=2025-12
+[1/5] history load
+  history rows: 989,337
+[2/5] program load + merge
+  after merge: 989,776
+[3/5] build features (baseline 12 dims)
+  features shape: (981475, 12)
+  train samples: 953,302  val samples: 28,173  (val races ~ 4,719)
+[4/5] LightGBM train (objective=rank_xendcg)
+Training until validation scores don't improve for 50 rounds
+[100]	valid_0's ndcg@1: 0.692304	valid_0's ndcg@3: 0.76294
+Early stopping, best iteration is:
+[68]	valid_0's ndcg@1: 0.693606	valid_0's ndcg@3: 0.762174
+[5/5] evaluate
+---- RESULT ----
+  tag: P1_rank_xendcg
+  objective: rank_xendcg
+  val_period: 2025-12
+  train_start: 2023-01
+  n_train: 953302
+  n_val: 28173
+  n_features: 12
+  best_iteration: 68
+  top1_accuracy_raw: 0.5749255002128565
+  top1_accuracy_norm: 0.5749255002128565
+  ndcg_at_1: 0.6936057100279973
+  ndcg_at_3: 0.7621738253569837
+  ece_rank1_raw: 0.07735343306479889
+  ece_rank1_norm: 0.07735343306479889
+  multi_logloss_raw: nan
+appended Å® c:\Users\claude\workspace\boatrace\artifacts\objective_poc_results.jsonl
