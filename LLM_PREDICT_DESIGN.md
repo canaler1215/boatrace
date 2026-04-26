@@ -305,7 +305,7 @@ artifacts/
 |---|---|---|---|
 | **P1 基盤** | `race_card_builder.py` + `/prep-races` skill | 1 会場 1 日のカード生成成功 | ✅ **2026-04-26 完了** |
 | **P2 予想** | `fetch_pre_race_info.py` + `/predict` skill | 1 レース予想 JSON 出力成功 | ✅ **2026-04-26 完了** |
-| **P3 評価** | `evaluate_predictions.py` + `/eval-predictions` skill | 1 日分の ROI 算出成功 | 別セッションで着手予定 |
+| **P3 評価** | `evaluate_predictions.py` + `/eval-predictions` skill | 1 日分の ROI 算出成功 | ✅ **2026-04-27 完了** |
 | **P4 運用** | 複数会場対応、index.md、会場名解決 | `/prep-races 2026-04-27 桐生 平和島 住之江` 成功 | （P1 で前倒し実装済み） |
 | **P5 自動化** | `/schedule` 連携（任意） | 夜間自動 prep | — |
 
@@ -418,6 +418,68 @@ P1〜P3 を最小スコープで動かして、ユーザーが実際に使って
 - `scripts/evaluate_predictions.py`: 予想 vs 実績の突合
 - `.claude/commands/eval-predictions.md`: スキル定義
 - 動作確認: `/eval-predictions 2026-04-27` で日次 ROI 算出
+
+### P3 完了メモ（2026-04-27）
+
+実装ファイル:
+
+- [ml/src/scripts/evaluate_predictions.py](ml/src/scripts/evaluate_predictions.py) — CLI（K ファイル + parquet キャッシュ + 当日 raceresult 突合 → ROI 集計）
+- [.claude/commands/eval-predictions.md](.claude/commands/eval-predictions.md) — スキル定義
+
+実装上の判断（着手前合意済み）:
+
+1. **実績データ取得**: 過去日 = K ファイル `parse_result_file` の `finish_position`
+   + `data/odds/odds_YYYYMM.parquet` のオッズ。当日 = `fetch_race_result_full`
+   （`trifecta_combination` + `trifecta_payout / 100` を `actual_odds` として使用）
+2. **引数仕様**: P3 は単日 + 単会場まで。`--from`/`--to` の累積は P3.5 で別実装
+3. **的中判定**: 単純な文字列一致（`bet.trifecta == actual_combination`）。
+   3 連単はソート不要
+4. **集計指標**: 必須指標（的中率/ROI/見送り率/平均 confidence） +
+   confidence 帯別 ROI（`[0.0-0.3, 0.3-0.5, 0.5-0.7, 0.7-1.0]`） + 場別 ROI。
+   skip の if-bet 参考集計は P3.5 以降
+5. **ステータス分類**: `settled` / `skipped_by_claude` / `no_result` の 3 種で
+   見送り率と no_result を区別
+6. **engine.py 流用しない**: 既存の `_is_trio_hit` は 3 連複用、本件は文字列一致で
+   足りるので独自実装で完結（約 500 行）
+7. **K ファイル不在時**: `download_day_data` で自動 DL を試行（既存呼び出すだけ）
+8. **payout 計算**: 過去日 = parquet オッズ × stake、当日 = `payout_yen / 100 × stake`、
+   どちらも取れない場合は Claude の `current_odds` × stake にフォールバック
+   （`payout_source` で記録）
+9. **odds_drift_pct**: Claude の `current_odds` と実 actual_odds の乖離を JSON に
+   保存（集計には影響しない、後解析用）
+10. **連続 5 レース失敗で警告**: ログのみ。途中で止めない
+
+動作確認パス（成果物 = `artifacts/eval/<日付>.json` / `<日付>_<場ID>.json`）:
+
+| 呼び出し | 結果 |
+|---|---|
+| `evaluate_predictions.py 2025-12-01 桐生` | 12 races settled, 17 bets, 1 hit (7R `1-3-5` @ 7.2x), ROI -57.6%, hit_rate/bet 5.88% |
+
+手計算検証（`artifacts/eval/2025-12-01_01.json`）:
+
+- 7R: actual=`1-3-5`, bet=`1-3-5` → `is_hit=true`, `payout = 100 × 7.2 = 720` ✓
+- 1R: actual=`3-1-4`, bet=`1-4-3` → `is_hit=false`, `payout=0` ✓
+- 集計: 720 / 1700 - 1 = -0.5765 ≈ -57.6% ✓
+- confidence 0.5-0.7 帯（lo ≤ x < hi）: 6 bets, 1 hit, ROI +20.0% ✓
+- `odds_drift_pct=0.0` 全件 → Claude が race card の parquet オッズをそのまま
+  コピーしているため一致、設計通り
+
+実装中の発見と対応:
+
+1. **race_id 形式の不一致**: 予想 JSON は `YYYY-MM-DD_NN_RR`（P2 形式、12 桁ではない）
+   なのに対し、K ファイル / parquet は `NNYYYYMMDDRR`（12 桁）。
+   `_make_kfile_race_id()` で変換。
+2. **K ファイル race_id は finish 全 6 艇分が必要**: `_finish_to_combo` は
+   1〜3 着のキーが揃わないと None を返す（DNF/失格レースの安全側処理）
+3. **当日モードでの bet 別 actual_odds**: `fetch_race_result_full` は的中組合せの
+   payout しか返さないので、外れベットの actual_odds は None。
+   過去日 parquet モードでは全組合せ取れるのでベットごとに記録可能
+4. **見送り率の分母**: `n_decided = n_bet_races + n_skipped_by_claude` とし、
+   `no_result` は分母から除外（実績取得不能を見送り率に算入すると Claude の
+   判断とインフラ側問題が混ざるため）
+
+サイズ実績: 1 日 12 レースで eval JSON ~20 KB、1 ヶ月（~700 レース想定）でも
+~1.2 MB に収まる。
 
 ---
 
