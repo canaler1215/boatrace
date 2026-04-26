@@ -301,15 +301,55 @@ artifacts/
 
 ## 8. 実装フェーズ
 
-| フェーズ | 内容 | 完了基準 |
-|---|---|---|
-| **P1 基盤** | `race_card_builder.py` + `/prep-races` skill | 1 会場 1 日のカード生成成功 |
-| **P2 予想** | `fetch_pre_race_info.py` + `/predict` skill | 1 レース予想 JSON 出力成功 |
-| **P3 評価** | `evaluate_predictions.py` + `/eval-predictions` skill | 1 日分の ROI 算出成功 |
-| **P4 運用** | 複数会場対応、index.md、会場名解決 | `/prep-races 2026-04-27 桐生 平和島 住之江` 成功 |
-| **P5 自動化** | `/schedule` 連携（任意） | 夜間自動 prep |
+| フェーズ | 内容 | 完了基準 | 状態 |
+|---|---|---|---|
+| **P1 基盤** | `race_card_builder.py` + `/prep-races` skill | 1 会場 1 日のカード生成成功 | ✅ **2026-04-26 完了** |
+| **P2 予想** | `fetch_pre_race_info.py` + `/predict` skill | 1 レース予想 JSON 出力成功 | 別セッションで着手予定 |
+| **P3 評価** | `evaluate_predictions.py` + `/eval-predictions` skill | 1 日分の ROI 算出成功 | — |
+| **P4 運用** | 複数会場対応、index.md、会場名解決 | `/prep-races 2026-04-27 桐生 平和島 住之江` 成功 | （P1 で前倒し実装済み） |
+| **P5 自動化** | `/schedule` 連携（任意） | 夜間自動 prep | — |
 
 P1〜P3 を最小スコープで動かして、ユーザーが実際に使ってフィードバックをもらう想定。
+
+### P1 完了メモ（2026-04-26）
+
+実装ファイル:
+
+- [ml/src/predict_llm/__init__.py](ml/src/predict_llm/__init__.py)
+- [ml/src/predict_llm/stadium_resolver.py](ml/src/predict_llm/stadium_resolver.py)
+- [ml/src/predict_llm/program_parser.py](ml/src/predict_llm/program_parser.py) — **独自 B ファイルパーサ**（既存 `collector/program_downloader.py:parse_program_file` は LightGBM 用最小列のみのため、年齢・支部・体重・全国2連率・当地勝率/2連率・モーター/ボート NO・レース名・距離・締切時刻まで取得する独自実装を新設）
+- [ml/src/predict_llm/history_summarizer.py](ml/src/predict_llm/history_summarizer.py) — 既存 K ファイルキャッシュを `parse_result_file` で読み、racer_id ごとに直近走を集計（DL は呼ばない）
+- [ml/src/predict_llm/race_card_builder.py](ml/src/predict_llm/race_card_builder.py) — Markdown 生成 + index.md
+- [ml/src/scripts/build_race_cards.py](ml/src/scripts/build_race_cards.py) — CLI
+- [.claude/commands/prep-races.md](.claude/commands/prep-races.md) — スキル定義
+
+動作確認パス（成果物 = `artifacts/race_cards/<日付>/`）:
+
+| 呼び出し | 結果 |
+|---|---|
+| `/prep-races 2026-04-25 桐生` | 12 ファイル + index.md |
+| `/prep-races 2026-04-27 桐生 平和島`（**桐生休場**） | 平和島 12 + index = 13 ファイル + 桐生休場警告 |
+| `/prep-races 2025-12-01 桐生 平和島 多摩川`（過去日 + **平和島休場**） | 桐生 12 + 多摩川 12 + index = 25 ファイル + 平和島休場警告 |
+
+実装中の発見と対応:
+
+1. **R10〜R12 のレースヘッダー行は先頭の全角スペースが無い**（既存 collector 側
+   `_B_RACE_HDR_RE = ^[\s　]+([１-９][０-９]?)Ｒ` でも同問題。本パーサは
+   `^[\s　]*` に変更して回避）。
+2. **福岡（場 22）でボート NO が 3 桁になると `25.00161` のようにモーター 2 率と連結する**
+   （`\d+\.\d+` greedy が `25.00161` 全体を食う）。各率の小数部を **2 桁固定** `\d+\.\d{2}`
+   にして解消。
+3. **「コース」（進入）は既存 K ファイルパーサが抽出していない**ため、レースカードでは
+   「艇番」で代用（妥協、後フェーズで `predict_llm/` 内に独自 K ファイルパーサを
+   追加すれば解消可能）。
+4. **節間着順 / F 数 / L 数 / 平均 ST（B ファイル末尾連結フィールド）は意味推定が必要**
+   なため P1 では非表示。代わりに history （直近 N 走）の `start_timing` 平均を
+   「平均 ST」として算出表示。
+5. **休場会場は警告 + skip**（強制エラーにしない）。`/prep-races 2026-04-27 桐生 平和島`
+   のように当日休場場を含む呼び出しでも、開催場分は出力される。
+
+サイズ実績: 1 レース MD = ~7 KB（打ち切り基準 10 KB 内）。1 日 24 場 × 12R 全部生成しても
+ディスク ~1.7 MB 程度で運用上問題なし。
 
 ### P1 のスコープ（最小）
 
