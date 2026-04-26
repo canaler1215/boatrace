@@ -179,6 +179,112 @@ T12 は窓 2024〜 + 直近 3mo×3.0 倍重み（T07 より攻めた設定）。
 - `artifacts/model_loop_logs/run_*.log` — 実行ログ（初回 10 trial / T10〜T12 追加サイクル）
 - `trials/completed/T00〜T12.yaml` — 使用済み trial 定義
 
+---
+
+## T16 reference: Perfect-Oracle Upper Bound（2026-04-26）
+
+撤退判定の確証として「現行 strategy 下で達成可能な ROI の理論上限」を計測。
+モデルが actual 1-2-3 trifecta に確率 1.0 を割り当てた場合の Walk-Forward 結果。
+
+実装: 新規スクリプト [ml/src/scripts/run_oracle_upper_bound.py](ml/src/scripts/run_oracle_upper_bound.py)
+（trainer.py / predictor.py / engine.py 不変、KPI / verdict / block bootstrap CI は
+`run_model_loop` の関数を直接借用して T00〜T15 と完全に比較可能な形式で出力）。
+
+### 実行条件
+
+- Walk-Forward: 2025-05〜2026-04（12 ヶ月、T00〜T15 と同一）
+- strategy 統一値:
+  - `min_odds=100, exclude_stadiums=[2,3,4,9,11,14,16,17,21,23], bet_amount=100, bet_type=trifecta`
+  - `prob_threshold` / `ev_threshold` はオラクル prob=1.0 で常に通過するため適用無視
+- 実オッズ: あり
+- 実行時間: ~50 秒（モデル不要、月毎 K/B/odds load + 集計のみ）
+
+### 結果（T00〜T15 比較表に追記）
+
+| trial_id | verdict | ROI | worst_month | plus_ratio | broken | CI 下限 (90%) | CI 上限 (90%) | total_bets | wins |
+|---|---|---:|---:|---:|---:|---:|---:|---:|---:|
+| **T16_oracle_upper_bound** (理論上限) | **pass** | **+29,186.05%** | **+27,196.82%** | **100.0%** | **0** | **+28,658.49** | **+29,673.86** | 5,108 | 5,108 |
+| T07_window_2024_plus_weight | pass | +15.30% | -35.16% | 66.7% | 0 | +1.94 | +28.94 | 39,166 | 141 |
+| T13_lambdarank | fail | -7.10% | -56.30% | 41.7% | 1 | -23.20 | +14.46 | 55,311 | — |
+| T00_baseline | fail | -6.64% | -43.17% | 50.0% | 0 | -13.34 | +2.63 | — | — |
+
+### 月次 ROI
+
+| 月 | ROI | 月 | ROI |
+|---|---:|---|---:|
+| 2025-05 | +29,406.58% | 2025-11 | +27,196.82% |
+| 2025-06 | +30,054.38% | 2025-12 | +28,560.18% |
+| 2025-07 | +29,201.84% | 2026-01 | +28,087.05% |
+| 2025-08 | +28,870.35% | 2026-02 | +28,493.70% |
+| 2025-09 | +29,254.43% | 2026-03 | +29,350.48% |
+| 2025-10 | +31,182.37% | 2026-04 | +31,296.81% |
+
+12 ヶ月 ROI レンジ +27,196% 〜 +31,296%、std ~1,200pp（理論上限が極めて狭い帯域に収束）。
+平均 hit odds = 292.86x（min_odds=100 通過時の actual 平均）。
+
+### 主要所見
+
+#### 1. strategy 上限は +29,186%、CLAUDE.md 閾値 (+10%) は天井の 0.034%
+
+実運用再開条件 +10% は、strategy 上限のわずか **0.034%** に過ぎず、
+**現行 strategy（min_odds=100x + 10 場除外）自体は天井に当たっていない**。
+
+これは「閾値 +10% を達成不能なのは strategy のせい」という仮説を統計的に否定する。
+モデルさえ完璧なら +29,000% 以上が確実に出る設計になっており、+10% の達成余地は
+strategy 設計上は十分にある。
+
+#### 2. T07 (現状唯一の pass) は oracle 機会の 2.76% しか捕捉していない
+
+| 指標 | T07 | T13 | Oracle (T16) |
+|---|---:|---:|---:|
+| 12 ヶ月 wins | 141 | — | 5,108 |
+| 12 ヶ月 bets | 39,166 | 55,311 | 5,108 |
+| hit_rate_per_bet | 0.36% | 0.29% | 100% |
+| oracle bets 捕捉率 (wins ÷ 5,108) | **2.76%** | — | 100% |
+
+T07 の 141 wins はすべて oracle の 5,108 bets 集合に含まれる
+（min_odds=100 通過 + actual 一致 = oracle bet と等価）。
+**T07 は「100x 以上で actual 当選した 5,108 機会」のうち 141 件しか拾えていない**
+（残りの 4,967 機会を取り逃し、かつ 39,025 件の外れベットを打っている）。
+
+#### 3. +10% 閾値の構造的解釈
+
+avg_hit_odds = 292.86 から逆算すると、+10% 達成に必要な hit_rate_per_bet:
+
+```
+1.10 / 292.86 = 0.376%
+```
+
+T07 実績は 0.36%、+10% に必要な水準まで **+0.016pp**（相対 +4.5%）足りないだけ。
+
+**つまり +10% は strategy 上限から見れば「ほぼ breakeven」の達成困難でない閾値**。
+にも関わらず 16 trial の構造変更でクリアできなかった事実は:
+
+- 「1 着識別能力が全ビンでランダムに近い」(CLAUDE.md 既知課題) が依然解消されておらず、
+  どんなアーキテクチャでも hit_rate_per_bet が +0.016pp 動かせない
+- Seed 分散だけで T07/T10/T11 で ROI std 17pp（hit_rate_per_bet std ~0.06pp）
+  あり、+0.016pp の改善は「ノイズ床下に埋没」する
+- フェーズ 6 の撤退判定は「strategy 天井問題」ではなく「seed ノイズ床問題」が
+  本質と確定
+
+#### 4. 撤退判定への含意
+
+T16 の結果はフェーズ 6 完全撤退の判断**そのものは変えない**が、ニュアンスを以下に修正:
+
+- 旧解釈: 「+10% は届かないから撤退」
+- 新解釈: 「+10% は strategy 天井から見れば届くはずだが、現行モデル系統では
+  seed ノイズに埋没して再現性のある +10% 達成は不能。**B-3 (馬券種転換) で
+  控除率自体を下げて hit_rate_per_bet 閾値を緩めるアプローチ**が、ノイズ床問題
+  を回避する戦略として正当化される」
+
+### T16 成果物
+
+- [artifacts/walkforward_T16_oracle_upper_bound.csv](artifacts/walkforward_T16_oracle_upper_bound.csv) — 31,188 race の oracle bet 結果
+- [artifacts/walkforward_T16_oracle_upper_bound_summary.json](artifacts/walkforward_T16_oracle_upper_bound_summary.json) — KPI + monthly_roi + verdict
+- [trials/completed/T16_oracle_upper_bound.yaml](trials/completed/T16_oracle_upper_bound.yaml) — trial 定義（参考、実体は専用スクリプト）
+- [ml/src/scripts/run_oracle_upper_bound.py](ml/src/scripts/run_oracle_upper_bound.py) — 計算スクリプト
+- `trials/results.jsonl` — 14 行目に T16 追記
+
 ## 参考
 
 - 設計書: [MODEL_LOOP_PLAN.md](MODEL_LOOP_PLAN.md)

@@ -1,0 +1,32 @@
+trial_id: T16_oracle_upper_bound
+description: "Perfect-Oracle Upper Bound (actual 1-2-3 trifecta に確率 1.0 を割り当てた場合の理論上限)"
+hypothesis: |
+  フェーズ 6 全 5 系統撤退後の確証ラン。
+  「現行 strategy 下でモデル精度を完璧にした場合、ROI はどこまで届くか」を計測し、
+  CLAUDE.md 実運用再開条件 (+10%) が strategy の天井に当たっていないかを定量化する。
+
+  実装は trainer.py / predictor.py に手を入れず、新規スクリプト
+  ml/src/scripts/run_oracle_upper_bound.py で完結。
+  /model-loop の trial 出力フォーマット (KPI / verdict / block bootstrap CI)
+  に準拠し、T00〜T15 と完全に比較可能。
+
+# 実装スクリプトが直接 strategy パラメータを受け取るため training/lgb_params セクションは無し。
+# 以下は他 trial との比較のための strategy 表記（実行時は CLI 引数で同一値を渡す）。
+walkforward:
+  start: "2025-05"
+  end: "2026-04"
+  retrain_interval: null
+  real_odds: true
+
+strategy:
+  prob_threshold: null  # オラクルは prob=1.0 で常に通過するため適用不要
+  ev_threshold: null    # 同上 (EV = 1.0 × odds)
+  min_odds: 100.0
+  exclude_courses: []
+  exclude_stadiums: [2, 3, 4, 9, 11, 14, 16, 17, 21, 23]
+  bet_amount: 100
+  max_bets: 5           # オラクルは 1 race 1 候補なので実質 1
+  bet_type: trifecta
+
+# 実行コマンド:
+#   py -3.12 ml/src/scripts/run_oracle_upper_bound.py --start 2025-05 --end 2026-04
