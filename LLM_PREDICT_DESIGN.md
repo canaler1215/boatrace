@@ -304,8 +304,8 @@ artifacts/
 | フェーズ | 内容 | 完了基準 | 状態 |
 |---|---|---|---|
 | **P1 基盤** | `race_card_builder.py` + `/prep-races` skill | 1 会場 1 日のカード生成成功 | ✅ **2026-04-26 完了** |
-| **P2 予想** | `fetch_pre_race_info.py` + `/predict` skill | 1 レース予想 JSON 出力成功 | 別セッションで着手予定 |
-| **P3 評価** | `evaluate_predictions.py` + `/eval-predictions` skill | 1 日分の ROI 算出成功 | — |
+| **P2 予想** | `fetch_pre_race_info.py` + `/predict` skill | 1 レース予想 JSON 出力成功 | ✅ **2026-04-26 完了** |
+| **P3 評価** | `evaluate_predictions.py` + `/eval-predictions` skill | 1 日分の ROI 算出成功 | 別セッションで着手予定 |
 | **P4 運用** | 複数会場対応、index.md、会場名解決 | `/prep-races 2026-04-27 桐生 平和島 住之江` 成功 | （P1 で前倒し実装済み） |
 | **P5 自動化** | `/schedule` 連携（任意） | 夜間自動 prep | — |
 
@@ -366,6 +366,52 @@ P1〜P3 を最小スコープで動かして、ユーザーが実際に使って
 - `predict_llm/prediction_schema.py`: 予想 JSON のバリデーション (pydantic)
 - `.claude/commands/predict.md`: スキル定義（Claude 自身が race card を読んで予想 JSON 出力）
 - 動作確認: `/predict 2026-04-27 桐生 5` で 1 レース予想 JSON 出力
+
+### P2 完了メモ（2026-04-26）
+
+実装ファイル:
+
+- [ml/src/predict_llm/pre_race_fetcher.py](ml/src/predict_llm/pre_race_fetcher.py) — 直前情報取得 (live: boatrace.jp / past: cache + K)
+- [ml/src/predict_llm/prediction_schema.py](ml/src/predict_llm/prediction_schema.py) — 予想 JSON のバリデーション
+  （**設計時の `pydantic` から `dataclass + 自前 validate` に変更**: pydantic 未インストール、Max プラン内完結の趣旨に沿って軽量化）
+- [ml/src/scripts/fetch_pre_race_info.py](ml/src/scripts/fetch_pre_race_info.py) — CLI（race card MD に直前情報追記、過去日対応、`*_pre.json` ダンプ）
+- [ml/src/scripts/build_predictions_index.py](ml/src/scripts/build_predictions_index.py) — index.json 集約 CLI（スキーマ検証込み）
+- [.claude/commands/predict.md](.claude/commands/predict.md) — スキル定義
+
+実装上の判断（合意済み）:
+
+1. **直前情報取得方式**: 既存 `openapi_client.py` の `fetch_before_info` / `fetch_odds` /
+   `fetch_win_odds` を流用、気象（波高・気温・水温）のみ独自スクレイプ追加
+2. **過去日ドライラン優先**: `data/odds/odds_YYYYMM.parquet` キャッシュ + K ファイル気象。
+   展示・進入は欠損（"過去日のため取得不能" 注記）
+3. **race card MD は上書き**: `## ▼ 直前情報 (...)` プレースホルダを実データセクションに置換、冪等
+4. **方式 A**: Claude が race card MD を Read → 分析 → Write で JSON
+5. **ガードレールゼロ**: skip 判定は Claude の自由判断、後付けフィルタなし
+6. **index.json は CLI 責務**: 末尾で `build_predictions_index.py` が集約
+
+動作確認パス（成果物 = `artifacts/predictions/<日付>/`）:
+
+| 呼び出し | 結果 |
+|---|---|
+| `fetch_pre_race_info.py 2025-12-01 桐生 1` | 1 レース更新、3 連単 120/単勝 6/気象 K ファイル取得 OK |
+| `fetch_pre_race_info.py 2025-12-01 桐生` | 12 レース更新（mode=past 全成功） |
+| Claude が `01_01.json` 〜 `01_12.json` を Write | 12 件すべて pydantic 相当バリデーション pass |
+| `build_predictions_index.py 2025-12-01 --strict` | total=12 valid=12 bet=12 skip=0 invalid=0 |
+
+実装中の発見と対応:
+
+1. **pydantic 未インストール**: 設計書 §3.2 では pydantic だが、新規依存追加を避け
+   `dataclass + 手書き validate` に変更。スキーマ検証は十分機能（race_id 形式・trifecta 重複・
+   verdict と bets/skip_reason の整合性まで検査）
+2. **boatrace.jp `beforeinfo` の気象パース**: HTML 構造観察ベースで実装。風向は
+   `is-windN` クラス、気温/水温/波高は文字列正規表現 (`気温\s*([\d.]+)`) で抽出
+3. **過去日では `beforeinfo` を呼ばない**: K ファイル `weather`/`wind_direction`/`wind_speed`
+   のみで代用、波高・気温・水温は欠損 (None)
+4. **race card 上書きの冪等性**: `## ▼ 直前情報 (/predict 実行時に追記)` プレースホルダが
+   消えていても、既存 `## ▼ 直前情報` ヘッダから末尾を再生成して冪等
+
+サイズ実績: 直前情報セクションは 1 レース ~30 行追加（~1.5 KB）。1 レース MD =
+~7 KB → ~8.5 KB と打ち切り基準 10 KB 内で収まる。
 
 ### P3 のスコープ
 
