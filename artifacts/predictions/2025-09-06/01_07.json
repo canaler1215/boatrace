@@ -1,0 +1,35 @@
+{
+  "race_id": "2025-09-06_01_07",
+  "predicted_at": "2026-04-27T01:52:00+09:00",
+  "model": "claude-opus-4-7",
+  "analysis": "3号艇江口晃生はA1・60歳の桐生マスター。当地2連率66%、当地直近6走で1着3/平均ST 0.102と神スタート連発。3号艇まくり差し本線。1-2号艇も A2/B1 で 4-6号艇よりは上。3-1-2 が本線、1-3 入れ替えと 3-2-1 ヒモ違いで構成。",
+  "primary_axis": [3, 1],
+  "verdict": "bet",
+  "skip_reason": null,
+  "bets": [
+    {
+      "trifecta": "3-1-2",
+      "stake": 100,
+      "current_odds": 6.8,
+      "expected_prob": 0.18,
+      "ev": 1.22,
+      "confidence": 0.6
+    },
+    {
+      "trifecta": "1-3-2",
+      "stake": 100,
+      "current_odds": 12.5,
+      "expected_prob": 0.10,
+      "ev": 1.25,
+      "confidence": 0.5
+    },
+    {
+      "trifecta": "3-2-1",
+      "stake": 100,
+      "current_odds": 11.4,
+      "expected_prob": 0.10,
+      "ev": 1.14,
+      "confidence": 0.5
+    }
+  ]
+}

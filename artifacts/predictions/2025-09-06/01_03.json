@@ -1,0 +1,43 @@
+{
+  "race_id": "2025-09-06_01_03",
+  "predicted_at": "2026-04-27T01:44:00+09:00",
+  "model": "claude-opus-4-7",
+  "analysis": "3号艇野中はA2・全国2連39%・当地2連44%・ST 0.112で直近1着5/3連9と絶好調、本命視。1号艇富樫はB1で当地2連23%と弱く単勝2.5xはやや過大評価。6号艇島村はA1だが6コースは桐生で1着率3.6%と厳しい。3号艇まくり差しを本線、1-3 軸とのライン勝負。",
+  "primary_axis": [3, 1],
+  "verdict": "bet",
+  "skip_reason": null,
+  "bets": [
+    {
+      "trifecta": "3-1-6",
+      "stake": 100,
+      "current_odds": 17.2,
+      "expected_prob": 0.10,
+      "ev": 1.72,
+      "confidence": 0.6
+    },
+    {
+      "trifecta": "1-3-5",
+      "stake": 100,
+      "current_odds": 17.7,
+      "expected_prob": 0.10,
+      "ev": 1.77,
+      "confidence": 0.5
+    },
+    {
+      "trifecta": "3-1-5",
+      "stake": 100,
+      "current_odds": 21.0,
+      "expected_prob": 0.08,
+      "ev": 1.68,
+      "confidence": 0.5
+    },
+    {
+      "trifecta": "1-3-6",
+      "stake": 100,
+      "current_odds": 14.6,
+      "expected_prob": 0.10,
+      "ev": 1.46,
+      "confidence": 0.5
+    }
+  ]
+}

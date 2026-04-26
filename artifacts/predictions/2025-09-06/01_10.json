@@ -1,0 +1,35 @@
+{
+  "race_id": "2025-09-06_01_10",
+  "predicted_at": "2026-04-27T01:58:00+09:00",
+  "model": "claude-opus-4-7",
+  "analysis": "1号艇北中A2単勝1.9xで本命だが、注目は4号艇柳生A1・全国2連55%・直近1着5/3連9・平均ST 0.125の絶好調。単勝3.1xでも過小評価気味。6号艇木田A2もST 0.124・全国2連41%で侮れない。1-4 軸表裏 + 6 ヒモで構成。",
+  "primary_axis": [1, 4],
+  "verdict": "bet",
+  "skip_reason": null,
+  "bets": [
+    {
+      "trifecta": "1-4-2",
+      "stake": 100,
+      "current_odds": 11.1,
+      "expected_prob": 0.13,
+      "ev": 1.44,
+      "confidence": 0.6
+    },
+    {
+      "trifecta": "4-1-2",
+      "stake": 100,
+      "current_odds": 14.7,
+      "expected_prob": 0.10,
+      "ev": 1.47,
+      "confidence": 0.5
+    },
+    {
+      "trifecta": "1-4-6",
+      "stake": 100,
+      "current_odds": 24.9,
+      "expected_prob": 0.07,
+      "ev": 1.74,
+      "confidence": 0.5
+    }
+  ]
+}

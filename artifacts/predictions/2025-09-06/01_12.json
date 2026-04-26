@@ -1,0 +1,43 @@
+{
+  "race_id": "2025-09-06_01_12",
+  "predicted_at": "2026-04-27T02:02:00+09:00",
+  "model": "claude-opus-4-7",
+  "analysis": "オール A1 のドリーム戦。1号艇江口晃生は当地2連66%・当地直近1着3/ST 0.102の桐生マスターで単勝1.4x本命。2号艇菊地孝平はA1全国2連65%・平均ST 0.084神スタートで差し警戒。3号艇守田A1で全国2連62%・直近1着4。4号艇柴田A1も当地2連48%。1-2-3 が本線、2まくりも有り得る。",
+  "primary_axis": [1, 2],
+  "verdict": "bet",
+  "skip_reason": null,
+  "bets": [
+    {
+      "trifecta": "1-2-3",
+      "stake": 100,
+      "current_odds": 7.6,
+      "expected_prob": 0.18,
+      "ev": 1.37,
+      "confidence": 0.6
+    },
+    {
+      "trifecta": "1-3-2",
+      "stake": 100,
+      "current_odds": 12.4,
+      "expected_prob": 0.13,
+      "ev": 1.61,
+      "confidence": 0.5
+    },
+    {
+      "trifecta": "2-1-3",
+      "stake": 100,
+      "current_odds": 14.1,
+      "expected_prob": 0.10,
+      "ev": 1.41,
+      "confidence": 0.5
+    },
+    {
+      "trifecta": "1-3-4",
+      "stake": 100,
+      "current_odds": 25.1,
+      "expected_prob": 0.06,
+      "ev": 1.51,
+      "confidence": 0.4
+    }
+  ]
+}

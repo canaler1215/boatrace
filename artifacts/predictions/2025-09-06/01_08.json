@@ -1,0 +1,43 @@
+{
+  "race_id": "2025-09-06_01_08",
+  "predicted_at": "2026-04-27T01:54:00+09:00",
+  "model": "claude-opus-4-7",
+  "analysis": "1号艇照屋A2・当地2連55%・単勝1.0xで本命固。注目は5号艇三角A1・全国2連50%・当地2連51%・平均ST 0.104・直近1着4/3連8の絶好調マスター。単勝11.9xはやや過小評価。1-5 ライン本線、5まくり差しも十分有り得る。",
+  "primary_axis": [1, 5],
+  "verdict": "bet",
+  "skip_reason": null,
+  "bets": [
+    {
+      "trifecta": "1-5-4",
+      "stake": 100,
+      "current_odds": 10.4,
+      "expected_prob": 0.13,
+      "ev": 1.35,
+      "confidence": 0.6
+    },
+    {
+      "trifecta": "1-5-2",
+      "stake": 100,
+      "current_odds": 9.7,
+      "expected_prob": 0.13,
+      "ev": 1.26,
+      "confidence": 0.5
+    },
+    {
+      "trifecta": "5-1-4",
+      "stake": 100,
+      "current_odds": 19.0,
+      "expected_prob": 0.08,
+      "ev": 1.52,
+      "confidence": 0.5
+    },
+    {
+      "trifecta": "5-1-2",
+      "stake": 100,
+      "current_odds": 21.1,
+      "expected_prob": 0.07,
+      "ev": 1.48,
+      "confidence": 0.4
+    }
+  ]
+}

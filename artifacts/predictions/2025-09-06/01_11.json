@@ -1,0 +1,43 @@
+{
+  "race_id": "2025-09-06_01_11",
+  "predicted_at": "2026-04-27T02:00:00+09:00",
+  "model": "claude-opus-4-7",
+  "analysis": "1号艇吉川A1・全国2連51%・当地2連35%・直近1着5/3連9絶好調で単勝1.3xの鉄板。ヒモは A2 室田・A2 松井・A1 谷津・B1 山田が混戦。特に5号艇谷津A1・当地2連46%とのライン本線。1-4-5 / 1-5-3 / 1-5-4 / 1-3-5 で4点構成。",
+  "primary_axis": [1, 5],
+  "verdict": "bet",
+  "skip_reason": null,
+  "bets": [
+    {
+      "trifecta": "1-4-5",
+      "stake": 100,
+      "current_odds": 11.7,
+      "expected_prob": 0.13,
+      "ev": 1.52,
+      "confidence": 0.6
+    },
+    {
+      "trifecta": "1-5-3",
+      "stake": 100,
+      "current_odds": 19.7,
+      "expected_prob": 0.10,
+      "ev": 1.97,
+      "confidence": 0.5
+    },
+    {
+      "trifecta": "1-5-4",
+      "stake": 100,
+      "current_odds": 16.7,
+      "expected_prob": 0.10,
+      "ev": 1.67,
+      "confidence": 0.5
+    },
+    {
+      "trifecta": "1-3-5",
+      "stake": 100,
+      "current_odds": 15.2,
+      "expected_prob": 0.10,
+      "ev": 1.52,
+      "confidence": 0.5
+    }
+  ]
+}

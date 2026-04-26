@@ -1,0 +1,43 @@
+{
+  "race_id": "2025-09-06_01_02",
+  "predicted_at": "2026-04-27T01:42:00+09:00",
+  "model": "claude-opus-4-7",
+  "analysis": "1号艇金子はB1で当地2連18%と弱く、直近1着0。単勝1.5xは過大評価。4号艇吉川A1級・全国2連51%・直近1着5/3連9絶好調なのに単勝5.7x過小評価が目立つ。2号艇照屋A2で当地2連55%は一級。3号艇は若手B1で直近1着3だが当地相性なし。4号艇まくり差し本線で組む。",
+  "primary_axis": [4, 2],
+  "verdict": "bet",
+  "skip_reason": null,
+  "bets": [
+    {
+      "trifecta": "4-2-1",
+      "stake": 100,
+      "current_odds": 23.3,
+      "expected_prob": 0.07,
+      "ev": 1.63,
+      "confidence": 0.5
+    },
+    {
+      "trifecta": "1-4-2",
+      "stake": 100,
+      "current_odds": 13.6,
+      "expected_prob": 0.09,
+      "ev": 1.22,
+      "confidence": 0.5
+    },
+    {
+      "trifecta": "2-4-1",
+      "stake": 100,
+      "current_odds": 18.6,
+      "expected_prob": 0.07,
+      "ev": 1.30,
+      "confidence": 0.4
+    },
+    {
+      "trifecta": "4-1-2",
+      "stake": 100,
+      "current_odds": 27.0,
+      "expected_prob": 0.05,
+      "ev": 1.35,
+      "confidence": 0.4
+    }
+  ]
+}

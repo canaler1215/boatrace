@@ -1,0 +1,35 @@
+{
+  "race_id": "2025-09-06_01_01",
+  "predicted_at": "2026-04-27T01:40:00+09:00",
+  "model": "claude-opus-4-7",
+  "analysis": "1号艇栗原はB1で当地2連率23%・平均ST0.178と遅く、単勝1.3x過大評価の懸念。3号艇浜野はA2で当地2連率35%・全国3連率8/10と安定、3コース捲り差し余地。2号艇室田もA2でST0.134速い差し選手。1コース勝率52.5%の桐生だが、3号艇からの裏目に妙味。",
+  "primary_axis": [1, 3],
+  "verdict": "bet",
+  "skip_reason": null,
+  "bets": [
+    {
+      "trifecta": "1-3-2",
+      "stake": 100,
+      "current_odds": 7.6,
+      "expected_prob": 0.13,
+      "ev": 0.99,
+      "confidence": 0.5
+    },
+    {
+      "trifecta": "3-1-2",
+      "stake": 100,
+      "current_odds": 26.3,
+      "expected_prob": 0.05,
+      "ev": 1.32,
+      "confidence": 0.4
+    },
+    {
+      "trifecta": "1-3-5",
+      "stake": 100,
+      "current_odds": 10.2,
+      "expected_prob": 0.10,
+      "ev": 1.02,
+      "confidence": 0.4
+    }
+  ]
+}

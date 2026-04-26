@@ -1,0 +1,43 @@
+{
+  "race_id": "2025-09-06_01_09",
+  "predicted_at": "2026-04-27T01:56:00+09:00",
+  "model": "claude-opus-4-7",
+  "analysis": "1〜5号艇単勝3〜6x大混戦の予選特賞。1号艇鈴木はB1で軸としては力不足、5号艇前田A1・当地2連51%、4号艇亀山A2・当地2連43%絶好調が地力上。3号艇向所はB1だがST 0.105神スタート要警戒。1号艇本命だが信頼薄、低 conf で3〜5号艇絡みに薄く投じる。",
+  "primary_axis": [1, 5],
+  "verdict": "bet",
+  "skip_reason": null,
+  "bets": [
+    {
+      "trifecta": "1-4-5",
+      "stake": 100,
+      "current_odds": 24.6,
+      "expected_prob": 0.07,
+      "ev": 1.72,
+      "confidence": 0.4
+    },
+    {
+      "trifecta": "1-3-5",
+      "stake": 100,
+      "current_odds": 23.1,
+      "expected_prob": 0.07,
+      "ev": 1.62,
+      "confidence": 0.4
+    },
+    {
+      "trifecta": "1-5-4",
+      "stake": 100,
+      "current_odds": 33.5,
+      "expected_prob": 0.05,
+      "ev": 1.68,
+      "confidence": 0.3
+    },
+    {
+      "trifecta": "4-5-1",
+      "stake": 100,
+      "current_odds": 39.0,
+      "expected_prob": 0.04,
+      "ev": 1.56,
+      "confidence": 0.3
+    }
+  ]
+}
