@@ -481,6 +481,72 @@ P1〜P3 を最小スコープで動かして、ユーザーが実際に使って
 サイズ実績: 1 日 12 レースで eval JSON ~20 KB、1 ヶ月（~700 レース想定）でも
 ~1.2 MB に収まる。
 
+### P3.5 完了メモ（2026-04-27）
+
+実装ファイル:
+
+- [ml/src/scripts/eval_summary.py](ml/src/scripts/eval_summary.py) — CLI（期間内の `<日付>.json` を集約 → 月次・場別・confidence 帯別 ROI + 判定ステータス）
+- [.claude/commands/eval-summary.md](.claude/commands/eval-summary.md) — スキル定義
+
+実装上の判断（着手前合意済み・1〜10）:
+
+1. **入力選別**: `<日付>.json`（場フィルタなし版）のみ採用。`<日付>_<NN>.json`
+   は二重計上回避のため除外（P4 で別途）
+2. **引数仕様**: `--from`/`--to` 必須 + `--month YYYY-MM` 糖衣構文。
+   単日ショートカットは P3 で済むので無し
+3. **必須指標**: 期間 ROI / 月次トレンド / 場別累積 + 場×月クロス /
+   confidence 帯別（P3 と同境界 `[lo, hi)`）/ 全体 hit_rate / avg_conf /
+   日次・月次 ROI 統計（min/median/mean/max/stddev + worst/best）
+4. **任意指標**: bootstrap CI のみ採用（N=1000、bet 単位リサンプル、
+   `--no-bootstrap` で無効化）。Spearman 相関 / primary_axis 別は P4 以降
+5. **判定ステータス**: `production_ready` (ROI ≥ +10% & worst > -50% & CI下限 ≥ 0)
+   / `breakeven` (ROI ≥ 0% & worst > -50%) / `fail`。
+   後付けフィルタチューニング厳禁（フェーズ 3〜6 教訓）を JSON `verdict.note` と
+   ターミナル表示で明文化
+6. **出力**: `artifacts/eval/summary_<from>_<to>.json` + ターミナル
+7. **データ不足挙動**: 1 件も `<日付>.json` 無 → エラー終了（コード 2）/
+   部分欠損 → warning + 取得済みのみ集計 / `n_bet_races < 30` → 信頼性 warning /
+   `n_days_with_data < 5` → 早期判定 warning
+8. **既存 P3 CLI を書き換えない**: `evaluate_predictions.py` の出力スキーマだけ依存、
+   独立した集約レイヤとして実装
+9. **複数日サンプル拡張は別作業**: P3.5 着手時点では `2025-12-01` 1 日のみ。
+   退化テスト（単日集計が P3 出力と完全一致）で実装の正しさを担保
+10. **打ち切り条件**: スキーマ違反検出 → エラーログ + skip / サンプル不足は
+    集計はするが warning レベル
+
+動作確認パス（成果物 = `artifacts/eval/summary_2025-12-01_2025-12-01.json`）:
+
+| 呼び出し | 結果 |
+|---|---|
+| `eval_summary.py --from 2025-12-01 --to 2025-12-01` | 1 day, 12 races settled, 17 bets, 1 hit, ROI -57.6%, hit_rate/bet 5.88%, hit_rate/race 8.33% |
+| `eval_summary.py --month 2025-12` | 31 day window, 1 day with data, 30 missing dates warning + 上記と同等の集計 |
+| `eval_summary.py --from 2025-09-01 --to 2025-09-03` | FileNotFoundError（コード 2 で終了） |
+| `eval_summary.py --from 2025-12-05 --to 2025-12-01` | ValueError（コード 2 で終了） |
+
+退化テスト検証（`summary_2025-12-01_2025-12-01.json` vs `2025-12-01.json`）:
+
+- `roi`: -0.5765 ✓ (両者一致)
+- `hit_rate_per_bet`: 5.88% ✓ / `hit_rate_per_race`: 8.33% ✓
+- `total_stake`: 1700 ✓ / `total_payout`: 720.0 ✓
+- `avg_confidence`: 0.4118 ✓
+- `by_stadium[桐生]`: races=12, bets=17, hits=1, ROI -57.6% ✓
+- `by_confidence_band[0.3-0.5]`: 11 bets, 0 hits, ROI -100% ✓
+- `by_confidence_band[0.5-0.7]`: 6 bets, 1 hit, ROI +20.0% ✓
+- `verdict.status`: `fail` ✓（ROI -57.6% < 0% かつ worst_month -57.6% < -50%）
+- `bootstrap_ci`: lower=-1.0, upper=+27.1%（N=17 bets / 1 day なので CI 幅は広いのが正常）
+
+実装中の発見と対応:
+
+1. **Windows コンソール (cp932) で ✓✗△⚠ がエンコード不能**: `main()` 冒頭で
+   `sys.stdout.reconfigure(encoding="utf-8")` を呼んで UTF-8 化（Python 3.7+）。
+   `--quiet` 指定時は表示しないので影響なし
+2. **bootstrap の対象**: `status == "settled"` かつ `verdict == "bet"` の bets のみ
+   flatten。skip / no_result は除外（P3 `_build_summary` の集計対象と整合）
+3. **confidence 帯境界**: `0.7-1.0` の hi=`1.000001` で `lo ≤ x < hi`、
+   `confidence=1.0` も含む。P3 と完全一致
+
+サイズ実績: summary JSON は 1 ヶ月分でも数十 KB。30 日全データでも < 200 KB と軽量。
+
 ---
 
 ## 9. 設計上の方針
