@@ -5,9 +5,14 @@ boatrace.jp から過去の 3 連単・3 連複最終オッズを取得・キャ
 キャッシュ形式:
   data/odds/odds_{YYYYMM}.parquet      3連単  カラム: race_id, combination, odds
   data/odds/trio_odds_{YYYYMM}.parquet 3連複  カラム: race_id, combination, odds
+  data/odds/win_odds_{YYYYMM}.parquet  単勝   カラム: race_id, combination, odds  (combination = "1"〜"6")
 
 使用例:
-  from collector.odds_downloader import load_or_download_month_odds, load_or_download_month_trio_odds
+  from collector.odds_downloader import (
+      load_or_download_month_odds,
+      load_or_download_month_trio_odds,
+      load_or_download_month_win_odds,
+  )
 
   # race_df は K ファイルから得た DataFrame（race_id / stadium_id / race_date / race_no 列が必要）
   odds_map = load_or_download_month_odds(2025, 12, race_df)
@@ -15,6 +20,9 @@ boatrace.jp から過去の 3 連単・3 連複最終オッズを取得・キャ
 
   trio_map = load_or_download_month_trio_odds(2025, 12, race_df)
   trio_race_odds = trio_map.get("01202512011", {})  # {"1-2-3": 8.5, ...}
+
+  win_map = load_or_download_month_win_odds(2025, 12, race_df)
+  win_race_odds = win_map.get("01202512011", {})  # {"1": 1.7, "2": 14.0, ...}
 """
 import logging
 import threading
@@ -23,7 +31,7 @@ from pathlib import Path
 
 import pandas as pd
 
-from collector.openapi_client import fetch_odds, fetch_trio_odds
+from collector.openapi_client import fetch_odds, fetch_trio_odds, fetch_win_odds
 
 logger = logging.getLogger(__name__)
 
@@ -40,6 +48,10 @@ def _cache_path(year: int, month: int) -> Path:
 
 def _trio_cache_path(year: int, month: int) -> Path:
     return ODDS_DIR / f"trio_odds_{year}{month:02d}.parquet"
+
+
+def _win_cache_path(year: int, month: int) -> Path:
+    return ODDS_DIR / f"win_odds_{year}{month:02d}.parquet"
 
 
 def _df_to_map(df: pd.DataFrame) -> dict[str, dict[str, float]]:
@@ -191,6 +203,17 @@ def download_trio_odds_for_races(
     )
 
 
+def download_win_odds_for_races(
+    race_infos: list[dict],
+    cache_path: Path,
+    max_workers: int = 10,
+) -> dict[str, dict[str, float]]:
+    """単勝オッズをダウンロードしてキャッシュする。"""
+    return _download_odds_generic(
+        race_infos, cache_path, fetch_win_odds, label="win_odds", max_workers=max_workers
+    )
+
+
 # ---------------------------------------------------------------------------
 # メイン API
 # ---------------------------------------------------------------------------
@@ -300,3 +323,56 @@ def load_or_download_month_trio_odds(
     )
 
     return download_trio_odds_for_races(race_infos, cache_path)
+
+
+def load_or_download_month_win_odds(
+    year: int,
+    month: int,
+    race_df: pd.DataFrame,
+) -> dict[str, dict[str, float]]:
+    """
+    指定月の単勝オッズを返す。
+    キャッシュ（parquet）があればロード、なければ boatrace.jp からダウンロードして保存。
+
+    Parameters
+    ----------
+    year, month : 対象年月
+    race_df     : K ファイルから得た DataFrame
+                  必須列: race_id, stadium_id, race_date, race_no
+
+    Returns
+    -------
+    {race_id: {"1": 1.7, "2": 14.0, ..., "6": 16.8}}  全6通り（キー = 艇番文字列）
+    """
+    cache_path = _win_cache_path(year, month)
+
+    if cache_path.exists():
+        logger.info("Loading win odds cache: %s", cache_path)
+        df = pd.read_parquet(cache_path)
+        result = _df_to_map(df)
+        logger.info("Loaded %d races from win cache", len(result))
+        return result
+
+    logger.info(
+        "No win cache for %d-%02d. Downloading from boatrace.jp...",
+        year, month,
+    )
+
+    required_cols = {"race_id", "stadium_id", "race_date", "race_no"}
+    missing = required_cols - set(race_df.columns)
+    if missing:
+        raise ValueError(f"race_df is missing columns: {missing}")
+
+    race_infos = (
+        race_df[list(required_cols)]
+        .drop_duplicates("race_id")
+        .to_dict("records")
+    )
+
+    estimated_min = len(race_infos) * 1.5 / 60
+    logger.info(
+        "Target: %d races — estimated %.0f min (1.5 sec/race)",
+        len(race_infos), estimated_min,
+    )
+
+    return download_win_odds_for_races(race_infos, cache_path)

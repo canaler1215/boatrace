@@ -416,6 +416,65 @@ def fetch_odds(stadium_id: int, race_date: str, race_no: int) -> dict[str, float
     return odds_map
 
 
+def fetch_win_odds(stadium_id: int, race_date: str, race_no: int) -> dict[str, float]:
+    """
+    単勝オッズを取得。
+
+    boatrace.jp の `/owpc/pc/race/oddstf` ページ（単勝・複勝合算）から単勝のみ抽出する。
+    複勝オッズはオッズ列が "2.4-3.1" のような範囲表記なので、単純な float でない方を除外して識別する。
+
+    Returns:
+        {"1": 1.7, "2": 14.0, ..., "6": 16.8}  全6通り（キー = 艇番文字列）
+    """
+    hd = _hd(race_date)
+    soup = _get("oddstf", {"hd": hd, "jcd": f"{stadium_id:02d}", "rno": str(race_no)})
+    odds_map: dict[str, float] = {}
+
+    # oddstf ページ観察結果（2025-12-01 桐生 1R）:
+    #   table[1] = 単勝オッズ表（thead 1 行 + 6 艇）   オッズ列: float（例 "1.7"）
+    #   table[2] = 複勝オッズ表（thead 1 行 + 6 艇）   オッズ列: 範囲（例 "2.4-3.1"）
+    # サイト構造が変わって順序が入れ替わっても、オッズ列が範囲表記でない方を単勝として採用する
+    tables = soup.find_all("table")
+    if len(tables) < 2:
+        logger.warning("oddstf: expected at least 2 tables, got %d", len(tables))
+        return odds_map
+
+    for t in tables:
+        local_map: dict[str, float] = {}
+        is_range_table = False
+        for tr in t.find_all("tr"):
+            tds = tr.find_all("td")
+            if len(tds) < 3:
+                continue
+            try:
+                boat_no = int(unicodedata.normalize("NFKC", tds[0].get_text(strip=True)))
+                if boat_no < 1 or boat_no > 6:
+                    continue
+            except ValueError:
+                continue
+
+            odds_text = unicodedata.normalize("NFKC", tds[-1].get_text(strip=True))
+            # 複勝行の判定: "2.4-3.1" / "2.4〜3.1" 等、範囲表記なら単勝表でない
+            if "-" in odds_text or "〜" in odds_text or "~" in odds_text:
+                is_range_table = True
+                break
+
+            v = _parse_float(odds_text)
+            if v is not None and v > 0:
+                local_map[str(boat_no)] = v
+
+        if not is_range_table and local_map:
+            odds_map = local_map
+            break
+
+    if odds_map:
+        logger.info("win odds: %d entries", len(odds_map))
+    else:
+        logger.warning("Could not parse oddstf table for win odds")
+
+    return odds_map
+
+
 def fetch_trio_odds(stadium_id: int, race_date: str, race_no: int) -> dict[str, float]:
     """
     3連複オッズを取得。
