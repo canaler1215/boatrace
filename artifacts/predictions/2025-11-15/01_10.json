@@ -1,0 +1,51 @@
+{
+  "race_id": "2025-11-15_01_10",
+  "predicted_at": "2026-04-27T12:48:00+09:00",
+  "model": "claude-opus-4-7",
+  "analysis": "準優勝戦・A1×3+A2×1+B1×2の高レベル。**1号艇三浦A1 全国2連54%・当地2連61%・直近6走1着3・平均ST 0.119・単勝1.4xの圧倒的本命**で逃げほぼ確定。2号艇金子A1 群馬地元 全国2連58%・当地2連51%・単勝4.7x が連最有力、5号艇丹下A1 全国2連44%・当地2連41%・単勝3.2x もヒモ強力。6号艇中村A2 全国2連53%は侮れない。風 北西1m。1-2-3本命+1-2-5+1-2-6+1-5-2+2-1-5の5点で1-2軸・5号艇A1絡み・2号艇捲り保険。",
+  "primary_axis": [1, 2],
+  "verdict": "bet",
+  "skip_reason": null,
+  "bets": [
+    {
+      "trifecta": "1-2-3",
+      "stake": 100,
+      "current_odds": 4.7,
+      "expected_prob": 0.25,
+      "ev": 1.18,
+      "confidence": 0.55
+    },
+    {
+      "trifecta": "1-2-5",
+      "stake": 100,
+      "current_odds": 6.9,
+      "expected_prob": 0.18,
+      "ev": 1.24,
+      "confidence": 0.6
+    },
+    {
+      "trifecta": "1-2-6",
+      "stake": 100,
+      "current_odds": 9.2,
+      "expected_prob": 0.13,
+      "ev": 1.20,
+      "confidence": 0.5
+    },
+    {
+      "trifecta": "1-5-2",
+      "stake": 100,
+      "current_odds": 23.5,
+      "expected_prob": 0.06,
+      "ev": 1.41,
+      "confidence": 0.5
+    },
+    {
+      "trifecta": "2-1-5",
+      "stake": 100,
+      "current_odds": 22.1,
+      "expected_prob": 0.06,
+      "ev": 1.33,
+      "confidence": 0.5
+    }
+  ]
+}

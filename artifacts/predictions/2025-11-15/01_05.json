@@ -1,0 +1,51 @@
+{
+  "race_id": "2025-11-15_01_05",
+  "predicted_at": "2026-04-27T12:38:00+09:00",
+  "model": "claude-opus-4-7",
+  "analysis": "1号艇田口節子A1 全国2連64%・単勝1.4xの超本命だが**6号艇吉田凌太A1 全国2連45%・直近10走1着8/2連9・直近6走1着5の異常好調・モーター47%・単勝3.9x**で6コースまくり強烈。5号艇福島A2 当地2連54%・直近6走1着2/2連5 もヒモ最有力。2号艇藤生A2 群馬地元 当地2連43% も連有り。風 北2mで穏やか。1号艇逃げ+6号艇捲られ抗戦で2着・5号艇/2号艇3着の構図を中心に1-2-6 / 1-5-6 / 1-6-5 / 1-6-2 + 6号艇捲り頭保険6-1-5の5点。",
+  "primary_axis": [1, 6],
+  "verdict": "bet",
+  "skip_reason": null,
+  "bets": [
+    {
+      "trifecta": "1-2-6",
+      "stake": 100,
+      "current_odds": 9.2,
+      "expected_prob": 0.13,
+      "ev": 1.20,
+      "confidence": 0.5
+    },
+    {
+      "trifecta": "1-5-6",
+      "stake": 100,
+      "current_odds": 12.7,
+      "expected_prob": 0.10,
+      "ev": 1.27,
+      "confidence": 0.5
+    },
+    {
+      "trifecta": "1-6-5",
+      "stake": 100,
+      "current_odds": 15.6,
+      "expected_prob": 0.09,
+      "ev": 1.40,
+      "confidence": 0.55
+    },
+    {
+      "trifecta": "1-6-2",
+      "stake": 100,
+      "current_odds": 15.9,
+      "expected_prob": 0.08,
+      "ev": 1.27,
+      "confidence": 0.5
+    },
+    {
+      "trifecta": "6-1-5",
+      "stake": 100,
+      "current_odds": 33.8,
+      "expected_prob": 0.04,
+      "ev": 1.35,
+      "confidence": 0.45
+    }
+  ]
+}

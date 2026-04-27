@@ -1,0 +1,51 @@
+{
+  "race_id": "2025-11-15_01_08",
+  "predicted_at": "2026-04-27T12:44:00+09:00",
+  "model": "claude-opus-4-7",
+  "analysis": "1号艇平石A2 全国2連38%・当地2連40%・直近6走1着1/2連3・単勝1.7xの本命+**5号艇小池A1 全国2連38%・当地2連50%・直近6走1着1/2連1・単勝2.4x**の2強構図。風 無風で1コース有利だが5号艇A1の捲り頭脅威。2号艇齋藤B1 当地2連14% 軽め、3号艇本部B1 弱い、4号艇川合B1 直近6走1着0は無視、6号艇鈴木B2 平均ST 0.301は無視。1-5-2本命+1-2-5+5-1-2+1-5-3+5-1-3の5点で1号艇逃げと5号艇捲り頭の両建て。",
+  "primary_axis": [1, 5],
+  "verdict": "bet",
+  "skip_reason": null,
+  "bets": [
+    {
+      "trifecta": "1-5-2",
+      "stake": 100,
+      "current_odds": 6.5,
+      "expected_prob": 0.18,
+      "ev": 1.17,
+      "confidence": 0.5
+    },
+    {
+      "trifecta": "1-2-5",
+      "stake": 100,
+      "current_odds": 7.1,
+      "expected_prob": 0.16,
+      "ev": 1.14,
+      "confidence": 0.5
+    },
+    {
+      "trifecta": "5-1-2",
+      "stake": 100,
+      "current_odds": 13.1,
+      "expected_prob": 0.10,
+      "ev": 1.31,
+      "confidence": 0.55
+    },
+    {
+      "trifecta": "1-5-3",
+      "stake": 100,
+      "current_odds": 15.4,
+      "expected_prob": 0.09,
+      "ev": 1.39,
+      "confidence": 0.5
+    },
+    {
+      "trifecta": "5-1-3",
+      "stake": 100,
+      "current_odds": 32.4,
+      "expected_prob": 0.05,
+      "ev": 1.62,
+      "confidence": 0.5
+    }
+  ]
+}

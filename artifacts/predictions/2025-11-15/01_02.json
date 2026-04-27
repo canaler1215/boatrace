@@ -1,0 +1,51 @@
+{
+  "race_id": "2025-11-15_01_02",
+  "predicted_at": "2026-04-27T12:32:00+09:00",
+  "model": "claude-opus-4-7",
+  "analysis": "1号艇鋤柄B1 直近6走1着0で逃げ信頼度低、単勝5.3xも市場は1号艇切り。3号艇藤岡A1 全国2連50%・当地2連47%・平均ST 0.117・直近6走1着2 で単勝1.6xの超本命、捲り頭本命確実。5号艇金子A1 群馬地元 全国2連58%・当地2連51% は強力、4号艇中A2 直近6走1着3で勢いある。3号艇捲り頭+5号艇/4号艇連の3-4-5 / 3-5-4を本線、3-1-5 / 3-1-4で1号艇2着抗戦ケア、4-3-5 で4号艇捲り頭の保険。",
+  "primary_axis": [3],
+  "verdict": "bet",
+  "skip_reason": null,
+  "bets": [
+    {
+      "trifecta": "3-4-5",
+      "stake": 100,
+      "current_odds": 20.1,
+      "expected_prob": 0.07,
+      "ev": 1.41,
+      "confidence": 0.55
+    },
+    {
+      "trifecta": "3-5-4",
+      "stake": 100,
+      "current_odds": 25.6,
+      "expected_prob": 0.06,
+      "ev": 1.54,
+      "confidence": 0.55
+    },
+    {
+      "trifecta": "3-1-5",
+      "stake": 100,
+      "current_odds": 30.8,
+      "expected_prob": 0.05,
+      "ev": 1.54,
+      "confidence": 0.5
+    },
+    {
+      "trifecta": "3-1-4",
+      "stake": 100,
+      "current_odds": 37.2,
+      "expected_prob": 0.04,
+      "ev": 1.49,
+      "confidence": 0.5
+    },
+    {
+      "trifecta": "4-3-5",
+      "stake": 100,
+      "current_odds": 30.6,
+      "expected_prob": 0.05,
+      "ev": 1.53,
+      "confidence": 0.45
+    }
+  ]
+}

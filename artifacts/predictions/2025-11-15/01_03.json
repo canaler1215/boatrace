@@ -1,0 +1,51 @@
+{
+  "race_id": "2025-11-15_01_03",
+  "predicted_at": "2026-04-27T12:34:00+09:00",
+  "model": "claude-opus-4-7",
+  "analysis": "1号艇河野A2 全国2連39%・当地2連44%・単勝1.6xの本命、4号艇大澤A1 24歳群馬地元 全国2連39%・当地2連50%・平均ST 0.123・単勝3.5x、6号艇三浦A1 全国2連54%・**当地2連61%**・直近6走1着3/2連3・単勝5.2xの3強構図。1号艇逃げ+4号艇捲り抗戦+6号艇は地元相性◎・4号艇A1捲り頭の保険も必要。風 北2mで穏やか。1-4-6本命・1-6-4・4-1-6・1-4-2・4-6-1の5点で本命寄り構成。",
+  "primary_axis": [1, 4],
+  "verdict": "bet",
+  "skip_reason": null,
+  "bets": [
+    {
+      "trifecta": "1-4-6",
+      "stake": 100,
+      "current_odds": 8.9,
+      "expected_prob": 0.15,
+      "ev": 1.34,
+      "confidence": 0.6
+    },
+    {
+      "trifecta": "1-6-4",
+      "stake": 100,
+      "current_odds": 17.5,
+      "expected_prob": 0.08,
+      "ev": 1.40,
+      "confidence": 0.55
+    },
+    {
+      "trifecta": "4-1-6",
+      "stake": 100,
+      "current_odds": 18.5,
+      "expected_prob": 0.07,
+      "ev": 1.30,
+      "confidence": 0.5
+    },
+    {
+      "trifecta": "1-4-2",
+      "stake": 100,
+      "current_odds": 13.1,
+      "expected_prob": 0.10,
+      "ev": 1.31,
+      "confidence": 0.5
+    },
+    {
+      "trifecta": "4-6-1",
+      "stake": 100,
+      "current_odds": 19.7,
+      "expected_prob": 0.07,
+      "ev": 1.38,
+      "confidence": 0.5
+    }
+  ]
+}
