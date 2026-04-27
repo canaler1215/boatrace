@@ -1,0 +1,16 @@
+{
+  "race_id": "2025-12-29_01_05",
+  "predicted_at": "2026-04-27T18:00:00+09:00",
+  "model": "claude-opus-4-7",
+  "analysis": "2号艇鶴本A1は全国2連48.53%・当地2連45.83%・当地直近4走1着2/2連4・平均ST 0.135・12-28桐生12R+8Rで連続1着 と桐生超好調。単勝2号艇1.8x で市場本命、1号艇齊藤B1 (全国2連27.27%・直近1着3) 2.0x で2-1 二強。5号艇山田A2 54歳が当地2連42.11%・直近1着1・12-27桐生8Rで5コースから1着 と A2級として3着・連の双方有力。3号艇山谷B1の全国2連34.67%・12-28桐生5Rで3コースから1着もヒモ候補。1-2両軸 + 5号艇A2ヒモ戦略。",
+  "primary_axis": [1, 2],
+  "verdict": "bet",
+  "skip_reason": null,
+  "bets": [
+    {"trifecta": "1-2-3", "stake": 100, "current_odds": 8.4, "expected_prob": 0.13, "ev": 1.09, "confidence": 0.55},
+    {"trifecta": "1-2-5", "stake": 100, "current_odds": 9.2, "expected_prob": 0.12, "ev": 1.10, "confidence": 0.55},
+    {"trifecta": "2-1-5", "stake": 100, "current_odds": 10.5, "expected_prob": 0.10, "ev": 1.05, "confidence": 0.55},
+    {"trifecta": "2-1-3", "stake": 100, "current_odds": 11.1, "expected_prob": 0.09, "ev": 1.00, "confidence": 0.50},
+    {"trifecta": "1-3-2", "stake": 100, "current_odds": 20.6, "expected_prob": 0.05, "ev": 1.03, "confidence": 0.45}
+  ]
+}

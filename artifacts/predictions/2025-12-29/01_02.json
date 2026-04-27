@@ -1,0 +1,16 @@
+{
+  "race_id": "2025-12-29_01_02",
+  "predicted_at": "2026-04-27T18:00:00+09:00",
+  "model": "claude-opus-4-7",
+  "analysis": "1号艇大町B1は当地2連14.29%・平均ST 0.218 と低く逃げ信頼度低い。4号艇伏見B1が当地2連53.33% (圧倒的)・全国直近1着3/2連5/平均ST 0.137・12-28桐生4Rで1コースから1着 と当地超好調。市場も4号艇2.0x が本命、1号艇2.2x が2番手。6号艇富永B1当地2連30.99%・平均ST 0.127 と5号艇宮内B1当地2連30%・ボート56号2連47.62% を3着候補。4号艇捲り頭軸+1号艇逃げ両建て戦略。",
+  "primary_axis": [4, 1],
+  "verdict": "bet",
+  "skip_reason": null,
+  "bets": [
+    {"trifecta": "4-1-6", "stake": 100, "current_odds": 13.7, "expected_prob": 0.08, "ev": 1.10, "confidence": 0.55},
+    {"trifecta": "1-4-6", "stake": 100, "current_odds": 15.4, "expected_prob": 0.07, "ev": 1.08, "confidence": 0.50},
+    {"trifecta": "4-5-6", "stake": 100, "current_odds": 16.0, "expected_prob": 0.05, "ev": 0.80, "confidence": 0.45},
+    {"trifecta": "4-1-5", "stake": 100, "current_odds": 18.2, "expected_prob": 0.06, "ev": 1.09, "confidence": 0.50},
+    {"trifecta": "1-4-5", "stake": 100, "current_odds": 18.9, "expected_prob": 0.05, "ev": 0.95, "confidence": 0.45}
+  ]
+}

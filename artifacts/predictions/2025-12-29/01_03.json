@@ -1,0 +1,16 @@
+{
+  "race_id": "2025-12-29_01_03",
+  "predicted_at": "2026-04-27T18:00:00+09:00",
+  "model": "claude-opus-4-7",
+  "analysis": "1号艇中里B1は56歳ST 0.195 と遅く全国直近1着0/2連0、逃げ信頼度は場特性頼み。3号艇石田B1は全国2連31.17%・直近1着4/2連8/平均ST 0.145 が突出、12-28桐生10Rで1コースから1着の超好調。市場も1号艇1.8x vs 3号艇2.5x の1-3 二強構図。6号艇鈴木A2は全国2連35.77% (最高)・当地直近1着1・平均ST 0.127・ボート15号2連52.94% で唯一のA級として3着最有力。1-3 両軸 + 6号艇A2 ヒモ戦略。",
+  "primary_axis": [1, 3],
+  "verdict": "bet",
+  "skip_reason": null,
+  "bets": [
+    {"trifecta": "1-3-4", "stake": 100, "current_odds": 14.5, "expected_prob": 0.07, "ev": 1.02, "confidence": 0.50},
+    {"trifecta": "1-3-6", "stake": 100, "current_odds": 15.4, "expected_prob": 0.07, "ev": 1.08, "confidence": 0.55},
+    {"trifecta": "3-1-6", "stake": 100, "current_odds": 19.0, "expected_prob": 0.05, "ev": 0.95, "confidence": 0.50},
+    {"trifecta": "3-4-6", "stake": 100, "current_odds": 20.6, "expected_prob": 0.04, "ev": 0.82, "confidence": 0.45},
+    {"trifecta": "1-3-2", "stake": 100, "current_odds": 20.8, "expected_prob": 0.05, "ev": 1.04, "confidence": 0.45}
+  ]
+}

@@ -1,0 +1,16 @@
+{
+  "race_id": "2025-12-29_01_12",
+  "predicted_at": "2026-04-27T18:00:00+09:00",
+  "model": "claude-opus-4-7",
+  "analysis": "一般桐生特選。1号艇梶野A1が欠場 (単勝-) で5艇戦、進入は2-3-4-5-6 想定。3号艇小山A1 39歳が全国2連38.89%・当地2連52.73% (桐生エース級)・当地直近4走1着1/2連3・平均ST 0.140・12-27桐生12Rで1着 で単勝1.4x の絶対本命。4号艇笠置A2 35歳が全国2連47.06%・当地2連36.36%・当地直近4走1着3/2連3 (突出)・12-28桐生11R+2Rで連続1コース1着 と A2級超好調で単勝3.6x の2番手。2号艇三浦B1 (当地2連25%・平均ST 0.255 遅め) は単勝3.5x で2-4 接戦。5/6号艇B1 は当地2連7%・6.25% で穴扱い。3号艇A1 捲り頭軸 + 4号艇A2 連 + 2号艇 ヒモの本命寄り5点構成。",
+  "primary_axis": [3, 4],
+  "verdict": "bet",
+  "skip_reason": null,
+  "bets": [
+    {"trifecta": "3-4-2", "stake": 100, "current_odds": 7.2, "expected_prob": 0.16, "ev": 1.15, "confidence": 0.55},
+    {"trifecta": "3-2-4", "stake": 100, "current_odds": 8.7, "expected_prob": 0.13, "ev": 1.13, "confidence": 0.55},
+    {"trifecta": "3-4-6", "stake": 100, "current_odds": 11.5, "expected_prob": 0.09, "ev": 1.04, "confidence": 0.50},
+    {"trifecta": "3-4-5", "stake": 100, "current_odds": 13.4, "expected_prob": 0.08, "ev": 1.07, "confidence": 0.50},
+    {"trifecta": "4-3-2", "stake": 100, "current_odds": 14.9, "expected_prob": 0.07, "ev": 1.04, "confidence": 0.50}
+  ]
+}

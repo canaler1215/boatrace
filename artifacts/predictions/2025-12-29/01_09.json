@@ -1,0 +1,16 @@
+{
+  "race_id": "2025-12-29_01_09",
+  "predicted_at": "2026-04-27T18:00:00+09:00",
+  "model": "claude-opus-4-7",
+  "analysis": "予選特賞。1号艇宮内B1 60歳が平均ST 0.247 と異常に遅く逃げ困難 (市場も1号艇3.6x で本命扱いせず)。市場最人気は2-4-5 24.3x で1号艇外しの捲り展開を読んでいる。5号艇金田A2 47歳が全国2連50%・当地2連48.48% (このメンバー最強)・当地直近4走1着1 と桐生エース、5コース捲り頭最有力。4号艇鈴木A2 30歳が当地直近1着1・12-28桐生7Rで1着・平均ST 0.127 (当地) と A2 当地好調。2号艇小川B1 53歳群馬 平均ST 0.128 (速い) も2コース捲り候補。4号艇/5号艇 二強軸 + 2号艇 ヒモ戦略。",
+  "primary_axis": [4, 5],
+  "verdict": "bet",
+  "skip_reason": null,
+  "bets": [
+    {"trifecta": "2-4-5", "stake": 100, "current_odds": 24.3, "expected_prob": 0.05, "ev": 1.22, "confidence": 0.50},
+    {"trifecta": "4-5-2", "stake": 100, "current_odds": 28.9, "expected_prob": 0.04, "ev": 1.16, "confidence": 0.50},
+    {"trifecta": "2-5-4", "stake": 100, "current_odds": 30.6, "expected_prob": 0.04, "ev": 1.22, "confidence": 0.45},
+    {"trifecta": "5-4-2", "stake": 100, "current_odds": 43.1, "expected_prob": 0.03, "ev": 1.29, "confidence": 0.45},
+    {"trifecta": "4-2-5", "stake": 100, "current_odds": 39.3, "expected_prob": 0.03, "ev": 1.18, "confidence": 0.45}
+  ]
+}

@@ -1,0 +1,16 @@
+{
+  "race_id": "2025-12-29_01_04",
+  "predicted_at": "2026-04-27T18:00:00+09:00",
+  "model": "claude-opus-4-7",
+  "analysis": "1号艇井上B1は当地2連16% と桐生1コース勝率52.5% を活かしきれない懸念。2号艇塚越B1は群馬地元27歳・全国2連44.74% (突出)・当地直近6走1着2/2連3・12-27桐生11Rで2コースから1着 と桐生若手の上り調子で捲り頭最有力。市場も1号艇2.5x vs 2号艇2.3x の二強構図。6号艇後藤A1は当地2連42.86%・直近4走1着1・12-28桐生6Rで1コースから1着 と A1級として3着・連の双方有力。3号艇三浦B1のボート40号2連55.56% を3着候補。1-2両軸 + 6号艇A1ヒモ戦略。",
+  "primary_axis": [1, 2],
+  "verdict": "bet",
+  "skip_reason": null,
+  "bets": [
+    {"trifecta": "1-2-3", "stake": 100, "current_odds": 10.1, "expected_prob": 0.10, "ev": 1.01, "confidence": 0.55},
+    {"trifecta": "2-1-3", "stake": 100, "current_odds": 15.0, "expected_prob": 0.07, "ev": 1.05, "confidence": 0.55},
+    {"trifecta": "1-2-6", "stake": 100, "current_odds": 15.1, "expected_prob": 0.07, "ev": 1.06, "confidence": 0.55},
+    {"trifecta": "2-1-6", "stake": 100, "current_odds": 16.7, "expected_prob": 0.06, "ev": 1.00, "confidence": 0.50},
+    {"trifecta": "1-3-2", "stake": 100, "current_odds": 16.1, "expected_prob": 0.06, "ev": 0.97, "confidence": 0.45}
+  ]
+}
