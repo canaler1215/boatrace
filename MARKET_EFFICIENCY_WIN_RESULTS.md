@@ -1,7 +1,7 @@
 # MARKET_EFFICIENCY_WIN_RESULTS — フェーズ B-3 単勝市場効率分析の結果
 
-最終更新: 2026-04-26
-ステータス: **Step 1 完了、Step 2（12 ヶ月本番 DL）待機中（ユーザー確認待ち）**
+最終更新: 2026-04-27
+ステータス: **Step 1 完了、Step 2 DL 完了 → 集計 (`run_market_efficiency.py --bet-type win` 拡張) 着手可**
 位置付け: フェーズ B-1（3 連単市場効率分析）完全撤退後の方針転換 = 控除率 20% の単勝で同分析
 
 参照: [NEXT_PHASE_B3_PLAN.md](NEXT_PHASE_B3_PLAN.md), [NEXT_PHASE_B1_PLAN.md](NEXT_PHASE_B1_PLAN.md) §9, [MARKET_EFFICIENCY_RESULTS.md](MARKET_EFFICIENCY_RESULTS.md), [MARKET_EFFICIENCY_SEGMENT_RESULTS.md](MARKET_EFFICIENCY_SEGMENT_RESULTS.md)
@@ -119,21 +119,52 @@
 
 → **Step 2（12 ヶ月本番 DL + 市場効率分析）に進める判定**。
 
-## 5. Step 2 着手前のユーザー確認事項
+## 5. 12 ヶ月本番 DL 結果（2026-04-26 ユーザー承認、2026-04-27 完了）
 
-12 ヶ月本番 DL（2025-05〜2026-04）について:
+### サマリー
 
-- **対象期間**: 2025-05, 2025-06, ..., 2026-04（12 ヶ月、2025-12 は試行で取得済み → 残り 11 ヶ月）
-- **見込み時間**: 1 ヶ月 ≈ 75 分 → 11 ヶ月 ≈ **14 時間**（バックグラウンド推奨）
-- **ディスク使用量**: 1 ヶ月 ≈ 0.5 MB（parquet 圧縮）→ 11 ヶ月 ≈ 5.5 MB
-- **保存先**: `data/odds/win_odds_YYYYMM.parquet`（既存 trifecta `odds_*.parquet` / trio `trio_odds_*.parquet` と分離）
+| 指標 | 値 |
+|---|---:|
+| 対象期間 | 2025-05〜2026-04（12 ヶ月） |
+| 取得レース数 | **54,299 races** |
+| 全月 empty/failed | **0**（全月 100% 取得成功） |
+| 合計所要時間 | **12.9 時間**（バックグラウンド、並列 10 ワーカー） |
+| ディスク使用量 | parquet 12 ファイル合計 約 1 MB |
 
-ユーザーが本番 DL 実行を承認した場合、Step 2 で:
+### 月別取得実績
 
-1. 残り 11 ヶ月をバックグラウンド DL（並列 10 ワーカー、partial キャッシュ復帰機能あり）
-2. DL 完了後、`run_market_efficiency.py` に `--bet-type win` 拡張を実装
-3. 暗黙確率ビニング（実勢 overround ≒ 1.36 で正規化、または `(1-θ)/odds` 両方 CSV 列に出す）
-4. 12 ヶ月集計で lift / `ev_all_buy` / bootstrap CI を計算
+| 月 | races | 所要 (分) | サイズ |
+|---|---:|---:|---:|
+| 2025-05 | 5,026 | 79 | 97K |
+| 2025-06 | 4,766 | 75 | 91K |
+| 2025-07 | 5,144 | 81 | 99K |
+| 2025-08 | 5,048 | 79 | 96K |
+| 2025-09 | 4,248 | 66 | 80K |
+| 2025-10 | 4,128 | 65 | 77K |
+| 2025-11 | 3,937 | 61 | 71K |
+| 2025-12 | 4,771 | 75 | 91K（試行 DL） |
+| 2026-01 | 5,166 | 80 | 101K |
+| 2026-02 | 4,171 | 65 | 78K |
+| 2026-03 | 4,653 | 73 | 88K |
+| 2026-04 | 3,241 | 50 | 59K |
+| **合計** | **54,299** | **774**（12.9h） | **約 1 MB** |
+
+### DL 品質確認
+
+- ✅ 全 12 ヶ月キャッシュ揃い（`data/odds/win_odds_2025{05..12}.parquet` + `2026{01..04}.parquet`）
+- ✅ 全月 `0 empty/failed`、エラー / Traceback ゼロ
+- ✅ partial キャッシュ残存なし（クリーンアップ済み）
+
+→ Step 2 集計（`run_market_efficiency.py --bet-type win` 拡張）の前提条件すべて成立。
+
+### Step 2 集計フェーズで行うこと（次セッション）
+
+1. `run_market_efficiency.py` に `--bet-type {trifecta,win}` 引数追加
+2. 暗黙確率ビニング（実勢 overround ≒ 1.36 で正規化、または `(1-θ)/odds` 両方 CSV 列に出す）
+3. 12 ヶ月集計で lift / `ev_all_buy` / bootstrap CI を計算
+4. 採用判定 → Step 3（サブセグメント分析）進行 / B-3 撤退
+
+着手用プロンプト: [NEXT_SESSION_PROMPT.md](NEXT_SESSION_PROMPT.md)（B 用、本セッション末で更新済み）
 
 ## 6. 次フェーズ判定の予告（Step 2 の合格条件）
 
