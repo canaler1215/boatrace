@@ -1,10 +1,10 @@
 {
   "from": "2025-09-01",
   "to": "2025-12-31",
-  "evaluated_at": "2026-04-27T17:55:19+09:00",
+  "evaluated_at": "2026-04-27T18:45:33+09:00",
   "n_days": 122,
-  "n_days_with_data": 11,
-  "n_days_missing": 111,
+  "n_days_with_data": 12,
+  "n_days_missing": 110,
   "missing_dates": [
     "2025-09-01",
     "2025-09-02",
@@ -101,7 +101,6 @@
     "2025-12-12",
     "2025-12-13",
     "2025-12-14",
-    "2025-12-15",
     "2025-12-16",
     "2025-12-17",
     "2025-12-18",
@@ -129,28 +128,29 @@
     "2025-11-15.json",
     "2025-11-29.json",
     "2025-12-01.json",
+    "2025-12-15.json",
     "2025-12-29.json"
   ],
   "summary": {
-    "n_races": 132,
-    "n_settled": 122,
-    "n_skipped_by_claude": 10,
+    "n_races": 144,
+    "n_settled": 133,
+    "n_skipped_by_claude": 11,
     "n_no_result": 0,
-    "n_bet_races": 122,
-    "n_hit_races": 37,
-    "n_bets": 541,
-    "n_hits": 37,
-    "total_stake": 54100,
-    "total_payout": 53100.0,
-    "roi": -0.01848428835489835,
-    "hit_rate_per_bet": 0.06839186691312385,
-    "hit_rate_per_race": 0.30327868852459017,
-    "skip_rate": 0.07575757575757576,
-    "avg_confidence": 0.48558225508317926,
+    "n_bet_races": 133,
+    "n_hit_races": 42,
+    "n_bets": 596,
+    "n_hits": 42,
+    "total_stake": 59600,
+    "total_payout": 57940.0,
+    "roi": -0.02785234899328859,
+    "hit_rate_per_bet": 0.07046979865771812,
+    "hit_rate_per_race": 0.3157894736842105,
+    "skip_rate": 0.0763888888888889,
+    "avg_confidence": 0.48573825503355705,
     "bootstrap_ci": {
       "n": 1000,
-      "lower": -0.3637707948243992,
-      "upper": 0.34953789279112746
+      "lower": -0.3421140939597316,
+      "upper": 0.2998322147651007
     }
   },
   "by_month": [
@@ -198,29 +198,29 @@
     },
     {
       "month": "2025-12",
-      "n_days": 2,
-      "n_races": 24,
-      "n_bet_races": 23,
-      "n_hit_races": 4,
-      "n_bets": 72,
-      "n_hits": 4,
-      "total_stake": 7200,
-      "total_payout": 3770.0,
-      "roi": -0.47638888888888886,
-      "hit_rate_per_bet": 0.05555555555555555,
-      "hit_rate_per_race": 0.17391304347826086
+      "n_days": 3,
+      "n_races": 36,
+      "n_bet_races": 34,
+      "n_hit_races": 9,
+      "n_bets": 127,
+      "n_hits": 9,
+      "total_stake": 12700,
+      "total_payout": 8610.0,
+      "roi": -0.32204724409448815,
+      "hit_rate_per_bet": 0.07086614173228346,
+      "hit_rate_per_race": 0.2647058823529412
     }
   ],
   "by_stadium": [
     {
       "stadium_id": 1,
       "name": "桐生",
-      "n_races": 122,
-      "n_bets": 541,
-      "n_hits": 37,
-      "total_stake": 54100,
-      "total_payout": 53100.0,
-      "roi": -0.01848428835489835
+      "n_races": 133,
+      "n_bets": 596,
+      "n_hits": 42,
+      "total_stake": 59600,
+      "total_payout": 57940.0,
+      "roi": -0.02785234899328859
     }
   ],
   "by_stadium_month": [
@@ -260,12 +260,12 @@
     {
       "stadium_id": 1,
       "name": "桐生",
-      "n_races": 23,
-      "n_bets": 72,
-      "n_hits": 4,
-      "total_stake": 7200,
-      "total_payout": 3770.0,
-      "roi": -0.47638888888888886,
+      "n_races": 34,
+      "n_bets": 127,
+      "n_hits": 9,
+      "total_stake": 12700,
+      "total_payout": 8610.0,
+      "roi": -0.32204724409448815,
       "month": "2025-12"
     }
   ],
@@ -280,19 +280,19 @@
     },
     {
       "band": "0.3-0.5",
-      "n_bets": 199,
-      "n_hits": 10,
-      "total_stake": 19900,
-      "total_payout": 18350.0,
-      "roi": -0.07788944723618085
+      "n_bets": 220,
+      "n_hits": 11,
+      "total_stake": 22000,
+      "total_payout": 19770.0,
+      "roi": -0.10136363636363632
     },
     {
       "band": "0.5-0.7",
-      "n_bets": 342,
-      "n_hits": 27,
-      "total_stake": 34200,
-      "total_payout": 34750.0,
-      "roi": 0.016081871345029253
+      "n_bets": 376,
+      "n_hits": 31,
+      "total_stake": 37600,
+      "total_payout": 38170.0,
+      "roi": 0.015159574468085024
     },
     {
       "band": "0.7-1.0",
@@ -305,20 +305,20 @@
   ],
   "daily_roi_stats": {
     "min": -0.5764705882352941,
-    "median": -0.16666666666666663,
-    "mean": -0.0515616053583968,
+    "median": -0.1433333333333333,
+    "mean": -0.05726480491186373,
     "max": 0.6581818181818182,
-    "stddev": 0.3994206421701312,
-    "n": 11,
+    "stddev": 0.3813447485788536,
+    "n": 12,
     "worst_day": "2025-12-01",
     "best_day": "2025-09-26"
   },
   "monthly_roi_stats": {
-    "min": -0.47638888888888886,
+    "min": -0.32204724409448815,
     "median": -0.06242424242424244,
-    "mean": -0.06955394775089019,
+    "mean": -0.03096853655229001,
     "max": 0.323021582733813,
-    "stddev": 0.3273980396771323,
+    "stddev": 0.2669901925112133,
     "n": 4,
     "worst_month": "2025-12",
     "best_month": "2025-09"
@@ -326,9 +326,9 @@
   "verdict": {
     "status": "fail",
     "label": "✗ 未達",
-    "roi": -0.01848428835489835,
-    "worst_month_roi": -0.47638888888888886,
-    "bootstrap_ci_lower": -0.3637707948243992,
+    "roi": -0.02785234899328859,
+    "worst_month_roi": -0.32204724409448815,
+    "bootstrap_ci_lower": -0.3421140939597316,
     "criteria": {
       "production_ready": "ROI ≥ +10% かつ worst_month > -50% かつ bootstrap_ci_lower ≥ 0",
       "breakeven": "ROI ≥ 0% かつ worst_month > -50%",
@@ -337,6 +337,6 @@
     "note": "判定は参考値。後付けフィルタで合わせ込んではならない（フェーズ 3〜6 の教訓）"
   },
   "warnings": [
-    "期間内 111 日分の <日付>.json が見つからない（取得済みのみで集計）"
+    "期間内 110 日分の <日付>.json が見つからない（取得済みのみで集計）"
   ]
 }
