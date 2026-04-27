@@ -1,0 +1,16 @@
+{
+  "race_id": "2025-10-30_01_11",
+  "predicted_at": "2026-04-27T12:00:00+09:00",
+  "model": "claude-opus-4-7",
+  "analysis": "1号艇重木輝彦A1 兵庫 全国2連47.65%・当地2連47.83% で単勝1.9xの本命妥当。2号艇岡田憲行A2 49歳 当地2連52.63%・モーター55号43.58%・ボート30号44.09% が連絡み最有力で単勝4.1x。3号艇外崎A2 全国2連36.25%・平均ST0.146 もヒモ核。1号艇逃げ本線+ヒモ違い構成、2号艇捲りの可能性も2-1-3で抑える。",
+  "primary_axis": [1, 2],
+  "verdict": "bet",
+  "skip_reason": null,
+  "bets": [
+    {"trifecta": "1-3-2", "stake": 100, "current_odds": 7.7, "expected_prob": 0.13, "ev": 1.00, "confidence": 0.55},
+    {"trifecta": "1-2-3", "stake": 100, "current_odds": 6.2, "expected_prob": 0.16, "ev": 0.99, "confidence": 0.55},
+    {"trifecta": "1-3-5", "stake": 100, "current_odds": 15.2, "expected_prob": 0.07, "ev": 1.06, "confidence": 0.5},
+    {"trifecta": "1-3-4", "stake": 100, "current_odds": 16.8, "expected_prob": 0.06, "ev": 1.01, "confidence": 0.45},
+    {"trifecta": "2-1-3", "stake": 100, "current_odds": 40.6, "expected_prob": 0.025, "ev": 1.02, "confidence": 0.4}
+  ]
+}

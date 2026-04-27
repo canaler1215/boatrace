@@ -1,0 +1,16 @@
+{
+  "race_id": "2025-10-30_01_03",
+  "predicted_at": "2026-04-27T11:52:00+09:00",
+  "model": "claude-opus-4-7",
+  "analysis": "1号艇富山B1 67歳 全国2連33% 直近10走1着3で単勝1.5xの本命妥当。4号艇重木A1兵庫 全国2連47.65%・当地2連47.83% は捲り頭の真の脅威で単勝4.9x の妙味。2号艇石田A2 55歳 直近10走1着1 は薄い。1-4軸の本線+4号艇捲りで構成。",
+  "primary_axis": [1, 4],
+  "verdict": "bet",
+  "skip_reason": null,
+  "bets": [
+    {"trifecta": "1-2-4", "stake": 100, "current_odds": 10.7, "expected_prob": 0.10, "ev": 1.07, "confidence": 0.55},
+    {"trifecta": "1-4-2", "stake": 100, "current_odds": 11.4, "expected_prob": 0.09, "ev": 1.03, "confidence": 0.55},
+    {"trifecta": "2-1-4", "stake": 100, "current_odds": 14.6, "expected_prob": 0.07, "ev": 1.02, "confidence": 0.5},
+    {"trifecta": "4-1-2", "stake": 100, "current_odds": 21.7, "expected_prob": 0.05, "ev": 1.09, "confidence": 0.45},
+    {"trifecta": "1-4-5", "stake": 100, "current_odds": 19.1, "expected_prob": 0.05, "ev": 0.96, "confidence": 0.4}
+  ]
+}

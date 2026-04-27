@@ -1,0 +1,16 @@
+{
+  "race_id": "2025-10-30_01_04",
+  "predicted_at": "2026-04-27T11:53:00+09:00",
+  "model": "claude-opus-4-7",
+  "analysis": "1号艇宮嵜B1 全国2連21.43% 単勝3.5xは2号艇A1松本(全国2連47.79%・当地2連42.37%)単勝1.5x の本命扱いに押されている。2号艇A1松本が捲り頭本命、4号艇A2角谷 当地2連58.33%・全国2連47.69% がヒモ核。1号艇逃げと2号艇捲りの両軸で構成。",
+  "primary_axis": [2, 1],
+  "verdict": "bet",
+  "skip_reason": null,
+  "bets": [
+    {"trifecta": "2-1-4", "stake": 100, "current_odds": 12.2, "expected_prob": 0.09, "ev": 1.10, "confidence": 0.55},
+    {"trifecta": "1-2-4", "stake": 100, "current_odds": 13.7, "expected_prob": 0.08, "ev": 1.10, "confidence": 0.5},
+    {"trifecta": "2-4-1", "stake": 100, "current_odds": 19.0, "expected_prob": 0.06, "ev": 1.14, "confidence": 0.5},
+    {"trifecta": "2-4-5", "stake": 100, "current_odds": 18.5, "expected_prob": 0.05, "ev": 0.93, "confidence": 0.45},
+    {"trifecta": "1-4-2", "stake": 100, "current_odds": 23.1, "expected_prob": 0.04, "ev": 0.92, "confidence": 0.4}
+  ]
+}

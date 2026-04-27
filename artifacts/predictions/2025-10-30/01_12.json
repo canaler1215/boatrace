@@ -1,0 +1,16 @@
+{
+  "race_id": "2025-10-30_01_12",
+  "predicted_at": "2026-04-27T12:01:00+09:00",
+  "model": "claude-opus-4-7",
+  "analysis": "桐生ドリーム、オールA1級。1号艇江口晃生 当地2連61.48%・全国2連46.88% 桐生マスターが単勝1.8x の本命。3号艇松田大志A1 全国2連71.23%・当地2連58% は捲り頭の最大脅威で単勝3.3x。5号艇伊藤将吉A1 当地2連54.24%・ST0.103 / 4号艇梶野A1 当地2連53.33% も同格。1号艇逃げ本線+3号艇捲り両軸+ヒモは当地高2連艇で構成。",
+  "primary_axis": [1, 3],
+  "verdict": "bet",
+  "skip_reason": null,
+  "bets": [
+    {"trifecta": "1-3-2", "stake": 100, "current_odds": 9.1, "expected_prob": 0.11, "ev": 1.00, "confidence": 0.55},
+    {"trifecta": "1-3-5", "stake": 100, "current_odds": 13.5, "expected_prob": 0.08, "ev": 1.08, "confidence": 0.55},
+    {"trifecta": "1-3-4", "stake": 100, "current_odds": 13.4, "expected_prob": 0.08, "ev": 1.07, "confidence": 0.5},
+    {"trifecta": "3-1-2", "stake": 100, "current_odds": 20.8, "expected_prob": 0.05, "ev": 1.04, "confidence": 0.5},
+    {"trifecta": "1-2-3", "stake": 100, "current_odds": 7.5, "expected_prob": 0.13, "ev": 0.98, "confidence": 0.45}
+  ]
+}
