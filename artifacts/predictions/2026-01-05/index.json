@@ -1,11 +1,11 @@
 {
   "date": "2026-01-05",
-  "generated_at": "2026-04-27T21:43:54",
-  "n_total": 144,
-  "n_valid": 144,
+  "generated_at": "2026-04-27T22:31:35",
+  "n_total": 192,
+  "n_valid": 192,
   "n_invalid": 0,
-  "n_bet": 11,
-  "n_skip": 133,
+  "n_bet": 12,
+  "n_skip": 180,
   "invalid_details": [],
   "predictions": [
     {
@@ -1692,6 +1692,582 @@
       "n_bets": 0,
       "total_stake": 0,
       "skip_reason": "1号艇A1当地2連率60%本命+ A1×4の超充実構成、本命系過剰人気EV<0.30で見送り"
+    },
+    {
+      "file": "20_01.json",
+      "race_id": "2026-01-05_20_01",
+      "verdict": "skip",
+      "primary_axis": [
+        3,
+        1
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "1-3拮抗が市場で完全織込済、本命オッズ13-21xで EV<0.5、歪み見えず"
+    },
+    {
+      "file": "20_02.json",
+      "race_id": "2026-01-05_20_02",
+      "verdict": "skip",
+      "primary_axis": [
+        2,
+        5
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "1号艇激弱で本命崩れ想定だが2号艇/5号艇取込組合せはオッズ薄くEV<0.6、明確な妙味なし"
+    },
+    {
+      "file": "20_03.json",
+      "race_id": "2026-01-05_20_03",
+      "verdict": "skip",
+      "primary_axis": [
+        1,
+        5
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "5号艇平田A1/6号艇今井A1の3着取込はオッズ薄くEV<0.85、明確な妙味なし"
+    },
+    {
+      "file": "20_04.json",
+      "race_id": "2026-01-05_20_04",
+      "verdict": "skip",
+      "primary_axis": [
+        2,
+        6
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "5/6 A1+2号艇本命の混戦が市場で完全織込済、上位人気EV0.2前後で妙味なし"
+    },
+    {
+      "file": "20_05.json",
+      "race_id": "2026-01-05_20_05",
+      "verdict": "skip",
+      "primary_axis": [
+        1,
+        4
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "進入固定戦の本命系が極薄(EV<0.2)、流し系も妙味なし"
+    },
+    {
+      "file": "20_06.json",
+      "race_id": "2026-01-05_20_06",
+      "verdict": "skip",
+      "primary_axis": [
+        1,
+        6
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "前田A1当地59%好調を市場が単勝6.5xで完全織込済、6号艇取込みもEV<0.3で妙味なし"
+    },
+    {
+      "file": "20_07.json",
+      "race_id": "2026-01-05_20_07",
+      "verdict": "skip",
+      "primary_axis": [
+        6,
+        1
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "中辻A1絶好調を市場が単勝4.2xで完全織込済、6-X-X系もEV 0.35-0.72で60x基準満たさず"
+    },
+    {
+      "file": "20_08.json",
+      "race_id": "2026-01-05_20_08",
+      "verdict": "skip",
+      "primary_axis": [
+        1,
+        3
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "1号艇単勝1.0xの完全本命+3号艇A1で1-3軸固まり、本命系/流し系すべてEV<0.35"
+    },
+    {
+      "file": "20_09.json",
+      "race_id": "2026-01-05_20_09",
+      "verdict": "skip",
+      "primary_axis": [
+        1,
+        2
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "準優勝戦A1×2の本命系1-2-X 4-14xでEV<0.20、明確な妙味なし"
+    },
+    {
+      "file": "20_10.json",
+      "race_id": "2026-01-05_20_10",
+      "verdict": "skip",
+      "primary_axis": [
+        1,
+        3
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "1号艇前田A1絶好調の単勝1.3x織込済、1-X-Y本命系6-13xでEV<0.20"
+    },
+    {
+      "file": "20_11.json",
+      "race_id": "2026-01-05_20_11",
+      "verdict": "skip",
+      "primary_axis": [
+        1,
+        3
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "中辻A1当地68%絶好調が単勝1.0xで完全織込済、本命系1-X-Y 5-12xでEV<0.25"
+    },
+    {
+      "file": "20_12.json",
+      "race_id": "2026-01-05_20_12",
+      "verdict": "skip",
+      "primary_axis": [
+        1,
+        5
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "1号艇単勝1.1x完全本命+5/6 A1集中が市場織込済、本命系/捲り系すべてEV<0.30"
+    },
+    {
+      "file": "22_01.json",
+      "race_id": "2026-01-05_22_01",
+      "verdict": "skip",
+      "primary_axis": [
+        1,
+        3
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "1号艇渡辺A1完全本命の織込済、本命系/流し系すべてEV<0.25"
+    },
+    {
+      "file": "22_02.json",
+      "race_id": "2026-01-05_22_02",
+      "verdict": "skip",
+      "primary_axis": [
+        3,
+        1
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "三者拮抗(1=2.4/3=2.6)で市場が3号艇A1好調を完全織込済、本命系/捲り系すべてEV<0.30"
+    },
+    {
+      "file": "22_03.json",
+      "race_id": "2026-01-05_22_03",
+      "verdict": "skip",
+      "primary_axis": [
+        3,
+        1
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "3号艇松田A1超エースを単勝1.0xで完全織込済、3-X-Y / 1-3-Yすべて EV<0.75"
+    },
+    {
+      "file": "22_04.json",
+      "race_id": "2026-01-05_22_04",
+      "verdict": "skip",
+      "primary_axis": [
+        2,
+        6
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "2号艇A1本命+6号艇奈須好調が市場織込済、2-X-6系EV<0.30、6-X-Y推定オッズも基準未達"
+    },
+    {
+      "file": "22_05.json",
+      "race_id": "2026-01-05_22_05",
+      "verdict": "skip",
+      "primary_axis": [
+        1,
+        4
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "1-2-4三つ巴を市場が完全織込済、捲り系4-X-Y もEV<0.55で60x基準満たさず"
+    },
+    {
+      "file": "22_06.json",
+      "race_id": "2026-01-05_22_06",
+      "verdict": "skip",
+      "primary_axis": [
+        1,
+        5
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "5号艇篠崎A1異常好調を単勝3.1xで完全織込済、捲り系5-X-X EV<0.75で60x基準満たさず"
+    },
+    {
+      "file": "22_07.json",
+      "race_id": "2026-01-05_22_07",
+      "verdict": "bet",
+      "primary_axis": [
+        6,
+        1
+      ],
+      "n_bets": 1,
+      "total_stake": 100,
+      "skip_reason": null
+    },
+    {
+      "file": "22_08.json",
+      "race_id": "2026-01-05_22_08",
+      "verdict": "skip",
+      "primary_axis": [
+        4,
+        1
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "4号艇篠崎A1超エースの捲りを市場が単勝1.8xで完全織込済、4-X-Y本命系すべてEV<0.40"
+    },
+    {
+      "file": "22_09.json",
+      "race_id": "2026-01-05_22_09",
+      "verdict": "skip",
+      "primary_axis": [
+        1,
+        2
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "A1×3混戦+富田B1当地強の三者拮抗が市場で完全織込済、本命系すべてEV<0.25"
+    },
+    {
+      "file": "22_10.json",
+      "race_id": "2026-01-05_22_10",
+      "verdict": "skip",
+      "primary_axis": [
+        1,
+        4
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "A1×4混戦予選特賞で市場が完全織込済、本命系/捲り系すべてEV<0.55"
+    },
+    {
+      "file": "22_11.json",
+      "race_id": "2026-01-05_22_11",
+      "verdict": "skip",
+      "primary_axis": [
+        1,
+        6
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "4艇進入固定でオッズ圧縮、本命系/捲り系すべてEV<0.75"
+    },
+    {
+      "file": "22_12.json",
+      "race_id": "2026-01-05_22_12",
+      "verdict": "skip",
+      "primary_axis": [
+        1,
+        5
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "古澤A1+篠崎A1の二強を市場が完全織込済、本命系/捲り系すべてEV<0.45"
+    },
+    {
+      "file": "23_01.json",
+      "race_id": "2026-01-05_23_01",
+      "verdict": "skip",
+      "primary_axis": [
+        4,
+        1
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "4号艇単勝1.3x完全本命の捲り構図を市場が完全織込済、本命系/捲り系すべてEV<0.45"
+    },
+    {
+      "file": "23_02.json",
+      "race_id": "2026-01-05_23_02",
+      "verdict": "skip",
+      "primary_axis": [
+        2,
+        1
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "2号艇西橋A1当地80%絶好調が単勝1.0xで完全織込済、本命系/流し系すべてEV<0.25"
+    },
+    {
+      "file": "23_03.json",
+      "race_id": "2026-01-05_23_03",
+      "verdict": "skip",
+      "primary_axis": [
+        1,
+        4
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "1号艇A1+4号艇A1捲り構図を市場が完全織込済、本命系/捲り系すべてEV<0.50"
+    },
+    {
+      "file": "23_04.json",
+      "race_id": "2026-01-05_23_04",
+      "verdict": "skip",
+      "primary_axis": [
+        3,
+        1
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "3号艇A1捲りを単勝2.0xで完全織込済、3-X-Y系すべてEV<0.40"
+    },
+    {
+      "file": "23_05.json",
+      "race_id": "2026-01-05_23_05",
+      "verdict": "skip",
+      "primary_axis": [
+        1,
+        4
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "三つ巴混戦+A1×2が市場で完全織込済、本命系/捲り系すべてEV<0.40"
+    },
+    {
+      "file": "23_06.json",
+      "race_id": "2026-01-05_23_06",
+      "verdict": "skip",
+      "primary_axis": [
+        1,
+        3
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "三者拮抗の本命系/流し系すべて市場で完全織込済、EV<0.40"
+    },
+    {
+      "file": "23_07.json",
+      "race_id": "2026-01-05_23_07",
+      "verdict": "skip",
+      "primary_axis": [
+        1,
+        4
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "1=4二強拮抗を市場が完全織込済、本命系/捲り系すべてEV<0.30"
+    },
+    {
+      "file": "23_08.json",
+      "race_id": "2026-01-05_23_08",
+      "verdict": "skip",
+      "primary_axis": [
+        3,
+        1
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "3号艇単勝1.1x異常本命+市場完全織込済、本命系すべてEV<0.40"
+    },
+    {
+      "file": "23_09.json",
+      "race_id": "2026-01-05_23_09",
+      "verdict": "skip",
+      "primary_axis": [
+        2,
+        5
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "2号艇単勝1.3x異常本命+5号艇A1脇役を市場が完全織込済、本命系すべてEV<0.40"
+    },
+    {
+      "file": "23_10.json",
+      "race_id": "2026-01-05_23_10",
+      "verdict": "skip",
+      "primary_axis": [
+        1,
+        2
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "1=2二強拮抗を市場が完全織込済、本命系/流し系すべてEV<0.40"
+    },
+    {
+      "file": "23_11.json",
+      "race_id": "2026-01-05_23_11",
+      "verdict": "skip",
+      "primary_axis": [
+        1,
+        5
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "1号艇単勝1.2x圧倒的本命を市場が完全織込済、本命系すべてEV<0.30"
+    },
+    {
+      "file": "23_12.json",
+      "race_id": "2026-01-05_23_12",
+      "verdict": "skip",
+      "primary_axis": [
+        1,
+        3
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "1号艇単勝1.1x完全本命を市場が完全織込済、本命系すべてEV<0.30"
+    },
+    {
+      "file": "24_01.json",
+      "race_id": "2026-01-05_24_01",
+      "verdict": "skip",
+      "primary_axis": [
+        1,
+        2
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "1号艇B1+2号艇A2の二強拮抗が市場で完全織込済、本命系/流し系すべてEV<0.40"
+    },
+    {
+      "file": "24_02.json",
+      "race_id": "2026-01-05_24_02",
+      "verdict": "skip",
+      "primary_axis": [
+        4,
+        1
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "4号艇単勝1.9x異例本命+市場完全織込済、本命系/捲り系すべてEV<0.40"
+    },
+    {
+      "file": "24_03.json",
+      "race_id": "2026-01-05_24_03",
+      "verdict": "skip",
+      "primary_axis": [
+        1,
+        4
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "1号艇単勝1.1x完全本命を市場が完全織込済、本命系すべてEV<0.30"
+    },
+    {
+      "file": "24_04.json",
+      "race_id": "2026-01-05_24_04",
+      "verdict": "skip",
+      "primary_axis": [
+        3,
+        1
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "3号艇単勝1.7x異例本命+市場完全織込済、本命系すべてEV<0.40"
+    },
+    {
+      "file": "24_05.json",
+      "race_id": "2026-01-05_24_05",
+      "verdict": "skip",
+      "primary_axis": [
+        1,
+        5
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "5号艇単勝2.2x異例本命を市場が完全織込済、本命系/捲り系すべてEV<0.55"
+    },
+    {
+      "file": "24_06.json",
+      "race_id": "2026-01-05_24_06",
+      "verdict": "skip",
+      "primary_axis": [
+        1,
+        3
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "1号艇単勝1.4x完全本命+3号艇A1脇役を市場が完全織込済、本命系/捲り系すべてEV<0.40"
+    },
+    {
+      "file": "24_07.json",
+      "race_id": "2026-01-05_24_07",
+      "verdict": "skip",
+      "primary_axis": [
+        1,
+        2
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "1号艇単勝1.4x完全本命を市場が完全織込済、本命系すべてEV<0.30"
+    },
+    {
+      "file": "24_08.json",
+      "race_id": "2026-01-05_24_08",
+      "verdict": "skip",
+      "primary_axis": [
+        1,
+        3
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "1号艇単勝1.5x完全本命を市場が完全織込済、本命系/捲り系すべてEV<0.35"
+    },
+    {
+      "file": "24_09.json",
+      "race_id": "2026-01-05_24_09",
+      "verdict": "skip",
+      "primary_axis": [
+        1,
+        3
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "1号艇単勝1.4x完全本命を市場が完全織込済、本命系すべてEV<0.40"
+    },
+    {
+      "file": "24_10.json",
+      "race_id": "2026-01-05_24_10",
+      "verdict": "skip",
+      "primary_axis": [
+        1,
+        6
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "5艇進入+1号艇単勝1.3x圧倒本命を市場が完全織込済、本命系/捲り系すべてEV<0.25"
+    },
+    {
+      "file": "24_11.json",
+      "race_id": "2026-01-05_24_11",
+      "verdict": "skip",
+      "primary_axis": [
+        1,
+        5
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "5号艇単勝2.1x異例本命を市場が完全織込済、捲り系5-1-X EV 0.7-0.8で60x基準ぎり、conservative skip"
+    },
+    {
+      "file": "24_12.json",
+      "race_id": "2026-01-05_24_12",
+      "verdict": "skip",
+      "primary_axis": [
+        1,
+        2
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "1号艇本命+2号艇A2脇役の混戦が市場で完全織込済、本命系/捲り系すべてEV<0.45"
     }
   ]
 }

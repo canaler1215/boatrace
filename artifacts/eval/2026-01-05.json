@@ -1,0 +1,3580 @@
+{
+  "date": "2026-01-05",
+  "stadium_filter": null,
+  "stadium_filter_name": null,
+  "evaluated_at": "2026-04-27T22:31:45+09:00",
+  "is_past": true,
+  "summary": {
+    "n_races": 192,
+    "n_settled": 12,
+    "n_skipped_by_claude": 180,
+    "n_no_result": 0,
+    "n_bet_races": 12,
+    "n_hit_races": 1,
+    "n_bets": 17,
+    "n_hits": 1,
+    "total_stake": 1700,
+    "total_payout": 3200.0,
+    "roi": 0.8823529411764706,
+    "hit_rate_per_bet": 0.058823529411764705,
+    "hit_rate_per_race": 0.08333333333333333,
+    "skip_rate": 0.9375,
+    "avg_confidence": 0.37058823529411766,
+    "by_stadium": [
+      {
+        "stadium_id": 1,
+        "name": "桐生",
+        "n_races": 1,
+        "n_bets": 1,
+        "n_hits": 0,
+        "total_stake": 100,
+        "total_payout": 0.0,
+        "roi": -1.0
+      },
+      {
+        "stadium_id": 2,
+        "name": "戸田",
+        "n_races": 1,
+        "n_bets": 2,
+        "n_hits": 0,
+        "total_stake": 200,
+        "total_payout": 0.0,
+        "roi": -1.0
+      },
+      {
+        "stadium_id": 3,
+        "name": "江戸川",
+        "n_races": 2,
+        "n_bets": 3,
+        "n_hits": 0,
+        "total_stake": 300,
+        "total_payout": 0.0,
+        "roi": -1.0
+      },
+      {
+        "stadium_id": 4,
+        "name": "平和島",
+        "n_races": 4,
+        "n_bets": 7,
+        "n_hits": 1,
+        "total_stake": 700,
+        "total_payout": 3200.0,
+        "roi": 3.571428571428571
+      },
+      {
+        "stadium_id": 5,
+        "name": "多摩川",
+        "n_races": 1,
+        "n_bets": 1,
+        "n_hits": 0,
+        "total_stake": 100,
+        "total_payout": 0.0,
+        "roi": -1.0
+      },
+      {
+        "stadium_id": 11,
+        "name": "びわこ",
+        "n_races": 1,
+        "n_bets": 1,
+        "n_hits": 0,
+        "total_stake": 100,
+        "total_payout": 0.0,
+        "roi": -1.0
+      },
+      {
+        "stadium_id": 13,
+        "name": "尼崎",
+        "n_races": 1,
+        "n_bets": 1,
+        "n_hits": 0,
+        "total_stake": 100,
+        "total_payout": 0.0,
+        "roi": -1.0
+      },
+      {
+        "stadium_id": 22,
+        "name": "福岡",
+        "n_races": 1,
+        "n_bets": 1,
+        "n_hits": 0,
+        "total_stake": 100,
+        "total_payout": 0.0,
+        "roi": -1.0
+      }
+    ],
+    "by_confidence_band": [
+      {
+        "band": "0.0-0.3",
+        "n_bets": 0,
+        "n_hits": 0,
+        "total_stake": 0,
+        "total_payout": 0,
+        "roi": 0.0
+      },
+      {
+        "band": "0.3-0.5",
+        "n_bets": 17,
+        "n_hits": 1,
+        "total_stake": 1700,
+        "total_payout": 3200.0,
+        "roi": 0.8823529411764706
+      },
+      {
+        "band": "0.5-0.7",
+        "n_bets": 0,
+        "n_hits": 0,
+        "total_stake": 0,
+        "total_payout": 0,
+        "roi": 0.0
+      },
+      {
+        "band": "0.7-1.0",
+        "n_bets": 0,
+        "n_hits": 0,
+        "total_stake": 0,
+        "total_payout": 0,
+        "roi": 0.0
+      }
+    ]
+  },
+  "races": [
+    {
+      "race_id": "2026-01-05_01_01",
+      "stadium_id": 1,
+      "race_no": 1,
+      "status": "settled",
+      "verdict": "bet",
+      "skip_reason": null,
+      "primary_axis": [
+        2
+      ],
+      "actual_combination": "5-2-6",
+      "bets": [
+        {
+          "trifecta": "2-4-1",
+          "stake": 100,
+          "current_odds": 16.2,
+          "actual_odds": 16.2,
+          "confidence": 0.4,
+          "expected_prob": 0.075,
+          "is_hit": false,
+          "payout": 0.0,
+          "payout_source": "miss",
+          "odds_drift_pct": 0.0
+        }
+      ],
+      "total_stake": 100,
+      "total_payout": 0.0,
+      "note": null
+    },
+    {
+      "race_id": "2026-01-05_01_02",
+      "stadium_id": 1,
+      "race_no": 2,
+      "status": "skipped_by_claude",
+      "verdict": "skip",
+      "skip_reason": "1-2 軸の人気サイドはオッズが薄く EV<1.0、中穴に妙味なし。過去日ドライランで展示欠損のため穴目を取りにいく確信もなし。",
+      "primary_axis": [
+        1,
+        2
+      ],
+      "actual_combination": null,
+      "bets": [],
+      "total_stake": 0,
+      "total_payout": 0.0,
+      "note": null
+    },
+    {
+      "race_id": "2026-01-05_01_03",
+      "stadium_id": 1,
+      "race_no": 3,
+      "status": "skipped_by_claude",
+      "verdict": "skip",
+      "skip_reason": "1号艇本命人気が薄く EV<1.0、6号艇 A1の一発も 6コース勝率3.6% を覆すには配当不足。",
+      "primary_axis": [
+        1
+      ],
+      "actual_combination": null,
+      "bets": [],
+      "total_stake": 0,
+      "total_payout": 0.0,
+      "note": null
+    },
+    {
+      "race_id": "2026-01-05_01_04",
+      "stadium_id": 1,
+      "race_no": 4,
+      "status": "skipped_by_claude",
+      "verdict": "skip",
+      "skip_reason": "本命 2-3-6 が4.3x と過剰人気で EV<1.0、6号艇1着の中穴も期待値不足。",
+      "primary_axis": [
+        2
+      ],
+      "actual_combination": null,
+      "bets": [],
+      "total_stake": 0,
+      "total_payout": 0.0,
+      "note": null
+    },
+    {
+      "race_id": "2026-01-05_01_05",
+      "stadium_id": 1,
+      "race_no": 5,
+      "status": "skipped_by_claude",
+      "verdict": "skip",
+      "skip_reason": "5号艇本命に過剰人気が集中、5-1-X / 5-2-X すべて EV<1.0。",
+      "primary_axis": [
+        5
+      ],
+      "actual_combination": null,
+      "bets": [],
+      "total_stake": 0,
+      "total_payout": 0.0,
+      "note": null
+    },
+    {
+      "race_id": "2026-01-05_01_06",
+      "stadium_id": 1,
+      "race_no": 6,
+      "status": "skipped_by_claude",
+      "verdict": "skip",
+      "skip_reason": "1号艇本命固いがオッズ全般 EV<0.7 圏。1-X-Y で妙味なし。",
+      "primary_axis": [
+        1
+      ],
+      "actual_combination": null,
+      "bets": [],
+      "total_stake": 0,
+      "total_payout": 0.0,
+      "note": null
+    },
+    {
+      "race_id": "2026-01-05_01_07",
+      "stadium_id": 1,
+      "race_no": 7,
+      "status": "skipped_by_claude",
+      "verdict": "skip",
+      "skip_reason": "1-3 二強の本命買い目に過剰人気が集中し EV<0.4。穴筋にも妙味なし。",
+      "primary_axis": [
+        1,
+        3
+      ],
+      "actual_combination": null,
+      "bets": [],
+      "total_stake": 0,
+      "total_payout": 0.0,
+      "note": null
+    },
+    {
+      "race_id": "2026-01-05_01_08",
+      "stadium_id": 1,
+      "race_no": 8,
+      "status": "skipped_by_claude",
+      "verdict": "skip",
+      "skip_reason": "1号艇単勝1.0x の絶対本命にオッズが集中、すべての本命買い目が EV<0.5。",
+      "primary_axis": [
+        1
+      ],
+      "actual_combination": null,
+      "bets": [],
+      "total_stake": 0,
+      "total_payout": 0.0,
+      "note": null
+    },
+    {
+      "race_id": "2026-01-05_01_09",
+      "stadium_id": 1,
+      "race_no": 9,
+      "status": "skipped_by_claude",
+      "verdict": "skip",
+      "skip_reason": "1号艇本命単勝1.1x 集中、本命3連単はすべて EV<0.6。",
+      "primary_axis": [
+        1
+      ],
+      "actual_combination": null,
+      "bets": [],
+      "total_stake": 0,
+      "total_payout": 0.0,
+      "note": null
+    },
+    {
+      "race_id": "2026-01-05_01_10",
+      "stadium_id": 1,
+      "race_no": 10,
+      "status": "skipped_by_claude",
+      "verdict": "skip",
+      "skip_reason": "1号艇単勝1.0x の絶対本命、本命買い目すべて EV<0.9。",
+      "primary_axis": [
+        1
+      ],
+      "actual_combination": null,
+      "bets": [],
+      "total_stake": 0,
+      "total_payout": 0.0,
+      "note": null
+    },
+    {
+      "race_id": "2026-01-05_01_11",
+      "stadium_id": 1,
+      "race_no": 11,
+      "status": "skipped_by_claude",
+      "verdict": "skip",
+      "skip_reason": "毒島1号艇の絶対本命にオッズ集中、本命3連単すべて EV<0.7。",
+      "primary_axis": [
+        1
+      ],
+      "actual_combination": null,
+      "bets": [],
+      "total_stake": 0,
+      "total_payout": 0.0,
+      "note": null
+    },
+    {
+      "race_id": "2026-01-05_01_12",
+      "stadium_id": 1,
+      "race_no": 12,
+      "status": "skipped_by_claude",
+      "verdict": "skip",
+      "skip_reason": "1号艇単勝1.0x の絶対本命にオッズ集中、本命買い目すべて EV<0.6。",
+      "primary_axis": [
+        1
+      ],
+      "actual_combination": null,
+      "bets": [],
+      "total_stake": 0,
+      "total_payout": 0.0,
+      "note": null
+    },
+    {
+      "race_id": "2026-01-05_02_01",
+      "stadium_id": 2,
+      "race_no": 1,
+      "status": "skipped_by_claude",
+      "verdict": "skip",
+      "skip_reason": "1-3-4 軸の本命人気が薄く EV<0.7、6号艇A1の一発も6コース3.8%を覆すには配当不足。",
+      "primary_axis": [
+        1,
+        3
+      ],
+      "actual_combination": null,
+      "bets": [],
+      "total_stake": 0,
+      "total_payout": 0.0,
+      "note": null
+    },
+    {
+      "race_id": "2026-01-05_02_02",
+      "stadium_id": 2,
+      "race_no": 2,
+      "status": "skipped_by_claude",
+      "verdict": "skip",
+      "skip_reason": "3-5 軸の本命に過剰人気、捲り返しの中穴も EV<0.7。",
+      "primary_axis": [
+        3,
+        5
+      ],
+      "actual_combination": null,
+      "bets": [],
+      "total_stake": 0,
+      "total_payout": 0.0,
+      "note": null
+    },
+    {
+      "race_id": "2026-01-05_02_03",
+      "stadium_id": 2,
+      "race_no": 3,
+      "status": "skipped_by_claude",
+      "verdict": "skip",
+      "skip_reason": "2号艇まくり本命の3連単すべて EV<0.8、6号艇A1の一発も期待値届かず。",
+      "primary_axis": [
+        2
+      ],
+      "actual_combination": null,
+      "bets": [],
+      "total_stake": 0,
+      "total_payout": 0.0,
+      "note": null
+    },
+    {
+      "race_id": "2026-01-05_02_04",
+      "stadium_id": 2,
+      "race_no": 4,
+      "status": "skipped_by_claude",
+      "verdict": "skip",
+      "skip_reason": "2号艇 A1単勝1.2x の絶対本命、本命3連単はすべて EV<0.6。",
+      "primary_axis": [
+        2
+      ],
+      "actual_combination": null,
+      "bets": [],
+      "total_stake": 0,
+      "total_payout": 0.0,
+      "note": null
+    },
+    {
+      "race_id": "2026-01-05_02_05",
+      "stadium_id": 2,
+      "race_no": 5,
+      "status": "skipped_by_claude",
+      "verdict": "skip",
+      "skip_reason": "2-4-5 三者拮抗の本命買い目すべて EV<0.5、穴狙いも届かず。",
+      "primary_axis": [
+        2,
+        5
+      ],
+      "actual_combination": null,
+      "bets": [],
+      "total_stake": 0,
+      "total_payout": 0.0,
+      "note": null
+    },
+    {
+      "race_id": "2026-01-05_02_06",
+      "stadium_id": 2,
+      "race_no": 6,
+      "status": "skipped_by_claude",
+      "verdict": "skip",
+      "skip_reason": "1-3-6 三者軸の本命買い目すべて EV<0.5、桐生順平6号艇1着確率を高く見積もっても届かず。",
+      "primary_axis": [
+        6,
+        1
+      ],
+      "actual_combination": null,
+      "bets": [],
+      "total_stake": 0,
+      "total_payout": 0.0,
+      "note": null
+    },
+    {
+      "race_id": "2026-01-05_02_07",
+      "stadium_id": 2,
+      "race_no": 7,
+      "status": "skipped_by_claude",
+      "verdict": "skip",
+      "skip_reason": "1号艇本命過剰人気、本命3連単すべて EV<0.7。",
+      "primary_axis": [
+        1
+      ],
+      "actual_combination": null,
+      "bets": [],
+      "total_stake": 0,
+      "total_payout": 0.0,
+      "note": null
+    },
+    {
+      "race_id": "2026-01-05_02_08",
+      "stadium_id": 2,
+      "race_no": 8,
+      "status": "settled",
+      "verdict": "bet",
+      "skip_reason": null,
+      "primary_axis": [
+        1
+      ],
+      "actual_combination": "3-2-1",
+      "bets": [
+        {
+          "trifecta": "1-6-2",
+          "stake": 100,
+          "current_odds": 21.1,
+          "actual_odds": 21.1,
+          "confidence": 0.45,
+          "expected_prob": 0.06,
+          "is_hit": false,
+          "payout": 0.0,
+          "payout_source": "miss",
+          "odds_drift_pct": 0.0
+        },
+        {
+          "trifecta": "1-6-4",
+          "stake": 100,
+          "current_odds": 37.9,
+          "actual_odds": 37.9,
+          "confidence": 0.4,
+          "expected_prob": 0.033,
+          "is_hit": false,
+          "payout": 0.0,
+          "payout_source": "miss",
+          "odds_drift_pct": 0.0
+        }
+      ],
+      "total_stake": 200,
+      "total_payout": 0.0,
+      "note": null
+    },
+    {
+      "race_id": "2026-01-05_02_09",
+      "stadium_id": 2,
+      "race_no": 9,
+      "status": "skipped_by_claude",
+      "verdict": "skip",
+      "skip_reason": "1-2-3 三者拮抗で人気分散しても本命買い目すべて EV<0.7。",
+      "primary_axis": [
+        1,
+        2
+      ],
+      "actual_combination": null,
+      "bets": [],
+      "total_stake": 0,
+      "total_payout": 0.0,
+      "note": null
+    },
+    {
+      "race_id": "2026-01-05_02_10",
+      "stadium_id": 2,
+      "race_no": 10,
+      "status": "skipped_by_claude",
+      "verdict": "skip",
+      "skip_reason": "1号艇本命過剰人気、本命買い目すべて EV<0.7。",
+      "primary_axis": [
+        1
+      ],
+      "actual_combination": null,
+      "bets": [],
+      "total_stake": 0,
+      "total_payout": 0.0,
+      "note": null
+    },
+    {
+      "race_id": "2026-01-05_02_11",
+      "stadium_id": 2,
+      "race_no": 11,
+      "status": "skipped_by_claude",
+      "verdict": "skip",
+      "skip_reason": "1-2 二強の本命買い目すべて EV<0.7、人気分散しているのに妙味なし。",
+      "primary_axis": [
+        1,
+        2
+      ],
+      "actual_combination": null,
+      "bets": [],
+      "total_stake": 0,
+      "total_payout": 0.0,
+      "note": null
+    },
+    {
+      "race_id": "2026-01-05_02_12",
+      "stadium_id": 2,
+      "race_no": 12,
+      "status": "skipped_by_claude",
+      "verdict": "skip",
+      "skip_reason": "1号艇本命過剰人気、本命3連単・中穴すべて EV<0.6。",
+      "primary_axis": [
+        1
+      ],
+      "actual_combination": null,
+      "bets": [],
+      "total_stake": 0,
+      "total_payout": 0.0,
+      "note": null
+    },
+    {
+      "race_id": "2026-01-05_03_01",
+      "stadium_id": 3,
+      "race_no": 1,
+      "status": "skipped_by_claude",
+      "verdict": "skip",
+      "skip_reason": "1号艇本命買い目すべて EV<0.8、江戸川荒れの中穴も妙味なし。",
+      "primary_axis": [
+        1
+      ],
+      "actual_combination": null,
+      "bets": [],
+      "total_stake": 0,
+      "total_payout": 0.0,
+      "note": null
+    },
+    {
+      "race_id": "2026-01-05_03_02",
+      "stadium_id": 3,
+      "race_no": 2,
+      "status": "skipped_by_claude",
+      "verdict": "skip",
+      "skip_reason": "1-2-4 三者拮抗の本命買い目すべて EV<0.6、6号艇浅見の一発も配当不足。",
+      "primary_axis": [
+        4,
+        1
+      ],
+      "actual_combination": null,
+      "bets": [],
+      "total_stake": 0,
+      "total_payout": 0.0,
+      "note": null
+    },
+    {
+      "race_id": "2026-01-05_03_03",
+      "stadium_id": 3,
+      "race_no": 3,
+      "status": "settled",
+      "verdict": "bet",
+      "skip_reason": null,
+      "primary_axis": [
+        4
+      ],
+      "actual_combination": "4-3-5",
+      "bets": [
+        {
+          "trifecta": "4-3-1",
+          "stake": 100,
+          "current_odds": 28.6,
+          "actual_odds": 28.6,
+          "confidence": 0.4,
+          "expected_prob": 0.041,
+          "is_hit": false,
+          "payout": 0.0,
+          "payout_source": "miss",
+          "odds_drift_pct": 0.0
+        }
+      ],
+      "total_stake": 100,
+      "total_payout": 0.0,
+      "note": null
+    },
+    {
+      "race_id": "2026-01-05_03_04",
+      "stadium_id": 3,
+      "race_no": 4,
+      "status": "skipped_by_claude",
+      "verdict": "skip",
+      "skip_reason": "1-5 軸の本命買い目すべて EV<0.8、中穴も期待値届かず。",
+      "primary_axis": [
+        1,
+        5
+      ],
+      "actual_combination": null,
+      "bets": [],
+      "total_stake": 0,
+      "total_payout": 0.0,
+      "note": null
+    },
+    {
+      "race_id": "2026-01-05_03_05",
+      "stadium_id": 3,
+      "race_no": 5,
+      "status": "skipped_by_claude",
+      "verdict": "skip",
+      "skip_reason": "2号艇A1まくり本命の3連単すべて EV<0.85。",
+      "primary_axis": [
+        2
+      ],
+      "actual_combination": null,
+      "bets": [],
+      "total_stake": 0,
+      "total_payout": 0.0,
+      "note": null
+    },
+    {
+      "race_id": "2026-01-05_03_06",
+      "stadium_id": 3,
+      "race_no": 6,
+      "status": "skipped_by_claude",
+      "verdict": "skip",
+      "skip_reason": "2号艇A2まくり本命過剰人気、本命買い目すべて EV<0.85。",
+      "primary_axis": [
+        2
+      ],
+      "actual_combination": null,
+      "bets": [],
+      "total_stake": 0,
+      "total_payout": 0.0,
+      "note": null
+    },
+    {
+      "race_id": "2026-01-05_03_07",
+      "stadium_id": 3,
+      "race_no": 7,
+      "status": "settled",
+      "verdict": "bet",
+      "skip_reason": null,
+      "primary_axis": [
+        3
+      ],
+      "actual_combination": "3-2-4",
+      "bets": [
+        {
+          "trifecta": "3-2-1",
+          "stake": 100,
+          "current_odds": 33.2,
+          "actual_odds": 33.2,
+          "confidence": 0.45,
+          "expected_prob": 0.047,
+          "is_hit": false,
+          "payout": 0.0,
+          "payout_source": "miss",
+          "odds_drift_pct": 0.0
+        },
+        {
+          "trifecta": "3-1-2",
+          "stake": 100,
+          "current_odds": 27.0,
+          "actual_odds": 27.0,
+          "confidence": 0.4,
+          "expected_prob": 0.038,
+          "is_hit": false,
+          "payout": 0.0,
+          "payout_source": "miss",
+          "odds_drift_pct": 0.0
+        }
+      ],
+      "total_stake": 200,
+      "total_payout": 0.0,
+      "note": null
+    },
+    {
+      "race_id": "2026-01-05_03_08",
+      "stadium_id": 3,
+      "race_no": 8,
+      "status": "skipped_by_claude",
+      "verdict": "skip",
+      "skip_reason": "1-3-4 三者拮抗の本命買い目すべて EV<0.9。",
+      "primary_axis": [
+        1,
+        3
+      ],
+      "actual_combination": null,
+      "bets": [],
+      "total_stake": 0,
+      "total_payout": 0.0,
+      "note": null
+    },
+    {
+      "race_id": "2026-01-05_03_09",
+      "stadium_id": 3,
+      "race_no": 9,
+      "status": "skipped_by_claude",
+      "verdict": "skip",
+      "skip_reason": "本命買い目すべて EV<0.85、渡邉6号艇まくりも配当不足。",
+      "primary_axis": [
+        1
+      ],
+      "actual_combination": null,
+      "bets": [],
+      "total_stake": 0,
+      "total_payout": 0.0,
+      "note": null
+    },
+    {
+      "race_id": "2026-01-05_03_10",
+      "stadium_id": 3,
+      "race_no": 10,
+      "status": "skipped_by_claude",
+      "verdict": "skip",
+      "skip_reason": "1号艇本命買い目すべて EV<0.8、3-4センターまくり狙いも届かず。",
+      "primary_axis": [
+        1
+      ],
+      "actual_combination": null,
+      "bets": [],
+      "total_stake": 0,
+      "total_payout": 0.0,
+      "note": null
+    },
+    {
+      "race_id": "2026-01-05_03_11",
+      "stadium_id": 3,
+      "race_no": 11,
+      "status": "skipped_by_claude",
+      "verdict": "skip",
+      "skip_reason": "1-2-4 三者拮抗の本命買い目すべて EV<0.9。",
+      "primary_axis": [
+        1,
+        4
+      ],
+      "actual_combination": null,
+      "bets": [],
+      "total_stake": 0,
+      "total_payout": 0.0,
+      "note": null
+    },
+    {
+      "race_id": "2026-01-05_03_12",
+      "stadium_id": 3,
+      "race_no": 12,
+      "status": "skipped_by_claude",
+      "verdict": "skip",
+      "skip_reason": "1号艇本命買い目すべて EV<0.7、5本立ての2-3着候補で人気が分散しても妙味なし。",
+      "primary_axis": [
+        1
+      ],
+      "actual_combination": null,
+      "bets": [],
+      "total_stake": 0,
+      "total_payout": 0.0,
+      "note": null
+    },
+    {
+      "race_id": "2026-01-05_04_01",
+      "stadium_id": 4,
+      "race_no": 1,
+      "status": "skipped_by_claude",
+      "verdict": "skip",
+      "skip_reason": "4号艇まくり本命過剰人気、本命買い目すべて EV<0.7。",
+      "primary_axis": [
+        4
+      ],
+      "actual_combination": null,
+      "bets": [],
+      "total_stake": 0,
+      "total_payout": 0.0,
+      "note": null
+    },
+    {
+      "race_id": "2026-01-05_04_02",
+      "stadium_id": 4,
+      "race_no": 2,
+      "status": "skipped_by_claude",
+      "verdict": "skip",
+      "skip_reason": "1-2-4-6 四者拮抗で人気分散、本命買い目すべて EV<0.8。",
+      "primary_axis": [
+        1,
+        4
+      ],
+      "actual_combination": null,
+      "bets": [],
+      "total_stake": 0,
+      "total_payout": 0.0,
+      "note": null
+    },
+    {
+      "race_id": "2026-01-05_04_03",
+      "stadium_id": 4,
+      "race_no": 3,
+      "status": "skipped_by_claude",
+      "verdict": "skip",
+      "skip_reason": "1-3 二強の本命買い目すべて EV<0.85。",
+      "primary_axis": [
+        3,
+        1
+      ],
+      "actual_combination": null,
+      "bets": [],
+      "total_stake": 0,
+      "total_payout": 0.0,
+      "note": null
+    },
+    {
+      "race_id": "2026-01-05_04_04",
+      "stadium_id": 4,
+      "race_no": 4,
+      "status": "skipped_by_claude",
+      "verdict": "skip",
+      "skip_reason": "3-5 センターまくり本命買い目すべて EV<0.7。",
+      "primary_axis": [
+        3,
+        5
+      ],
+      "actual_combination": null,
+      "bets": [],
+      "total_stake": 0,
+      "total_payout": 0.0,
+      "note": null
+    },
+    {
+      "race_id": "2026-01-05_04_05",
+      "stadium_id": 4,
+      "race_no": 5,
+      "status": "skipped_by_claude",
+      "verdict": "skip",
+      "skip_reason": "1号艇単勝1.0x の絶対本命、本命買い目すべて EV<0.6。",
+      "primary_axis": [
+        1
+      ],
+      "actual_combination": null,
+      "bets": [],
+      "total_stake": 0,
+      "total_payout": 0.0,
+      "note": null
+    },
+    {
+      "race_id": "2026-01-05_04_06",
+      "stadium_id": 4,
+      "race_no": 6,
+      "status": "settled",
+      "verdict": "bet",
+      "skip_reason": null,
+      "primary_axis": [
+        1
+      ],
+      "actual_combination": "1-3-2",
+      "bets": [
+        {
+          "trifecta": "1-3-2",
+          "stake": 100,
+          "current_odds": 32.0,
+          "actual_odds": 32.0,
+          "confidence": 0.4,
+          "expected_prob": 0.036,
+          "is_hit": true,
+          "payout": 3200.0,
+          "payout_source": "actual",
+          "odds_drift_pct": 0.0
+        },
+        {
+          "trifecta": "1-3-4",
+          "stake": 100,
+          "current_odds": 44.7,
+          "actual_odds": 44.7,
+          "confidence": 0.35,
+          "expected_prob": 0.024,
+          "is_hit": false,
+          "payout": 0.0,
+          "payout_source": "miss",
+          "odds_drift_pct": 0.0
+        },
+        {
+          "trifecta": "1-4-2",
+          "stake": 100,
+          "current_odds": 38.8,
+          "actual_odds": 38.8,
+          "confidence": 0.35,
+          "expected_prob": 0.027,
+          "is_hit": false,
+          "payout": 0.0,
+          "payout_source": "miss",
+          "odds_drift_pct": 0.0
+        }
+      ],
+      "total_stake": 300,
+      "total_payout": 3200.0,
+      "note": null
+    },
+    {
+      "race_id": "2026-01-05_04_07",
+      "stadium_id": 4,
+      "race_no": 7,
+      "status": "settled",
+      "verdict": "bet",
+      "skip_reason": null,
+      "primary_axis": [
+        1
+      ],
+      "actual_combination": "4-2-5",
+      "bets": [
+        {
+          "trifecta": "1-3-2",
+          "stake": 100,
+          "current_odds": 24.3,
+          "actual_odds": 24.3,
+          "confidence": 0.35,
+          "expected_prob": 0.042,
+          "is_hit": false,
+          "payout": 0.0,
+          "payout_source": "miss",
+          "odds_drift_pct": 0.0
+        }
+      ],
+      "total_stake": 100,
+      "total_payout": 0.0,
+      "note": null
+    },
+    {
+      "race_id": "2026-01-05_04_08",
+      "stadium_id": 4,
+      "race_no": 8,
+      "status": "settled",
+      "verdict": "bet",
+      "skip_reason": null,
+      "primary_axis": [
+        1
+      ],
+      "actual_combination": "4-1-5",
+      "bets": [
+        {
+          "trifecta": "1-3-2",
+          "stake": 100,
+          "current_odds": 51.7,
+          "actual_odds": 51.7,
+          "confidence": 0.35,
+          "expected_prob": 0.0225,
+          "is_hit": false,
+          "payout": 0.0,
+          "payout_source": "miss",
+          "odds_drift_pct": 0.0
+        },
+        {
+          "trifecta": "1-2-3",
+          "stake": 100,
+          "current_odds": 45.7,
+          "actual_odds": 45.7,
+          "confidence": 0.35,
+          "expected_prob": 0.0225,
+          "is_hit": false,
+          "payout": 0.0,
+          "payout_source": "miss",
+          "odds_drift_pct": 0.0
+        }
+      ],
+      "total_stake": 200,
+      "total_payout": 0.0,
+      "note": null
+    },
+    {
+      "race_id": "2026-01-05_04_09",
+      "stadium_id": 4,
+      "race_no": 9,
+      "status": "skipped_by_claude",
+      "verdict": "skip",
+      "skip_reason": "1号艇本命買い目すべて EV<0.6、3着候補が分散しても妙味なし。",
+      "primary_axis": [
+        1
+      ],
+      "actual_combination": null,
+      "bets": [],
+      "total_stake": 0,
+      "total_payout": 0.0,
+      "note": null
+    },
+    {
+      "race_id": "2026-01-05_04_10",
+      "stadium_id": 4,
+      "race_no": 10,
+      "status": "skipped_by_claude",
+      "verdict": "skip",
+      "skip_reason": "1-2-3-5 四者拮抗で人気分散、本命買い目すべて EV<0.5。",
+      "primary_axis": [
+        1,
+        5
+      ],
+      "actual_combination": null,
+      "bets": [],
+      "total_stake": 0,
+      "total_payout": 0.0,
+      "note": null
+    },
+    {
+      "race_id": "2026-01-05_04_11",
+      "stadium_id": 4,
+      "race_no": 11,
+      "status": "settled",
+      "verdict": "bet",
+      "skip_reason": null,
+      "primary_axis": [
+        1
+      ],
+      "actual_combination": "1-5-3",
+      "bets": [
+        {
+          "trifecta": "1-4-3",
+          "stake": 100,
+          "current_odds": 39.5,
+          "actual_odds": 39.5,
+          "confidence": 0.4,
+          "expected_prob": 0.031,
+          "is_hit": false,
+          "payout": 0.0,
+          "payout_source": "miss",
+          "odds_drift_pct": 0.0
+        }
+      ],
+      "total_stake": 100,
+      "total_payout": 0.0,
+      "note": null
+    },
+    {
+      "race_id": "2026-01-05_04_12",
+      "stadium_id": 4,
+      "race_no": 12,
+      "status": "skipped_by_claude",
+      "verdict": "skip",
+      "skip_reason": "1号艇本命買い目すべて EV<0.85、人気分散レースで妙味なし。",
+      "primary_axis": [
+        1
+      ],
+      "actual_combination": null,
+      "bets": [],
+      "total_stake": 0,
+      "total_payout": 0.0,
+      "note": null
+    },
+    {
+      "race_id": "2026-01-05_05_01",
+      "stadium_id": 5,
+      "race_no": 1,
+      "status": "skipped_by_claude",
+      "verdict": "skip",
+      "skip_reason": "1号艇単勝1.2xは過剰人気、本命系全組合せEV<1.0。サイドの6号艇/4号艇からの組合せもオッズ妙味が乏しく、過去日ドライラン(展示欠損)で確信を持って買える条件が揃わない。",
+      "primary_axis": [
+        1
+      ],
+      "actual_combination": null,
+      "bets": [],
+      "total_stake": 0,
+      "total_payout": 0.0,
+      "note": null
+    },
+    {
+      "race_id": "2026-01-05_05_02",
+      "stadium_id": 5,
+      "race_no": 2,
+      "status": "skipped_by_claude",
+      "verdict": "skip",
+      "skip_reason": "1〜5号艇単勝拮抗で軸不明、本命系3連単はEV<1.0、捲り系も配当不足。過去日ドライランで進入展示欠損のため拮抗レースで確信が持てない。",
+      "primary_axis": [
+        1,
+        5
+      ],
+      "actual_combination": null,
+      "bets": [],
+      "total_stake": 0,
+      "total_payout": 0.0,
+      "note": null
+    },
+    {
+      "race_id": "2026-01-05_05_03",
+      "stadium_id": 5,
+      "race_no": 3,
+      "status": "skipped_by_claude",
+      "verdict": "skip",
+      "skip_reason": "1号艇本命過大評価、3号艇A2当地強もオッズ反映済、4号艇まくり狙いの組合せ妙味は薄い。展示欠損でA2/A1の3着候補確信が持てない。",
+      "primary_axis": [
+        1,
+        3
+      ],
+      "actual_combination": null,
+      "bets": [],
+      "total_stake": 0,
+      "total_payout": 0.0,
+      "note": null
+    },
+    {
+      "race_id": "2026-01-05_05_04",
+      "stadium_id": 5,
+      "race_no": 4,
+      "status": "skipped_by_claude",
+      "verdict": "skip",
+      "skip_reason": "1号艇本命過剰人気、A1×2のサイドも組合せがオッズに織り込まれEV<0.5。",
+      "primary_axis": [
+        1,
+        4
+      ],
+      "actual_combination": null,
+      "bets": [],
+      "total_stake": 0,
+      "total_payout": 0.0,
+      "note": null
+    },
+    {
+      "race_id": "2026-01-05_05_05",
+      "stadium_id": 5,
+      "race_no": 5,
+      "status": "skipped_by_claude",
+      "verdict": "skip",
+      "skip_reason": "1号艇A2 + 2/4/6号艇A1の高密度メンバーで3連単が割れず、本命系も捲り系もEV<1.0。",
+      "primary_axis": [
+        1,
+        2
+      ],
+      "actual_combination": null,
+      "bets": [],
+      "total_stake": 0,
+      "total_payout": 0.0,
+      "note": null
+    },
+    {
+      "race_id": "2026-01-05_05_06",
+      "stadium_id": 5,
+      "race_no": 6,
+      "status": "skipped_by_claude",
+      "verdict": "skip",
+      "skip_reason": "1号艇本命+4号艇A1当地2連率62%の組合せがオッズに織り込まれ、EV<0.5。",
+      "primary_axis": [
+        1,
+        4
+      ],
+      "actual_combination": null,
+      "bets": [],
+      "total_stake": 0,
+      "total_payout": 0.0,
+      "note": null
+    },
+    {
+      "race_id": "2026-01-05_05_07",
+      "stadium_id": 5,
+      "race_no": 7,
+      "status": "skipped_by_claude",
+      "verdict": "skip",
+      "skip_reason": "1号艇全国2連率22%で本命の足元揺らぐが、4号艇まくり時の3連単 4-1-2 46.6x も EV 境界1.1で展示欠損下では確信不足。",
+      "primary_axis": [
+        1,
+        4
+      ],
+      "actual_combination": null,
+      "bets": [],
+      "total_stake": 0,
+      "total_payout": 0.0,
+      "note": null
+    },
+    {
+      "race_id": "2026-01-05_05_08",
+      "stadium_id": 5,
+      "race_no": 8,
+      "status": "settled",
+      "verdict": "bet",
+      "skip_reason": null,
+      "primary_axis": [
+        1,
+        6
+      ],
+      "actual_combination": "1-2-6",
+      "bets": [
+        {
+          "trifecta": "6-1-2",
+          "stake": 100,
+          "current_odds": 45.3,
+          "actual_odds": 45.3,
+          "confidence": 0.35,
+          "expected_prob": 0.024,
+          "is_hit": false,
+          "payout": 0.0,
+          "payout_source": "miss",
+          "odds_drift_pct": 0.0
+        }
+      ],
+      "total_stake": 100,
+      "total_payout": 0.0,
+      "note": null
+    },
+    {
+      "race_id": "2026-01-05_05_09",
+      "stadium_id": 5,
+      "race_no": 9,
+      "status": "skipped_by_claude",
+      "verdict": "skip",
+      "skip_reason": "5号艇A1への連単人気が過剰でEV<0.5、捲り組合せもオッズ薄。",
+      "primary_axis": [
+        1,
+        5
+      ],
+      "actual_combination": null,
+      "bets": [],
+      "total_stake": 0,
+      "total_payout": 0.0,
+      "note": null
+    },
+    {
+      "race_id": "2026-01-05_05_10",
+      "stadium_id": 5,
+      "race_no": 10,
+      "status": "skipped_by_claude",
+      "verdict": "skip",
+      "skip_reason": "1-3本命過剰人気、1-6-3妙味候補もP楽観で展示欠損下では確信なし。",
+      "primary_axis": [
+        1,
+        3
+      ],
+      "actual_combination": null,
+      "bets": [],
+      "total_stake": 0,
+      "total_payout": 0.0,
+      "note": null
+    },
+    {
+      "race_id": "2026-01-05_05_11",
+      "stadium_id": 5,
+      "race_no": 11,
+      "status": "skipped_by_claude",
+      "verdict": "skip",
+      "skip_reason": "6号艇入澤の好調は注目だが6コース勝率の場差を超える配当ではなく、本命系もEV<0.5。",
+      "primary_axis": [
+        1,
+        2
+      ],
+      "actual_combination": null,
+      "bets": [],
+      "total_stake": 0,
+      "total_payout": 0.0,
+      "note": null
+    },
+    {
+      "race_id": "2026-01-05_05_12",
+      "stadium_id": 5,
+      "race_no": 12,
+      "status": "skipped_by_claude",
+      "verdict": "skip",
+      "skip_reason": "1号艇単勝1.0xの圧倒的本命でサイドの3連単がすべて過剰人気、EV<0.5。",
+      "primary_axis": [
+        1,
+        3
+      ],
+      "actual_combination": null,
+      "bets": [],
+      "total_stake": 0,
+      "total_payout": 0.0,
+      "note": null
+    },
+    {
+      "race_id": "2026-01-05_11_01",
+      "stadium_id": 11,
+      "race_no": 1,
+      "status": "skipped_by_claude",
+      "verdict": "skip",
+      "skip_reason": "1-2拮抗の本命系が3連単で過剰人気、強風で1号艇A2藤原の不確実性も高い。",
+      "primary_axis": [
+        1,
+        2
+      ],
+      "actual_combination": null,
+      "bets": [],
+      "total_stake": 0,
+      "total_payout": 0.0,
+      "note": null
+    },
+    {
+      "race_id": "2026-01-05_11_02",
+      "stadium_id": 11,
+      "race_no": 2,
+      "status": "skipped_by_claude",
+      "verdict": "skip",
+      "skip_reason": "1号艇B2の進入退避有無が過去日では未確認、2-5-4の妙味候補も前提依存度が高い。",
+      "primary_axis": [
+        2,
+        5
+      ],
+      "actual_combination": null,
+      "bets": [],
+      "total_stake": 0,
+      "total_payout": 0.0,
+      "note": null
+    },
+    {
+      "race_id": "2026-01-05_11_03",
+      "stadium_id": 11,
+      "race_no": 3,
+      "status": "skipped_by_claude",
+      "verdict": "skip",
+      "skip_reason": "5号艇馬場の当地強さが3連単オッズに完全反映され全組合せ過剰人気。",
+      "primary_axis": [
+        1,
+        5
+      ],
+      "actual_combination": null,
+      "bets": [],
+      "total_stake": 0,
+      "total_payout": 0.0,
+      "note": null
+    },
+    {
+      "race_id": "2026-01-05_11_04",
+      "stadium_id": 11,
+      "race_no": 4,
+      "status": "skipped_by_claude",
+      "verdict": "skip",
+      "skip_reason": "1-2拮抗+6号艇A1絡みの3連単が全方向に分散しEV境界以下。",
+      "primary_axis": [
+        1,
+        2
+      ],
+      "actual_combination": null,
+      "bets": [],
+      "total_stake": 0,
+      "total_payout": 0.0,
+      "note": null
+    },
+    {
+      "race_id": "2026-01-05_11_05",
+      "stadium_id": 11,
+      "race_no": 5,
+      "status": "skipped_by_claude",
+      "verdict": "skip",
+      "skip_reason": "強風7.0mで1コース不利の不確実性が高く、3連単EV<0.7。",
+      "primary_axis": [
+        1,
+        6
+      ],
+      "actual_combination": null,
+      "bets": [],
+      "total_stake": 0,
+      "total_payout": 0.0,
+      "note": null
+    },
+    {
+      "race_id": "2026-01-05_11_06",
+      "stadium_id": 11,
+      "race_no": 6,
+      "status": "skipped_by_claude",
+      "verdict": "skip",
+      "skip_reason": "1-2-3-4拮抗の混戦レースで3連単が全方向に分散しオッズ薄い、EV<0.5。",
+      "primary_axis": [
+        1,
+        3
+      ],
+      "actual_combination": null,
+      "bets": [],
+      "total_stake": 0,
+      "total_payout": 0.0,
+      "note": null
+    },
+    {
+      "race_id": "2026-01-05_11_07",
+      "stadium_id": 11,
+      "race_no": 7,
+      "status": "skipped_by_claude",
+      "verdict": "skip",
+      "skip_reason": "守田4号艇A1当地74%まくり期待もオッズ反映済、4-1-2 EV=0.99の境界で展示欠損下では確信不足。",
+      "primary_axis": [
+        1,
+        4
+      ],
+      "actual_combination": null,
+      "bets": [],
+      "total_stake": 0,
+      "total_payout": 0.0,
+      "note": null
+    },
+    {
+      "race_id": "2026-01-05_11_08",
+      "stadium_id": 11,
+      "race_no": 8,
+      "status": "settled",
+      "verdict": "bet",
+      "skip_reason": null,
+      "primary_axis": [
+        1,
+        3
+      ],
+      "actual_combination": "1-4-2",
+      "bets": [
+        {
+          "trifecta": "1-6-3",
+          "stake": 100,
+          "current_odds": 50.1,
+          "actual_odds": 50.1,
+          "confidence": 0.3,
+          "expected_prob": 0.021,
+          "is_hit": false,
+          "payout": 0.0,
+          "payout_source": "miss",
+          "odds_drift_pct": 0.0
+        }
+      ],
+      "total_stake": 100,
+      "total_payout": 0.0,
+      "note": null
+    },
+    {
+      "race_id": "2026-01-05_11_09",
+      "stadium_id": 11,
+      "race_no": 9,
+      "status": "skipped_by_claude",
+      "verdict": "skip",
+      "skip_reason": "1-3-2三者頭の本命系がオッズに完全集中、EV<0.7で買い目なし。",
+      "primary_axis": [
+        1,
+        3
+      ],
+      "actual_combination": null,
+      "bets": [],
+      "total_stake": 0,
+      "total_payout": 0.0,
+      "note": null
+    },
+    {
+      "race_id": "2026-01-05_11_10",
+      "stadium_id": 11,
+      "race_no": 10,
+      "status": "skipped_by_claude",
+      "verdict": "skip",
+      "skip_reason": "1-5互換頭の3連単が人気集中、捲り系もEV<0.8で買い目なし。",
+      "primary_axis": [
+        1,
+        5
+      ],
+      "actual_combination": null,
+      "bets": [],
+      "total_stake": 0,
+      "total_payout": 0.0,
+      "note": null
+    },
+    {
+      "race_id": "2026-01-05_11_11",
+      "stadium_id": 11,
+      "race_no": 11,
+      "status": "skipped_by_claude",
+      "verdict": "skip",
+      "skip_reason": "1-3互換頭+A1充実メンバーで3連単が過剰人気、6号艇A1の3着組合せもオッズに織り込まれEV<0.5。",
+      "primary_axis": [
+        1,
+        3
+      ],
+      "actual_combination": null,
+      "bets": [],
+      "total_stake": 0,
+      "total_payout": 0.0,
+      "note": null
+    },
+    {
+      "race_id": "2026-01-05_11_12",
+      "stadium_id": 11,
+      "race_no": 12,
+      "status": "skipped_by_claude",
+      "verdict": "skip",
+      "skip_reason": "1号艇守田の圧倒的本命でサイドが過剰人気、6号艇まくり妙味候補も実績裏付け不足。",
+      "primary_axis": [
+        1,
+        2
+      ],
+      "actual_combination": null,
+      "bets": [],
+      "total_stake": 0,
+      "total_payout": 0.0,
+      "note": null
+    },
+    {
+      "race_id": "2026-01-05_12_01",
+      "stadium_id": 12,
+      "race_no": 1,
+      "status": "skipped_by_claude",
+      "verdict": "skip",
+      "skip_reason": "1号艇B1の進入退避＋2号艇A1まくりの構図が3連単オッズに織込済、本命系すべてEV<0.5。",
+      "primary_axis": [
+        2,
+        3
+      ],
+      "actual_combination": null,
+      "bets": [],
+      "total_stake": 0,
+      "total_payout": 0.0,
+      "note": null
+    },
+    {
+      "race_id": "2026-01-05_12_02",
+      "stadium_id": 12,
+      "race_no": 2,
+      "status": "skipped_by_claude",
+      "verdict": "skip",
+      "skip_reason": "頭が4艇に分散した混戦で3連単オッズが厚く、捲り組合せもEV<0.6。",
+      "primary_axis": [
+        2,
+        3
+      ],
+      "actual_combination": null,
+      "bets": [],
+      "total_stake": 0,
+      "total_payout": 0.0,
+      "note": null
+    },
+    {
+      "race_id": "2026-01-05_12_03",
+      "stadium_id": 12,
+      "race_no": 3,
+      "status": "skipped_by_claude",
+      "verdict": "skip",
+      "skip_reason": "1号艇本命+A1×3の3連単が過剰人気、5号艇好調も5コース勝率5.3%でオッズに織り込まれている。",
+      "primary_axis": [
+        1,
+        3
+      ],
+      "actual_combination": null,
+      "bets": [],
+      "total_stake": 0,
+      "total_payout": 0.0,
+      "note": null
+    },
+    {
+      "race_id": "2026-01-05_12_04",
+      "stadium_id": 12,
+      "race_no": 4,
+      "status": "skipped_by_claude",
+      "verdict": "skip",
+      "skip_reason": "1号艇圧倒的本命+3号艇A1絶好調の組合せがすべてオッズに織込済、捲り系もEV<0.5。",
+      "primary_axis": [
+        1,
+        3
+      ],
+      "actual_combination": null,
+      "bets": [],
+      "total_stake": 0,
+      "total_payout": 0.0,
+      "note": null
+    },
+    {
+      "race_id": "2026-01-05_12_05",
+      "stadium_id": 12,
+      "race_no": 5,
+      "status": "skipped_by_claude",
+      "verdict": "skip",
+      "skip_reason": "1号艇圧倒的本命+6号艇A1絡みの組合せが網羅されEV<1.0、捲り目もB1選手で読みづらい。",
+      "primary_axis": [
+        1,
+        6
+      ],
+      "actual_combination": null,
+      "bets": [],
+      "total_stake": 0,
+      "total_payout": 0.0,
+      "note": null
+    },
+    {
+      "race_id": "2026-01-05_12_06",
+      "stadium_id": 12,
+      "race_no": 6,
+      "status": "skipped_by_claude",
+      "verdict": "skip",
+      "skip_reason": "1-3-4三者拮抗の本命系過剰、4号艇A1まくり捲り組合せもEV=0.83の境界以下。",
+      "primary_axis": [
+        1,
+        4
+      ],
+      "actual_combination": null,
+      "bets": [],
+      "total_stake": 0,
+      "total_payout": 0.0,
+      "note": null
+    },
+    {
+      "race_id": "2026-01-05_12_07",
+      "stadium_id": 12,
+      "race_no": 7,
+      "status": "skipped_by_claude",
+      "verdict": "skip",
+      "skip_reason": "1号艇A2+6号艇A1超強の組合せがオッズ網羅、3連単EV<1.0で買い目なし。",
+      "primary_axis": [
+        1,
+        6
+      ],
+      "actual_combination": null,
+      "bets": [],
+      "total_stake": 0,
+      "total_payout": 0.0,
+      "note": null
+    },
+    {
+      "race_id": "2026-01-05_12_08",
+      "stadium_id": 12,
+      "race_no": 8,
+      "status": "skipped_by_claude",
+      "verdict": "skip",
+      "skip_reason": "4-1-2まくりが境界EV=1.01で展示欠損下では確信不足、本命系もEV<0.5。",
+      "primary_axis": [
+        1,
+        4
+      ],
+      "actual_combination": null,
+      "bets": [],
+      "total_stake": 0,
+      "total_payout": 0.0,
+      "note": null
+    },
+    {
+      "race_id": "2026-01-05_12_09",
+      "stadium_id": 12,
+      "race_no": 9,
+      "status": "skipped_by_claude",
+      "verdict": "skip",
+      "skip_reason": "1号艇圧倒的本命+A1強メンバーで3連単オッズが薄く、捲り組合せもEV<0.7。",
+      "primary_axis": [
+        1,
+        2
+      ],
+      "actual_combination": null,
+      "bets": [],
+      "total_stake": 0,
+      "total_payout": 0.0,
+      "note": null
+    },
+    {
+      "race_id": "2026-01-05_12_10",
+      "stadium_id": 12,
+      "race_no": 10,
+      "status": "skipped_by_claude",
+      "verdict": "skip",
+      "skip_reason": "1号艇単勝1.1xの圧倒的本命でサイド3連単が薄く、4-1-x捲り妙味候補もP楽観の確信不足。",
+      "primary_axis": [
+        1,
+        4
+      ],
+      "actual_combination": null,
+      "bets": [],
+      "total_stake": 0,
+      "total_payout": 0.0,
+      "note": null
+    },
+    {
+      "race_id": "2026-01-05_12_11",
+      "stadium_id": 12,
+      "race_no": 11,
+      "status": "skipped_by_claude",
+      "verdict": "skip",
+      "skip_reason": "強風雨で1号艇率低下リスクも市場が織込済、捲り妙味候補もP楽観で確信不足。",
+      "primary_axis": [
+        1,
+        5
+      ],
+      "actual_combination": null,
+      "bets": [],
+      "total_stake": 0,
+      "total_payout": 0.0,
+      "note": null
+    },
+    {
+      "race_id": "2026-01-05_12_12",
+      "stadium_id": 12,
+      "race_no": 12,
+      "status": "skipped_by_claude",
+      "verdict": "skip",
+      "skip_reason": "1号艇単勝1.0xの圧倒的本命+A1×4の充実メンバーで3連単オッズが薄く、捲り組合せもEV<0.7。",
+      "primary_axis": [
+        1,
+        4
+      ],
+      "actual_combination": null,
+      "bets": [],
+      "total_stake": 0,
+      "total_payout": 0.0,
+      "note": null
+    },
+    {
+      "race_id": "2026-01-05_13_01",
+      "stadium_id": 13,
+      "race_no": 1,
+      "status": "skipped_by_claude",
+      "verdict": "skip",
+      "skip_reason": "1号艇B1弱体+3号艇A1まくり本命の構図がオッズ網羅、EV<0.3で買い目なし。",
+      "primary_axis": [
+        3
+      ],
+      "actual_combination": null,
+      "bets": [],
+      "total_stake": 0,
+      "total_payout": 0.0,
+      "note": null
+    },
+    {
+      "race_id": "2026-01-05_13_02",
+      "stadium_id": 13,
+      "race_no": 2,
+      "status": "skipped_by_claude",
+      "verdict": "skip",
+      "skip_reason": "1号艇切り＋2-3-6三者頭の組合せにオッズ集中、EV<0.35で買い目なし。",
+      "primary_axis": [
+        6,
+        2
+      ],
+      "actual_combination": null,
+      "bets": [],
+      "total_stake": 0,
+      "total_payout": 0.0,
+      "note": null
+    },
+    {
+      "race_id": "2026-01-05_13_03",
+      "stadium_id": 13,
+      "race_no": 3,
+      "status": "skipped_by_claude",
+      "verdict": "skip",
+      "skip_reason": "3号艇A1本命+6号艇A1絡みで本命系過剰、1号艇捲り組合せもEV境界で確信不足。",
+      "primary_axis": [
+        3,
+        6
+      ],
+      "actual_combination": null,
+      "bets": [],
+      "total_stake": 0,
+      "total_payout": 0.0,
+      "note": null
+    },
+    {
+      "race_id": "2026-01-05_13_04",
+      "stadium_id": 13,
+      "race_no": 4,
+      "status": "skipped_by_claude",
+      "verdict": "skip",
+      "skip_reason": "1-2拮抗本命系が3連単過剰人気、捲り系もEV<0.5で買い目なし。",
+      "primary_axis": [
+        1,
+        2
+      ],
+      "actual_combination": null,
+      "bets": [],
+      "total_stake": 0,
+      "total_payout": 0.0,
+      "note": null
+    },
+    {
+      "race_id": "2026-01-05_13_05",
+      "stadium_id": 13,
+      "race_no": 5,
+      "status": "skipped_by_claude",
+      "verdict": "skip",
+      "skip_reason": "1号艇圧倒的本命の3連単が過剰人気、捲り組合せもEV<0.4。",
+      "primary_axis": [
+        1,
+        5
+      ],
+      "actual_combination": null,
+      "bets": [],
+      "total_stake": 0,
+      "total_payout": 0.0,
+      "note": null
+    },
+    {
+      "race_id": "2026-01-05_13_06",
+      "stadium_id": 13,
+      "race_no": 6,
+      "status": "skipped_by_claude",
+      "verdict": "skip",
+      "skip_reason": "強風8.0mも市場は1号艇本命堅持、3連単・捲り系すべて過剰人気でEV<0.4。",
+      "primary_axis": [
+        1,
+        4
+      ],
+      "actual_combination": null,
+      "bets": [],
+      "total_stake": 0,
+      "total_payout": 0.0,
+      "note": null
+    },
+    {
+      "race_id": "2026-01-05_13_07",
+      "stadium_id": 13,
+      "race_no": 7,
+      "status": "settled",
+      "verdict": "bet",
+      "skip_reason": null,
+      "primary_axis": [
+        1,
+        6
+      ],
+      "actual_combination": "1-5-3",
+      "bets": [
+        {
+          "trifecta": "6-3-1",
+          "stake": 100,
+          "current_odds": 60.5,
+          "actual_odds": 60.5,
+          "confidence": 0.3,
+          "expected_prob": 0.018,
+          "is_hit": false,
+          "payout": 0.0,
+          "payout_source": "miss",
+          "odds_drift_pct": 0.0
+        }
+      ],
+      "total_stake": 100,
+      "total_payout": 0.0,
+      "note": null
+    },
+    {
+      "race_id": "2026-01-05_13_08",
+      "stadium_id": 13,
+      "race_no": 8,
+      "status": "skipped_by_claude",
+      "verdict": "skip",
+      "skip_reason": "6号艇A1高野の好調シグナルあるも捲り組合せが上位20圏外でオッズ不明、買い目特定不能。",
+      "primary_axis": [
+        1,
+        6
+      ],
+      "actual_combination": null,
+      "bets": [],
+      "total_stake": 0,
+      "total_payout": 0.0,
+      "note": null
+    },
+    {
+      "race_id": "2026-01-05_13_09",
+      "stadium_id": 13,
+      "race_no": 9,
+      "status": "skipped_by_claude",
+      "verdict": "skip",
+      "skip_reason": "1号艇単勝1.0xの圧倒的本命+2号艇A1強の3連単が薄く、EV<0.4で買い目なし。",
+      "primary_axis": [
+        1,
+        2
+      ],
+      "actual_combination": null,
+      "bets": [],
+      "total_stake": 0,
+      "total_payout": 0.0,
+      "note": null
+    },
+    {
+      "race_id": "2026-01-05_13_10",
+      "stadium_id": 13,
+      "race_no": 10,
+      "status": "skipped_by_claude",
+      "verdict": "skip",
+      "skip_reason": "1-3-5三者頭の3連単が人気集中、捲り系もEV<0.7で買い目なし。",
+      "primary_axis": [
+        1,
+        5
+      ],
+      "actual_combination": null,
+      "bets": [],
+      "total_stake": 0,
+      "total_payout": 0.0,
+      "note": null
+    },
+    {
+      "race_id": "2026-01-05_13_11",
+      "stadium_id": 13,
+      "race_no": 11,
+      "status": "skipped_by_claude",
+      "verdict": "skip",
+      "skip_reason": "1号艇単勝1.2x圧倒的本命+A1×3の3連単が薄く、捲り組合せもEV<0.6。",
+      "primary_axis": [
+        1,
+        5
+      ],
+      "actual_combination": null,
+      "bets": [],
+      "total_stake": 0,
+      "total_payout": 0.0,
+      "note": null
+    },
+    {
+      "race_id": "2026-01-05_13_12",
+      "stadium_id": 13,
+      "race_no": 12,
+      "status": "skipped_by_claude",
+      "verdict": "skip",
+      "skip_reason": "1号艇A1圧倒的本命+2号艇A1強の3連単が織込済、EV<0.7で買い目なし。",
+      "primary_axis": [
+        1,
+        2
+      ],
+      "actual_combination": null,
+      "bets": [],
+      "total_stake": 0,
+      "total_payout": 0.0,
+      "note": null
+    },
+    {
+      "race_id": "2026-01-05_14_01",
+      "stadium_id": 14,
+      "race_no": 1,
+      "status": "skipped_by_claude",
+      "verdict": "skip",
+      "skip_reason": "1号艇A1本命だが3連単オッズ過小でEV<0.55、高オッズ側に明確な3着候補なく見送り",
+      "primary_axis": [
+        1
+      ],
+      "actual_combination": null,
+      "bets": [],
+      "total_stake": 0,
+      "total_payout": 0.0,
+      "note": null
+    },
+    {
+      "race_id": "2026-01-05_14_02",
+      "stadium_id": 14,
+      "race_no": 2,
+      "status": "skipped_by_claude",
+      "verdict": "skip",
+      "skip_reason": "5号艇A1本命だが3連単オッズ過小でEV<0.75、6号艇1着の高オッズ組合せもEVボーダーで見送り",
+      "primary_axis": [
+        5,
+        6
+      ],
+      "actual_combination": null,
+      "bets": [],
+      "total_stake": 0,
+      "total_payout": 0.0,
+      "note": null
+    },
+    {
+      "race_id": "2026-01-05_14_03",
+      "stadium_id": 14,
+      "race_no": 3,
+      "status": "skipped_by_claude",
+      "verdict": "skip",
+      "skip_reason": "1号艇本命過剰人気でEV<0.30、4号艇まくり系もEV<0.60で見送り",
+      "primary_axis": [
+        1
+      ],
+      "actual_combination": null,
+      "bets": [],
+      "total_stake": 0,
+      "total_payout": 0.0,
+      "note": null
+    },
+    {
+      "race_id": "2026-01-05_14_04",
+      "stadium_id": 14,
+      "race_no": 4,
+      "status": "skipped_by_claude",
+      "verdict": "skip",
+      "skip_reason": "6号艇A1好調シグナルが市場に完全織込済でEV<0.50、本命系も過剰人気で見送り",
+      "primary_axis": [
+        1,
+        6
+      ],
+      "actual_combination": null,
+      "bets": [],
+      "total_stake": 0,
+      "total_payout": 0.0,
+      "note": null
+    },
+    {
+      "race_id": "2026-01-05_14_05",
+      "stadium_id": 14,
+      "race_no": 5,
+      "status": "skipped_by_claude",
+      "verdict": "skip",
+      "skip_reason": "三つ巴で5-6本命系オッズ過小、6号艇まくり系もEV0.88止まりで展示欠損下境界EVは見送り",
+      "primary_axis": [
+        5,
+        6
+      ],
+      "actual_combination": null,
+      "bets": [],
+      "total_stake": 0,
+      "total_payout": 0.0,
+      "note": null
+    },
+    {
+      "race_id": "2026-01-05_14_06",
+      "stadium_id": 14,
+      "race_no": 6,
+      "status": "skipped_by_claude",
+      "verdict": "skip",
+      "skip_reason": "1号艇単勝1.0xの極端流れで本命系過小、5/6号艇まくり系もEV<0.60で見送り",
+      "primary_axis": [
+        1,
+        5
+      ],
+      "actual_combination": null,
+      "bets": [],
+      "total_stake": 0,
+      "total_payout": 0.0,
+      "note": null
+    },
+    {
+      "race_id": "2026-01-05_14_07",
+      "stadium_id": 14,
+      "race_no": 7,
+      "status": "skipped_by_claude",
+      "verdict": "skip",
+      "skip_reason": "本命系オッズ過小、6号艇まくり系41.5xはEVボーダーで展示欠損下では慎重に見送り",
+      "primary_axis": [
+        2,
+        6
+      ],
+      "actual_combination": null,
+      "bets": [],
+      "total_stake": 0,
+      "total_payout": 0.0,
+      "note": null
+    },
+    {
+      "race_id": "2026-01-05_14_08",
+      "stadium_id": 14,
+      "race_no": 8,
+      "status": "skipped_by_claude",
+      "verdict": "skip",
+      "skip_reason": "強風荒れ要因あるが本命系過剰人気、まくり系もEV<0.50で妙味なく見送り",
+      "primary_axis": [
+        1,
+        2
+      ],
+      "actual_combination": null,
+      "bets": [],
+      "total_stake": 0,
+      "total_payout": 0.0,
+      "note": null
+    },
+    {
+      "race_id": "2026-01-05_14_09",
+      "stadium_id": 14,
+      "race_no": 9,
+      "status": "skipped_by_claude",
+      "verdict": "skip",
+      "skip_reason": "1-4軸拮抗で市場効率済、本命系もまくり系もEV<0.40で見送り",
+      "primary_axis": [
+        1,
+        4
+      ],
+      "actual_combination": null,
+      "bets": [],
+      "total_stake": 0,
+      "total_payout": 0.0,
+      "note": null
+    },
+    {
+      "race_id": "2026-01-05_14_10",
+      "stadium_id": 14,
+      "race_no": 10,
+      "status": "skipped_by_claude",
+      "verdict": "skip",
+      "skip_reason": "1号艇A2本命圧倒で本命系過剰人気EV<0.50、まくり系も妙味なく見送り",
+      "primary_axis": [
+        1
+      ],
+      "actual_combination": null,
+      "bets": [],
+      "total_stake": 0,
+      "total_payout": 0.0,
+      "note": null
+    },
+    {
+      "race_id": "2026-01-05_14_11",
+      "stadium_id": 14,
+      "race_no": 11,
+      "status": "skipped_by_claude",
+      "verdict": "skip",
+      "skip_reason": "1号艇A1本命圧倒で本命系過剰人気EV<0.50、まくり系も妙味なく見送り",
+      "primary_axis": [
+        1,
+        2
+      ],
+      "actual_combination": null,
+      "bets": [],
+      "total_stake": 0,
+      "total_payout": 0.0,
+      "note": null
+    },
+    {
+      "race_id": "2026-01-05_14_12",
+      "stadium_id": 14,
+      "race_no": 12,
+      "status": "skipped_by_claude",
+      "verdict": "skip",
+      "skip_reason": "1号艇A1本命圧倒で本命系過剰人気EV<0.50、A1×5の超強敵相手で見送り",
+      "primary_axis": [
+        1
+      ],
+      "actual_combination": null,
+      "bets": [],
+      "total_stake": 0,
+      "total_payout": 0.0,
+      "note": null
+    },
+    {
+      "race_id": "2026-01-05_15_01",
+      "stadium_id": 15,
+      "race_no": 1,
+      "status": "skipped_by_claude",
+      "verdict": "skip",
+      "skip_reason": "1-3軸本命過剰人気、6号艇好調シグナルだがまくり想定オッズ薄く見送り",
+      "primary_axis": [
+        1,
+        3
+      ],
+      "actual_combination": null,
+      "bets": [],
+      "total_stake": 0,
+      "total_payout": 0.0,
+      "note": null
+    },
+    {
+      "race_id": "2026-01-05_15_02",
+      "stadium_id": 15,
+      "race_no": 2,
+      "status": "skipped_by_claude",
+      "verdict": "skip",
+      "skip_reason": "1-2-3ライン本命凝縮で全帯EV<0.30、まくり系も妙味なく見送り",
+      "primary_axis": [
+        1,
+        3
+      ],
+      "actual_combination": null,
+      "bets": [],
+      "total_stake": 0,
+      "total_payout": 0.0,
+      "note": null
+    },
+    {
+      "race_id": "2026-01-05_15_03",
+      "stadium_id": 15,
+      "race_no": 3,
+      "status": "skipped_by_claude",
+      "verdict": "skip",
+      "skip_reason": "3号艇まくり本命でラインオッズ過小、本命系もまくり系も全帯EV<0.55で見送り",
+      "primary_axis": [
+        3,
+        4
+      ],
+      "actual_combination": null,
+      "bets": [],
+      "total_stake": 0,
+      "total_payout": 0.0,
+      "note": null
+    },
+    {
+      "race_id": "2026-01-05_15_04",
+      "stadium_id": 15,
+      "race_no": 4,
+      "status": "skipped_by_claude",
+      "verdict": "skip",
+      "skip_reason": "1-3軸双璧本命で本命系過剰人気EV<0.20、6号艇好調シグナルもまくり想定オッズ薄く見送り",
+      "primary_axis": [
+        1,
+        3
+      ],
+      "actual_combination": null,
+      "bets": [],
+      "total_stake": 0,
+      "total_payout": 0.0,
+      "note": null
+    },
+    {
+      "race_id": "2026-01-05_15_05",
+      "stadium_id": 15,
+      "race_no": 5,
+      "status": "skipped_by_claude",
+      "verdict": "skip",
+      "skip_reason": "4号艇A1当地強烈シグナルあるが市場織込済でEV~0.63ボーダー、S2基準60x未満で見送り",
+      "primary_axis": [
+        1,
+        4
+      ],
+      "actual_combination": null,
+      "bets": [],
+      "total_stake": 0,
+      "total_payout": 0.0,
+      "note": null
+    },
+    {
+      "race_id": "2026-01-05_15_06",
+      "stadium_id": 15,
+      "race_no": 6,
+      "status": "skipped_by_claude",
+      "verdict": "skip",
+      "skip_reason": "1号艇A1当地強烈で本命系極端過剰人気EV<0.30、まくり系も妙味なく見送り",
+      "primary_axis": [
+        1
+      ],
+      "actual_combination": null,
+      "bets": [],
+      "total_stake": 0,
+      "total_payout": 0.0,
+      "note": null
+    },
+    {
+      "race_id": "2026-01-05_15_07",
+      "stadium_id": 15,
+      "race_no": 7,
+      "status": "skipped_by_claude",
+      "verdict": "skip",
+      "skip_reason": "6号艇A1超特殊本命だが市場完全織込済で全帯EV<0.60、見送り",
+      "primary_axis": [
+        6,
+        1
+      ],
+      "actual_combination": null,
+      "bets": [],
+      "total_stake": 0,
+      "total_payout": 0.0,
+      "note": null
+    },
+    {
+      "race_id": "2026-01-05_15_08",
+      "stadium_id": 15,
+      "race_no": 8,
+      "status": "skipped_by_claude",
+      "verdict": "skip",
+      "skip_reason": "1号艇A1単勝1.0x極端本命で本命系過剰人気EV<0.30、4号艇まくりも妙味なく見送り",
+      "primary_axis": [
+        1,
+        4
+      ],
+      "actual_combination": null,
+      "bets": [],
+      "total_stake": 0,
+      "total_payout": 0.0,
+      "note": null
+    },
+    {
+      "race_id": "2026-01-05_15_09",
+      "stadium_id": 15,
+      "race_no": 9,
+      "status": "skipped_by_claude",
+      "verdict": "skip",
+      "skip_reason": "三軸拮抗で本命系EV<0.40、まくり系もボーダーEVで見送り",
+      "primary_axis": [
+        1,
+        3
+      ],
+      "actual_combination": null,
+      "bets": [],
+      "total_stake": 0,
+      "total_payout": 0.0,
+      "note": null
+    },
+    {
+      "race_id": "2026-01-05_15_10",
+      "stadium_id": 15,
+      "race_no": 10,
+      "status": "skipped_by_claude",
+      "verdict": "skip",
+      "skip_reason": "1号艇A2本命でA1相手も勝負、本命系過剰人気EV<0.30で見送り",
+      "primary_axis": [
+        1,
+        2
+      ],
+      "actual_combination": null,
+      "bets": [],
+      "total_stake": 0,
+      "total_payout": 0.0,
+      "note": null
+    },
+    {
+      "race_id": "2026-01-05_15_11",
+      "stadium_id": 15,
+      "race_no": 11,
+      "status": "skipped_by_claude",
+      "verdict": "skip",
+      "skip_reason": "1号艇A1本命圧倒で本命系過剰人気EV<0.30、A1×4相手で見送り",
+      "primary_axis": [
+        1
+      ],
+      "actual_combination": null,
+      "bets": [],
+      "total_stake": 0,
+      "total_payout": 0.0,
+      "note": null
+    },
+    {
+      "race_id": "2026-01-05_15_12",
+      "stadium_id": 15,
+      "race_no": 12,
+      "status": "skipped_by_claude",
+      "verdict": "skip",
+      "skip_reason": "1号艇A1当地圧倒本命で本命系過剰人気EV<0.30、まくり系もボーダーEVで見送り",
+      "primary_axis": [
+        1,
+        3
+      ],
+      "actual_combination": null,
+      "bets": [],
+      "total_stake": 0,
+      "total_payout": 0.0,
+      "note": null
+    },
+    {
+      "race_id": "2026-01-05_18_01",
+      "stadium_id": 18,
+      "race_no": 1,
+      "status": "skipped_by_claude",
+      "verdict": "skip",
+      "skip_reason": "1コース勝率64%の徳山で1号艇A2本命過剰人気EV<0.30、4号艇まくりも妙味薄く見送り",
+      "primary_axis": [
+        1
+      ],
+      "actual_combination": null,
+      "bets": [],
+      "total_stake": 0,
+      "total_payout": 0.0,
+      "note": null
+    },
+    {
+      "race_id": "2026-01-05_18_02",
+      "stadium_id": 18,
+      "race_no": 2,
+      "status": "skipped_by_claude",
+      "verdict": "skip",
+      "skip_reason": "1号艇A1当地2連率66.7%で単勝1.0x極端本命、本命系過剰人気EV<0.30で見送り",
+      "primary_axis": [
+        1
+      ],
+      "actual_combination": null,
+      "bets": [],
+      "total_stake": 0,
+      "total_payout": 0.0,
+      "note": null
+    },
+    {
+      "race_id": "2026-01-05_18_03",
+      "stadium_id": 18,
+      "race_no": 3,
+      "status": "skipped_by_claude",
+      "verdict": "skip",
+      "skip_reason": "1-2軸ライン本命凝縮で全帯EV<0.40、市場効率済で見送り",
+      "primary_axis": [
+        1,
+        2
+      ],
+      "actual_combination": null,
+      "bets": [],
+      "total_stake": 0,
+      "total_payout": 0.0,
+      "note": null
+    },
+    {
+      "race_id": "2026-01-05_18_04",
+      "stadium_id": 18,
+      "race_no": 4,
+      "status": "skipped_by_claude",
+      "verdict": "skip",
+      "skip_reason": "1-2軸双軸本命で本命系超過剰人気EV<0.20、まくり系も妙味なく見送り",
+      "primary_axis": [
+        1,
+        2
+      ],
+      "actual_combination": null,
+      "bets": [],
+      "total_stake": 0,
+      "total_payout": 0.0,
+      "note": null
+    },
+    {
+      "race_id": "2026-01-05_18_05",
+      "stadium_id": 18,
+      "race_no": 5,
+      "status": "skipped_by_claude",
+      "verdict": "skip",
+      "skip_reason": "1号艇本命過剰人気で本命系EV<0.30、まくり系もEV<0.35で見送り",
+      "primary_axis": [
+        1,
+        3
+      ],
+      "actual_combination": null,
+      "bets": [],
+      "total_stake": 0,
+      "total_payout": 0.0,
+      "note": null
+    },
+    {
+      "race_id": "2026-01-05_18_06",
+      "stadium_id": 18,
+      "race_no": 6,
+      "status": "skipped_by_claude",
+      "verdict": "skip",
+      "skip_reason": "1号艇本命過剰人気で本命系EV<0.30、4号艇まくりもボーダーEVで見送り",
+      "primary_axis": [
+        1,
+        4
+      ],
+      "actual_combination": null,
+      "bets": [],
+      "total_stake": 0,
+      "total_payout": 0.0,
+      "note": null
+    },
+    {
+      "race_id": "2026-01-05_18_07",
+      "stadium_id": 18,
+      "race_no": 7,
+      "status": "skipped_by_claude",
+      "verdict": "skip",
+      "skip_reason": "3号艇本命の異例構図で本命系過剰人気EV<0.30、1号艇まくりも当地不振で楽観EV0.77は危険、見送り",
+      "primary_axis": [
+        3,
+        2
+      ],
+      "actual_combination": null,
+      "bets": [],
+      "total_stake": 0,
+      "total_payout": 0.0,
+      "note": null
+    },
+    {
+      "race_id": "2026-01-05_18_08",
+      "stadium_id": 18,
+      "race_no": 8,
+      "status": "skipped_by_claude",
+      "verdict": "skip",
+      "skip_reason": "1-3双軸本命で本命系過剰人気EV<0.30、3号艇まくりもボーダーEVで見送り",
+      "primary_axis": [
+        1,
+        3
+      ],
+      "actual_combination": null,
+      "bets": [],
+      "total_stake": 0,
+      "total_payout": 0.0,
+      "note": null
+    },
+    {
+      "race_id": "2026-01-05_18_09",
+      "stadium_id": 18,
+      "race_no": 9,
+      "status": "skipped_by_claude",
+      "verdict": "skip",
+      "skip_reason": "1-5双軸本命で本命系過剰人気EV<0.30、5号艇A1まくりも市場織込済で見送り",
+      "primary_axis": [
+        1,
+        5
+      ],
+      "actual_combination": null,
+      "bets": [],
+      "total_stake": 0,
+      "total_payout": 0.0,
+      "note": null
+    },
+    {
+      "race_id": "2026-01-05_18_10",
+      "stadium_id": 18,
+      "race_no": 10,
+      "status": "skipped_by_claude",
+      "verdict": "skip",
+      "skip_reason": "2号艇本命の異例構図で本命系過剰人気EV<0.30、6号艇A1まくりも市場想定低で見送り",
+      "primary_axis": [
+        2,
+        6
+      ],
+      "actual_combination": null,
+      "bets": [],
+      "total_stake": 0,
+      "total_payout": 0.0,
+      "note": null
+    },
+    {
+      "race_id": "2026-01-05_18_11",
+      "stadium_id": 18,
+      "race_no": 11,
+      "status": "skipped_by_claude",
+      "verdict": "skip",
+      "skip_reason": "1号艇本命+6号艇好調シグナルだがまくりオッズ37x止まりでS2基準60x未満、EV~0.59ボーダーで見送り",
+      "primary_axis": [
+        1,
+        6
+      ],
+      "actual_combination": null,
+      "bets": [],
+      "total_stake": 0,
+      "total_payout": 0.0,
+      "note": null
+    },
+    {
+      "race_id": "2026-01-05_18_12",
+      "stadium_id": 18,
+      "race_no": 12,
+      "status": "skipped_by_claude",
+      "verdict": "skip",
+      "skip_reason": "1号艇A1当地レジェンド単勝1.1xで本命系超過剰人気EV<0.20、まくり系も妙味なく見送り",
+      "primary_axis": [
+        1
+      ],
+      "actual_combination": null,
+      "bets": [],
+      "total_stake": 0,
+      "total_payout": 0.0,
+      "note": null
+    },
+    {
+      "race_id": "2026-01-05_19_01",
+      "stadium_id": 19,
+      "race_no": 1,
+      "status": "skipped_by_claude",
+      "verdict": "skip",
+      "skip_reason": "4号艇A2単勝1.1x極端本命で本命系過剰人気EV<0.50、市場効率済で見送り",
+      "primary_axis": [
+        4,
+        1
+      ],
+      "actual_combination": null,
+      "bets": [],
+      "total_stake": 0,
+      "total_payout": 0.0,
+      "note": null
+    },
+    {
+      "race_id": "2026-01-05_19_02",
+      "stadium_id": 19,
+      "race_no": 2,
+      "status": "skipped_by_claude",
+      "verdict": "skip",
+      "skip_reason": "4号艇A2連勝シグナル+1号艇A2本命の双軸でラインオッズ過小、市場効率済で見送り",
+      "primary_axis": [
+        4,
+        1
+      ],
+      "actual_combination": null,
+      "bets": [],
+      "total_stake": 0,
+      "total_payout": 0.0,
+      "note": null
+    },
+    {
+      "race_id": "2026-01-05_19_03",
+      "stadium_id": 19,
+      "race_no": 3,
+      "status": "skipped_by_claude",
+      "verdict": "skip",
+      "skip_reason": "三つ巴拮抗で市場効率済、本命系もまくり系もEV<0.40で見送り",
+      "primary_axis": [
+        1,
+        3
+      ],
+      "actual_combination": null,
+      "bets": [],
+      "total_stake": 0,
+      "total_payout": 0.0,
+      "note": null
+    },
+    {
+      "race_id": "2026-01-05_19_04",
+      "stadium_id": 19,
+      "race_no": 4,
+      "status": "skipped_by_claude",
+      "verdict": "skip",
+      "skip_reason": "1号艇本命過剰人気でEV<0.30、6号艇A1好調シグナルあるがまくり系オッズ上位20圏外で確認不能、慎重に見送り",
+      "primary_axis": [
+        1,
+        6
+      ],
+      "actual_combination": null,
+      "bets": [],
+      "total_stake": 0,
+      "total_payout": 0.0,
+      "note": null
+    },
+    {
+      "race_id": "2026-01-05_19_05",
+      "stadium_id": 19,
+      "race_no": 5,
+      "status": "skipped_by_claude",
+      "verdict": "skip",
+      "skip_reason": "1-2軸ライン本命凝縮で全帯EV<0.30、市場効率済で見送り",
+      "primary_axis": [
+        1,
+        2
+      ],
+      "actual_combination": null,
+      "bets": [],
+      "total_stake": 0,
+      "total_payout": 0.0,
+      "note": null
+    },
+    {
+      "race_id": "2026-01-05_19_06",
+      "stadium_id": 19,
+      "race_no": 6,
+      "status": "skipped_by_claude",
+      "verdict": "skip",
+      "skip_reason": "1号艇A2極端本命で本命系過剰人気EV<0.30、まくり系も妙味なく見送り",
+      "primary_axis": [
+        1,
+        2
+      ],
+      "actual_combination": null,
+      "bets": [],
+      "total_stake": 0,
+      "total_payout": 0.0,
+      "note": null
+    },
+    {
+      "race_id": "2026-01-05_19_07",
+      "stadium_id": 19,
+      "race_no": 7,
+      "status": "skipped_by_claude",
+      "verdict": "skip",
+      "skip_reason": "1号艇A1単勝1.1x極端本命で本命系過剰人気EV<0.30、6号艇まくり系オッズ確認不能で見送り",
+      "primary_axis": [
+        1,
+        6
+      ],
+      "actual_combination": null,
+      "bets": [],
+      "total_stake": 0,
+      "total_payout": 0.0,
+      "note": null
+    },
+    {
+      "race_id": "2026-01-05_19_08",
+      "stadium_id": 19,
+      "race_no": 8,
+      "status": "skipped_by_claude",
+      "verdict": "skip",
+      "skip_reason": "進入固定戦で1号艇A1単勝1.0x極端本命、本命系超過剰人気EV<0.20で見送り",
+      "primary_axis": [
+        1,
+        4
+      ],
+      "actual_combination": null,
+      "bets": [],
+      "total_stake": 0,
+      "total_payout": 0.0,
+      "note": null
+    },
+    {
+      "race_id": "2026-01-05_19_09",
+      "stadium_id": 19,
+      "race_no": 9,
+      "status": "skipped_by_claude",
+      "verdict": "skip",
+      "skip_reason": "1号艇A2当地2連率75%で単勝1.0x極端本命、本命系過剰人気EV<0.30で見送り",
+      "primary_axis": [
+        1,
+        5
+      ],
+      "actual_combination": null,
+      "bets": [],
+      "total_stake": 0,
+      "total_payout": 0.0,
+      "note": null
+    },
+    {
+      "race_id": "2026-01-05_19_10",
+      "stadium_id": 19,
+      "race_no": 10,
+      "status": "skipped_by_claude",
+      "verdict": "skip",
+      "skip_reason": "1号艇本命+6号艇A2絶好調シグナルだがまくり系最高37.7xでS2基準60x未満、EV<0.70で見送り",
+      "primary_axis": [
+        1,
+        6
+      ],
+      "actual_combination": null,
+      "bets": [],
+      "total_stake": 0,
+      "total_payout": 0.0,
+      "note": null
+    },
+    {
+      "race_id": "2026-01-05_19_11",
+      "stadium_id": 19,
+      "race_no": 11,
+      "status": "skipped_by_claude",
+      "verdict": "skip",
+      "skip_reason": "1号艇A1単勝1.0x極端本命でA1×4相手、本命系過剰人気EV<0.30で見送り",
+      "primary_axis": [
+        1,
+        2
+      ],
+      "actual_combination": null,
+      "bets": [],
+      "total_stake": 0,
+      "total_payout": 0.0,
+      "note": null
+    },
+    {
+      "race_id": "2026-01-05_19_12",
+      "stadium_id": 19,
+      "race_no": 12,
+      "status": "skipped_by_claude",
+      "verdict": "skip",
+      "skip_reason": "1号艇A1当地2連率60%本命+ A1×4の超充実構成、本命系過剰人気EV<0.30で見送り",
+      "primary_axis": [
+        1,
+        4
+      ],
+      "actual_combination": null,
+      "bets": [],
+      "total_stake": 0,
+      "total_payout": 0.0,
+      "note": null
+    },
+    {
+      "race_id": "2026-01-05_20_01",
+      "stadium_id": 20,
+      "race_no": 1,
+      "status": "skipped_by_claude",
+      "verdict": "skip",
+      "skip_reason": "1-3拮抗が市場で完全織込済、本命オッズ13-21xで EV<0.5、歪み見えず",
+      "primary_axis": [
+        3,
+        1
+      ],
+      "actual_combination": null,
+      "bets": [],
+      "total_stake": 0,
+      "total_payout": 0.0,
+      "note": null
+    },
+    {
+      "race_id": "2026-01-05_20_02",
+      "stadium_id": 20,
+      "race_no": 2,
+      "status": "skipped_by_claude",
+      "verdict": "skip",
+      "skip_reason": "1号艇激弱で本命崩れ想定だが2号艇/5号艇取込組合せはオッズ薄くEV<0.6、明確な妙味なし",
+      "primary_axis": [
+        2,
+        5
+      ],
+      "actual_combination": null,
+      "bets": [],
+      "total_stake": 0,
+      "total_payout": 0.0,
+      "note": null
+    },
+    {
+      "race_id": "2026-01-05_20_03",
+      "stadium_id": 20,
+      "race_no": 3,
+      "status": "skipped_by_claude",
+      "verdict": "skip",
+      "skip_reason": "5号艇平田A1/6号艇今井A1の3着取込はオッズ薄くEV<0.85、明確な妙味なし",
+      "primary_axis": [
+        1,
+        5
+      ],
+      "actual_combination": null,
+      "bets": [],
+      "total_stake": 0,
+      "total_payout": 0.0,
+      "note": null
+    },
+    {
+      "race_id": "2026-01-05_20_04",
+      "stadium_id": 20,
+      "race_no": 4,
+      "status": "skipped_by_claude",
+      "verdict": "skip",
+      "skip_reason": "5/6 A1+2号艇本命の混戦が市場で完全織込済、上位人気EV0.2前後で妙味なし",
+      "primary_axis": [
+        2,
+        6
+      ],
+      "actual_combination": null,
+      "bets": [],
+      "total_stake": 0,
+      "total_payout": 0.0,
+      "note": null
+    },
+    {
+      "race_id": "2026-01-05_20_05",
+      "stadium_id": 20,
+      "race_no": 5,
+      "status": "skipped_by_claude",
+      "verdict": "skip",
+      "skip_reason": "進入固定戦の本命系が極薄(EV<0.2)、流し系も妙味なし",
+      "primary_axis": [
+        1,
+        4
+      ],
+      "actual_combination": null,
+      "bets": [],
+      "total_stake": 0,
+      "total_payout": 0.0,
+      "note": null
+    },
+    {
+      "race_id": "2026-01-05_20_06",
+      "stadium_id": 20,
+      "race_no": 6,
+      "status": "skipped_by_claude",
+      "verdict": "skip",
+      "skip_reason": "前田A1当地59%好調を市場が単勝6.5xで完全織込済、6号艇取込みもEV<0.3で妙味なし",
+      "primary_axis": [
+        1,
+        6
+      ],
+      "actual_combination": null,
+      "bets": [],
+      "total_stake": 0,
+      "total_payout": 0.0,
+      "note": null
+    },
+    {
+      "race_id": "2026-01-05_20_07",
+      "stadium_id": 20,
+      "race_no": 7,
+      "status": "skipped_by_claude",
+      "verdict": "skip",
+      "skip_reason": "中辻A1絶好調を市場が単勝4.2xで完全織込済、6-X-X系もEV 0.35-0.72で60x基準満たさず",
+      "primary_axis": [
+        6,
+        1
+      ],
+      "actual_combination": null,
+      "bets": [],
+      "total_stake": 0,
+      "total_payout": 0.0,
+      "note": null
+    },
+    {
+      "race_id": "2026-01-05_20_08",
+      "stadium_id": 20,
+      "race_no": 8,
+      "status": "skipped_by_claude",
+      "verdict": "skip",
+      "skip_reason": "1号艇単勝1.0xの完全本命+3号艇A1で1-3軸固まり、本命系/流し系すべてEV<0.35",
+      "primary_axis": [
+        1,
+        3
+      ],
+      "actual_combination": null,
+      "bets": [],
+      "total_stake": 0,
+      "total_payout": 0.0,
+      "note": null
+    },
+    {
+      "race_id": "2026-01-05_20_09",
+      "stadium_id": 20,
+      "race_no": 9,
+      "status": "skipped_by_claude",
+      "verdict": "skip",
+      "skip_reason": "準優勝戦A1×2の本命系1-2-X 4-14xでEV<0.20、明確な妙味なし",
+      "primary_axis": [
+        1,
+        2
+      ],
+      "actual_combination": null,
+      "bets": [],
+      "total_stake": 0,
+      "total_payout": 0.0,
+      "note": null
+    },
+    {
+      "race_id": "2026-01-05_20_10",
+      "stadium_id": 20,
+      "race_no": 10,
+      "status": "skipped_by_claude",
+      "verdict": "skip",
+      "skip_reason": "1号艇前田A1絶好調の単勝1.3x織込済、1-X-Y本命系6-13xでEV<0.20",
+      "primary_axis": [
+        1,
+        3
+      ],
+      "actual_combination": null,
+      "bets": [],
+      "total_stake": 0,
+      "total_payout": 0.0,
+      "note": null
+    },
+    {
+      "race_id": "2026-01-05_20_11",
+      "stadium_id": 20,
+      "race_no": 11,
+      "status": "skipped_by_claude",
+      "verdict": "skip",
+      "skip_reason": "中辻A1当地68%絶好調が単勝1.0xで完全織込済、本命系1-X-Y 5-12xでEV<0.25",
+      "primary_axis": [
+        1,
+        3
+      ],
+      "actual_combination": null,
+      "bets": [],
+      "total_stake": 0,
+      "total_payout": 0.0,
+      "note": null
+    },
+    {
+      "race_id": "2026-01-05_20_12",
+      "stadium_id": 20,
+      "race_no": 12,
+      "status": "skipped_by_claude",
+      "verdict": "skip",
+      "skip_reason": "1号艇単勝1.1x完全本命+5/6 A1集中が市場織込済、本命系/捲り系すべてEV<0.30",
+      "primary_axis": [
+        1,
+        5
+      ],
+      "actual_combination": null,
+      "bets": [],
+      "total_stake": 0,
+      "total_payout": 0.0,
+      "note": null
+    },
+    {
+      "race_id": "2026-01-05_22_01",
+      "stadium_id": 22,
+      "race_no": 1,
+      "status": "skipped_by_claude",
+      "verdict": "skip",
+      "skip_reason": "1号艇渡辺A1完全本命の織込済、本命系/流し系すべてEV<0.25",
+      "primary_axis": [
+        1,
+        3
+      ],
+      "actual_combination": null,
+      "bets": [],
+      "total_stake": 0,
+      "total_payout": 0.0,
+      "note": null
+    },
+    {
+      "race_id": "2026-01-05_22_02",
+      "stadium_id": 22,
+      "race_no": 2,
+      "status": "skipped_by_claude",
+      "verdict": "skip",
+      "skip_reason": "三者拮抗(1=2.4/3=2.6)で市場が3号艇A1好調を完全織込済、本命系/捲り系すべてEV<0.30",
+      "primary_axis": [
+        3,
+        1
+      ],
+      "actual_combination": null,
+      "bets": [],
+      "total_stake": 0,
+      "total_payout": 0.0,
+      "note": null
+    },
+    {
+      "race_id": "2026-01-05_22_03",
+      "stadium_id": 22,
+      "race_no": 3,
+      "status": "skipped_by_claude",
+      "verdict": "skip",
+      "skip_reason": "3号艇松田A1超エースを単勝1.0xで完全織込済、3-X-Y / 1-3-Yすべて EV<0.75",
+      "primary_axis": [
+        3,
+        1
+      ],
+      "actual_combination": null,
+      "bets": [],
+      "total_stake": 0,
+      "total_payout": 0.0,
+      "note": null
+    },
+    {
+      "race_id": "2026-01-05_22_04",
+      "stadium_id": 22,
+      "race_no": 4,
+      "status": "skipped_by_claude",
+      "verdict": "skip",
+      "skip_reason": "2号艇A1本命+6号艇奈須好調が市場織込済、2-X-6系EV<0.30、6-X-Y推定オッズも基準未達",
+      "primary_axis": [
+        2,
+        6
+      ],
+      "actual_combination": null,
+      "bets": [],
+      "total_stake": 0,
+      "total_payout": 0.0,
+      "note": null
+    },
+    {
+      "race_id": "2026-01-05_22_05",
+      "stadium_id": 22,
+      "race_no": 5,
+      "status": "skipped_by_claude",
+      "verdict": "skip",
+      "skip_reason": "1-2-4三つ巴を市場が完全織込済、捲り系4-X-Y もEV<0.55で60x基準満たさず",
+      "primary_axis": [
+        1,
+        4
+      ],
+      "actual_combination": null,
+      "bets": [],
+      "total_stake": 0,
+      "total_payout": 0.0,
+      "note": null
+    },
+    {
+      "race_id": "2026-01-05_22_06",
+      "stadium_id": 22,
+      "race_no": 6,
+      "status": "skipped_by_claude",
+      "verdict": "skip",
+      "skip_reason": "5号艇篠崎A1異常好調を単勝3.1xで完全織込済、捲り系5-X-X EV<0.75で60x基準満たさず",
+      "primary_axis": [
+        1,
+        5
+      ],
+      "actual_combination": null,
+      "bets": [],
+      "total_stake": 0,
+      "total_payout": 0.0,
+      "note": null
+    },
+    {
+      "race_id": "2026-01-05_22_07",
+      "stadium_id": 22,
+      "race_no": 7,
+      "status": "settled",
+      "verdict": "bet",
+      "skip_reason": null,
+      "primary_axis": [
+        6,
+        1
+      ],
+      "actual_combination": "5-1-6",
+      "bets": [
+        {
+          "trifecta": "6-1-2",
+          "stake": 100,
+          "current_odds": 60.4,
+          "actual_odds": 60.4,
+          "confidence": 0.3,
+          "expected_prob": 0.018,
+          "is_hit": false,
+          "payout": 0.0,
+          "payout_source": "miss",
+          "odds_drift_pct": 0.0
+        }
+      ],
+      "total_stake": 100,
+      "total_payout": 0.0,
+      "note": null
+    },
+    {
+      "race_id": "2026-01-05_22_08",
+      "stadium_id": 22,
+      "race_no": 8,
+      "status": "skipped_by_claude",
+      "verdict": "skip",
+      "skip_reason": "4号艇篠崎A1超エースの捲りを市場が単勝1.8xで完全織込済、4-X-Y本命系すべてEV<0.40",
+      "primary_axis": [
+        4,
+        1
+      ],
+      "actual_combination": null,
+      "bets": [],
+      "total_stake": 0,
+      "total_payout": 0.0,
+      "note": null
+    },
+    {
+      "race_id": "2026-01-05_22_09",
+      "stadium_id": 22,
+      "race_no": 9,
+      "status": "skipped_by_claude",
+      "verdict": "skip",
+      "skip_reason": "A1×3混戦+富田B1当地強の三者拮抗が市場で完全織込済、本命系すべてEV<0.25",
+      "primary_axis": [
+        1,
+        2
+      ],
+      "actual_combination": null,
+      "bets": [],
+      "total_stake": 0,
+      "total_payout": 0.0,
+      "note": null
+    },
+    {
+      "race_id": "2026-01-05_22_10",
+      "stadium_id": 22,
+      "race_no": 10,
+      "status": "skipped_by_claude",
+      "verdict": "skip",
+      "skip_reason": "A1×4混戦予選特賞で市場が完全織込済、本命系/捲り系すべてEV<0.55",
+      "primary_axis": [
+        1,
+        4
+      ],
+      "actual_combination": null,
+      "bets": [],
+      "total_stake": 0,
+      "total_payout": 0.0,
+      "note": null
+    },
+    {
+      "race_id": "2026-01-05_22_11",
+      "stadium_id": 22,
+      "race_no": 11,
+      "status": "skipped_by_claude",
+      "verdict": "skip",
+      "skip_reason": "4艇進入固定でオッズ圧縮、本命系/捲り系すべてEV<0.75",
+      "primary_axis": [
+        1,
+        6
+      ],
+      "actual_combination": null,
+      "bets": [],
+      "total_stake": 0,
+      "total_payout": 0.0,
+      "note": null
+    },
+    {
+      "race_id": "2026-01-05_22_12",
+      "stadium_id": 22,
+      "race_no": 12,
+      "status": "skipped_by_claude",
+      "verdict": "skip",
+      "skip_reason": "古澤A1+篠崎A1の二強を市場が完全織込済、本命系/捲り系すべてEV<0.45",
+      "primary_axis": [
+        1,
+        5
+      ],
+      "actual_combination": null,
+      "bets": [],
+      "total_stake": 0,
+      "total_payout": 0.0,
+      "note": null
+    },
+    {
+      "race_id": "2026-01-05_23_01",
+      "stadium_id": 23,
+      "race_no": 1,
+      "status": "skipped_by_claude",
+      "verdict": "skip",
+      "skip_reason": "4号艇単勝1.3x完全本命の捲り構図を市場が完全織込済、本命系/捲り系すべてEV<0.45",
+      "primary_axis": [
+        4,
+        1
+      ],
+      "actual_combination": null,
+      "bets": [],
+      "total_stake": 0,
+      "total_payout": 0.0,
+      "note": null
+    },
+    {
+      "race_id": "2026-01-05_23_02",
+      "stadium_id": 23,
+      "race_no": 2,
+      "status": "skipped_by_claude",
+      "verdict": "skip",
+      "skip_reason": "2号艇西橋A1当地80%絶好調が単勝1.0xで完全織込済、本命系/流し系すべてEV<0.25",
+      "primary_axis": [
+        2,
+        1
+      ],
+      "actual_combination": null,
+      "bets": [],
+      "total_stake": 0,
+      "total_payout": 0.0,
+      "note": null
+    },
+    {
+      "race_id": "2026-01-05_23_03",
+      "stadium_id": 23,
+      "race_no": 3,
+      "status": "skipped_by_claude",
+      "verdict": "skip",
+      "skip_reason": "1号艇A1+4号艇A1捲り構図を市場が完全織込済、本命系/捲り系すべてEV<0.50",
+      "primary_axis": [
+        1,
+        4
+      ],
+      "actual_combination": null,
+      "bets": [],
+      "total_stake": 0,
+      "total_payout": 0.0,
+      "note": null
+    },
+    {
+      "race_id": "2026-01-05_23_04",
+      "stadium_id": 23,
+      "race_no": 4,
+      "status": "skipped_by_claude",
+      "verdict": "skip",
+      "skip_reason": "3号艇A1捲りを単勝2.0xで完全織込済、3-X-Y系すべてEV<0.40",
+      "primary_axis": [
+        3,
+        1
+      ],
+      "actual_combination": null,
+      "bets": [],
+      "total_stake": 0,
+      "total_payout": 0.0,
+      "note": null
+    },
+    {
+      "race_id": "2026-01-05_23_05",
+      "stadium_id": 23,
+      "race_no": 5,
+      "status": "skipped_by_claude",
+      "verdict": "skip",
+      "skip_reason": "三つ巴混戦+A1×2が市場で完全織込済、本命系/捲り系すべてEV<0.40",
+      "primary_axis": [
+        1,
+        4
+      ],
+      "actual_combination": null,
+      "bets": [],
+      "total_stake": 0,
+      "total_payout": 0.0,
+      "note": null
+    },
+    {
+      "race_id": "2026-01-05_23_06",
+      "stadium_id": 23,
+      "race_no": 6,
+      "status": "skipped_by_claude",
+      "verdict": "skip",
+      "skip_reason": "三者拮抗の本命系/流し系すべて市場で完全織込済、EV<0.40",
+      "primary_axis": [
+        1,
+        3
+      ],
+      "actual_combination": null,
+      "bets": [],
+      "total_stake": 0,
+      "total_payout": 0.0,
+      "note": null
+    },
+    {
+      "race_id": "2026-01-05_23_07",
+      "stadium_id": 23,
+      "race_no": 7,
+      "status": "skipped_by_claude",
+      "verdict": "skip",
+      "skip_reason": "1=4二強拮抗を市場が完全織込済、本命系/捲り系すべてEV<0.30",
+      "primary_axis": [
+        1,
+        4
+      ],
+      "actual_combination": null,
+      "bets": [],
+      "total_stake": 0,
+      "total_payout": 0.0,
+      "note": null
+    },
+    {
+      "race_id": "2026-01-05_23_08",
+      "stadium_id": 23,
+      "race_no": 8,
+      "status": "skipped_by_claude",
+      "verdict": "skip",
+      "skip_reason": "3号艇単勝1.1x異常本命+市場完全織込済、本命系すべてEV<0.40",
+      "primary_axis": [
+        3,
+        1
+      ],
+      "actual_combination": null,
+      "bets": [],
+      "total_stake": 0,
+      "total_payout": 0.0,
+      "note": null
+    },
+    {
+      "race_id": "2026-01-05_23_09",
+      "stadium_id": 23,
+      "race_no": 9,
+      "status": "skipped_by_claude",
+      "verdict": "skip",
+      "skip_reason": "2号艇単勝1.3x異常本命+5号艇A1脇役を市場が完全織込済、本命系すべてEV<0.40",
+      "primary_axis": [
+        2,
+        5
+      ],
+      "actual_combination": null,
+      "bets": [],
+      "total_stake": 0,
+      "total_payout": 0.0,
+      "note": null
+    },
+    {
+      "race_id": "2026-01-05_23_10",
+      "stadium_id": 23,
+      "race_no": 10,
+      "status": "skipped_by_claude",
+      "verdict": "skip",
+      "skip_reason": "1=2二強拮抗を市場が完全織込済、本命系/流し系すべてEV<0.40",
+      "primary_axis": [
+        1,
+        2
+      ],
+      "actual_combination": null,
+      "bets": [],
+      "total_stake": 0,
+      "total_payout": 0.0,
+      "note": null
+    },
+    {
+      "race_id": "2026-01-05_23_11",
+      "stadium_id": 23,
+      "race_no": 11,
+      "status": "skipped_by_claude",
+      "verdict": "skip",
+      "skip_reason": "1号艇単勝1.2x圧倒的本命を市場が完全織込済、本命系すべてEV<0.30",
+      "primary_axis": [
+        1,
+        5
+      ],
+      "actual_combination": null,
+      "bets": [],
+      "total_stake": 0,
+      "total_payout": 0.0,
+      "note": null
+    },
+    {
+      "race_id": "2026-01-05_23_12",
+      "stadium_id": 23,
+      "race_no": 12,
+      "status": "skipped_by_claude",
+      "verdict": "skip",
+      "skip_reason": "1号艇単勝1.1x完全本命を市場が完全織込済、本命系すべてEV<0.30",
+      "primary_axis": [
+        1,
+        3
+      ],
+      "actual_combination": null,
+      "bets": [],
+      "total_stake": 0,
+      "total_payout": 0.0,
+      "note": null
+    },
+    {
+      "race_id": "2026-01-05_24_01",
+      "stadium_id": 24,
+      "race_no": 1,
+      "status": "skipped_by_claude",
+      "verdict": "skip",
+      "skip_reason": "1号艇B1+2号艇A2の二強拮抗が市場で完全織込済、本命系/流し系すべてEV<0.40",
+      "primary_axis": [
+        1,
+        2
+      ],
+      "actual_combination": null,
+      "bets": [],
+      "total_stake": 0,
+      "total_payout": 0.0,
+      "note": null
+    },
+    {
+      "race_id": "2026-01-05_24_02",
+      "stadium_id": 24,
+      "race_no": 2,
+      "status": "skipped_by_claude",
+      "verdict": "skip",
+      "skip_reason": "4号艇単勝1.9x異例本命+市場完全織込済、本命系/捲り系すべてEV<0.40",
+      "primary_axis": [
+        4,
+        1
+      ],
+      "actual_combination": null,
+      "bets": [],
+      "total_stake": 0,
+      "total_payout": 0.0,
+      "note": null
+    },
+    {
+      "race_id": "2026-01-05_24_03",
+      "stadium_id": 24,
+      "race_no": 3,
+      "status": "skipped_by_claude",
+      "verdict": "skip",
+      "skip_reason": "1号艇単勝1.1x完全本命を市場が完全織込済、本命系すべてEV<0.30",
+      "primary_axis": [
+        1,
+        4
+      ],
+      "actual_combination": null,
+      "bets": [],
+      "total_stake": 0,
+      "total_payout": 0.0,
+      "note": null
+    },
+    {
+      "race_id": "2026-01-05_24_04",
+      "stadium_id": 24,
+      "race_no": 4,
+      "status": "skipped_by_claude",
+      "verdict": "skip",
+      "skip_reason": "3号艇単勝1.7x異例本命+市場完全織込済、本命系すべてEV<0.40",
+      "primary_axis": [
+        3,
+        1
+      ],
+      "actual_combination": null,
+      "bets": [],
+      "total_stake": 0,
+      "total_payout": 0.0,
+      "note": null
+    },
+    {
+      "race_id": "2026-01-05_24_05",
+      "stadium_id": 24,
+      "race_no": 5,
+      "status": "skipped_by_claude",
+      "verdict": "skip",
+      "skip_reason": "5号艇単勝2.2x異例本命を市場が完全織込済、本命系/捲り系すべてEV<0.55",
+      "primary_axis": [
+        1,
+        5
+      ],
+      "actual_combination": null,
+      "bets": [],
+      "total_stake": 0,
+      "total_payout": 0.0,
+      "note": null
+    },
+    {
+      "race_id": "2026-01-05_24_06",
+      "stadium_id": 24,
+      "race_no": 6,
+      "status": "skipped_by_claude",
+      "verdict": "skip",
+      "skip_reason": "1号艇単勝1.4x完全本命+3号艇A1脇役を市場が完全織込済、本命系/捲り系すべてEV<0.40",
+      "primary_axis": [
+        1,
+        3
+      ],
+      "actual_combination": null,
+      "bets": [],
+      "total_stake": 0,
+      "total_payout": 0.0,
+      "note": null
+    },
+    {
+      "race_id": "2026-01-05_24_07",
+      "stadium_id": 24,
+      "race_no": 7,
+      "status": "skipped_by_claude",
+      "verdict": "skip",
+      "skip_reason": "1号艇単勝1.4x完全本命を市場が完全織込済、本命系すべてEV<0.30",
+      "primary_axis": [
+        1,
+        2
+      ],
+      "actual_combination": null,
+      "bets": [],
+      "total_stake": 0,
+      "total_payout": 0.0,
+      "note": null
+    },
+    {
+      "race_id": "2026-01-05_24_08",
+      "stadium_id": 24,
+      "race_no": 8,
+      "status": "skipped_by_claude",
+      "verdict": "skip",
+      "skip_reason": "1号艇単勝1.5x完全本命を市場が完全織込済、本命系/捲り系すべてEV<0.35",
+      "primary_axis": [
+        1,
+        3
+      ],
+      "actual_combination": null,
+      "bets": [],
+      "total_stake": 0,
+      "total_payout": 0.0,
+      "note": null
+    },
+    {
+      "race_id": "2026-01-05_24_09",
+      "stadium_id": 24,
+      "race_no": 9,
+      "status": "skipped_by_claude",
+      "verdict": "skip",
+      "skip_reason": "1号艇単勝1.4x完全本命を市場が完全織込済、本命系すべてEV<0.40",
+      "primary_axis": [
+        1,
+        3
+      ],
+      "actual_combination": null,
+      "bets": [],
+      "total_stake": 0,
+      "total_payout": 0.0,
+      "note": null
+    },
+    {
+      "race_id": "2026-01-05_24_10",
+      "stadium_id": 24,
+      "race_no": 10,
+      "status": "skipped_by_claude",
+      "verdict": "skip",
+      "skip_reason": "5艇進入+1号艇単勝1.3x圧倒本命を市場が完全織込済、本命系/捲り系すべてEV<0.25",
+      "primary_axis": [
+        1,
+        6
+      ],
+      "actual_combination": null,
+      "bets": [],
+      "total_stake": 0,
+      "total_payout": 0.0,
+      "note": null
+    },
+    {
+      "race_id": "2026-01-05_24_11",
+      "stadium_id": 24,
+      "race_no": 11,
+      "status": "skipped_by_claude",
+      "verdict": "skip",
+      "skip_reason": "5号艇単勝2.1x異例本命を市場が完全織込済、捲り系5-1-X EV 0.7-0.8で60x基準ぎり、conservative skip",
+      "primary_axis": [
+        1,
+        5
+      ],
+      "actual_combination": null,
+      "bets": [],
+      "total_stake": 0,
+      "total_payout": 0.0,
+      "note": null
+    },
+    {
+      "race_id": "2026-01-05_24_12",
+      "stadium_id": 24,
+      "race_no": 12,
+      "status": "skipped_by_claude",
+      "verdict": "skip",
+      "skip_reason": "1号艇本命+2号艇A2脇役の混戦が市場で完全織込済、本命系/捲り系すべてEV<0.45",
+      "primary_axis": [
+        1,
+        2
+      ],
+      "actual_combination": null,
+      "bets": [],
+      "total_stake": 0,
+      "total_payout": 0.0,
+      "note": null
+    }
+  ],
+  "invalid_predictions": []
+}
