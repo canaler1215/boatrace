@@ -1,0 +1,16 @@
+{
+  "race_id": "2025-11-29_01_05",
+  "predicted_at": "2025-11-29T17:16:00+09:00",
+  "model": "claude-opus-4-7",
+  "analysis": "1号艇松浦B1 (50歳・当地2連18% / 単勝3.2x) は逃げ信頼度低い、市場も逃げ評価低。2号艇平田A1 (49歳・全国2連52% / 当地2連50% / 平均ST 0.128 / 単勝3.1x) が捲り頭本命級、4号艇別府A2 (49歳・全国2連40% / モーター16号50.23% / 単勝3.8x) もモーター超強で捲り脅威、3号艇廣瀬A2 (全国2連36% / モーター37% / 単勝4.3x) も拮抗。1〜4号艇混戦で 2号艇A1 軸が最有力。市場本命 2-3-4 (16.3x) を本線、2-4-3 (20.3x) と 1-2-3 (20.9x) を保険。",
+  "primary_axis": [2, 4],
+  "verdict": "bet",
+  "skip_reason": null,
+  "bets": [
+    {"trifecta": "2-3-4", "stake": 100, "current_odds": 16.3, "expected_prob": 0.07, "ev": 1.14, "confidence": 0.5},
+    {"trifecta": "2-4-3", "stake": 100, "current_odds": 20.3, "expected_prob": 0.06, "ev": 1.22, "confidence": 0.5},
+    {"trifecta": "1-2-3", "stake": 100, "current_odds": 20.9, "expected_prob": 0.05, "ev": 1.05, "confidence": 0.4},
+    {"trifecta": "3-2-4", "stake": 100, "current_odds": 22.4, "expected_prob": 0.05, "ev": 1.12, "confidence": 0.45},
+    {"trifecta": "1-2-4", "stake": 100, "current_odds": 22.9, "expected_prob": 0.05, "ev": 1.15, "confidence": 0.4}
+  ]
+}

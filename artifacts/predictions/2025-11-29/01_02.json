@@ -1,0 +1,16 @@
+{
+  "race_id": "2025-11-29_01_02",
+  "predicted_at": "2025-11-29T15:51:00+09:00",
+  "model": "claude-opus-4-7",
+  "analysis": "3号艇浜先A1 (32歳広島・全国2連43% / 当地2連38% / 平均ST 0.136 速い / 単勝2.2x) が捲り頭本命。1号艇白井B1 (53歳・全国2連23% / 当地2連15% / 平均ST 0.195 遅い / 単勝3.1x) は単勝1番人気でないことから市場も逃げに懐疑的。2号艇後藤A2 (47歳・当地2連47% / 直近1着2/2連7・好調 / 単勝3.2x) が捲り差しで連絡みケア。市場本命 3-1-2 (14.7x) と 1-3-2 (15.4x) の 3-1 / 1-3 軸で構成、3-2-1 (16.1x) も押さえ。",
+  "primary_axis": [3, 1],
+  "verdict": "bet",
+  "skip_reason": null,
+  "bets": [
+    {"trifecta": "3-1-2", "stake": 100, "current_odds": 14.7, "expected_prob": 0.08, "ev": 1.18, "confidence": 0.55},
+    {"trifecta": "1-3-2", "stake": 100, "current_odds": 15.4, "expected_prob": 0.08, "ev": 1.23, "confidence": 0.5},
+    {"trifecta": "3-2-1", "stake": 100, "current_odds": 16.1, "expected_prob": 0.07, "ev": 1.13, "confidence": 0.5},
+    {"trifecta": "2-3-1", "stake": 100, "current_odds": 18.6, "expected_prob": 0.06, "ev": 1.12, "confidence": 0.45},
+    {"trifecta": "1-2-3", "stake": 100, "current_odds": 17.8, "expected_prob": 0.06, "ev": 1.07, "confidence": 0.45}
+  ]
+}

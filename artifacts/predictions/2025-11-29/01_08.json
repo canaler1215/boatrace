@@ -1,0 +1,16 @@
+{
+  "race_id": "2025-11-29_01_08",
+  "predicted_at": "2025-11-29T18:40:00+09:00",
+  "model": "claude-opus-4-7",
+  "analysis": "ドラドキ5。1号艇向後A2 (44歳・全国2連44% / 当地2連38% / 直近1着2 / 単勝1.6x 超本命) と 5号艇木村A1 (33歳滋賀・全国2連49% / 当地2連43.75% / 直近1着2/2連4 / 平均ST 0.145 速 / 単勝2.3x) の1-5 2強構図。2号艇崎B1 (群馬・当地2連27%) と 3号艇後藤B1 (平均ST 0.223 遅い) は連絡みに不安。市場本命 1-5-2 (8.3x) を本線に1号艇逃げ+5号艇A1連、5号艇捲り頭の 5-1-2 (26.8x) を保険。",
+  "primary_axis": [1, 5],
+  "verdict": "bet",
+  "skip_reason": null,
+  "bets": [
+    {"trifecta": "1-5-2", "stake": 100, "current_odds": 8.3, "expected_prob": 0.13, "ev": 1.08, "confidence": 0.55},
+    {"trifecta": "1-2-5", "stake": 100, "current_odds": 9.6, "expected_prob": 0.10, "ev": 0.96, "confidence": 0.5},
+    {"trifecta": "1-5-3", "stake": 100, "current_odds": 9.9, "expected_prob": 0.10, "ev": 0.99, "confidence": 0.5},
+    {"trifecta": "1-3-5", "stake": 100, "current_odds": 10.4, "expected_prob": 0.10, "ev": 1.04, "confidence": 0.5},
+    {"trifecta": "5-1-2", "stake": 100, "current_odds": 26.8, "expected_prob": 0.04, "ev": 1.07, "confidence": 0.4}
+  ]
+}

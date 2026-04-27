@@ -1,0 +1,16 @@
+{
+  "race_id": "2025-11-29_01_01",
+  "predicted_at": "2025-11-29T15:23:00+09:00",
+  "model": "claude-opus-4-7",
+  "analysis": "1号艇小倉B1 (全国2連20% / 当地2連26% / 直近1着1) は単勝2.7x の本命だが地力やや不足。4号艇大庭A2 (55歳福岡・全国2連39% / 当地2連44% / 直近1着2 / モーター31.98%) が当地相性最強級で単勝2.9x の同格。5号艇庄司A1 (34歳東京・全国2連34% / 当地2連30% / モーター41.86% / 直近1着3) を 2-3着候補に。市場本命 1-4-5 (14.1x) を基軸に、4号艇捲り頭の 4-5-1 (23.3x) を保険。",
+  "primary_axis": [1, 4],
+  "verdict": "bet",
+  "skip_reason": null,
+  "bets": [
+    {"trifecta": "1-4-5", "stake": 100, "current_odds": 14.1, "expected_prob": 0.08, "ev": 1.13, "confidence": 0.5},
+    {"trifecta": "1-4-3", "stake": 100, "current_odds": 20.8, "expected_prob": 0.06, "ev": 1.25, "confidence": 0.45},
+    {"trifecta": "1-3-4", "stake": 100, "current_odds": 16.1, "expected_prob": 0.07, "ev": 1.13, "confidence": 0.45},
+    {"trifecta": "1-5-4", "stake": 100, "current_odds": 20.8, "expected_prob": 0.06, "ev": 1.25, "confidence": 0.45},
+    {"trifecta": "4-5-1", "stake": 100, "current_odds": 23.3, "expected_prob": 0.05, "ev": 1.17, "confidence": 0.4}
+  ]
+}

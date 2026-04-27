@@ -1,0 +1,16 @@
+{
+  "race_id": "2025-11-29_01_07",
+  "predicted_at": "2025-11-29T18:10:00+09:00",
+  "model": "claude-opus-4-7",
+  "analysis": "ドラドキ3。3号艇柴田A1 (53歳群馬地元・全国2連50% / 当地2連48% / 直近1着4 / 平均ST 0.139 / 桐生直近6走 1着2/2連4/3連6 で地元エース級 / 単勝1.8x) が捲り頭超本命、1号艇間嶋A2 (56歳・全国2連42% / 当地2連35% / 平均ST 0.225 遅い / 単勝2.1x) は逃げに不安あり。2号艇前田B1 (40歳・当地2連50% / 直近1着3/2連5 / 平均ST 0.133 速 / 単勝9.7x) がヒモ筆頭。市場本命 1-3-2 (6.4x) を本線に1号艇逃げ抗戦+3号艇A1連+2号艇B1当地強連、3号艇捲り頭の 3-1-2 (10.1x) と 3-1-4 (10.7x) を両建て。",
+  "primary_axis": [3, 1],
+  "verdict": "bet",
+  "skip_reason": null,
+  "bets": [
+    {"trifecta": "1-3-2", "stake": 100, "current_odds": 6.4, "expected_prob": 0.16, "ev": 1.02, "confidence": 0.55},
+    {"trifecta": "3-1-2", "stake": 100, "current_odds": 10.1, "expected_prob": 0.12, "ev": 1.21, "confidence": 0.55},
+    {"trifecta": "3-1-4", "stake": 100, "current_odds": 10.7, "expected_prob": 0.10, "ev": 1.07, "confidence": 0.5},
+    {"trifecta": "1-3-5", "stake": 100, "current_odds": 8.6, "expected_prob": 0.10, "ev": 0.86, "confidence": 0.45},
+    {"trifecta": "3-1-5", "stake": 100, "current_odds": 12.6, "expected_prob": 0.07, "ev": 0.88, "confidence": 0.45}
+  ]
+}

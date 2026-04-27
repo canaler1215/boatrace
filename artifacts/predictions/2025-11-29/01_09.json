@@ -1,0 +1,16 @@
+{
+  "race_id": "2025-11-29_01_09",
+  "predicted_at": "2025-11-29T19:10:00+09:00",
+  "model": "claude-opus-4-7",
+  "analysis": "予選特賞。2号艇池田A1 (43歳静岡・全国2連50% / 当地2連46% / 平均ST 0.130 速 / 直近1着2/2連5 / 単勝1.6x 超本命) が捲り頭最有力。1号艇大塚B1 (31歳・全国2連34% / 平均ST 0.196 遅い / 単勝3.4x) は逃げに不安、市場も2号艇捲り評価。6号艇大豆生A2 (31歳・当地2連56% / ボート38号62.5% / 単勝27.9x) は当地強の隠し玉、3着候補で押さえ。市場本命 1-2-5 (10.1x) と捲り頭の 2-1-5 (12.3x) を両建て、1-2-6 (17.1x) で6号艇当地強を保険。",
+  "primary_axis": [2, 1],
+  "verdict": "bet",
+  "skip_reason": null,
+  "bets": [
+    {"trifecta": "1-2-5", "stake": 100, "current_odds": 10.1, "expected_prob": 0.10, "ev": 1.01, "confidence": 0.55},
+    {"trifecta": "2-1-5", "stake": 100, "current_odds": 12.3, "expected_prob": 0.10, "ev": 1.23, "confidence": 0.55},
+    {"trifecta": "1-2-4", "stake": 100, "current_odds": 13.3, "expected_prob": 0.07, "ev": 0.93, "confidence": 0.45},
+    {"trifecta": "2-1-4", "stake": 100, "current_odds": 16.9, "expected_prob": 0.07, "ev": 1.18, "confidence": 0.5},
+    {"trifecta": "1-2-6", "stake": 100, "current_odds": 17.1, "expected_prob": 0.06, "ev": 1.03, "confidence": 0.45}
+  ]
+}

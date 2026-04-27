@@ -1,0 +1,16 @@
+{
+  "race_id": "2025-11-29_01_10",
+  "predicted_at": "2025-11-29T19:42:00+09:00",
+  "model": "claude-opus-4-7",
+  "analysis": "予選特賞。1号艇大庭A2 (55歳福岡・全国2連39% / 当地2連44% / 直近1着2 / 単勝2.4x) と 2号艇新田A1 (38歳広島・全国2連55% / 当地2連31% / 直近1着3/2連3 / 単勝2.6x) の1-2並び本命。3号艇山本B1 (52歳・当地2連37% / ボート57号50% / 単勝3.6x) は地元相性で連絡みケア、6号艇竹間A1 (25歳・直近1着4/2連7 超好調 / モーター12号42.92% / 単勝11.8x) は当地2連12.5% でも好調A1 として3着候補に。市場本命 1-2-4 (11.2x) を本線、2-1-4 (13.8x) と 1-2-6 / 2-1-6 を保険。",
+  "primary_axis": [1, 2],
+  "verdict": "bet",
+  "skip_reason": null,
+  "bets": [
+    {"trifecta": "1-2-4", "stake": 100, "current_odds": 11.2, "expected_prob": 0.10, "ev": 1.12, "confidence": 0.55},
+    {"trifecta": "2-1-4", "stake": 100, "current_odds": 13.8, "expected_prob": 0.08, "ev": 1.10, "confidence": 0.5},
+    {"trifecta": "1-2-3", "stake": 100, "current_odds": 14.6, "expected_prob": 0.08, "ev": 1.17, "confidence": 0.5},
+    {"trifecta": "1-2-6", "stake": 100, "current_odds": 15.9, "expected_prob": 0.07, "ev": 1.11, "confidence": 0.5},
+    {"trifecta": "2-1-6", "stake": 100, "current_odds": 16.4, "expected_prob": 0.06, "ev": 0.98, "confidence": 0.45}
+  ]
+}

@@ -1,0 +1,16 @@
+{
+  "race_id": "2025-11-29_01_03",
+  "predicted_at": "2025-11-29T16:20:00+09:00",
+  "model": "claude-opus-4-7",
+  "analysis": "1号艇多羅尾B2 (52歳・全国2連22% / 当地2連10% / 直近1着0 / 単勝8.4x) は地力不足で頭信頼なし、市場も1号艇単勝4位扱い。2号艇向後A2 (44歳・全国2連44% / 単勝1.6x 超本命)・3号艇田中和也A1 (41歳・全国2連51% / 当地2連50% / モーター52号49% / 単勝3.3x)・5号艇田頭B1 (58歳・全国2連55% / 当地2連41% / 平均ST 0.120 速 / 単勝5.0x) の3強構図。3号艇A1捲り頭+2号艇A2 連の市場本命 3-5-2 (13.8x) / 3-2-5 (13.9x) を本線、5号艇捲り頭 5-3-2 (14.9x) と2号艇捲り頭 2-3-5 (19.3x) を保険。",
+  "primary_axis": [3, 2],
+  "verdict": "bet",
+  "skip_reason": null,
+  "bets": [
+    {"trifecta": "3-5-2", "stake": 100, "current_odds": 13.8, "expected_prob": 0.09, "ev": 1.24, "confidence": 0.55},
+    {"trifecta": "3-2-5", "stake": 100, "current_odds": 13.9, "expected_prob": 0.09, "ev": 1.25, "confidence": 0.55},
+    {"trifecta": "5-3-2", "stake": 100, "current_odds": 14.9, "expected_prob": 0.07, "ev": 1.04, "confidence": 0.5},
+    {"trifecta": "2-3-5", "stake": 100, "current_odds": 19.3, "expected_prob": 0.06, "ev": 1.16, "confidence": 0.45},
+    {"trifecta": "5-2-3", "stake": 100, "current_odds": 18.8, "expected_prob": 0.06, "ev": 1.13, "confidence": 0.45}
+  ]
+}

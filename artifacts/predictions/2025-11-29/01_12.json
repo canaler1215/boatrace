@@ -1,0 +1,16 @@
+{
+  "race_id": "2025-11-29_01_12",
+  "predicted_at": "2025-11-29T20:42:00+09:00",
+  "model": "claude-opus-4-7",
+  "analysis": "桐生ドリーム (6艇全員A1)。1号艇柴田A1 (53歳群馬地元エース・全国2連50% / 当地2連48% / 直近1着4/2連6 / 桐生直近6走 1着2/2連4/3連6 / 平均ST 0.139 / 単勝1.6x 超本命) の地元エース逃げほぼ確定級。3号艇木村A1 (33歳滋賀・全国2連49% / 当地2連43.75% / 単勝3.3x) と 5号艇田中A1 (41歳大阪・全国2連51% / 当地2連50% / モーター52号49% / 直近1着3 / 単勝5.8x) がヒモ筆頭。市場本命 1-3-5 (9.2x) を本線、1-5-3 (15.4x) と 1-3-2 / 1-3-4 / 1-2-3 を保険。",
+  "primary_axis": [1, 3],
+  "verdict": "bet",
+  "skip_reason": null,
+  "bets": [
+    {"trifecta": "1-3-5", "stake": 100, "current_odds": 9.2, "expected_prob": 0.13, "ev": 1.20, "confidence": 0.6},
+    {"trifecta": "1-5-3", "stake": 100, "current_odds": 15.4, "expected_prob": 0.08, "ev": 1.23, "confidence": 0.55},
+    {"trifecta": "1-3-2", "stake": 100, "current_odds": 15.9, "expected_prob": 0.07, "ev": 1.11, "confidence": 0.5},
+    {"trifecta": "1-3-4", "stake": 100, "current_odds": 18.1, "expected_prob": 0.06, "ev": 1.09, "confidence": 0.5},
+    {"trifecta": "1-2-3", "stake": 100, "current_odds": 18.0, "expected_prob": 0.06, "ev": 1.08, "confidence": 0.5}
+  ]
+}

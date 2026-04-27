@@ -1,0 +1,16 @@
+{
+  "race_id": "2025-11-29_01_11",
+  "predicted_at": "2025-11-29T20:12:00+09:00",
+  "model": "claude-opus-4-7",
+  "analysis": "予選特選。1号艇庄司A1 (34歳東京・全国2連34% / 当地2連30% / モーター14号41.86% / 直近1着3 / 単勝1.9x 本命) と 5号艇高田A2 (31歳三重・全国2連46% / 当地2連40% / モーター66号40.51% / 単勝2.0x) の1-5 2強。3号艇田頭B1 (58歳・全国2連55% / 当地2連41% / 平均ST 0.120 速 / 単勝11.7x) と 4号艇片橋A1 (37歳滋賀・当地2連45% / 直近1着4/2連5・鳴門連戦好調 / 単勝8.1x) がヒモ筆頭。市場本命 1-3-4 (22.7x) / 1-2-4 (24.9x) / 1-3-5 (26.6x) を採用、5号艇捲り頭は 5-1-X が圏外で見送る。",
+  "primary_axis": [1, 5],
+  "verdict": "bet",
+  "skip_reason": null,
+  "bets": [
+    {"trifecta": "1-3-4", "stake": 100, "current_odds": 22.7, "expected_prob": 0.05, "ev": 1.14, "confidence": 0.5},
+    {"trifecta": "1-2-4", "stake": 100, "current_odds": 24.9, "expected_prob": 0.05, "ev": 1.25, "confidence": 0.5},
+    {"trifecta": "1-3-5", "stake": 100, "current_odds": 26.6, "expected_prob": 0.05, "ev": 1.33, "confidence": 0.5},
+    {"trifecta": "1-3-2", "stake": 100, "current_odds": 27.6, "expected_prob": 0.04, "ev": 1.10, "confidence": 0.45},
+    {"trifecta": "1-4-5", "stake": 100, "current_odds": 35.1, "expected_prob": 0.04, "ev": 1.40, "confidence": 0.45}
+  ]
+}

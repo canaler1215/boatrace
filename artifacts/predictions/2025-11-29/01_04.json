@@ -1,0 +1,16 @@
+{
+  "race_id": "2025-11-29_01_04",
+  "predicted_at": "2025-11-29T16:50:00+09:00",
+  "model": "claude-opus-4-7",
+  "analysis": "1号艇向井A2 (45歳・当地2連64% / 全国2連37% / 直近1着2 / 単勝2.9x) と 3号艇高田A2 (31歳・全国2連46% / 当地2連40% / モーター66号40.51% / 単勝1.9x 超本命) の1-3軸が拮抗、市場も3号艇捲り頭を本命視。5号艇大豆生A2 (31歳・当地2連56% / ボート38号62.5% / 単勝5.1x) が当地強で3着候補に絶対。4号艇後藤B1 (平均ST 0.223 遅い) は信頼度低。市場本命 1-3-5 (9.4x) と 1-3-4 (10.9x) の1-3軸を本線、3号艇捲り頭の 3-1-5 (14.5x) と 3-1-4 (19.0x) を保険。",
+  "primary_axis": [1, 3],
+  "verdict": "bet",
+  "skip_reason": null,
+  "bets": [
+    {"trifecta": "1-3-5", "stake": 100, "current_odds": 9.4, "expected_prob": 0.13, "ev": 1.22, "confidence": 0.6},
+    {"trifecta": "1-3-4", "stake": 100, "current_odds": 10.9, "expected_prob": 0.10, "ev": 1.09, "confidence": 0.5},
+    {"trifecta": "3-1-5", "stake": 100, "current_odds": 14.5, "expected_prob": 0.08, "ev": 1.16, "confidence": 0.55},
+    {"trifecta": "3-1-4", "stake": 100, "current_odds": 19.0, "expected_prob": 0.06, "ev": 1.14, "confidence": 0.45},
+    {"trifecta": "1-5-3", "stake": 100, "current_odds": 21.4, "expected_prob": 0.06, "ev": 1.28, "confidence": 0.45}
+  ]
+}
