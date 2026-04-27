@@ -475,6 +475,71 @@ def fetch_win_odds(stadium_id: int, race_date: str, race_no: int) -> dict[str, f
     return odds_map
 
 
+def fetch_place_odds(
+    stadium_id: int, race_date: str, race_no: int
+) -> dict[str, tuple[float, float]]:
+    """
+    複勝オッズを取得。
+
+    boatrace.jp の `/owpc/pc/race/oddstf` ページ（単勝・複勝合算）から複勝のみ抽出する。
+    複勝オッズは "2.4-3.1" のような範囲表記（最低オッズ - 最高オッズ）。
+    `fetch_win_odds` が「範囲表記でない方」を採用するのに対し、本関数はその逆で
+    「範囲表記の方」を複勝として採用する。
+
+    Returns:
+        {"1": (1.0, 1.2), "2": (2.4, 3.1), ..., "6": (5.0, 7.5)}
+        全6通り（キー = 艇番文字列、値 = (low, high) tuple）
+    """
+    hd = _hd(race_date)
+    soup = _get("oddstf", {"hd": hd, "jcd": f"{stadium_id:02d}", "rno": str(race_no)})
+    odds_map: dict[str, tuple[float, float]] = {}
+
+    tables = soup.find_all("table")
+    if len(tables) < 2:
+        logger.warning("oddstf: expected at least 2 tables, got %d", len(tables))
+        return odds_map
+
+    # 区切り文字: "-" / "〜" / "~" のいずれか
+    range_re = re.compile(r"^([0-9.]+)\s*[-〜~]\s*([0-9.]+)$")
+
+    for t in tables:
+        local_map: dict[str, tuple[float, float]] = {}
+        is_range_table = False
+        for tr in t.find_all("tr"):
+            tds = tr.find_all("td")
+            if len(tds) < 3:
+                continue
+            try:
+                boat_no = int(unicodedata.normalize("NFKC", tds[0].get_text(strip=True)))
+                if boat_no < 1 or boat_no > 6:
+                    continue
+            except ValueError:
+                continue
+
+            odds_text = unicodedata.normalize("NFKC", tds[-1].get_text(strip=True))
+            m = range_re.match(odds_text)
+            if m:
+                is_range_table = True
+                low = _parse_float(m.group(1))
+                high = _parse_float(m.group(2))
+                if low is not None and high is not None and low > 0 and high >= low:
+                    local_map[str(boat_no)] = (low, high)
+            else:
+                # 単勝表（範囲表記でない）に当たった行 — この表は複勝でないので破棄
+                continue
+
+        if is_range_table and local_map:
+            odds_map = local_map
+            break
+
+    if odds_map:
+        logger.info("place odds: %d entries", len(odds_map))
+    else:
+        logger.warning("Could not parse oddstf table for place odds")
+
+    return odds_map
+
+
 def fetch_trio_odds(stadium_id: int, race_date: str, race_no: int) -> dict[str, float]:
     """
     3連複オッズを取得。
