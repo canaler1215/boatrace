@@ -1,0 +1,27 @@
+{
+  "race_id": "2026-01-05_03_07",
+  "predicted_at": "2026-04-27T20:35:00+09:00",
+  "model": "claude-opus-4-7",
+  "analysis": "3号艇 石渡鉄兵 A1・当地2連率65.79%・当地直近1着4・平均ST 0.097 が単勝1.0x の絶対本命 (江戸川3コースで本命は当地レジェンド級)。1号艇 佐藤右京 B1 (11.2x)、2号艇 寺島 B1 (10.0x) が2-3着争い。本命 3-4-X 系は4号艇 (47.7x) と6号艇 (95.4x) の3着組で EV<0.6 圏。妙味は 3-2-1 (33.2x) で 0.75×0.25×0.25 = 0.047, EV 1.56。3-1-2 (27.0x) も EV 1.01 圏内。",
+  "primary_axis": [3],
+  "verdict": "bet",
+  "skip_reason": null,
+  "bets": [
+    {
+      "trifecta": "3-2-1",
+      "stake": 100,
+      "current_odds": 33.2,
+      "expected_prob": 0.047,
+      "ev": 1.56,
+      "confidence": 0.45
+    },
+    {
+      "trifecta": "3-1-2",
+      "stake": 100,
+      "current_odds": 27.0,
+      "expected_prob": 0.038,
+      "ev": 1.03,
+      "confidence": 0.4
+    }
+  ]
+}

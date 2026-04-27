@@ -1,0 +1,89 @@
+{
+  "race_id": "222026010511",
+  "stadium_id": 22,
+  "race_date": "2026-01-05",
+  "race_no": 11,
+  "mode": "past",
+  "fetched_at": "2026-04-27T19:29:40+09:00",
+  "weather": {
+    "weather": "晴",
+    "wind_direction": "北西",
+    "wind_speed_m": 3.0,
+    "wave_height_cm": null,
+    "air_temp_c": null,
+    "water_temp_c": null
+  },
+  "boats": [
+    {
+      "boat_no": 1,
+      "exhibition_time": null,
+      "start_course": null,
+      "start_timing": null
+    },
+    {
+      "boat_no": 2,
+      "exhibition_time": null,
+      "start_course": null,
+      "start_timing": null
+    },
+    {
+      "boat_no": 3,
+      "exhibition_time": null,
+      "start_course": null,
+      "start_timing": null
+    },
+    {
+      "boat_no": 4,
+      "exhibition_time": null,
+      "start_course": null,
+      "start_timing": null
+    },
+    {
+      "boat_no": 5,
+      "exhibition_time": null,
+      "start_course": null,
+      "start_timing": null
+    },
+    {
+      "boat_no": 6,
+      "exhibition_time": null,
+      "start_course": null,
+      "start_timing": null
+    }
+  ],
+  "trifecta_odds": {
+    "4-1-5": 31.0,
+    "5-1-4": 32.4,
+    "6-1-4": 19.5,
+    "4-1-6": 22.5,
+    "5-1-6": 21.2,
+    "6-1-5": 20.0,
+    "1-4-5": 8.7,
+    "1-4-6": 5.4,
+    "4-5-1": 58.6,
+    "5-4-1": 57.6,
+    "6-4-1": 35.8,
+    "1-5-4": 11.8,
+    "1-5-6": 7.4,
+    "4-5-6": 64.6,
+    "5-4-6": 64.4,
+    "6-4-5": 54.4,
+    "4-6-1": 41.9,
+    "5-6-1": 25.0,
+    "6-5-1": 32.0,
+    "1-6-4": 6.0,
+    "1-6-5": 7.4,
+    "4-6-5": 65.9,
+    "5-6-4": 44.6,
+    "6-5-4": 51.8
+  },
+  "win_odds": {
+    "1": 1.6,
+    "4": 4.6,
+    "5": 5.2,
+    "6": 2.9
+  },
+  "notes": [
+    "過去日のため展示タイム・スタート展示進入は取得不能"
+  ]
+}

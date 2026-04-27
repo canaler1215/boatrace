@@ -1,0 +1,35 @@
+{
+  "race_id": "2026-01-05_04_06",
+  "predicted_at": "2026-04-27T21:02:00+09:00",
+  "model": "claude-opus-4-7",
+  "analysis": "1号艇 伯母 B1・全国2連率38.82% (1.3x 大本命)、2号艇 小原 A2・当地2連率44% (4.6x)、3号艇 岡部 B1・全国2連率38.89% (6.3x)、4号艇 仲 A2・全国2連率43.14% (10.6x) と 1コース支配下で2-3-4 拮抗。本命 1-2-X は EV<1.0、しかし1-3-2 (32.0x) / 1-4-2 (38.8x) / 1-3-4 (44.7x) は3着候補分散により EV 1.05-1.15 圏で妙味。",
+  "primary_axis": [1],
+  "verdict": "bet",
+  "skip_reason": null,
+  "bets": [
+    {
+      "trifecta": "1-3-2",
+      "stake": 100,
+      "current_odds": 32.0,
+      "expected_prob": 0.036,
+      "ev": 1.15,
+      "confidence": 0.4
+    },
+    {
+      "trifecta": "1-3-4",
+      "stake": 100,
+      "current_odds": 44.7,
+      "expected_prob": 0.024,
+      "ev": 1.07,
+      "confidence": 0.35
+    },
+    {
+      "trifecta": "1-4-2",
+      "stake": 100,
+      "current_odds": 38.8,
+      "expected_prob": 0.027,
+      "ev": 1.05,
+      "confidence": 0.35
+    }
+  ]
+}

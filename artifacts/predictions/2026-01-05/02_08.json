@@ -1,0 +1,27 @@
+{
+  "race_id": "2026-01-05_02_08",
+  "predicted_at": "2026-04-27T20:09:00+09:00",
+  "model": "claude-opus-4-7",
+  "analysis": "1号艇 平川 A2・当地2連率39.36% (1.3x 大本命) と2号艇 石塚 A2・当地2連率50% (3.7x) の本命二強構造。注目は6号艇 飛田 A1・当地2連率46.77%・直近10走1着4・当地直近1着3 が単勝8.0x と6コース理由で過小評価されている点。1-2 軸の人気サイドは EV<0.8 だが、1-6-2 (21.1x) / 1-6-4 (37.9x) は飛田6号艇2着 (A1上位なので20-25%) のシナリオで EV>1.2 圏。",
+  "primary_axis": [1],
+  "verdict": "bet",
+  "skip_reason": null,
+  "bets": [
+    {
+      "trifecta": "1-6-2",
+      "stake": 100,
+      "current_odds": 21.1,
+      "expected_prob": 0.06,
+      "ev": 1.27,
+      "confidence": 0.45
+    },
+    {
+      "trifecta": "1-6-4",
+      "stake": 100,
+      "current_odds": 37.9,
+      "expected_prob": 0.033,
+      "ev": 1.25,
+      "confidence": 0.4
+    }
+  ]
+}

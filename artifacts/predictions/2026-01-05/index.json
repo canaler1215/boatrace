@@ -1,0 +1,556 @@
+{
+  "date": "2026-01-05",
+  "generated_at": "2026-04-27T19:54:39",
+  "n_total": 48,
+  "n_valid": 48,
+  "n_invalid": 0,
+  "n_bet": 8,
+  "n_skip": 40,
+  "invalid_details": [],
+  "predictions": [
+    {
+      "file": "01_01.json",
+      "race_id": "2026-01-05_01_01",
+      "verdict": "bet",
+      "primary_axis": [
+        2
+      ],
+      "n_bets": 1,
+      "total_stake": 100,
+      "skip_reason": null
+    },
+    {
+      "file": "01_02.json",
+      "race_id": "2026-01-05_01_02",
+      "verdict": "skip",
+      "primary_axis": [
+        1,
+        2
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "1-2 軸の人気サイドはオッズが薄く EV<1.0、中穴に妙味なし。過去日ドライランで展示欠損のため穴目を取りにいく確信もなし。"
+    },
+    {
+      "file": "01_03.json",
+      "race_id": "2026-01-05_01_03",
+      "verdict": "skip",
+      "primary_axis": [
+        1
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "1号艇本命人気が薄く EV<1.0、6号艇 A1の一発も 6コース勝率3.6% を覆すには配当不足。"
+    },
+    {
+      "file": "01_04.json",
+      "race_id": "2026-01-05_01_04",
+      "verdict": "skip",
+      "primary_axis": [
+        2
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "本命 2-3-6 が4.3x と過剰人気で EV<1.0、6号艇1着の中穴も期待値不足。"
+    },
+    {
+      "file": "01_05.json",
+      "race_id": "2026-01-05_01_05",
+      "verdict": "skip",
+      "primary_axis": [
+        5
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "5号艇本命に過剰人気が集中、5-1-X / 5-2-X すべて EV<1.0。"
+    },
+    {
+      "file": "01_06.json",
+      "race_id": "2026-01-05_01_06",
+      "verdict": "skip",
+      "primary_axis": [
+        1
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "1号艇本命固いがオッズ全般 EV<0.7 圏。1-X-Y で妙味なし。"
+    },
+    {
+      "file": "01_07.json",
+      "race_id": "2026-01-05_01_07",
+      "verdict": "skip",
+      "primary_axis": [
+        1,
+        3
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "1-3 二強の本命買い目に過剰人気が集中し EV<0.4。穴筋にも妙味なし。"
+    },
+    {
+      "file": "01_08.json",
+      "race_id": "2026-01-05_01_08",
+      "verdict": "skip",
+      "primary_axis": [
+        1
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "1号艇単勝1.0x の絶対本命にオッズが集中、すべての本命買い目が EV<0.5。"
+    },
+    {
+      "file": "01_09.json",
+      "race_id": "2026-01-05_01_09",
+      "verdict": "skip",
+      "primary_axis": [
+        1
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "1号艇本命単勝1.1x 集中、本命3連単はすべて EV<0.6。"
+    },
+    {
+      "file": "01_10.json",
+      "race_id": "2026-01-05_01_10",
+      "verdict": "skip",
+      "primary_axis": [
+        1
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "1号艇単勝1.0x の絶対本命、本命買い目すべて EV<0.9。"
+    },
+    {
+      "file": "01_11.json",
+      "race_id": "2026-01-05_01_11",
+      "verdict": "skip",
+      "primary_axis": [
+        1
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "毒島1号艇の絶対本命にオッズ集中、本命3連単すべて EV<0.7。"
+    },
+    {
+      "file": "01_12.json",
+      "race_id": "2026-01-05_01_12",
+      "verdict": "skip",
+      "primary_axis": [
+        1
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "1号艇単勝1.0x の絶対本命にオッズ集中、本命買い目すべて EV<0.6。"
+    },
+    {
+      "file": "02_01.json",
+      "race_id": "2026-01-05_02_01",
+      "verdict": "skip",
+      "primary_axis": [
+        1,
+        3
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "1-3-4 軸の本命人気が薄く EV<0.7、6号艇A1の一発も6コース3.8%を覆すには配当不足。"
+    },
+    {
+      "file": "02_02.json",
+      "race_id": "2026-01-05_02_02",
+      "verdict": "skip",
+      "primary_axis": [
+        3,
+        5
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "3-5 軸の本命に過剰人気、捲り返しの中穴も EV<0.7。"
+    },
+    {
+      "file": "02_03.json",
+      "race_id": "2026-01-05_02_03",
+      "verdict": "skip",
+      "primary_axis": [
+        2
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "2号艇まくり本命の3連単すべて EV<0.8、6号艇A1の一発も期待値届かず。"
+    },
+    {
+      "file": "02_04.json",
+      "race_id": "2026-01-05_02_04",
+      "verdict": "skip",
+      "primary_axis": [
+        2
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "2号艇 A1単勝1.2x の絶対本命、本命3連単はすべて EV<0.6。"
+    },
+    {
+      "file": "02_05.json",
+      "race_id": "2026-01-05_02_05",
+      "verdict": "skip",
+      "primary_axis": [
+        2,
+        5
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "2-4-5 三者拮抗の本命買い目すべて EV<0.5、穴狙いも届かず。"
+    },
+    {
+      "file": "02_06.json",
+      "race_id": "2026-01-05_02_06",
+      "verdict": "skip",
+      "primary_axis": [
+        6,
+        1
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "1-3-6 三者軸の本命買い目すべて EV<0.5、桐生順平6号艇1着確率を高く見積もっても届かず。"
+    },
+    {
+      "file": "02_07.json",
+      "race_id": "2026-01-05_02_07",
+      "verdict": "skip",
+      "primary_axis": [
+        1
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "1号艇本命過剰人気、本命3連単すべて EV<0.7。"
+    },
+    {
+      "file": "02_08.json",
+      "race_id": "2026-01-05_02_08",
+      "verdict": "bet",
+      "primary_axis": [
+        1
+      ],
+      "n_bets": 2,
+      "total_stake": 200,
+      "skip_reason": null
+    },
+    {
+      "file": "02_09.json",
+      "race_id": "2026-01-05_02_09",
+      "verdict": "skip",
+      "primary_axis": [
+        1,
+        2
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "1-2-3 三者拮抗で人気分散しても本命買い目すべて EV<0.7。"
+    },
+    {
+      "file": "02_10.json",
+      "race_id": "2026-01-05_02_10",
+      "verdict": "skip",
+      "primary_axis": [
+        1
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "1号艇本命過剰人気、本命買い目すべて EV<0.7。"
+    },
+    {
+      "file": "02_11.json",
+      "race_id": "2026-01-05_02_11",
+      "verdict": "skip",
+      "primary_axis": [
+        1,
+        2
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "1-2 二強の本命買い目すべて EV<0.7、人気分散しているのに妙味なし。"
+    },
+    {
+      "file": "02_12.json",
+      "race_id": "2026-01-05_02_12",
+      "verdict": "skip",
+      "primary_axis": [
+        1
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "1号艇本命過剰人気、本命3連単・中穴すべて EV<0.6。"
+    },
+    {
+      "file": "03_01.json",
+      "race_id": "2026-01-05_03_01",
+      "verdict": "skip",
+      "primary_axis": [
+        1
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "1号艇本命買い目すべて EV<0.8、江戸川荒れの中穴も妙味なし。"
+    },
+    {
+      "file": "03_02.json",
+      "race_id": "2026-01-05_03_02",
+      "verdict": "skip",
+      "primary_axis": [
+        4,
+        1
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "1-2-4 三者拮抗の本命買い目すべて EV<0.6、6号艇浅見の一発も配当不足。"
+    },
+    {
+      "file": "03_03.json",
+      "race_id": "2026-01-05_03_03",
+      "verdict": "bet",
+      "primary_axis": [
+        4
+      ],
+      "n_bets": 1,
+      "total_stake": 100,
+      "skip_reason": null
+    },
+    {
+      "file": "03_04.json",
+      "race_id": "2026-01-05_03_04",
+      "verdict": "skip",
+      "primary_axis": [
+        1,
+        5
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "1-5 軸の本命買い目すべて EV<0.8、中穴も期待値届かず。"
+    },
+    {
+      "file": "03_05.json",
+      "race_id": "2026-01-05_03_05",
+      "verdict": "skip",
+      "primary_axis": [
+        2
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "2号艇A1まくり本命の3連単すべて EV<0.85。"
+    },
+    {
+      "file": "03_06.json",
+      "race_id": "2026-01-05_03_06",
+      "verdict": "skip",
+      "primary_axis": [
+        2
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "2号艇A2まくり本命過剰人気、本命買い目すべて EV<0.85。"
+    },
+    {
+      "file": "03_07.json",
+      "race_id": "2026-01-05_03_07",
+      "verdict": "bet",
+      "primary_axis": [
+        3
+      ],
+      "n_bets": 2,
+      "total_stake": 200,
+      "skip_reason": null
+    },
+    {
+      "file": "03_08.json",
+      "race_id": "2026-01-05_03_08",
+      "verdict": "skip",
+      "primary_axis": [
+        1,
+        3
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "1-3-4 三者拮抗の本命買い目すべて EV<0.9。"
+    },
+    {
+      "file": "03_09.json",
+      "race_id": "2026-01-05_03_09",
+      "verdict": "skip",
+      "primary_axis": [
+        1
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "本命買い目すべて EV<0.85、渡邉6号艇まくりも配当不足。"
+    },
+    {
+      "file": "03_10.json",
+      "race_id": "2026-01-05_03_10",
+      "verdict": "skip",
+      "primary_axis": [
+        1
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "1号艇本命買い目すべて EV<0.8、3-4センターまくり狙いも届かず。"
+    },
+    {
+      "file": "03_11.json",
+      "race_id": "2026-01-05_03_11",
+      "verdict": "skip",
+      "primary_axis": [
+        1,
+        4
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "1-2-4 三者拮抗の本命買い目すべて EV<0.9。"
+    },
+    {
+      "file": "03_12.json",
+      "race_id": "2026-01-05_03_12",
+      "verdict": "skip",
+      "primary_axis": [
+        1
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "1号艇本命買い目すべて EV<0.7、5本立ての2-3着候補で人気が分散しても妙味なし。"
+    },
+    {
+      "file": "04_01.json",
+      "race_id": "2026-01-05_04_01",
+      "verdict": "skip",
+      "primary_axis": [
+        4
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "4号艇まくり本命過剰人気、本命買い目すべて EV<0.7。"
+    },
+    {
+      "file": "04_02.json",
+      "race_id": "2026-01-05_04_02",
+      "verdict": "skip",
+      "primary_axis": [
+        1,
+        4
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "1-2-4-6 四者拮抗で人気分散、本命買い目すべて EV<0.8。"
+    },
+    {
+      "file": "04_03.json",
+      "race_id": "2026-01-05_04_03",
+      "verdict": "skip",
+      "primary_axis": [
+        3,
+        1
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "1-3 二強の本命買い目すべて EV<0.85。"
+    },
+    {
+      "file": "04_04.json",
+      "race_id": "2026-01-05_04_04",
+      "verdict": "skip",
+      "primary_axis": [
+        3,
+        5
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "3-5 センターまくり本命買い目すべて EV<0.7。"
+    },
+    {
+      "file": "04_05.json",
+      "race_id": "2026-01-05_04_05",
+      "verdict": "skip",
+      "primary_axis": [
+        1
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "1号艇単勝1.0x の絶対本命、本命買い目すべて EV<0.6。"
+    },
+    {
+      "file": "04_06.json",
+      "race_id": "2026-01-05_04_06",
+      "verdict": "bet",
+      "primary_axis": [
+        1
+      ],
+      "n_bets": 3,
+      "total_stake": 300,
+      "skip_reason": null
+    },
+    {
+      "file": "04_07.json",
+      "race_id": "2026-01-05_04_07",
+      "verdict": "bet",
+      "primary_axis": [
+        1
+      ],
+      "n_bets": 1,
+      "total_stake": 100,
+      "skip_reason": null
+    },
+    {
+      "file": "04_08.json",
+      "race_id": "2026-01-05_04_08",
+      "verdict": "bet",
+      "primary_axis": [
+        1
+      ],
+      "n_bets": 2,
+      "total_stake": 200,
+      "skip_reason": null
+    },
+    {
+      "file": "04_09.json",
+      "race_id": "2026-01-05_04_09",
+      "verdict": "skip",
+      "primary_axis": [
+        1
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "1号艇本命買い目すべて EV<0.6、3着候補が分散しても妙味なし。"
+    },
+    {
+      "file": "04_10.json",
+      "race_id": "2026-01-05_04_10",
+      "verdict": "skip",
+      "primary_axis": [
+        1,
+        5
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "1-2-3-5 四者拮抗で人気分散、本命買い目すべて EV<0.5。"
+    },
+    {
+      "file": "04_11.json",
+      "race_id": "2026-01-05_04_11",
+      "verdict": "bet",
+      "primary_axis": [
+        1
+      ],
+      "n_bets": 1,
+      "total_stake": 100,
+      "skip_reason": null
+    },
+    {
+      "file": "04_12.json",
+      "race_id": "2026-01-05_04_12",
+      "verdict": "skip",
+      "primary_axis": [
+        1
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "1号艇本命買い目すべて EV<0.85、人気分散レースで妙味なし。"
+    }
+  ]
+}

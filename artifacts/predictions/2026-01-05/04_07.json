@@ -1,0 +1,19 @@
+{
+  "race_id": "2026-01-05_04_07",
+  "predicted_at": "2026-04-27T21:04:00+09:00",
+  "model": "claude-opus-4-7",
+  "analysis": "1号艇 高橋 B1 単勝1.3x 大本命、2号艇 (3.2x) と本命二強、3-4 が9-11x で第三勢力。本命3連単 2-1-4 (7.9x) / 1-2-4 (8.3x) は超過剰人気で EV<0.4、1-2-3 (15.7x) も EV<0.85。妙味は 1-3-2 (24.3x)、3着候補が分散しているため2号艇3着 (35%) として EV 1.02 圏。",
+  "primary_axis": [1],
+  "verdict": "bet",
+  "skip_reason": null,
+  "bets": [
+    {
+      "trifecta": "1-3-2",
+      "stake": 100,
+      "current_odds": 24.3,
+      "expected_prob": 0.042,
+      "ev": 1.02,
+      "confidence": 0.35
+    }
+  ]
+}
