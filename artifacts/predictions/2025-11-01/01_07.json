@@ -1,0 +1,16 @@
+{
+  "race_id": "2025-11-01_01_07",
+  "predicted_at": "2026-04-27T13:00:00+09:00",
+  "model": "claude-opus-4-7",
+  "analysis": "ドラドキ3。1号艇藤田竜弘A2 42歳 単勝1.2x の超本命だが、直近10走1着1のみで当地直近3走 1着1（10-30桐生2R で 3コースから1着）と1コース初挑戦の本命。3号艇松本純平A1 30歳 当地2連42.37% / 直近10走1着1（10-31桐生11R 1コース1着）が捲り脅威の連軸、単勝4.7x。5号艇島田B1 当地直近3走1着2（10-30桐生9R 1コース1着・10-31桐生2R 3コース1着）の好調を3着で評価。本線は 1頭固定+3-2/5/4 連、3号艇捲り頭+1号艇まくり差され裏目を1点保険。",
+  "primary_axis": [1, 3],
+  "verdict": "bet",
+  "skip_reason": null,
+  "bets": [
+    {"trifecta": "1-3-2", "stake": 100, "current_odds": 8.6, "expected_prob": 0.13, "ev": 1.12, "confidence": 0.50},
+    {"trifecta": "1-3-5", "stake": 100, "current_odds": 9.5, "expected_prob": 0.12, "ev": 1.14, "confidence": 0.50},
+    {"trifecta": "1-3-4", "stake": 100, "current_odds": 12.2, "expected_prob": 0.10, "ev": 1.22, "confidence": 0.45},
+    {"trifecta": "3-1-5", "stake": 100, "current_odds": 17.8, "expected_prob": 0.07, "ev": 1.25, "confidence": 0.45},
+    {"trifecta": "1-5-3", "stake": 100, "current_odds": 26.3, "expected_prob": 0.05, "ev": 1.32, "confidence": 0.45}
+  ]
+}

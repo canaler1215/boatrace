@@ -1,0 +1,16 @@
+{
+  "race_id": "2025-11-01_01_04",
+  "predicted_at": "2026-04-27T12:45:00+09:00",
+  "model": "claude-opus-4-7",
+  "analysis": "6号艇江口晃生A1 60歳 桐生マスター 全国2連46.88%・当地2連61.48%・ST0.136 が単勝1.9x の最人気、6コースで1.9x は異例の織り込み。1号艇前田B2 57歳 直近3走全敗・ST0.217 で逃げ信頼度極低、単勝8.2xも過大気味。3号艇宗行A2 28歳 当地2連37.50%・10-30桐生4R 5コースから1着・直近10走1着2 が捲り脅威の連軸、単勝3.2x。4号艇外崎A2 36歳 当地2連30%・モーター12号2連41.85% 連有力。本線は 6頭固定+3/4/2 連、3号艇捲り頭 + 江口連の裏目を1点ケア。",
+  "primary_axis": [6, 3],
+  "verdict": "bet",
+  "skip_reason": null,
+  "bets": [
+    {"trifecta": "6-3-4", "stake": 100, "current_odds": 10.7, "expected_prob": 0.12, "ev": 1.28, "confidence": 0.55},
+    {"trifecta": "6-3-2", "stake": 100, "current_odds": 11.9, "expected_prob": 0.10, "ev": 1.19, "confidence": 0.50},
+    {"trifecta": "6-2-3", "stake": 100, "current_odds": 12.1, "expected_prob": 0.10, "ev": 1.21, "confidence": 0.50},
+    {"trifecta": "6-4-3", "stake": 100, "current_odds": 18.7, "expected_prob": 0.07, "ev": 1.31, "confidence": 0.50},
+    {"trifecta": "3-6-4", "stake": 100, "current_odds": 17.5, "expected_prob": 0.07, "ev": 1.23, "confidence": 0.45}
+  ]
+}

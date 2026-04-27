@@ -1,0 +1,16 @@
+{
+  "race_id": "2025-11-01_01_08",
+  "predicted_at": "2026-04-27T13:05:00+09:00",
+  "model": "claude-opus-4-7",
+  "analysis": "ドラドキ5。1号艇石田政吾A2 55歳 当地2連27.91%・10-30桐生3R 2コースから1着 で当地好調、単勝2.0x の本命。5号艇植田太一A2 36歳 福岡 全国2連46.83%・直近10走1着2/2連6 が単勝2.3x の捲り脅威で 5コース 2.3x は異例。Day 5 R8 で同じ 5号艇A2福岡選手による 5-1-4 26.5x 的中の類似構造。本線は 1頭固定+2/5 連、5号艇捲り頭+1号艇まくり差され裏目を 5-1-X で 2点ケア。",
+  "primary_axis": [1, 5],
+  "verdict": "bet",
+  "skip_reason": null,
+  "bets": [
+    {"trifecta": "1-2-5", "stake": 100, "current_odds": 10.2, "expected_prob": 0.10, "ev": 1.02, "confidence": 0.45},
+    {"trifecta": "1-5-2", "stake": 100, "current_odds": 12.3, "expected_prob": 0.10, "ev": 1.23, "confidence": 0.50},
+    {"trifecta": "1-5-4", "stake": 100, "current_odds": 15.6, "expected_prob": 0.07, "ev": 1.09, "confidence": 0.45},
+    {"trifecta": "5-1-4", "stake": 100, "current_odds": 29.0, "expected_prob": 0.05, "ev": 1.45, "confidence": 0.50},
+    {"trifecta": "5-1-2", "stake": 100, "current_odds": 35.0, "expected_prob": 0.04, "ev": 1.40, "confidence": 0.45}
+  ]
+}

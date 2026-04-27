@@ -1,0 +1,16 @@
+{
+  "race_id": "2025-11-01_01_12",
+  "predicted_at": "2026-04-27T13:25:00+09:00",
+  "model": "claude-opus-4-7",
+  "analysis": "桐生特選。1号艇黒井達矢A1 37歳 全国2連51.94%・当地2連35%・ST0.178・直近10走1着4/2連6・10-30桐生12R 2コース1着・10-30桐生8R 5コースから1着 で当地超好調、単勝1.1x の超本命で逃げ濃厚。5号艇重木輝彦A1 当地2連47.83%・直近10走1着3・10-30桐生11R 1コースから1着 が捲り脅威の連軸、単勝9.2x。2号艇野村A1 当地2連37%だが直近3走当地全敗 (5-5-6着) で連の信頼度に懸念。4号艇島田B1 当地直近3走1着2 の好調を3着で評価。本線は 1頭固定+2/5/4 連、5号艇重木の捲り差しは 1-5-X で2点ケア。",
+  "primary_axis": [1, 5],
+  "verdict": "bet",
+  "skip_reason": null,
+  "bets": [
+    {"trifecta": "1-2-5", "stake": 100, "current_odds": 6.5, "expected_prob": 0.18, "ev": 1.17, "confidence": 0.55},
+    {"trifecta": "1-5-2", "stake": 100, "current_odds": 10.1, "expected_prob": 0.12, "ev": 1.21, "confidence": 0.55},
+    {"trifecta": "1-4-5", "stake": 100, "current_odds": 14.3, "expected_prob": 0.09, "ev": 1.29, "confidence": 0.50},
+    {"trifecta": "1-5-4", "stake": 100, "current_odds": 15.7, "expected_prob": 0.08, "ev": 1.26, "confidence": 0.50},
+    {"trifecta": "1-2-4", "stake": 100, "current_odds": 13.5, "expected_prob": 0.09, "ev": 1.22, "confidence": 0.50}
+  ]
+}

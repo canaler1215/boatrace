@@ -1,0 +1,16 @@
+{
+  "race_id": "2025-11-01_01_01",
+  "predicted_at": "2026-04-27T12:30:00+09:00",
+  "model": "claude-opus-4-7",
+  "analysis": "1号艇秋末B2 22歳 全国2連8.64%・当地2連0%・直近10走1着0・平均ST0.199 で逃げ信頼度低、単勝3.6xは過大。4号艇藤田A2 42歳 当地2連37.84%・モーター53号2連41.95%・直近10走1着1/2連3、10-30桐生2Rで3コース1着の捲り実績あり、単勝2.7x最人気は妥当。6号艇為本A2 24歳 当地2連33.33%・ST0.127・直近10走1着4・10-30桐生7Rで1コース1着、捲り浮上濃厚。3号艇古賀B1 当地2連34.48%・10-31桐生3R 2着 をヒモに。本線は4頭捲り+ヒモ6/3、1号艇逃げ抗戦は1点だけケア。",
+  "primary_axis": [4, 6],
+  "verdict": "bet",
+  "skip_reason": null,
+  "bets": [
+    {"trifecta": "4-6-1", "stake": 100, "current_odds": 28.5, "expected_prob": 0.05, "ev": 1.43, "confidence": 0.50},
+    {"trifecta": "4-6-3", "stake": 100, "current_odds": 24.0, "expected_prob": 0.06, "ev": 1.44, "confidence": 0.50},
+    {"trifecta": "4-1-6", "stake": 100, "current_odds": 32.1, "expected_prob": 0.04, "ev": 1.28, "confidence": 0.45},
+    {"trifecta": "4-3-6", "stake": 100, "current_odds": 29.0, "expected_prob": 0.04, "ev": 1.16, "confidence": 0.45},
+    {"trifecta": "1-4-6", "stake": 100, "current_odds": 19.1, "expected_prob": 0.07, "ev": 1.34, "confidence": 0.45}
+  ]
+}

@@ -1,0 +1,156 @@
+{
+  "date": "2025-11-01",
+  "generated_at": "2026-04-27T12:19:50",
+  "n_total": 12,
+  "n_valid": 12,
+  "n_invalid": 0,
+  "n_bet": 11,
+  "n_skip": 1,
+  "invalid_details": [],
+  "predictions": [
+    {
+      "file": "01_01.json",
+      "race_id": "2025-11-01_01_01",
+      "verdict": "bet",
+      "primary_axis": [
+        4,
+        6
+      ],
+      "n_bets": 5,
+      "total_stake": 500,
+      "skip_reason": null
+    },
+    {
+      "file": "01_02.json",
+      "race_id": "2025-11-01_01_02",
+      "verdict": "bet",
+      "primary_axis": [
+        2,
+        4
+      ],
+      "n_bets": 5,
+      "total_stake": 500,
+      "skip_reason": null
+    },
+    {
+      "file": "01_03.json",
+      "race_id": "2025-11-01_01_03",
+      "verdict": "bet",
+      "primary_axis": [
+        3,
+        6
+      ],
+      "n_bets": 5,
+      "total_stake": 500,
+      "skip_reason": null
+    },
+    {
+      "file": "01_04.json",
+      "race_id": "2025-11-01_01_04",
+      "verdict": "bet",
+      "primary_axis": [
+        6,
+        3
+      ],
+      "n_bets": 5,
+      "total_stake": 500,
+      "skip_reason": null
+    },
+    {
+      "file": "01_05.json",
+      "race_id": "2025-11-01_01_05",
+      "verdict": "bet",
+      "primary_axis": [
+        3,
+        1
+      ],
+      "n_bets": 5,
+      "total_stake": 500,
+      "skip_reason": null
+    },
+    {
+      "file": "01_06.json",
+      "race_id": "2025-11-01_01_06",
+      "verdict": "skip",
+      "primary_axis": [
+        1,
+        3
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "ドラドキ目玉 1号艇野村A1 単勝1.7x の本命固定でオッズ妙味なし、本線 1-3-5 9.6x 帯のEV<1.2でリスク・リターンが釣り合わない"
+    },
+    {
+      "file": "01_07.json",
+      "race_id": "2025-11-01_01_07",
+      "verdict": "bet",
+      "primary_axis": [
+        1,
+        3
+      ],
+      "n_bets": 5,
+      "total_stake": 500,
+      "skip_reason": null
+    },
+    {
+      "file": "01_08.json",
+      "race_id": "2025-11-01_01_08",
+      "verdict": "bet",
+      "primary_axis": [
+        1,
+        5
+      ],
+      "n_bets": 5,
+      "total_stake": 500,
+      "skip_reason": null
+    },
+    {
+      "file": "01_09.json",
+      "race_id": "2025-11-01_01_09",
+      "verdict": "bet",
+      "primary_axis": [
+        1,
+        2
+      ],
+      "n_bets": 5,
+      "total_stake": 500,
+      "skip_reason": null
+    },
+    {
+      "file": "01_10.json",
+      "race_id": "2025-11-01_01_10",
+      "verdict": "bet",
+      "primary_axis": [
+        1,
+        2
+      ],
+      "n_bets": 5,
+      "total_stake": 500,
+      "skip_reason": null
+    },
+    {
+      "file": "01_11.json",
+      "race_id": "2025-11-01_01_11",
+      "verdict": "bet",
+      "primary_axis": [
+        1,
+        3
+      ],
+      "n_bets": 5,
+      "total_stake": 500,
+      "skip_reason": null
+    },
+    {
+      "file": "01_12.json",
+      "race_id": "2025-11-01_01_12",
+      "verdict": "bet",
+      "primary_axis": [
+        1,
+        5
+      ],
+      "n_bets": 5,
+      "total_stake": 500,
+      "skip_reason": null
+    }
+  ]
+}

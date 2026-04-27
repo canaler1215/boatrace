@@ -1,0 +1,16 @@
+{
+  "race_id": "2025-11-01_01_03",
+  "predicted_at": "2026-04-27T12:40:00+09:00",
+  "model": "claude-opus-4-7",
+  "analysis": "3号艇伊藤将吉A1 47歳 全国2連50%・当地2連54.24%・ST0.129・直近10走1着5、10-31桐生4R 6コースから1着・10-30桐生6R 1コース1着 の地元当地マスター、単勝1.3x の超本命で捲り頭ほぼ確定。1号艇雑賀B1 当地2連12.5%・当地直近4走1着0 で逃げ信頼度は低、単勝4.4xは過大気味。6号艇松田大志A1 全国2連71.23%・当地2連58%・10-31桐生12R 1コース1着 / 8R 5コースから1着 で 6コースでも捲り or 連絡み濃厚、単勝9.3xは激安。本線は 3頭固定+6連 / 1逃げ抗戦+3連保険。",
+  "primary_axis": [3, 6],
+  "verdict": "bet",
+  "skip_reason": null,
+  "bets": [
+    {"trifecta": "3-6-1", "stake": 100, "current_odds": 23.3, "expected_prob": 0.07, "ev": 1.63, "confidence": 0.55},
+    {"trifecta": "3-6-4", "stake": 100, "current_odds": 13.8, "expected_prob": 0.10, "ev": 1.38, "confidence": 0.55},
+    {"trifecta": "1-3-6", "stake": 100, "current_odds": 20.9, "expected_prob": 0.07, "ev": 1.46, "confidence": 0.50},
+    {"trifecta": "3-1-6", "stake": 100, "current_odds": 17.9, "expected_prob": 0.08, "ev": 1.43, "confidence": 0.55},
+    {"trifecta": "3-4-6", "stake": 100, "current_odds": 14.6, "expected_prob": 0.09, "ev": 1.31, "confidence": 0.50}
+  ]
+}

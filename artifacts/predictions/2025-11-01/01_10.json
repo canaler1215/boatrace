@@ -1,0 +1,16 @@
+{
+  "race_id": "2025-11-01_01_10",
+  "predicted_at": "2026-04-27T13:15:00+09:00",
+  "model": "claude-opus-4-7",
+  "analysis": "予選特賞、A1/A2 4枚の高レベル戦。1号艇岡田憲行A2 49歳 当地2連52.63%・モーター55号2連43.58%・直近3走当地2連3走連発 で当地超好調、単勝2.4x の本命。2号艇江口晃生A1 60歳 桐生マスター 当地2連61.48%・ST0.136 が 2コースから差し連の本命級、単勝2.8x。4号艇伊藤将吉A1 47歳 当地2連54.24%・ST0.129・10-31桐生4R 6コースから1着 で捲り脅威、4コース単勝3.0xは異例の織り込み。5号艇角谷A2 当地2連58.33% 連候補。本線は 1-2-4 軸の3強+5/3着、伊藤捲り頭の裏目を 4-1-2 で1点保険。",
+  "primary_axis": [1, 2],
+  "verdict": "bet",
+  "skip_reason": null,
+  "bets": [
+    {"trifecta": "1-2-4", "stake": 100, "current_odds": 9.0, "expected_prob": 0.13, "ev": 1.17, "confidence": 0.55},
+    {"trifecta": "1-4-2", "stake": 100, "current_odds": 13.5, "expected_prob": 0.09, "ev": 1.22, "confidence": 0.50},
+    {"trifecta": "2-1-4", "stake": 100, "current_odds": 17.6, "expected_prob": 0.07, "ev": 1.23, "confidence": 0.50},
+    {"trifecta": "4-1-2", "stake": 100, "current_odds": 28.3, "expected_prob": 0.05, "ev": 1.42, "confidence": 0.50},
+    {"trifecta": "1-2-5", "stake": 100, "current_odds": 14.9, "expected_prob": 0.08, "ev": 1.19, "confidence": 0.50}
+  ]
+}

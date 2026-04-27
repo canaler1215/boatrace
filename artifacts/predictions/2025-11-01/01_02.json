@@ -1,0 +1,16 @@
+{
+  "race_id": "2025-11-01_01_02",
+  "predicted_at": "2026-04-27T12:35:00+09:00",
+  "model": "claude-opus-4-7",
+  "analysis": "1号艇豊田B2 56歳 全国2連9.09%・直近10走1着1で逃げ信頼度低、単勝6.9x。2号艇角谷A2 当地2連58.33%・全国2連47.69%・ST0.153・10-31桐生1R 3コースから1着 が差し本命、単勝2.6x。4号艇山下A2 29歳 全国2連50.69%・直近10走1着3・10-31桐生9R 2コースから1着、ST0.135 で捲り脅威、単勝2.1x 最人気。6号艇重木A1 37歳 当地2連47.83%・直近10走1着3・10-30桐生11Rで1コース1着、6コースでも連絡みケア。本線は 2-4 / 4-2 軸で6号艇3着、1号艇逃げ抗戦は1点保険。",
+  "primary_axis": [2, 4],
+  "verdict": "bet",
+  "skip_reason": null,
+  "bets": [
+    {"trifecta": "2-4-6", "stake": 100, "current_odds": 12.8, "expected_prob": 0.10, "ev": 1.28, "confidence": 0.55},
+    {"trifecta": "4-2-6", "stake": 100, "current_odds": 19.9, "expected_prob": 0.07, "ev": 1.39, "confidence": 0.55},
+    {"trifecta": "2-6-4", "stake": 100, "current_odds": 21.7, "expected_prob": 0.06, "ev": 1.30, "confidence": 0.50},
+    {"trifecta": "4-6-2", "stake": 100, "current_odds": 26.1, "expected_prob": 0.05, "ev": 1.31, "confidence": 0.50},
+    {"trifecta": "2-4-1", "stake": 100, "current_odds": 29.0, "expected_prob": 0.04, "ev": 1.16, "confidence": 0.45}
+  ]
+}
