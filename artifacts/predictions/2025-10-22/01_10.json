@@ -1,0 +1,16 @@
+{
+  "race_id": "2025-10-22_01_10",
+  "predicted_at": "2026-04-27T11:45:00+09:00",
+  "model": "claude-opus-4-7",
+  "analysis": "1号艇渋谷明憲 A2 全国2連44.53%・当地2連48% は単勝1.7xで本命扱いも、前日10-21桐生で2レース連続6着 (4R 3コース・9R 5コース) と当地調子悪さが気になる。3号艇羽野直也 A1 福岡 全国2連40.7%・直近10走1着3、4号艇坂口周 A1 三重 当地2連52.5%・前日10-21桐生9R 2コースから1着 の A1 同士が連で強力。2号艇津留 B1 前日1着ST0.030 も当地で爆速。本筋は1-3-X 系+1号艇崩れの3号艇捲り (3-1-X) もケア。",
+  "primary_axis": [1, 3],
+  "verdict": "bet",
+  "skip_reason": null,
+  "bets": [
+    {"trifecta": "1-3-4", "stake": 100, "current_odds": 8.2, "expected_prob": 0.13, "ev": 1.07, "confidence": 0.55},
+    {"trifecta": "1-3-2", "stake": 100, "current_odds": 13.0, "expected_prob": 0.08, "ev": 1.04, "confidence": 0.5},
+    {"trifecta": "3-1-4", "stake": 100, "current_odds": 16.5, "expected_prob": 0.07, "ev": 1.16, "confidence": 0.5},
+    {"trifecta": "1-4-3", "stake": 100, "current_odds": 19.4, "expected_prob": 0.055, "ev": 1.07, "confidence": 0.45},
+    {"trifecta": "1-3-5", "stake": 100, "current_odds": 16.5, "expected_prob": 0.06, "ev": 0.99, "confidence": 0.4}
+  ]
+}

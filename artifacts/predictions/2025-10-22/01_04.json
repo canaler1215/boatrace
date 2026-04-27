@@ -1,0 +1,16 @@
+{
+  "race_id": "2025-10-22_01_04",
+  "predicted_at": "2026-04-27T11:39:00+09:00",
+  "model": "claude-opus-4-7",
+  "analysis": "2号艇深谷知博 A1 全国勝率7.50/2連50.38%・当地2連55.56%・ST0.108・直近10走1着3/2連7/3連10・前日10-21桐生12R 1コース1着 が圧倒的本命 (単勝1.4x)。3号艇金子萌 A2 全国2連42%/ST0.126・モーター55号2連42.6%・前日10-21桐生2R 4コースから1着 の機材良好。1号艇荒牧 B1 直近10走1着3・当地2連31.58% は単勝3.1xにしては過大も逃げ可能性は残る。本筋は2号艇捲り頭+3号艇A2連、1号艇逃げ抑え。",
+  "primary_axis": [2, 3],
+  "verdict": "bet",
+  "skip_reason": null,
+  "bets": [
+    {"trifecta": "2-3-1", "stake": 100, "current_odds": 8.0, "expected_prob": 0.14, "ev": 1.12, "confidence": 0.6},
+    {"trifecta": "2-3-4", "stake": 100, "current_odds": 8.1, "expected_prob": 0.13, "ev": 1.05, "confidence": 0.55},
+    {"trifecta": "2-1-3", "stake": 100, "current_odds": 8.2, "expected_prob": 0.13, "ev": 1.07, "confidence": 0.55},
+    {"trifecta": "2-3-5", "stake": 100, "current_odds": 18.5, "expected_prob": 0.06, "ev": 1.11, "confidence": 0.4},
+    {"trifecta": "1-2-3", "stake": 100, "current_odds": 12.7, "expected_prob": 0.08, "ev": 1.02, "confidence": 0.4}
+  ]
+}

@@ -1,0 +1,16 @@
+{
+  "race_id": "2025-10-22_01_12",
+  "predicted_at": "2026-04-27T11:47:00+09:00",
+  "model": "claude-opus-4-7",
+  "analysis": "1号艇中島孝平 A1 福井 全国勝率7.68/2連57.25%・当地2連47.22%・ST0.120・直近10走1着2/2連8・前日10-21桐生で2レース連続2着 (12R 2コース・5R 3コース ST0.070) が単勝1.0xで圧倒的本命妥当 (本日桐生最強級)。3号艇岡村将也 A2 モーター20号2連42.86%、5号艇川原正明 A2 福井 ST0.136・前日10-21桐生8R 1コース1着、6号艇山本修一 A1 全国2連47.17% (前日6着で当地調子悪) が連争い。本筋は1-3-X+5号艇前日1着のヒモ妙味+6号艇A1ヒモ。",
+  "primary_axis": [1, 3],
+  "verdict": "bet",
+  "skip_reason": null,
+  "bets": [
+    {"trifecta": "1-3-5", "stake": 100, "current_odds": 7.8, "expected_prob": 0.15, "ev": 1.17, "confidence": 0.6},
+    {"trifecta": "1-3-4", "stake": 100, "current_odds": 8.7, "expected_prob": 0.13, "ev": 1.13, "confidence": 0.55},
+    {"trifecta": "1-3-2", "stake": 100, "current_odds": 11.2, "expected_prob": 0.10, "ev": 1.12, "confidence": 0.5},
+    {"trifecta": "1-3-6", "stake": 100, "current_odds": 11.4, "expected_prob": 0.09, "ev": 1.03, "confidence": 0.5},
+    {"trifecta": "1-5-3", "stake": 100, "current_odds": 19.6, "expected_prob": 0.055, "ev": 1.08, "confidence": 0.4}
+  ]
+}

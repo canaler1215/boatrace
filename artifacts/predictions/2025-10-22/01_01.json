@@ -1,0 +1,16 @@
+{
+  "race_id": "2025-10-22_01_01",
+  "predicted_at": "2026-04-27T11:36:00+09:00",
+  "model": "claude-opus-4-7",
+  "analysis": "1号艇石岡 B1 当地2連26%・全国2連33% は桐生1コース52.5%恩恵込みでも単勝2.2xにしては過大評価。5号艇坂口 A1 当地2連52.5% かつ前日10-21桐生9Rで1着・平均ST0.146 と速くモーター35号2連40%、4号艇大橋 A2 当地2連46% モーター16号2連47%、3号艇楠原 B1 全国2連37.5% (前日桐生ST0.110) が3〜5コースの中で力ある。本筋は1号艇逃げ+5/4/3号艇のヒモだが、5号艇捲り浮上の可能性も無視できない。",
+  "primary_axis": [1, 5],
+  "verdict": "bet",
+  "skip_reason": null,
+  "bets": [
+    {"trifecta": "1-5-3", "stake": 100, "current_odds": 19.4, "expected_prob": 0.06, "ev": 1.16, "confidence": 0.5},
+    {"trifecta": "1-3-5", "stake": 100, "current_odds": 10.1, "expected_prob": 0.10, "ev": 1.01, "confidence": 0.5},
+    {"trifecta": "1-4-3", "stake": 100, "current_odds": 18.0, "expected_prob": 0.06, "ev": 1.08, "confidence": 0.5},
+    {"trifecta": "1-4-5", "stake": 100, "current_odds": 13.8, "expected_prob": 0.08, "ev": 1.10, "confidence": 0.45},
+    {"trifecta": "4-1-5", "stake": 100, "current_odds": 27.0, "expected_prob": 0.04, "ev": 1.08, "confidence": 0.4}
+  ]
+}

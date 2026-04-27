@@ -1,0 +1,16 @@
+{
+  "race_id": "2025-10-22_01_09",
+  "predicted_at": "2026-04-27T11:44:00+09:00",
+  "model": "claude-opus-4-7",
+  "analysis": "1号艇田中太一 B1 当地走歴ほぼなし・直近10走1着0/2連3 で単勝6.4xに信頼度なし、市場も3連単1番人気が 2-4-5 12.4x で1号艇を完全に消し2号艇捲り頭評価。2号艇金子萌 A2 当地2連39.47%・モーター55号2連42.6%・前日10-21桐生で4コース1着+5コース2着の連続好走 が単勝2.3x本命級。5号艇若林将 A1 当地2連65%・ST0.103・前日6R 1コース1着 ST0.070 は桐生最強級 (5コースから)、4号艇宇佐見 A1 全国2連44.85% も連有力。本筋は2号艇捲り頭+4/5号艇連、5号艇A1捲り浮上もケア。",
+  "primary_axis": [2, 5],
+  "verdict": "bet",
+  "skip_reason": null,
+  "bets": [
+    {"trifecta": "2-4-5", "stake": 100, "current_odds": 12.4, "expected_prob": 0.09, "ev": 1.12, "confidence": 0.55},
+    {"trifecta": "2-5-4", "stake": 100, "current_odds": 15.4, "expected_prob": 0.07, "ev": 1.08, "confidence": 0.5},
+    {"trifecta": "4-2-5", "stake": 100, "current_odds": 25.3, "expected_prob": 0.045, "ev": 1.14, "confidence": 0.45},
+    {"trifecta": "5-2-4", "stake": 100, "current_odds": 31.4, "expected_prob": 0.035, "ev": 1.10, "confidence": 0.45},
+    {"trifecta": "2-4-1", "stake": 100, "current_odds": 30.8, "expected_prob": 0.035, "ev": 1.08, "confidence": 0.4}
+  ]
+}

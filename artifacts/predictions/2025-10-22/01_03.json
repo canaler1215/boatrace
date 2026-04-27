@@ -1,0 +1,16 @@
+{
+  "race_id": "2025-10-22_01_03",
+  "predicted_at": "2026-04-27T11:38:00+09:00",
+  "model": "claude-opus-4-7",
+  "analysis": "1号艇天野 B1 全国2連16%・直近10走1着0/2連1・ST0.222 は信頼度極めて低く、市場も3連単1番人気が 2-4-6 16.5x で2号艇捲り頭評価。2号艇長谷川晴 A2 群馬25歳地元・当地2連37%・直近10走1着3・前日10-21桐生で1コースから1着 + 3コースから1着 の連続好走が本命級。4号艇山本 A1 全国2連47% 前日6着でも実力上位、6号艇鈴木 A2 モーター71号2連40%・前日1コースから1着 も連有力。本筋は2号艇捲り頭+4/1/6号艇のヒモ。",
+  "primary_axis": [2, 4],
+  "verdict": "bet",
+  "skip_reason": null,
+  "bets": [
+    {"trifecta": "2-4-6", "stake": 100, "current_odds": 16.5, "expected_prob": 0.07, "ev": 1.16, "confidence": 0.55},
+    {"trifecta": "2-4-1", "stake": 100, "current_odds": 26.1, "expected_prob": 0.045, "ev": 1.17, "confidence": 0.5},
+    {"trifecta": "2-1-4", "stake": 100, "current_odds": 23.4, "expected_prob": 0.05, "ev": 1.17, "confidence": 0.5},
+    {"trifecta": "4-2-6", "stake": 100, "current_odds": 30.6, "expected_prob": 0.04, "ev": 1.22, "confidence": 0.4},
+    {"trifecta": "2-4-3", "stake": 100, "current_odds": 39.9, "expected_prob": 0.03, "ev": 1.20, "confidence": 0.4}
+  ]
+}

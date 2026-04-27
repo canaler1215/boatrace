@@ -1,0 +1,16 @@
+{
+  "race_id": "2025-10-22_01_05",
+  "predicted_at": "2026-04-27T11:40:00+09:00",
+  "model": "claude-opus-4-7",
+  "analysis": "1号艇津留 B1 全国2連31.52% は単勝1.9xにしてはやや過大も、前日10-21桐生1R 3コースから1着+ST0.030 と当地で爆速・調子良く、桐生1コース52.5%恩恵込みなら本命妥当。4号艇下寺秀和 A1 広島 全国2連46.27%・当地2連51.72%・前日桐生2着あり、5号艇松崎祐太 A1 全国2連45.9% の A1 同士が4・5に並ぶ構図で捲り浮上もケア。2号艇岡村 A2 モーター20号2連42.86% も連有力。本筋は1号艇逃げ+4/2/5号艇連、4号艇 A1 捲りも軽く抑え。",
+  "primary_axis": [1, 4],
+  "verdict": "bet",
+  "skip_reason": null,
+  "bets": [
+    {"trifecta": "1-2-4", "stake": 100, "current_odds": 8.5, "expected_prob": 0.13, "ev": 1.11, "confidence": 0.55},
+    {"trifecta": "1-4-2", "stake": 100, "current_odds": 15.6, "expected_prob": 0.07, "ev": 1.09, "confidence": 0.5},
+    {"trifecta": "1-2-5", "stake": 100, "current_odds": 12.0, "expected_prob": 0.09, "ev": 1.08, "confidence": 0.5},
+    {"trifecta": "1-4-5", "stake": 100, "current_odds": 19.1, "expected_prob": 0.06, "ev": 1.15, "confidence": 0.45},
+    {"trifecta": "4-1-5", "stake": 100, "current_odds": 50.0, "expected_prob": 0.022, "ev": 1.10, "confidence": 0.35}
+  ]
+}

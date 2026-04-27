@@ -1,0 +1,16 @@
+{
+  "race_id": "2025-10-22_01_11",
+  "predicted_at": "2026-04-27T11:46:00+09:00",
+  "model": "claude-opus-4-7",
+  "analysis": "1号艇松崎祐太 A1 全国2連45.9%・当地2連42.86% は単勝1.0xで圧倒的本命扱い (前日11R 6コース3着 ST0.190)。2号艇有賀達也 A2 埼玉 当地2連57.78%・直近10走1着2・前日10-21桐生で4コース2着 が連有力。6号艇深谷知博 A1 静岡 全国勝率7.50/2連50.38%・当地2連55.56%・ST0.108・直近10走1着3/2連7/3連10・前日12R 1コース1着 が桐生最強級なのに6コースから攻める。市場は1-2-6 7.6x を1番人気に置き6号艇を3着想定だが、A1 級6号艇の捲り浮上が高配当で狙える (6-1-2 57.5x)。本筋は1-2-6/1-6-X+6号艇捲り抑え。",
+  "primary_axis": [1, 6],
+  "verdict": "bet",
+  "skip_reason": null,
+  "bets": [
+    {"trifecta": "1-2-6", "stake": 100, "current_odds": 7.6, "expected_prob": 0.14, "ev": 1.06, "confidence": 0.5},
+    {"trifecta": "1-6-2", "stake": 100, "current_odds": 13.1, "expected_prob": 0.08, "ev": 1.05, "confidence": 0.45},
+    {"trifecta": "6-1-2", "stake": 100, "current_odds": 57.5, "expected_prob": 0.02, "ev": 1.15, "confidence": 0.4},
+    {"trifecta": "1-2-5", "stake": 100, "current_odds": 12.4, "expected_prob": 0.085, "ev": 1.05, "confidence": 0.45},
+    {"trifecta": "1-6-5", "stake": 100, "current_odds": 18.6, "expected_prob": 0.06, "ev": 1.12, "confidence": 0.4}
+  ]
+}
