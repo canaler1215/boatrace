@@ -1,0 +1,16 @@
+{
+  "race_id": "2025-10-07_01_09",
+  "predicted_at": "2026-04-27T11:58:00+09:00",
+  "model": "claude-opus-4-7",
+  "analysis": "1号艇荒川A2 当地2連43.75%・モーター39号2連38.04%・単勝1.2x で逃げほぼ確定。ヒモ激戦で 3号艇本橋A2 51歳地元 当地2連41.72%・5号艇川北A2 当地2連50%・4号艇岡部B1 当地2連42.42% が拮抗。2号艇長野B1 モーター46号2連39.51%(超優秀) もケア。6号艇加藤A1 全国2連54% は直近10走ST0.241 と遅く6コースから頭は厳しい。本線5点で1号艇頭固定+3-4-5の組合せ厚め。",
+  "primary_axis": [1, 3],
+  "verdict": "bet",
+  "skip_reason": null,
+  "bets": [
+    {"trifecta": "1-3-5", "stake": 100, "current_odds": 10.9, "expected_prob": 0.10, "ev": 1.09, "confidence": 0.6},
+    {"trifecta": "1-3-4", "stake": 100, "current_odds": 11.3, "expected_prob": 0.10, "ev": 1.13, "confidence": 0.55},
+    {"trifecta": "1-3-2", "stake": 100, "current_odds": 12.4, "expected_prob": 0.09, "ev": 1.12, "confidence": 0.5},
+    {"trifecta": "1-5-3", "stake": 100, "current_odds": 25.9, "expected_prob": 0.05, "ev": 1.30, "confidence": 0.5},
+    {"trifecta": "1-4-3", "stake": 100, "current_odds": 19.2, "expected_prob": 0.06, "ev": 1.15, "confidence": 0.5}
+  ]
+}

@@ -1,0 +1,16 @@
+{
+  "race_id": "2025-10-07_01_10",
+  "predicted_at": "2026-04-27T12:02:00+09:00",
+  "model": "claude-opus-4-7",
+  "analysis": "1号艇和田A1 35歳兵庫 当地2連60%・全国2連51.89%・直近10走1着4・ST0.120・単勝1.5x で逃げほぼ確定。問題はヒモ。6号艇中山A2 直近10走1着6/2連8・ST0.122・単勝3.3x の絶好調A2 が6コースから捲り差し2-3着筆頭、5号艇北川A1 直近10走1着5/2連6・単勝12.0x、3号艇中村A2 直近10走1着3 も同水準。1号艇頭固定で6/5/3を厚めに5点。",
+  "primary_axis": [1, 6],
+  "verdict": "bet",
+  "skip_reason": null,
+  "bets": [
+    {"trifecta": "1-3-5", "stake": 100, "current_odds": 7.5, "expected_prob": 0.15, "ev": 1.13, "confidence": 0.6},
+    {"trifecta": "1-3-6", "stake": 100, "current_odds": 13.3, "expected_prob": 0.09, "ev": 1.20, "confidence": 0.55},
+    {"trifecta": "1-5-3", "stake": 100, "current_odds": 13.4, "expected_prob": 0.08, "ev": 1.07, "confidence": 0.5},
+    {"trifecta": "1-6-3", "stake": 100, "current_odds": 28.3, "expected_prob": 0.05, "ev": 1.42, "confidence": 0.5},
+    {"trifecta": "1-5-6", "stake": 100, "current_odds": 20.5, "expected_prob": 0.06, "ev": 1.23, "confidence": 0.5}
+  ]
+}

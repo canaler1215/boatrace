@@ -1,0 +1,16 @@
+{
+  "race_id": "2025-10-07_01_07",
+  "predicted_at": "2026-04-27T11:50:00+09:00",
+  "model": "claude-opus-4-7",
+  "analysis": "3号艇中澤A1 49歳埼玉 全国2連58.82%・当地2連50.77%・直近10走1着5/2連7/3連9 (連対率70%)・ST0.122 が単勝2.0x で頭本命級。1号艇大賀A2 単勝2.7x の逃げ評価とほぼ拮抗だが、地力で3号艇捲り優勢。2号艇庄司B1 モーター30号2連45.71%(超優秀)、4号艇中村B1 モーター71号2連39.74% もヒモ候補。3号艇捲り頭中心に5点。",
+  "primary_axis": [3, 1],
+  "verdict": "bet",
+  "skip_reason": null,
+  "bets": [
+    {"trifecta": "3-1-2", "stake": 100, "current_odds": 12.3, "expected_prob": 0.10, "ev": 1.23, "confidence": 0.6},
+    {"trifecta": "3-1-4", "stake": 100, "current_odds": 12.7, "expected_prob": 0.09, "ev": 1.14, "confidence": 0.55},
+    {"trifecta": "1-3-2", "stake": 100, "current_odds": 6.0, "expected_prob": 0.18, "ev": 1.08, "confidence": 0.5},
+    {"trifecta": "1-3-4", "stake": 100, "current_odds": 9.3, "expected_prob": 0.12, "ev": 1.12, "confidence": 0.5},
+    {"trifecta": "3-2-1", "stake": 100, "current_odds": 22.3, "expected_prob": 0.05, "ev": 1.12, "confidence": 0.5}
+  ]
+}

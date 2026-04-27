@@ -1,0 +1,16 @@
+{
+  "race_id": "2025-10-07_01_08",
+  "predicted_at": "2026-04-27T11:54:00+09:00",
+  "model": "claude-opus-4-7",
+  "analysis": "1号艇一瀬A2 54歳 全国2連42%・モーター66号2連42.36%・単勝2.1x で逃げ本命だが直近10走1着1 と勝ち切れず。5号艇里岡A1 全国2連49.54%・モーター20号2連41.52%・単勝2.7x で5コースから2-3着筆頭。注目は4号艇倉田B1 27歳 全国2連37.5%・直近10走1着2/2連5/3連8・平均ST0.077(全国最速級)・モーター14号2連43.45% で4コース捲り頭まで狙える。2号艇鹿島B1 直近10走2連6/3連6 もヒモ。本線5点で 1号艇頭 + 4号艇捲り頭 1点ケア。",
+  "primary_axis": [1, 5],
+  "verdict": "bet",
+  "skip_reason": null,
+  "bets": [
+    {"trifecta": "1-5-4", "stake": 100, "current_odds": 13.9, "expected_prob": 0.09, "ev": 1.25, "confidence": 0.6},
+    {"trifecta": "1-4-5", "stake": 100, "current_odds": 14.0, "expected_prob": 0.08, "ev": 1.12, "confidence": 0.55},
+    {"trifecta": "1-5-3", "stake": 100, "current_odds": 19.0, "expected_prob": 0.06, "ev": 1.14, "confidence": 0.5},
+    {"trifecta": "1-2-5", "stake": 100, "current_odds": 18.0, "expected_prob": 0.06, "ev": 1.08, "confidence": 0.45},
+    {"trifecta": "4-1-5", "stake": 100, "current_odds": 37.6, "expected_prob": 0.04, "ev": 1.50, "confidence": 0.5}
+  ]
+}

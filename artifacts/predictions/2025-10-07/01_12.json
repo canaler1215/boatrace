@@ -1,0 +1,16 @@
+{
+  "race_id": "2025-10-07_01_12",
+  "predicted_at": "2026-04-27T12:10:00+09:00",
+  "model": "claude-opus-4-7",
+  "analysis": "桐生ドリームでオールA1級。1号艇中澤A1 49歳 全国2連58.82%・当地2連50.77%・直近10走1着5/2連7/3連9・ST0.122・単勝1.7x で逃げ本命。2号艇前田A1 25歳愛知 全国2連64.41%・当地2連57.14%・単勝3.5x の若手 (R6 で1号艇本命だった選手) は捲り頭まで狙える、3号艇里岡A1 全国2連49.54%・単勝3.6x も拮抗。1-2-3軸の3強構図。4号艇松尾A1 当地2連44.3% もケア。本線5点で2号艇/3号艇捲り頭ケアも厚め。",
+  "primary_axis": [1, 2],
+  "verdict": "bet",
+  "skip_reason": null,
+  "bets": [
+    {"trifecta": "1-2-3", "stake": 100, "current_odds": 8.9, "expected_prob": 0.13, "ev": 1.16, "confidence": 0.6},
+    {"trifecta": "1-3-2", "stake": 100, "current_odds": 12.1, "expected_prob": 0.10, "ev": 1.21, "confidence": 0.55},
+    {"trifecta": "2-1-3", "stake": 100, "current_odds": 15.0, "expected_prob": 0.08, "ev": 1.20, "confidence": 0.55},
+    {"trifecta": "1-2-4", "stake": 100, "current_odds": 17.3, "expected_prob": 0.06, "ev": 1.04, "confidence": 0.5},
+    {"trifecta": "3-1-2", "stake": 100, "current_odds": 32.0, "expected_prob": 0.04, "ev": 1.28, "confidence": 0.5}
+  ]
+}

@@ -1,0 +1,16 @@
+{
+  "race_id": "2025-10-07_01_02",
+  "predicted_at": "2026-04-27T11:32:00+09:00",
+  "model": "claude-opus-4-7",
+  "analysis": "1号艇山口B1単勝1.0x の超本命だが地力は平凡(直近10走1着0、ST0.208)。桐生1コース52.5%の恩恵で逃げ本線維持。注目は2号艇長谷川A2 25歳地元・当地直近6走1着1/2連5/3連6(連対率83%)・平均ST0.085 の鬼ヒモ。5号艇一瀬A2全国2連42%・モーター66号2連42% も連絡み筆頭。3号艇大場(モーター36号2連40%)・4号艇長野(モーター46号2連40%)もヒモ妙味。6号艇B2 2連0% は完全消し。本線5点で1号艇頭+2号艇/5号艇連の組合せ厚め。",
+  "primary_axis": [1, 2],
+  "verdict": "bet",
+  "skip_reason": null,
+  "bets": [
+    {"trifecta": "1-2-5", "stake": 100, "current_odds": 11.6, "expected_prob": 0.10, "ev": 1.16, "confidence": 0.6},
+    {"trifecta": "1-2-3", "stake": 100, "current_odds": 12.6, "expected_prob": 0.08, "ev": 1.01, "confidence": 0.5},
+    {"trifecta": "1-5-2", "stake": 100, "current_odds": 18.8, "expected_prob": 0.07, "ev": 1.32, "confidence": 0.5},
+    {"trifecta": "2-1-5", "stake": 100, "current_odds": 18.4, "expected_prob": 0.06, "ev": 1.10, "confidence": 0.45},
+    {"trifecta": "1-2-4", "stake": 100, "current_odds": 26.0, "expected_prob": 0.05, "ev": 1.30, "confidence": 0.45}
+  ]
+}

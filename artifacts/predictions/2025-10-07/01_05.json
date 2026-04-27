@@ -1,0 +1,16 @@
+{
+  "race_id": "2025-10-07_01_05",
+  "predicted_at": "2026-04-27T11:42:00+09:00",
+  "model": "claude-opus-4-7",
+  "analysis": "1号艇高橋B1 全国2連13.51%・当地2連25%・単勝6.1x の珍しい1号艇消し構図。2号艇若林A1全国2連51.6%(単勝1.9x) を捲り頭本命に、6号艇北川A1 43歳愛知 全国2連38.98%・当地2連39.29%・直近10走1着5/2連6 (単勝4.6x) を6コースから捲り頭まで狙える特上A1ヒモに据える。3号艇岡部B1当地2連42.42% も連絡みヒモ。本線5点で2号艇/6号艇主軸の組合せ + 6号艇捲り頭 1点。",
+  "primary_axis": [2, 6],
+  "verdict": "bet",
+  "skip_reason": null,
+  "bets": [
+    {"trifecta": "2-6-3", "stake": 100, "current_odds": 10.0, "expected_prob": 0.12, "ev": 1.20, "confidence": 0.6},
+    {"trifecta": "2-3-6", "stake": 100, "current_odds": 15.6, "expected_prob": 0.08, "ev": 1.25, "confidence": 0.55},
+    {"trifecta": "2-6-5", "stake": 100, "current_odds": 10.1, "expected_prob": 0.10, "ev": 1.01, "confidence": 0.5},
+    {"trifecta": "6-2-3", "stake": 100, "current_odds": 27.8, "expected_prob": 0.05, "ev": 1.39, "confidence": 0.5},
+    {"trifecta": "2-5-6", "stake": 100, "current_odds": 12.3, "expected_prob": 0.08, "ev": 0.98, "confidence": 0.45}
+  ]
+}
