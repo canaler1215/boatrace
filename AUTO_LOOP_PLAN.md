@@ -480,13 +480,12 @@ B-1 撤退候補（2 軸組合せ未確認時点）。
 
 ## フェーズ 8: 単勝市場効率分析（B-3）
 
-**Step 1 完了（2026-04-26）、12 ヶ月本番 DL 完了（2026-04-27）、Step 2 集計着手可**: フェーズ B-1 撤退後の方針転換として
-**B-3「馬券種転換による市場効率分析（単勝）」** に着手中。
+**Step 1 + Step 2 集計完了 → B-3 撤退確定（2026-04-27）**
 
-### 動機
+### 動機（着手時）
 
 B-1 で「3 連単市場の favorite-longshot bias は控除率 25% を破れない」が確定。
-**控除率 20% の単勝**（黒字化閾値 lift ≥ 1.25）なら、B-1 で観測した「lift 1.20〜1.27」がそのまま観測されれば**控除率破壊の可能性**がある。
+**控除率 20% の単勝**（黒字化閾値 lift ≥ 1.25）なら、B-1 で観測した「lift 1.20〜1.27」がそのまま観測されれば**控除率破壊の可能性**がある、という仮説で着手した。
 
 | 券種 | 控除率 | 黒字化に必要な lift |
 |---|---:|---:|
@@ -499,28 +498,49 @@ B-1 で「3 連単市場の favorite-longshot bias は控除率 25% を破れな
 |---|---|---|---|
 | 1 | `fetch_win_odds` 実装 + 1 ヶ月試行 DL で API 動作確認 | **[x] 完了** 2026-04-26 | 実装 1h + DL 75 分 |
 | 2-DL | 残り 11 ヶ月本番 DL（バックグラウンド） | **[x] 完了** 2026-04-27（54,299 races / 12.9h / 0 empty） | DL 12.9h |
-| 2-集計 | `run_market_efficiency.py --bet-type win` 拡張で 12 ヶ月集計 | [ ] 次セッション着手可（[NEXT_SESSION_PROMPT.md](NEXT_SESSION_PROMPT.md)） | 半日 |
-| 3 | サブセグメント分析（歪みが見つかった場合のみ） | [ ] 未着手 | 半日 |
-| 4 | 単勝戦略バックテスト（採用基準達成時のみ） | [ ] 未着手 | 1〜2 日 |
-| 5 | 撤退判定 or 拡張 | [ ] 未着手 | 数時間 |
+| 2-集計 | `run_market_efficiency.py --bet-type win` 拡張で 12 ヶ月集計 | **[x] 完了** 2026-04-27（採用基準達成 0/24 stadium、0/48 stadium×odds_band） | 実装 ~3h + ラン 45 秒 |
+| 3 | サブセグメント分析（歪みが見つかった場合のみ） | **[—] 不要**（Step 2 で撤退判定） | — |
+| 4 | 単勝戦略バックテスト（採用基準達成時のみ） | **[—] 不要**（Step 2 で撤退判定） | — |
+| 5 | 撤退判定 | **[x] 撤退確定** 2026-04-27 | 数時間 |
 
 ### Step 1 結果（2026-04-26）
 
 - **API 取得 OK**: boatrace.jp `/owpc/pc/race/oddstf` HTML スクレイピングで取得可能と確認
 - **試行 DL（2025-12）**: 4,771 / 4,771 races 取得成功（100%）、28,332 entries / 6 艇全揃い 94.2%
 - **実勢 overround**: 1.3556（実勢控除率 26.2%、理論 20% より +6pp。オッズ刻み 1.0 切り上げ等の影響）
-- **Step 1 終了条件**: すべてクリア → Step 2 進行可
-- 詳細: [MARKET_EFFICIENCY_WIN_RESULTS.md](MARKET_EFFICIENCY_WIN_RESULTS.md)
 
-### Step 2 集計着手前の判断ポイント
+### Step 2 結果（2026-04-27）
 
-- **DL 完了済み**（2026-04-27 03:36、12 ヶ月 / 54,299 races / 0 empty）
-- 次は `run_market_efficiency.py --bet-type win` の拡張実装 + 12 ヶ月集計
-- 着手用プロンプト: [NEXT_SESSION_PROMPT.md](NEXT_SESSION_PROMPT.md)（B 用）
-- 詳細計画: [NEXT_PHASE_B3_PLAN.md](NEXT_PHASE_B3_PLAN.md)
-- DL 結果: [MARKET_EFFICIENCY_WIN_RESULTS.md](MARKET_EFFICIENCY_WIN_RESULTS.md) §5
+- **入力**: 50,483 races / 302,898 行（6 艇全揃いレースのみ集計、3,813 races 除外）
+- **古典的 favorite-longshot bias 確認**: bin [0.0, 0.1) で lift=0.86（穴目過剰評価）、bin [0.4, 0.7) で lift > 1.06（本命過小評価）。前半 / 後半同方向 7/8 ビン
+- **採用基準達成 = 0**:
+  - 全期間ビン: 0 / 10（最強でも [0.0, 0.1) lift=0.861、`≤ 0.85` 閾値を 0.011 で外す）
+  - stadium 軸: 0 / 24（最善 ev_all_buy=0.964 = Fukuoka、CI 上限 0.988 < 1.0）
+  - stadium × odds_band 軸: 0 / 48（最善 ev_all_buy=0.918 = Shimonoseki × [1,5)）
+- **B-1 trifecta との比較で win が劣後**:
+  - 実勢 overround: 1.36（win） vs 1.33（trifecta）→ win の方が +3pp 高い
+  - 最大 lift: 1.094（win） vs 1.27（trifecta）→ win の方が歪み振幅が小さい
+  - 最大 ev_all_buy: 0.964（win） vs 0.98（trifecta）→ win の方が悪い
 
-### 関連プロンプト（B 完了後の次タスク）
+### B-3 撤退確定の構造的知見
+
+1. **「控除率の低い券種なら歪みで黒字化できる」仮説は否定された**
+2. 単勝の実勢 overround は理論 20% を 6pp 上回る 26%（オッズ最小単位 1.0 への切り上げ + 売上不均衡吸収）
+3. 単純な市場（6 通り）は参加者の予測精度が高く、歪みが残りにくい（最大 lift 1.094 << trifecta の 1.27）
+4. 「低控除率 + 弱歪み」< 「高控除率 + 強歪み」となり、win は trifecta より構造的に不利
+
+詳細: [MARKET_EFFICIENCY_WIN_RESULTS.md](MARKET_EFFICIENCY_WIN_RESULTS.md) §6-§7
+
+### 残された選択肢
+
+| 候補 | 概要 | 着手判断 |
+|---|---|---|
+| A: 複勝 (place) | 控除率 20%、3 着以内判定（hit 確率は単勝の 3 倍） | 単勝で構造的不利確認、期待値は限定的 |
+| C: 2 連単 / 2 連複 / 拡連複 | 控除率 25%、組合せ 15〜30。trifecta と win の中間 | 歪みと組合せ数のトレードオフを再検証する余地あり |
+| B-2 動的オッズ | 締切前のオッズ変動を捉える | 別アプローチ |
+| 全フェーズ撤退（A 完全凍結） | 上記すべてを保留 | デフォルト |
+
+### 関連プロンプト（次タスク候補、参考）
 
 - **A**: 複勝 (place) DL 関数の実装 → [NEXT_SESSION_PROMPT_A.md](NEXT_SESSION_PROMPT_A.md)
 - **C**: 2 連単 / 2 連複 / 拡連複 DL 関数の実装 → [NEXT_SESSION_PROMPT_C.md](NEXT_SESSION_PROMPT_C.md)

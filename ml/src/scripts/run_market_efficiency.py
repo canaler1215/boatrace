@@ -1,15 +1,21 @@
 """
-市場効率の歪み分析（フェーズ B-1 Step 1）
+市場効率の歪み分析（フェーズ B-1 / B-3 Step 1〜2 共通）
 
-オッズから逆算した暗黙確率と実勝率を比較し、3 連単市場における
+オッズから逆算した暗黙確率と実勝率を比較し、3 連単市場 / 単勝市場における
 体系的な歪み（lift = actual_p / implied_p）を検出する。
 
 モデルは一切使わず、data/odds/ と data/history/ のみで完結する。
 
-採用判定（B-1 PLAN §3）:
+採用判定（B-1 / B-3 PLAN §3）:
   - n ≥ 1,000 のビンで lift ≥ 1.10 または ≤ 0.85
   - 90% bootstrap CI で 1.0 を含まない
-  - 前半 6 ヶ月 / 後半 6 ヶ月で同方向
+  - 前半 / 後半で同方向
+  - Step 2 採用: ev_all_buy > 1.0 かつ ev_boot_lo > 1.0（控除率破壊の確信）
+
+bet-type:
+  trifecta : data/odds/odds_*.parquet を入力。LOG_BINS（対数）で集計、控除率 25%
+  win      : data/odds/win_odds_*.parquet を入力。LINEAR_BINS_WIN（等幅 10）で集計、
+             控除率 20%。6 艇全揃いレースのみ集計（艇数 < 6 は除外）
 
 出力:
   artifacts/market_efficiency_<period>_<bet>.csv     全期間ビン別集計
@@ -18,9 +24,17 @@
   artifacts/market_efficiency_<period>_<bet>.png     キャリブレーションプロット
 
 使い方:
+  # フェーズ B-1（trifecta）
   py -3.12 ml/src/scripts/run_market_efficiency.py \
     --start 2025-05 --end 2026-04 --bet-type trifecta \
     --split-halves --bootstrap 2000
+
+  # フェーズ B-3（win）
+  py -3.12 ml/src/scripts/run_market_efficiency.py \
+    --start 2025-05 --end 2026-04 --bet-type win \
+    --split-halves --bootstrap 2000 \
+    --group-by stadium --group-by-2axis stadium,odds_band \
+    --focus-bin-lower 0.10 --focus-bin-upper 0.50
 """
 import argparse
 import logging
@@ -45,13 +59,17 @@ ROOT = Path(__file__).parents[3]
 ARTIFACTS_DIR = ROOT / "artifacts"
 ODDS_DIR = ROOT / "data" / "odds"
 
-# 対数等間隔ビン（implied_p_norm 用、右スキュー対策）
+# 対数等間隔ビン（implied_p_norm 用、右スキュー対策、trifecta 用）
 LOG_BINS = np.array([
     0.0001, 0.0003, 0.001, 0.003,
     0.01, 0.03, 0.05, 0.10, 0.20, 0.50, 1.0,
 ])
 
-DEFAULT_TAKEOUT = 0.25  # 公営競技 控除率
+# 等幅 10 ビン（implied_p_norm 用、win 用）
+LINEAR_BINS_WIN = np.linspace(0.0, 1.0, 11)
+
+DEFAULT_TAKEOUT_TRIFECTA = 0.25
+DEFAULT_TAKEOUT_WIN = 0.20
 
 
 # ---------------------------------------------------------------------------
@@ -102,6 +120,59 @@ def load_odds_period(start: tuple[int, int], end: tuple[int, int]) -> pd.DataFra
     return odds
 
 
+def load_win_odds_period(start: tuple[int, int], end: tuple[int, int]) -> pd.DataFrame:
+    """
+    指定期間の win オッズ parquet を結合。
+    6 艇全揃いのレースのみに絞る（艇数 < 6 のレースは集計から除外）。
+    """
+    frames = []
+    for y, m in iter_year_months(start, end):
+        path = ODDS_DIR / f"win_odds_{y}{m:02d}.parquet"
+        if not path.exists():
+            logger.warning("Win オッズキャッシュ欠落: %s", path)
+            continue
+        df = pd.read_parquet(path)
+        df["year_month"] = f"{y}-{m:02d}"
+        frames.append(df)
+    if not frames:
+        raise RuntimeError("Win オッズデータが見つかりません")
+    odds = pd.concat(frames, ignore_index=True)
+    odds["race_id"] = odds["race_id"].astype(str)
+
+    counts = odds.groupby("race_id").size()
+    valid_races = counts[counts == 6].index
+    n_total = odds["race_id"].nunique()
+    odds = odds[odds["race_id"].isin(valid_races)]
+    n_kept = odds["race_id"].nunique()
+    logger.info(
+        "Win オッズ読み込み: %d 行 / %d レース（6 艇全揃い filter; 除外 %d レース）/ %d 月",
+        len(odds), n_kept, n_total - n_kept, len(frames),
+    )
+    return odds
+
+
+def load_winning_first_boat(start: tuple[int, int], end: tuple[int, int]) -> pd.DataFrame:
+    """
+    K ファイルから各 race_id の 1 着艇番（'1'〜'6'）を抽出。
+    Returns: DataFrame[race_id, winning_combo]  ※ winning_combo は 1 着艇番文字列
+    """
+    df_hist = load_history_range(
+        start_year=start[0],
+        end_year=end[0],
+        start_month=start[1],
+        end_month=end[1],
+    )
+    if df_hist.empty:
+        raise RuntimeError("履歴データが空です")
+
+    df_first = df_hist[df_hist["finish_position"] == 1].copy()
+    df_first["race_id"] = df_first["race_id"].astype(str)
+    df_first["winning_combo"] = df_first["boat_no"].astype(int).astype(str)
+    result = df_first[["race_id", "winning_combo"]].drop_duplicates("race_id")
+    logger.info("結果データ (win): %d レース（1 着艇識別済み）", len(result))
+    return result
+
+
 def load_winning_combos(start: tuple[int, int], end: tuple[int, int]) -> pd.DataFrame:
     """
     K ファイルから各 race_id の 1-2-3 着 combination（"X-Y-Z"）を抽出。
@@ -140,11 +211,14 @@ def load_winning_combos(start: tuple[int, int], end: tuple[int, int]) -> pd.Data
 # 暗黙確率 / 結合
 # ---------------------------------------------------------------------------
 
-def compute_implied_probs(odds: pd.DataFrame) -> pd.DataFrame:
+def compute_implied_probs(
+    odds: pd.DataFrame,
+    takeout: float = DEFAULT_TAKEOUT_TRIFECTA,
+) -> pd.DataFrame:
     """odds に implied_p_raw / implied_p_norm / implied_p_takeout を追加。"""
     df = odds.copy()
     df["implied_p_raw"] = 1.0 / df["odds"]
-    df["implied_p_takeout"] = (1.0 - DEFAULT_TAKEOUT) / df["odds"]
+    df["implied_p_takeout"] = (1.0 - takeout) / df["odds"]
     sum_per_race = df.groupby("race_id")["implied_p_raw"].transform("sum")
     df["implied_p_norm"] = df["implied_p_raw"] / sum_per_race
     return df
@@ -186,19 +260,19 @@ def wilson_ci(n_hits: int, n: int, alpha: float = 0.10) -> tuple[float, float]:
     return float(center - margin), float(center + margin)
 
 
-def assign_bins(df: pd.DataFrame) -> pd.DataFrame:
+def assign_bins(df: pd.DataFrame, bins: np.ndarray = LOG_BINS) -> pd.DataFrame:
     """implied_p_norm に bin_idx を付与し、範囲外行を除外。"""
     df = df.copy()
-    df["bin_idx"] = np.digitize(df["implied_p_norm"], LOG_BINS) - 1
-    df = df[(df["bin_idx"] >= 0) & (df["bin_idx"] < len(LOG_BINS) - 1)]
+    df["bin_idx"] = np.digitize(df["implied_p_norm"], bins) - 1
+    df = df[(df["bin_idx"] >= 0) & (df["bin_idx"] < len(bins) - 1)]
     return df
 
 
-def bin_summary(df: pd.DataFrame) -> pd.DataFrame:
+def bin_summary(df: pd.DataFrame, bins: np.ndarray = LOG_BINS) -> pd.DataFrame:
     """ビン別 KPI を計算（lift / Wilson CI / EV 等）。"""
-    df = assign_bins(df)
+    df = assign_bins(df, bins)
     rows = []
-    for b in range(len(LOG_BINS) - 1):
+    for b in range(len(bins) - 1):
         sub = df[df["bin_idx"] == b]
         if sub.empty:
             continue
@@ -214,8 +288,8 @@ def bin_summary(df: pd.DataFrame) -> pd.DataFrame:
         wlo, whi = wilson_ci(n_hits, n, alpha=0.10)
 
         rows.append({
-            "bin_lower":              float(LOG_BINS[b]),
-            "bin_upper":              float(LOG_BINS[b + 1]),
+            "bin_lower":              float(bins[b]),
+            "bin_upper":              float(bins[b + 1]),
             "n":                      n,
             "n_races":                int(sub["race_id"].nunique()),
             "n_hits":                 n_hits,
@@ -241,6 +315,7 @@ def bootstrap_lift_ci(
     n_resamples: int = 2000,
     alpha: float = 0.10,
     seed: int = 42,
+    bins: np.ndarray = LOG_BINS,
 ) -> pd.DataFrame:
     """
     レース単位で復元抽出（月 stratify）し、ビン別 lift の 90% CI を返す。
@@ -249,7 +324,7 @@ def bootstrap_lift_ci(
     重み付き集計を np.bincount でベクトル化する（1 iter ~数十 ms）。
     """
     rng = np.random.default_rng(seed)
-    df = assign_bins(df).reset_index(drop=True)
+    df = assign_bins(df, bins).reset_index(drop=True)
 
     race_ids = df["race_id"].drop_duplicates().reset_index(drop=True)
     race_id_to_idx = {rid: i for i, rid in enumerate(race_ids)}
@@ -267,7 +342,7 @@ def bootstrap_lift_ci(
     is_hit_arr = df["is_hit"].values.astype(np.float64)
     implied_norm_arr = df["implied_p_norm"].values.astype(np.float64)
     combo_race_idx = df["race_idx"].values.astype(np.int64)
-    n_bins = len(LOG_BINS) - 1
+    n_bins = len(bins) - 1
 
     lifts = np.full((n_resamples, n_bins), np.nan)
 
@@ -300,8 +375,8 @@ def bootstrap_lift_ci(
         lo = float(np.quantile(col, alpha / 2))
         hi = float(np.quantile(col, 1 - alpha / 2))
         rows.append({
-            "bin_lower":    float(LOG_BINS[k]),
-            "bin_upper":    float(LOG_BINS[k + 1]),
+            "bin_lower":    float(bins[k]),
+            "bin_upper":    float(bins[k + 1]),
             "lift_boot_lo": lo,
             "lift_boot_hi": hi,
         })
@@ -312,7 +387,12 @@ def bootstrap_lift_ci(
 # プロット
 # ---------------------------------------------------------------------------
 
-def plot_calibration(summary: pd.DataFrame, out_path: Path, title: str) -> None:
+def plot_calibration(
+    summary: pd.DataFrame,
+    out_path: Path,
+    title: str,
+    log_scale: bool = True,
+) -> None:
     import matplotlib
     matplotlib.use("Agg")
     import matplotlib.pyplot as plt
@@ -329,12 +409,16 @@ def plot_calibration(summary: pd.DataFrame, out_path: Path, title: str) -> None:
         fmt="o", color="C0", capsize=3,
         label="actual_p (Wilson 90% CI)",
     )
-    line_lo = max(min(x.min(), y.min()), 1e-5)
-    line_hi = max(x.max(), y.max())
+    if log_scale:
+        line_lo = max(min(x.min(), y.min()), 1e-5)
+        line_hi = max(x.max(), y.max())
+        ax.set_xscale("log")
+        ax.set_yscale("log")
+    else:
+        line_lo = 0.0
+        line_hi = max(float(x.max()), float(y.max())) * 1.05
     ax.plot([line_lo, line_hi], [line_lo, line_hi], "k--", alpha=0.5, label="y = x (perfect)")
 
-    ax.set_xscale("log")
-    ax.set_yscale("log")
     ax.set_xlabel("Implied probability (normalized, (1/o) / Σ(1/o))")
     ax.set_ylabel("Actual hit rate")
     ax.set_title(title)
@@ -574,11 +658,12 @@ def run_segment(
     label: str,
     n_bootstrap: int,
     output_dir: Path,
+    bins: np.ndarray = LOG_BINS,
 ) -> pd.DataFrame:
     """1 期間分: ビン集計 + bootstrap CI + CSV 保存。"""
-    summary = bin_summary(df)
+    summary = bin_summary(df, bins)
     if n_bootstrap > 0:
-        boot = bootstrap_lift_ci(df, n_resamples=n_bootstrap)
+        boot = bootstrap_lift_ci(df, n_resamples=n_bootstrap, bins=bins)
         summary = summary.merge(boot, on=["bin_lower", "bin_upper"], how="left")
     out_csv = output_dir / f"market_efficiency_{label}.csv"
     summary.to_csv(out_csv, index=False)
@@ -706,7 +791,10 @@ def main() -> None:
     )
     parser.add_argument("--start", type=str, required=True, help="開始 YYYY-MM")
     parser.add_argument("--end",   type=str, required=True, help="終了 YYYY-MM (inclusive)")
-    parser.add_argument("--bet-type", choices=["trifecta"], default="trifecta")
+    parser.add_argument(
+        "--bet-type", choices=["trifecta", "win"], default="trifecta",
+        help="集計対象の券種（trifecta=既存 / win=単勝、フェーズ B-3）",
+    )
     parser.add_argument("--split-halves", action="store_true",
                         help="Step 1: 期間を前半/後半 2 分割して個別集計")
     parser.add_argument("--bootstrap", type=int, default=2000,
@@ -744,21 +832,40 @@ def main() -> None:
     start = parse_year_month(args.start)
     end = parse_year_month(args.end)
 
+    # ── 0. bet-type 別の設定（bins / takeout / log_scale / loaders）───
+    if args.bet_type == "win":
+        bins = LINEAR_BINS_WIN
+        takeout = DEFAULT_TAKEOUT_WIN
+        log_scale = False
+        if "course" in args.group_by:
+            parser.error(
+                "--group-by course は bet-type=win では無効（combination=艇番のため "
+                "course 軸は意味重複）"
+            )
+    else:
+        bins = LOG_BINS
+        takeout = DEFAULT_TAKEOUT_TRIFECTA
+        log_scale = True
+
     # ── 1. データロード ────────────────────────────────
-    odds = load_odds_period(start, end)
-    results = load_winning_combos(start, end)
+    if args.bet_type == "win":
+        odds = load_win_odds_period(start, end)
+        results = load_winning_first_boat(start, end)
+    else:
+        odds = load_odds_period(start, end)
+        results = load_winning_combos(start, end)
 
     # ── 2. 暗黙確率計算 + hit ラベル付与 ───────────────
-    odds = compute_implied_probs(odds)
+    odds = compute_implied_probs(odds, takeout=takeout)
     df = attach_hit_label(odds, results)
 
     full_label = f"{args.start}_{args.end}_{args.bet_type}"
 
     # ── 3. 全期間ビン集計（Step 1）─────────────────────
     if not args.skip_step1:
-        full_summary = run_segment(df, full_label, args.bootstrap, output_dir)
+        full_summary = run_segment(df, full_label, args.bootstrap, output_dir, bins=bins)
     else:
-        full_summary = bin_summary(df)
+        full_summary = bin_summary(df, bins)
         logger.info("Step 1 をスキップ（--skip-step1）")
 
     # ── 4. プロット（全期間のみ、Step 1 実行時のみ）─────
@@ -767,6 +874,7 @@ def main() -> None:
             full_summary,
             output_dir / f"market_efficiency_{full_label}.png",
             title=f"Market efficiency calibration ({args.start} to {args.end}, {args.bet_type})",
+            log_scale=log_scale,
         )
 
     # ── 5. 前半 / 後半 ─────────────────────────────────
@@ -783,8 +891,8 @@ def main() -> None:
             df_h2 = df[df["year_month"].isin(second_months)]
             label_h1 = f"{first_months[0]}_{first_months[-1]}_{args.bet_type}"
             label_h2 = f"{second_months[0]}_{second_months[-1]}_{args.bet_type}"
-            half_results[label_h1] = run_segment(df_h1, label_h1, args.bootstrap, output_dir)
-            half_results[label_h2] = run_segment(df_h2, label_h2, args.bootstrap, output_dir)
+            half_results[label_h1] = run_segment(df_h1, label_h1, args.bootstrap, output_dir, bins=bins)
+            half_results[label_h2] = run_segment(df_h2, label_h2, args.bootstrap, output_dir, bins=bins)
 
     # ── 6. 採用判定レポート ────────────────────────────
     flagged = evaluate_distortion(full_summary, min_n=args.min_bin_n)
