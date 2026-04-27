@@ -1,0 +1,14 @@
+{
+  "race_id": "2026-01-20_17_10",
+  "predicted_at": "2026-01-20T11:00:00+09:00",
+  "model": "claude-opus-4-7",
+  "analysis": "宮島 R10 (1800m 特賞)。1号艇B1川田直近10走1着1+鳴門連戦不調機能不全 (単勝3.8x)、3号艇A1山下大輝全国2連47.75%/直近10走1着3で芦屋A1力健在 (単勝1.3x圧倒本命)、5号艇A2武富全国2連48.15%/当地2連50%で当地巧者 (単勝6.6x)、6号艇B1汐崎直近10走1着2 (単勝166.5x異常薄)。本命3-1-5 9.1x/1-3-5 11.3x/3-5-1 13.0x で3号艇まくり構図。1号艇崩れ + 3号艇A1まくり + 5号艇A2当地巧者本線。",
+  "primary_axis": [3, 5],
+  "verdict": "bet",
+  "skip_reason": null,
+  "bets": [
+    {"trifecta": "3-1-5", "stake": 100, "current_odds": 9.1, "expected_prob": 0.20, "ev": 1.82, "confidence": 0.55},
+    {"trifecta": "3-5-1", "stake": 100, "current_odds": 13.0, "expected_prob": 0.165, "ev": 2.15, "confidence": 0.50},
+    {"trifecta": "1-3-5", "stake": 100, "current_odds": 11.3, "expected_prob": 0.11, "ev": 1.24, "confidence": 0.40}
+  ]
+}

@@ -1,0 +1,13 @@
+{
+  "race_id": "2026-01-20_20_07",
+  "predicted_at": "2026-01-20T11:00:00+09:00",
+  "model": "claude-opus-4-7",
+  "analysis": "若松 R7 (1800m 予選特賞)。1号艇A2豊田当地直近3走1着0/2連0で当地不調 (単勝2.4x)、3号艇A1大上当地6.85/2連42.31%+全国直近10走1着5の超異常好調 (単勝1.4x圧倒本命)、6号艇A2岡瀬当地直近3走1着1+岡瀬力健在 (単勝26.7x)。本命1-3-2 8.1x/1-3-6 10.3x/3-1-6 11.4x で3号艇まくり構図。1号艇当地不調 + 3号艇まくり本線。",
+  "primary_axis": [3, 1],
+  "verdict": "bet",
+  "skip_reason": null,
+  "bets": [
+    {"trifecta": "3-1-6", "stake": 100, "current_odds": 11.4, "expected_prob": 0.099, "ev": 1.13, "confidence": 0.45},
+    {"trifecta": "1-3-2", "stake": 100, "current_odds": 8.1, "expected_prob": 0.134, "ev": 1.08, "confidence": 0.40}
+  ]
+}

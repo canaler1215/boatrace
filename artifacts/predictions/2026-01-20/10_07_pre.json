@@ -1,0 +1,62 @@
+{
+  "race_id": "102026012007",
+  "stadium_id": 10,
+  "race_date": "2026-01-20",
+  "race_no": 7,
+  "mode": "past",
+  "fetched_at": "2026-04-28T08:38:04+09:00",
+  "weather": {
+    "weather": null,
+    "wind_direction": null,
+    "wind_speed_m": null,
+    "wave_height_cm": null,
+    "air_temp_c": null,
+    "water_temp_c": null
+  },
+  "boats": [
+    {
+      "boat_no": 1,
+      "exhibition_time": null,
+      "start_course": null,
+      "start_timing": null
+    },
+    {
+      "boat_no": 2,
+      "exhibition_time": null,
+      "start_course": null,
+      "start_timing": null
+    },
+    {
+      "boat_no": 3,
+      "exhibition_time": null,
+      "start_course": null,
+      "start_timing": null
+    },
+    {
+      "boat_no": 4,
+      "exhibition_time": null,
+      "start_course": null,
+      "start_timing": null
+    },
+    {
+      "boat_no": 5,
+      "exhibition_time": null,
+      "start_course": null,
+      "start_timing": null
+    },
+    {
+      "boat_no": 6,
+      "exhibition_time": null,
+      "start_course": null,
+      "start_timing": null
+    }
+  ],
+  "trifecta_odds": {},
+  "win_odds": {},
+  "notes": [
+    "3 連単オッズキャッシュなし: data/odds/odds_202601.parquet",
+    "単勝オッズキャッシュなし: data/odds/win_odds_202601.parquet",
+    "K ファイル気象データ未取得",
+    "過去日のため展示タイム・スタート展示進入は取得不能"
+  ]
+}

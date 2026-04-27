@@ -1,0 +1,10 @@
+{
+  "race_id": "2026-01-20_10_11",
+  "predicted_at": "2026-01-20T11:00:00+09:00",
+  "model": "claude-opus-4-7",
+  "analysis": "オッズキャッシュ全欠損 (data/odds/odds_202601.parquet に三国 2026-01-20 データなし) のため買い目判定不能",
+  "primary_axis": [1],
+  "verdict": "skip",
+  "skip_reason": "直前オッズ欠損で EV 計算不能、conservative skip",
+  "bets": []
+}

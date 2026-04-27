@@ -1,0 +1,14 @@
+{
+  "race_id": "2026-01-20_15_05",
+  "predicted_at": "2026-01-20T11:00:00+09:00",
+  "model": "claude-opus-4-7",
+  "analysis": "丸亀 R5 (1800m 予選 風6m強風)。1号艇B2菅野直近10走1着0/当地直近5走1着0/2連0で完全機能不全 (単勝6.6x)、5号艇A1井上当地直近5走1着3+モーター34号 2連53.09%超好機関+全国2連48.81%で異常好調 (単勝1.9x本命)、4号艇A2湯淺当地直近5走1着2 (単勝4.9x)、3号艇B1中谷直近10走1着2 (単勝4.4x)。本命5-4-3 19.5x/4-5-3 19.6x/5-4-2 22.9x/5-4-2 23.8x で5号艇まくり構図。1号艇崩れ + 5/4号艇まくり差し本線。",
+  "primary_axis": [5, 4],
+  "verdict": "bet",
+  "skip_reason": null,
+  "bets": [
+    {"trifecta": "5-4-3", "stake": 100, "current_odds": 19.5, "expected_prob": 0.10, "ev": 1.95, "confidence": 0.55},
+    {"trifecta": "4-5-3", "stake": 100, "current_odds": 19.6, "expected_prob": 0.063, "ev": 1.23, "confidence": 0.45},
+    {"trifecta": "5-4-2", "stake": 100, "current_odds": 23.8, "expected_prob": 0.067, "ev": 1.59, "confidence": 0.45}
+  ]
+}
