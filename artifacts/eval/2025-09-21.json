@@ -1,0 +1,823 @@
+{
+  "date": "2025-09-21",
+  "stadium_filter": null,
+  "stadium_filter_name": null,
+  "evaluated_at": "2026-04-27T01:58:43+09:00",
+  "is_past": true,
+  "summary": {
+    "n_races": 12,
+    "n_settled": 11,
+    "n_skipped_by_claude": 1,
+    "n_no_result": 0,
+    "n_bet_races": 11,
+    "n_hit_races": 5,
+    "n_bets": 45,
+    "n_hits": 5,
+    "total_stake": 4500,
+    "total_payout": 6020.0,
+    "roi": 0.33777777777777773,
+    "hit_rate_per_bet": 0.1111111111111111,
+    "hit_rate_per_race": 0.45454545454545453,
+    "skip_rate": 0.08333333333333333,
+    "avg_confidence": 0.4211111111111111,
+    "by_stadium": [
+      {
+        "stadium_id": 1,
+        "name": "桐生",
+        "n_races": 11,
+        "n_bets": 45,
+        "n_hits": 5,
+        "total_stake": 4500,
+        "total_payout": 6020.0,
+        "roi": 0.33777777777777773
+      }
+    ],
+    "by_confidence_band": [
+      {
+        "band": "0.0-0.3",
+        "n_bets": 0,
+        "n_hits": 0,
+        "total_stake": 0,
+        "total_payout": 0,
+        "roi": 0.0
+      },
+      {
+        "band": "0.3-0.5",
+        "n_bets": 36,
+        "n_hits": 4,
+        "total_stake": 3600,
+        "total_payout": 4910.0,
+        "roi": 0.36388888888888893
+      },
+      {
+        "band": "0.5-0.7",
+        "n_bets": 9,
+        "n_hits": 1,
+        "total_stake": 900,
+        "total_payout": 1110.0,
+        "roi": 0.2333333333333334
+      },
+      {
+        "band": "0.7-1.0",
+        "n_bets": 0,
+        "n_hits": 0,
+        "total_stake": 0,
+        "total_payout": 0,
+        "roi": 0.0
+      }
+    ]
+  },
+  "races": [
+    {
+      "race_id": "2025-09-21_01_01",
+      "stadium_id": 1,
+      "race_no": 1,
+      "status": "settled",
+      "verdict": "bet",
+      "skip_reason": null,
+      "primary_axis": [
+        2
+      ],
+      "actual_combination": "2-4-6",
+      "bets": [
+        {
+          "trifecta": "2-4-1",
+          "stake": 100,
+          "current_odds": 8.1,
+          "actual_odds": 8.1,
+          "confidence": 0.35,
+          "expected_prob": 0.22,
+          "is_hit": false,
+          "payout": 0.0,
+          "payout_source": "miss",
+          "odds_drift_pct": 0.0
+        }
+      ],
+      "total_stake": 100,
+      "total_payout": 0.0,
+      "note": null
+    },
+    {
+      "race_id": "2025-09-21_01_02",
+      "stadium_id": 1,
+      "race_no": 2,
+      "status": "settled",
+      "verdict": "bet",
+      "skip_reason": null,
+      "primary_axis": [
+        1
+      ],
+      "actual_combination": "1-3-4",
+      "bets": [
+        {
+          "trifecta": "1-3-4",
+          "stake": 100,
+          "current_odds": 11.1,
+          "actual_odds": 11.1,
+          "confidence": 0.5,
+          "expected_prob": 0.15,
+          "is_hit": true,
+          "payout": 1110.0,
+          "payout_source": "actual",
+          "odds_drift_pct": 0.0
+        },
+        {
+          "trifecta": "1-4-3",
+          "stake": 100,
+          "current_odds": 18.4,
+          "actual_odds": 18.4,
+          "confidence": 0.4,
+          "expected_prob": 0.1,
+          "is_hit": false,
+          "payout": 0.0,
+          "payout_source": "miss",
+          "odds_drift_pct": 0.0
+        },
+        {
+          "trifecta": "1-3-6",
+          "stake": 100,
+          "current_odds": 16.2,
+          "actual_odds": 16.2,
+          "confidence": 0.45,
+          "expected_prob": 0.11,
+          "is_hit": false,
+          "payout": 0.0,
+          "payout_source": "miss",
+          "odds_drift_pct": 0.0
+        }
+      ],
+      "total_stake": 300,
+      "total_payout": 1110.0,
+      "note": null
+    },
+    {
+      "race_id": "2025-09-21_01_03",
+      "stadium_id": 1,
+      "race_no": 3,
+      "status": "settled",
+      "verdict": "bet",
+      "skip_reason": null,
+      "primary_axis": [
+        1
+      ],
+      "actual_combination": "1-3-4",
+      "bets": [
+        {
+          "trifecta": "1-4-5",
+          "stake": 100,
+          "current_odds": 13.2,
+          "actual_odds": 13.2,
+          "confidence": 0.5,
+          "expected_prob": 0.13,
+          "is_hit": false,
+          "payout": 0.0,
+          "payout_source": "miss",
+          "odds_drift_pct": 0.0
+        },
+        {
+          "trifecta": "1-5-4",
+          "stake": 100,
+          "current_odds": 27.2,
+          "actual_odds": 27.2,
+          "confidence": 0.4,
+          "expected_prob": 0.08,
+          "is_hit": false,
+          "payout": 0.0,
+          "payout_source": "miss",
+          "odds_drift_pct": 0.0
+        },
+        {
+          "trifecta": "1-3-4",
+          "stake": 100,
+          "current_odds": 20.3,
+          "actual_odds": 20.3,
+          "confidence": 0.4,
+          "expected_prob": 0.09,
+          "is_hit": true,
+          "payout": 2030.0,
+          "payout_source": "actual",
+          "odds_drift_pct": 0.0
+        },
+        {
+          "trifecta": "1-4-3",
+          "stake": 100,
+          "current_odds": 24.5,
+          "actual_odds": 24.5,
+          "confidence": 0.35,
+          "expected_prob": 0.08,
+          "is_hit": false,
+          "payout": 0.0,
+          "payout_source": "miss",
+          "odds_drift_pct": 0.0
+        }
+      ],
+      "total_stake": 400,
+      "total_payout": 2030.0,
+      "note": null
+    },
+    {
+      "race_id": "2025-09-21_01_04",
+      "stadium_id": 1,
+      "race_no": 4,
+      "status": "settled",
+      "verdict": "bet",
+      "skip_reason": null,
+      "primary_axis": [
+        1,
+        2
+      ],
+      "actual_combination": "3-2-4",
+      "bets": [
+        {
+          "trifecta": "1-3-4",
+          "stake": 100,
+          "current_odds": 11.4,
+          "actual_odds": 11.4,
+          "confidence": 0.4,
+          "expected_prob": 0.13,
+          "is_hit": false,
+          "payout": 0.0,
+          "payout_source": "miss",
+          "odds_drift_pct": 0.0
+        },
+        {
+          "trifecta": "1-2-4",
+          "stake": 100,
+          "current_odds": 12.1,
+          "actual_odds": 12.1,
+          "confidence": 0.45,
+          "expected_prob": 0.13,
+          "is_hit": false,
+          "payout": 0.0,
+          "payout_source": "miss",
+          "odds_drift_pct": 0.0
+        },
+        {
+          "trifecta": "2-1-4",
+          "stake": 100,
+          "current_odds": 18.1,
+          "actual_odds": 18.1,
+          "confidence": 0.4,
+          "expected_prob": 0.1,
+          "is_hit": false,
+          "payout": 0.0,
+          "payout_source": "miss",
+          "odds_drift_pct": 0.0
+        },
+        {
+          "trifecta": "3-1-4",
+          "stake": 100,
+          "current_odds": 22.2,
+          "actual_odds": 22.2,
+          "confidence": 0.35,
+          "expected_prob": 0.08,
+          "is_hit": false,
+          "payout": 0.0,
+          "payout_source": "miss",
+          "odds_drift_pct": 0.0
+        }
+      ],
+      "total_stake": 400,
+      "total_payout": 0.0,
+      "note": null
+    },
+    {
+      "race_id": "2025-09-21_01_05",
+      "stadium_id": 1,
+      "race_no": 5,
+      "status": "settled",
+      "verdict": "bet",
+      "skip_reason": null,
+      "primary_axis": [
+        2,
+        3
+      ],
+      "actual_combination": "1-3-5",
+      "bets": [
+        {
+          "trifecta": "2-3-5",
+          "stake": 100,
+          "current_odds": 11.8,
+          "actual_odds": 11.8,
+          "confidence": 0.5,
+          "expected_prob": 0.16,
+          "is_hit": false,
+          "payout": 0.0,
+          "payout_source": "miss",
+          "odds_drift_pct": 0.0
+        },
+        {
+          "trifecta": "2-3-4",
+          "stake": 100,
+          "current_odds": 16.6,
+          "actual_odds": 16.6,
+          "confidence": 0.4,
+          "expected_prob": 0.1,
+          "is_hit": false,
+          "payout": 0.0,
+          "payout_source": "miss",
+          "odds_drift_pct": 0.0
+        },
+        {
+          "trifecta": "3-2-5",
+          "stake": 100,
+          "current_odds": 16.2,
+          "actual_odds": 16.2,
+          "confidence": 0.4,
+          "expected_prob": 0.11,
+          "is_hit": false,
+          "payout": 0.0,
+          "payout_source": "miss",
+          "odds_drift_pct": 0.0
+        },
+        {
+          "trifecta": "2-5-3",
+          "stake": 100,
+          "current_odds": 21.4,
+          "actual_odds": 21.4,
+          "confidence": 0.4,
+          "expected_prob": 0.09,
+          "is_hit": false,
+          "payout": 0.0,
+          "payout_source": "miss",
+          "odds_drift_pct": 0.0
+        }
+      ],
+      "total_stake": 400,
+      "total_payout": 0.0,
+      "note": null
+    },
+    {
+      "race_id": "2025-09-21_01_06",
+      "stadium_id": 1,
+      "race_no": 6,
+      "status": "skipped_by_claude",
+      "verdict": "skip",
+      "skip_reason": "1号艇A1単勝1.0xで圧倒的本命、5号艇B1地元との1-5確定組合せのオッズが薄くEV2.0超え買い目なし",
+      "primary_axis": [
+        1
+      ],
+      "actual_combination": null,
+      "bets": [],
+      "total_stake": 0,
+      "total_payout": 0.0,
+      "note": null
+    },
+    {
+      "race_id": "2025-09-21_01_07",
+      "stadium_id": 1,
+      "race_no": 7,
+      "status": "settled",
+      "verdict": "bet",
+      "skip_reason": null,
+      "primary_axis": [
+        1,
+        3
+      ],
+      "actual_combination": "1-3-5",
+      "bets": [
+        {
+          "trifecta": "1-3-2",
+          "stake": 100,
+          "current_odds": 4.6,
+          "actual_odds": 4.6,
+          "confidence": 0.5,
+          "expected_prob": 0.32,
+          "is_hit": false,
+          "payout": 0.0,
+          "payout_source": "miss",
+          "odds_drift_pct": 0.0
+        },
+        {
+          "trifecta": "1-3-5",
+          "stake": 100,
+          "current_odds": 5.5,
+          "actual_odds": 5.5,
+          "confidence": 0.4,
+          "expected_prob": 0.2,
+          "is_hit": true,
+          "payout": 550.0,
+          "payout_source": "actual",
+          "odds_drift_pct": 0.0
+        },
+        {
+          "trifecta": "3-1-2",
+          "stake": 100,
+          "current_odds": 11.9,
+          "actual_odds": 11.9,
+          "confidence": 0.45,
+          "expected_prob": 0.15,
+          "is_hit": false,
+          "payout": 0.0,
+          "payout_source": "miss",
+          "odds_drift_pct": 0.0
+        },
+        {
+          "trifecta": "3-1-5",
+          "stake": 100,
+          "current_odds": 12.5,
+          "actual_odds": 12.5,
+          "confidence": 0.4,
+          "expected_prob": 0.1,
+          "is_hit": false,
+          "payout": 0.0,
+          "payout_source": "miss",
+          "odds_drift_pct": 0.0
+        }
+      ],
+      "total_stake": 400,
+      "total_payout": 550.0,
+      "note": null
+    },
+    {
+      "race_id": "2025-09-21_01_08",
+      "stadium_id": 1,
+      "race_no": 8,
+      "status": "settled",
+      "verdict": "bet",
+      "skip_reason": null,
+      "primary_axis": [
+        1,
+        5
+      ],
+      "actual_combination": "5-1-3",
+      "bets": [
+        {
+          "trifecta": "1-5-2",
+          "stake": 100,
+          "current_odds": 6.0,
+          "actual_odds": 6.0,
+          "confidence": 0.5,
+          "expected_prob": 0.25,
+          "is_hit": false,
+          "payout": 0.0,
+          "payout_source": "miss",
+          "odds_drift_pct": 0.0
+        },
+        {
+          "trifecta": "1-5-3",
+          "stake": 100,
+          "current_odds": 6.7,
+          "actual_odds": 6.7,
+          "confidence": 0.45,
+          "expected_prob": 0.2,
+          "is_hit": false,
+          "payout": 0.0,
+          "payout_source": "miss",
+          "odds_drift_pct": 0.0
+        },
+        {
+          "trifecta": "1-3-5",
+          "stake": 100,
+          "current_odds": 7.8,
+          "actual_odds": 7.8,
+          "confidence": 0.4,
+          "expected_prob": 0.18,
+          "is_hit": false,
+          "payout": 0.0,
+          "payout_source": "miss",
+          "odds_drift_pct": 0.0
+        },
+        {
+          "trifecta": "5-1-2",
+          "stake": 100,
+          "current_odds": 17.0,
+          "actual_odds": 17.0,
+          "confidence": 0.4,
+          "expected_prob": 0.1,
+          "is_hit": false,
+          "payout": 0.0,
+          "payout_source": "miss",
+          "odds_drift_pct": 0.0
+        },
+        {
+          "trifecta": "1-5-6",
+          "stake": 100,
+          "current_odds": 18.0,
+          "actual_odds": 18.0,
+          "confidence": 0.35,
+          "expected_prob": 0.1,
+          "is_hit": false,
+          "payout": 0.0,
+          "payout_source": "miss",
+          "odds_drift_pct": 0.0
+        }
+      ],
+      "total_stake": 500,
+      "total_payout": 0.0,
+      "note": null
+    },
+    {
+      "race_id": "2025-09-21_01_09",
+      "stadium_id": 1,
+      "race_no": 9,
+      "status": "settled",
+      "verdict": "bet",
+      "skip_reason": null,
+      "primary_axis": [
+        3,
+        1
+      ],
+      "actual_combination": "1-3-5",
+      "bets": [
+        {
+          "trifecta": "1-3-5",
+          "stake": 100,
+          "current_odds": 11.5,
+          "actual_odds": 11.5,
+          "confidence": 0.45,
+          "expected_prob": 0.15,
+          "is_hit": true,
+          "payout": 1150.0,
+          "payout_source": "actual",
+          "odds_drift_pct": 0.0
+        },
+        {
+          "trifecta": "3-1-5",
+          "stake": 100,
+          "current_odds": 17.0,
+          "actual_odds": 17.0,
+          "confidence": 0.45,
+          "expected_prob": 0.12,
+          "is_hit": false,
+          "payout": 0.0,
+          "payout_source": "miss",
+          "odds_drift_pct": 0.0
+        },
+        {
+          "trifecta": "3-5-1",
+          "stake": 100,
+          "current_odds": 21.7,
+          "actual_odds": 21.7,
+          "confidence": 0.4,
+          "expected_prob": 0.1,
+          "is_hit": false,
+          "payout": 0.0,
+          "payout_source": "miss",
+          "odds_drift_pct": 0.0
+        },
+        {
+          "trifecta": "1-5-3",
+          "stake": 100,
+          "current_odds": 19.9,
+          "actual_odds": 19.9,
+          "confidence": 0.4,
+          "expected_prob": 0.08,
+          "is_hit": false,
+          "payout": 0.0,
+          "payout_source": "miss",
+          "odds_drift_pct": 0.0
+        },
+        {
+          "trifecta": "3-5-6",
+          "stake": 100,
+          "current_odds": 24.9,
+          "actual_odds": 24.9,
+          "confidence": 0.35,
+          "expected_prob": 0.07,
+          "is_hit": false,
+          "payout": 0.0,
+          "payout_source": "miss",
+          "odds_drift_pct": 0.0
+        }
+      ],
+      "total_stake": 500,
+      "total_payout": 1150.0,
+      "note": null
+    },
+    {
+      "race_id": "2025-09-21_01_10",
+      "stadium_id": 1,
+      "race_no": 10,
+      "status": "settled",
+      "verdict": "bet",
+      "skip_reason": null,
+      "primary_axis": [
+        1,
+        2
+      ],
+      "actual_combination": "1-2-4",
+      "bets": [
+        {
+          "trifecta": "1-2-4",
+          "stake": 100,
+          "current_odds": 11.8,
+          "actual_odds": 11.8,
+          "confidence": 0.45,
+          "expected_prob": 0.14,
+          "is_hit": true,
+          "payout": 1180.0,
+          "payout_source": "actual",
+          "odds_drift_pct": 0.0
+        },
+        {
+          "trifecta": "1-2-6",
+          "stake": 100,
+          "current_odds": 12.2,
+          "actual_odds": 12.2,
+          "confidence": 0.45,
+          "expected_prob": 0.13,
+          "is_hit": false,
+          "payout": 0.0,
+          "payout_source": "miss",
+          "odds_drift_pct": 0.0
+        },
+        {
+          "trifecta": "1-2-3",
+          "stake": 100,
+          "current_odds": 12.5,
+          "actual_odds": 12.5,
+          "confidence": 0.4,
+          "expected_prob": 0.12,
+          "is_hit": false,
+          "payout": 0.0,
+          "payout_source": "miss",
+          "odds_drift_pct": 0.0
+        },
+        {
+          "trifecta": "1-6-2",
+          "stake": 100,
+          "current_odds": 37.8,
+          "actual_odds": 37.8,
+          "confidence": 0.4,
+          "expected_prob": 0.06,
+          "is_hit": false,
+          "payout": 0.0,
+          "payout_source": "miss",
+          "odds_drift_pct": 0.0
+        },
+        {
+          "trifecta": "2-1-6",
+          "stake": 100,
+          "current_odds": 25.8,
+          "actual_odds": 25.8,
+          "confidence": 0.35,
+          "expected_prob": 0.07,
+          "is_hit": false,
+          "payout": 0.0,
+          "payout_source": "miss",
+          "odds_drift_pct": 0.0
+        }
+      ],
+      "total_stake": 500,
+      "total_payout": 1180.0,
+      "note": null
+    },
+    {
+      "race_id": "2025-09-21_01_11",
+      "stadium_id": 1,
+      "race_no": 11,
+      "status": "settled",
+      "verdict": "bet",
+      "skip_reason": null,
+      "primary_axis": [
+        1,
+        4
+      ],
+      "actual_combination": "1-3-5",
+      "bets": [
+        {
+          "trifecta": "1-3-4",
+          "stake": 100,
+          "current_odds": 11.1,
+          "actual_odds": 11.1,
+          "confidence": 0.5,
+          "expected_prob": 0.16,
+          "is_hit": false,
+          "payout": 0.0,
+          "payout_source": "miss",
+          "odds_drift_pct": 0.0
+        },
+        {
+          "trifecta": "1-4-3",
+          "stake": 100,
+          "current_odds": 14.1,
+          "actual_odds": 14.1,
+          "confidence": 0.5,
+          "expected_prob": 0.13,
+          "is_hit": false,
+          "payout": 0.0,
+          "payout_source": "miss",
+          "odds_drift_pct": 0.0
+        },
+        {
+          "trifecta": "1-4-2",
+          "stake": 100,
+          "current_odds": 19.7,
+          "actual_odds": 19.7,
+          "confidence": 0.4,
+          "expected_prob": 0.09,
+          "is_hit": false,
+          "payout": 0.0,
+          "payout_source": "miss",
+          "odds_drift_pct": 0.0
+        },
+        {
+          "trifecta": "4-1-3",
+          "stake": 100,
+          "current_odds": 38.0,
+          "actual_odds": 38.0,
+          "confidence": 0.35,
+          "expected_prob": 0.05,
+          "is_hit": false,
+          "payout": 0.0,
+          "payout_source": "miss",
+          "odds_drift_pct": 0.0
+        },
+        {
+          "trifecta": "1-3-6",
+          "stake": 100,
+          "current_odds": 41.5,
+          "actual_odds": 41.5,
+          "confidence": 0.3,
+          "expected_prob": 0.05,
+          "is_hit": false,
+          "payout": 0.0,
+          "payout_source": "miss",
+          "odds_drift_pct": 0.0
+        }
+      ],
+      "total_stake": 500,
+      "total_payout": 0.0,
+      "note": null
+    },
+    {
+      "race_id": "2025-09-21_01_12",
+      "stadium_id": 1,
+      "race_no": 12,
+      "status": "settled",
+      "verdict": "bet",
+      "skip_reason": null,
+      "primary_axis": [
+        1
+      ],
+      "actual_combination": "3-5-4",
+      "bets": [
+        {
+          "trifecta": "1-3-5",
+          "stake": 100,
+          "current_odds": 8.7,
+          "actual_odds": 8.7,
+          "confidence": 0.5,
+          "expected_prob": 0.18,
+          "is_hit": false,
+          "payout": 0.0,
+          "payout_source": "miss",
+          "odds_drift_pct": 0.0
+        },
+        {
+          "trifecta": "1-3-2",
+          "stake": 100,
+          "current_odds": 8.8,
+          "actual_odds": 8.8,
+          "confidence": 0.5,
+          "expected_prob": 0.18,
+          "is_hit": false,
+          "payout": 0.0,
+          "payout_source": "miss",
+          "odds_drift_pct": 0.0
+        },
+        {
+          "trifecta": "1-2-3",
+          "stake": 100,
+          "current_odds": 9.1,
+          "actual_odds": 9.1,
+          "confidence": 0.45,
+          "expected_prob": 0.16,
+          "is_hit": false,
+          "payout": 0.0,
+          "payout_source": "miss",
+          "odds_drift_pct": 0.0
+        },
+        {
+          "trifecta": "1-3-4",
+          "stake": 100,
+          "current_odds": 12.3,
+          "actual_odds": 12.3,
+          "confidence": 0.45,
+          "expected_prob": 0.13,
+          "is_hit": false,
+          "payout": 0.0,
+          "payout_source": "miss",
+          "odds_drift_pct": 0.0
+        },
+        {
+          "trifecta": "1-4-3",
+          "stake": 100,
+          "current_odds": 29.8,
+          "actual_odds": 29.8,
+          "confidence": 0.4,
+          "expected_prob": 0.07,
+          "is_hit": false,
+          "payout": 0.0,
+          "payout_source": "miss",
+          "odds_drift_pct": 0.0
+        }
+      ],
+      "total_stake": 500,
+      "total_payout": 0.0,
+      "note": null
+    }
+  ],
+  "invalid_predictions": []
+}

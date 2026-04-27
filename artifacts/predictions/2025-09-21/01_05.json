@@ -1,0 +1,43 @@
+{
+  "race_id": "2025-09-21_01_05",
+  "predicted_at": "2025-09-21T17:08:00+09:00",
+  "model": "claude-opus-4-7",
+  "analysis": "1号艇大澤B1は当地2連24%・平均ST 0.218と弱く1コース信用度低い。2号艇櫻本A2が地元・当地2連52.86%・ST 0.117と破格、3号艇前田A2は全国2連52.89%・直近1着5でトップクラス。5号艇中村B1も全国勝率6.40・直近1着4で強力。2号艇捲り本命の構図でオッズもそれを反映。本線4点。",
+  "primary_axis": [2, 3],
+  "verdict": "bet",
+  "skip_reason": null,
+  "bets": [
+    {
+      "trifecta": "2-3-5",
+      "stake": 100,
+      "current_odds": 11.8,
+      "expected_prob": 0.16,
+      "ev": 1.89,
+      "confidence": 0.5
+    },
+    {
+      "trifecta": "2-3-4",
+      "stake": 100,
+      "current_odds": 16.6,
+      "expected_prob": 0.10,
+      "ev": 1.66,
+      "confidence": 0.4
+    },
+    {
+      "trifecta": "3-2-5",
+      "stake": 100,
+      "current_odds": 16.2,
+      "expected_prob": 0.11,
+      "ev": 1.78,
+      "confidence": 0.4
+    },
+    {
+      "trifecta": "2-5-3",
+      "stake": 100,
+      "current_odds": 21.4,
+      "expected_prob": 0.09,
+      "ev": 1.93,
+      "confidence": 0.4
+    }
+  ]
+}

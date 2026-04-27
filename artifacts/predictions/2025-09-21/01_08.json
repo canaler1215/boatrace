@@ -1,0 +1,51 @@
+{
+  "race_id": "2025-09-21_01_08",
+  "predicted_at": "2025-09-21T18:32:00+09:00",
+  "model": "claude-opus-4-7",
+  "analysis": "1号艇宇野A2は全国2連47%だが当地2連12.5%と低く絶対視は危険。5号艇清水A1（当地2連33%）が対抗。6号艇島倉B1は群馬地元・ST 0.114鋭い・当地2連32.79%で穴目あり。本命1-5-X+捲り5-1-2+穴1-5-6の計5点。",
+  "primary_axis": [1, 5],
+  "verdict": "bet",
+  "skip_reason": null,
+  "bets": [
+    {
+      "trifecta": "1-5-2",
+      "stake": 100,
+      "current_odds": 6.0,
+      "expected_prob": 0.25,
+      "ev": 1.50,
+      "confidence": 0.5
+    },
+    {
+      "trifecta": "1-5-3",
+      "stake": 100,
+      "current_odds": 6.7,
+      "expected_prob": 0.20,
+      "ev": 1.34,
+      "confidence": 0.45
+    },
+    {
+      "trifecta": "1-3-5",
+      "stake": 100,
+      "current_odds": 7.8,
+      "expected_prob": 0.18,
+      "ev": 1.40,
+      "confidence": 0.4
+    },
+    {
+      "trifecta": "5-1-2",
+      "stake": 100,
+      "current_odds": 17.0,
+      "expected_prob": 0.10,
+      "ev": 1.70,
+      "confidence": 0.4
+    },
+    {
+      "trifecta": "1-5-6",
+      "stake": 100,
+      "current_odds": 18.0,
+      "expected_prob": 0.10,
+      "ev": 1.80,
+      "confidence": 0.35
+    }
+  ]
+}

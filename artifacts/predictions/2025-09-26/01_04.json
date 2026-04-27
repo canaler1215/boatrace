@@ -1,0 +1,51 @@
+{
+  "race_id": "2025-09-26_01_04",
+  "predicted_at": "2026-04-27T11:24:00+09:00",
+  "model": "claude-opus-4-7",
+  "analysis": "1号艇河内B1当地2連1.59%と弱く、2号艇山本A2当地2連21%・全国2連43%が単勝1.2xの大本命で2号艇頭ほぼ確定。2着候補は4号艇喜井A2当地直近1着+ST0.150、3号艇角B1全国2連30.63%、6号艇黒澤A2全国2連46%/当地2連40%/直近1着あり。本線2-4-X/2-3-Xを4点+2-6-4ヒモ替えで5点。",
+  "primary_axis": [2],
+  "verdict": "bet",
+  "skip_reason": null,
+  "bets": [
+    {
+      "trifecta": "2-4-3",
+      "stake": 100,
+      "current_odds": 10.1,
+      "expected_prob": 0.13,
+      "ev": 1.31,
+      "confidence": 0.55
+    },
+    {
+      "trifecta": "2-3-4",
+      "stake": 100,
+      "current_odds": 9.4,
+      "expected_prob": 0.14,
+      "ev": 1.32,
+      "confidence": 0.55
+    },
+    {
+      "trifecta": "2-4-6",
+      "stake": 100,
+      "current_odds": 15.0,
+      "expected_prob": 0.09,
+      "ev": 1.35,
+      "confidence": 0.5
+    },
+    {
+      "trifecta": "2-3-6",
+      "stake": 100,
+      "current_odds": 22.2,
+      "expected_prob": 0.06,
+      "ev": 1.33,
+      "confidence": 0.4
+    },
+    {
+      "trifecta": "2-6-4",
+      "stake": 100,
+      "current_odds": 41.6,
+      "expected_prob": 0.03,
+      "ev": 1.25,
+      "confidence": 0.35
+    }
+  ]
+}

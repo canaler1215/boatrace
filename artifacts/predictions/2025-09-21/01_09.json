@@ -1,0 +1,51 @@
+{
+  "race_id": "2025-09-21_01_09",
+  "predicted_at": "2025-09-21T19:02:00+09:00",
+  "model": "claude-opus-4-7",
+  "analysis": "3号艇黒澤A2は全国2連45.97%・当地2連40%で単勝1.6xと圧倒的捲り本命。1号艇角B1当地2連28%は信用度中。5号艇今井A1地元（当地2連44.78%）と6号艇樋口A2（ST 0.119鋭い）が強力ヒモ。1コース勝率52.5%なので1号艇本命構図も否定不可。本線5点。",
+  "primary_axis": [3, 1],
+  "verdict": "bet",
+  "skip_reason": null,
+  "bets": [
+    {
+      "trifecta": "1-3-5",
+      "stake": 100,
+      "current_odds": 11.5,
+      "expected_prob": 0.15,
+      "ev": 1.73,
+      "confidence": 0.45
+    },
+    {
+      "trifecta": "3-1-5",
+      "stake": 100,
+      "current_odds": 17.0,
+      "expected_prob": 0.12,
+      "ev": 2.04,
+      "confidence": 0.45
+    },
+    {
+      "trifecta": "3-5-1",
+      "stake": 100,
+      "current_odds": 21.7,
+      "expected_prob": 0.10,
+      "ev": 2.17,
+      "confidence": 0.4
+    },
+    {
+      "trifecta": "1-5-3",
+      "stake": 100,
+      "current_odds": 19.9,
+      "expected_prob": 0.08,
+      "ev": 1.59,
+      "confidence": 0.4
+    },
+    {
+      "trifecta": "3-5-6",
+      "stake": 100,
+      "current_odds": 24.9,
+      "expected_prob": 0.07,
+      "ev": 1.74,
+      "confidence": 0.35
+    }
+  ]
+}

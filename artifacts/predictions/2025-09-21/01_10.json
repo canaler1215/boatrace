@@ -1,0 +1,51 @@
+{
+  "race_id": "2025-09-21_01_10",
+  "predicted_at": "2025-09-21T19:32:00+09:00",
+  "model": "claude-opus-4-7",
+  "analysis": "1号艇清埜A2は当地2連47.5%・直近1着3で1コース本命。2号艇蜂須B1は群馬地元・ST 0.118・当地2連31.82%でヒモ筆頭。注目は6号艇長嶋A1の当地2連70%（高サンプル数なら驚異）で過小評価の可能性。本線1-2-X 3点+長嶋絡み2点の計5点。",
+  "primary_axis": [1, 2],
+  "verdict": "bet",
+  "skip_reason": null,
+  "bets": [
+    {
+      "trifecta": "1-2-4",
+      "stake": 100,
+      "current_odds": 11.8,
+      "expected_prob": 0.14,
+      "ev": 1.65,
+      "confidence": 0.45
+    },
+    {
+      "trifecta": "1-2-6",
+      "stake": 100,
+      "current_odds": 12.2,
+      "expected_prob": 0.13,
+      "ev": 1.59,
+      "confidence": 0.45
+    },
+    {
+      "trifecta": "1-2-3",
+      "stake": 100,
+      "current_odds": 12.5,
+      "expected_prob": 0.12,
+      "ev": 1.50,
+      "confidence": 0.4
+    },
+    {
+      "trifecta": "1-6-2",
+      "stake": 100,
+      "current_odds": 37.8,
+      "expected_prob": 0.06,
+      "ev": 2.27,
+      "confidence": 0.4
+    },
+    {
+      "trifecta": "2-1-6",
+      "stake": 100,
+      "current_odds": 25.8,
+      "expected_prob": 0.07,
+      "ev": 1.81,
+      "confidence": 0.35
+    }
+  ]
+}

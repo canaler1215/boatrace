@@ -1,0 +1,43 @@
+{
+  "race_id": "2025-09-21_01_04",
+  "predicted_at": "2025-09-21T16:39:00+09:00",
+  "model": "claude-opus-4-7",
+  "analysis": "1号艇島田B2は全国2連37%だが当地2連20%と弱め、単勝3.4x。2号艇山本A2・3号艇蜂須B1（地元・ST 0.118鋭い）・4号艇香川A2の捲り組が三つ巴。1号艇本命2点+2号艇/3号艇捲り目2点の計4点で押さえる。",
+  "primary_axis": [1, 2],
+  "verdict": "bet",
+  "skip_reason": null,
+  "bets": [
+    {
+      "trifecta": "1-3-4",
+      "stake": 100,
+      "current_odds": 11.4,
+      "expected_prob": 0.13,
+      "ev": 1.48,
+      "confidence": 0.4
+    },
+    {
+      "trifecta": "1-2-4",
+      "stake": 100,
+      "current_odds": 12.1,
+      "expected_prob": 0.13,
+      "ev": 1.57,
+      "confidence": 0.45
+    },
+    {
+      "trifecta": "2-1-4",
+      "stake": 100,
+      "current_odds": 18.1,
+      "expected_prob": 0.10,
+      "ev": 1.81,
+      "confidence": 0.4
+    },
+    {
+      "trifecta": "3-1-4",
+      "stake": 100,
+      "current_odds": 22.2,
+      "expected_prob": 0.08,
+      "ev": 1.78,
+      "confidence": 0.35
+    }
+  ]
+}

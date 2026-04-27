@@ -1,0 +1,35 @@
+{
+  "race_id": "2025-09-21_01_02",
+  "predicted_at": "2025-09-21T15:44:00+09:00",
+  "model": "claude-opus-4-7",
+  "analysis": "1号艇寺島B1は全国2連27%・当地データなしで信頼度中。3号艇塩崎B1全国2連44%、4号艇若狭A2全国2連47%が強力ヒモ。注目は6号艇今井A1地元（当地2連44.8%・全国勝率5.69）の捲り差し余地。風西8m強風で1コース絶対視は危険。本線3点に絞る。",
+  "primary_axis": [1],
+  "verdict": "bet",
+  "skip_reason": null,
+  "bets": [
+    {
+      "trifecta": "1-3-4",
+      "stake": 100,
+      "current_odds": 11.1,
+      "expected_prob": 0.15,
+      "ev": 1.67,
+      "confidence": 0.5
+    },
+    {
+      "trifecta": "1-4-3",
+      "stake": 100,
+      "current_odds": 18.4,
+      "expected_prob": 0.10,
+      "ev": 1.84,
+      "confidence": 0.4
+    },
+    {
+      "trifecta": "1-3-6",
+      "stake": 100,
+      "current_odds": 16.2,
+      "expected_prob": 0.11,
+      "ev": 1.78,
+      "confidence": 0.45
+    }
+  ]
+}

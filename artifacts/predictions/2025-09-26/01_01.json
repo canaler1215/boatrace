@@ -1,0 +1,51 @@
+{
+  "race_id": "2025-09-26_01_01",
+  "predicted_at": "2026-04-27T11:15:00+09:00",
+  "model": "claude-opus-4-7",
+  "analysis": "1号艇岩崎B2は全国2連率1.16%・当地2.94%と極めて弱く頭信頼度なし。単勝オッズも1号艇3.9xは実質4番手。4号艇島田は全国2連36.96%/当地直近1着あり/ST0.105で捲り本線、3号艇寺島当地2連30%も頭候補。2号艇島倉B1当地2連32%もヒモ筆頭。4-3-X / 3-4-X / 2-X-X 本線で5点構成。",
+  "primary_axis": [4, 3],
+  "verdict": "bet",
+  "skip_reason": null,
+  "bets": [
+    {
+      "trifecta": "4-3-2",
+      "stake": 100,
+      "current_odds": 32.7,
+      "expected_prob": 0.04,
+      "ev": 1.31,
+      "confidence": 0.5
+    },
+    {
+      "trifecta": "3-4-2",
+      "stake": 100,
+      "current_odds": 21.4,
+      "expected_prob": 0.06,
+      "ev": 1.28,
+      "confidence": 0.5
+    },
+    {
+      "trifecta": "4-2-3",
+      "stake": 100,
+      "current_odds": 35.3,
+      "expected_prob": 0.04,
+      "ev": 1.41,
+      "confidence": 0.45
+    },
+    {
+      "trifecta": "2-3-4",
+      "stake": 100,
+      "current_odds": 21.4,
+      "expected_prob": 0.06,
+      "ev": 1.28,
+      "confidence": 0.45
+    },
+    {
+      "trifecta": "3-2-4",
+      "stake": 100,
+      "current_odds": 25.3,
+      "expected_prob": 0.05,
+      "ev": 1.27,
+      "confidence": 0.45
+    }
+  ]
+}

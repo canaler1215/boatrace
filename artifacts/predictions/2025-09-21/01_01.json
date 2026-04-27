@@ -1,0 +1,19 @@
+{
+  "race_id": "2025-09-21_01_01",
+  "predicted_at": "2025-09-21T15:21:00+09:00",
+  "model": "claude-opus-4-7",
+  "analysis": "1号艇河内はB1 22歳・全国2連4.6%・平均ST 0.32と弱く1コース捲られ濃厚。2号艇樋口A2は全国勝率5.58/2連40%・平均ST 0.119で本命だが単勝1.2倍と過剰人気でオッズ妙味薄い。本線2-4-1のみに絞る。北西風7mは桐生では1号不利材料。",
+  "primary_axis": [2],
+  "verdict": "bet",
+  "skip_reason": null,
+  "bets": [
+    {
+      "trifecta": "2-4-1",
+      "stake": 100,
+      "current_odds": 8.1,
+      "expected_prob": 0.22,
+      "ev": 1.78,
+      "confidence": 0.35
+    }
+  ]
+}

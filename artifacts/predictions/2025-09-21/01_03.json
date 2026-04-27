@@ -1,0 +1,43 @@
+{
+  "race_id": "2025-09-21_01_03",
+  "predicted_at": "2025-09-21T16:11:00+09:00",
+  "model": "claude-opus-4-7",
+  "analysis": "1号艇山崎B1は全国勝率5.06・当地2連42%・平均ST 0.151と1コース安定。ヒモは4号艇金田A2（当地2連40%）と5号艇清埜A2（当地2連47.5%・直近1着3）の二強。3号艇羽田はB2だがST 0.123鋭く差し有り。1号艇本命の3連単本線4点。",
+  "primary_axis": [1],
+  "verdict": "bet",
+  "skip_reason": null,
+  "bets": [
+    {
+      "trifecta": "1-4-5",
+      "stake": 100,
+      "current_odds": 13.2,
+      "expected_prob": 0.13,
+      "ev": 1.72,
+      "confidence": 0.5
+    },
+    {
+      "trifecta": "1-5-4",
+      "stake": 100,
+      "current_odds": 27.2,
+      "expected_prob": 0.08,
+      "ev": 2.18,
+      "confidence": 0.4
+    },
+    {
+      "trifecta": "1-3-4",
+      "stake": 100,
+      "current_odds": 20.3,
+      "expected_prob": 0.09,
+      "ev": 1.83,
+      "confidence": 0.4
+    },
+    {
+      "trifecta": "1-4-3",
+      "stake": 100,
+      "current_odds": 24.5,
+      "expected_prob": 0.08,
+      "ev": 1.96,
+      "confidence": 0.35
+    }
+  ]
+}

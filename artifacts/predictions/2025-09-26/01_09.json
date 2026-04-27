@@ -1,0 +1,51 @@
+{
+  "race_id": "2025-09-26_01_09",
+  "predicted_at": "2026-04-27T11:39:00+09:00",
+  "model": "claude-opus-4-7",
+  "analysis": "本日メイン級の3強構図。1号艇島倉B1当地2連32.79%は逃げの本命だが直近1着0で頭信頼度ほどほど。2号艇黒澤A2全国2連46%/当地2連40%・直近1着1が捲り筆頭。6号艇土屋A1全国2連46.59%/当地2連40%・直近1着1・モーター12号2連42%が要注目で6コースから突き抜け or 差し可能。本線1-2-6/2-1-6を本命にし、2-6-1/1-6-2/1-2-3で5点。",
+  "primary_axis": [1, 2],
+  "verdict": "bet",
+  "skip_reason": null,
+  "bets": [
+    {
+      "trifecta": "1-2-6",
+      "stake": 100,
+      "current_odds": 9.8,
+      "expected_prob": 0.13,
+      "ev": 1.27,
+      "confidence": 0.55
+    },
+    {
+      "trifecta": "2-1-6",
+      "stake": 100,
+      "current_odds": 11.7,
+      "expected_prob": 0.11,
+      "ev": 1.29,
+      "confidence": 0.5
+    },
+    {
+      "trifecta": "1-6-2",
+      "stake": 100,
+      "current_odds": 19.6,
+      "expected_prob": 0.07,
+      "ev": 1.37,
+      "confidence": 0.45
+    },
+    {
+      "trifecta": "2-6-1",
+      "stake": 100,
+      "current_odds": 17.6,
+      "expected_prob": 0.07,
+      "ev": 1.23,
+      "confidence": 0.45
+    },
+    {
+      "trifecta": "1-2-3",
+      "stake": 100,
+      "current_odds": 12.9,
+      "expected_prob": 0.10,
+      "ev": 1.29,
+      "confidence": 0.4
+    }
+  ]
+}
