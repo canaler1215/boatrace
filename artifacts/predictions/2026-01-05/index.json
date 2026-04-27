@@ -1,11 +1,11 @@
 {
   "date": "2026-01-05",
-  "generated_at": "2026-04-27T21:11:14",
-  "n_total": 96,
-  "n_valid": 96,
+  "generated_at": "2026-04-27T21:43:54",
+  "n_total": 144,
+  "n_valid": 144,
   "n_invalid": 0,
   "n_bet": 11,
-  "n_skip": 85,
+  "n_skip": 133,
   "invalid_details": [],
   "predictions": [
     {
@@ -1125,6 +1125,573 @@
       "n_bets": 0,
       "total_stake": 0,
       "skip_reason": "1号艇A1圧倒的本命+2号艇A1強の3連単が織込済、EV<0.7で買い目なし。"
+    },
+    {
+      "file": "14_01.json",
+      "race_id": "2026-01-05_14_01",
+      "verdict": "skip",
+      "primary_axis": [
+        1
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "1号艇A1本命だが3連単オッズ過小でEV<0.55、高オッズ側に明確な3着候補なく見送り"
+    },
+    {
+      "file": "14_02.json",
+      "race_id": "2026-01-05_14_02",
+      "verdict": "skip",
+      "primary_axis": [
+        5,
+        6
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "5号艇A1本命だが3連単オッズ過小でEV<0.75、6号艇1着の高オッズ組合せもEVボーダーで見送り"
+    },
+    {
+      "file": "14_03.json",
+      "race_id": "2026-01-05_14_03",
+      "verdict": "skip",
+      "primary_axis": [
+        1
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "1号艇本命過剰人気でEV<0.30、4号艇まくり系もEV<0.60で見送り"
+    },
+    {
+      "file": "14_04.json",
+      "race_id": "2026-01-05_14_04",
+      "verdict": "skip",
+      "primary_axis": [
+        1,
+        6
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "6号艇A1好調シグナルが市場に完全織込済でEV<0.50、本命系も過剰人気で見送り"
+    },
+    {
+      "file": "14_05.json",
+      "race_id": "2026-01-05_14_05",
+      "verdict": "skip",
+      "primary_axis": [
+        5,
+        6
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "三つ巴で5-6本命系オッズ過小、6号艇まくり系もEV0.88止まりで展示欠損下境界EVは見送り"
+    },
+    {
+      "file": "14_06.json",
+      "race_id": "2026-01-05_14_06",
+      "verdict": "skip",
+      "primary_axis": [
+        1,
+        5
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "1号艇単勝1.0xの極端流れで本命系過小、5/6号艇まくり系もEV<0.60で見送り"
+    },
+    {
+      "file": "14_07.json",
+      "race_id": "2026-01-05_14_07",
+      "verdict": "skip",
+      "primary_axis": [
+        2,
+        6
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "本命系オッズ過小、6号艇まくり系41.5xはEVボーダーで展示欠損下では慎重に見送り"
+    },
+    {
+      "file": "14_08.json",
+      "race_id": "2026-01-05_14_08",
+      "verdict": "skip",
+      "primary_axis": [
+        1,
+        2
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "強風荒れ要因あるが本命系過剰人気、まくり系もEV<0.50で妙味なく見送り"
+    },
+    {
+      "file": "14_09.json",
+      "race_id": "2026-01-05_14_09",
+      "verdict": "skip",
+      "primary_axis": [
+        1,
+        4
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "1-4軸拮抗で市場効率済、本命系もまくり系もEV<0.40で見送り"
+    },
+    {
+      "file": "14_10.json",
+      "race_id": "2026-01-05_14_10",
+      "verdict": "skip",
+      "primary_axis": [
+        1
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "1号艇A2本命圧倒で本命系過剰人気EV<0.50、まくり系も妙味なく見送り"
+    },
+    {
+      "file": "14_11.json",
+      "race_id": "2026-01-05_14_11",
+      "verdict": "skip",
+      "primary_axis": [
+        1,
+        2
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "1号艇A1本命圧倒で本命系過剰人気EV<0.50、まくり系も妙味なく見送り"
+    },
+    {
+      "file": "14_12.json",
+      "race_id": "2026-01-05_14_12",
+      "verdict": "skip",
+      "primary_axis": [
+        1
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "1号艇A1本命圧倒で本命系過剰人気EV<0.50、A1×5の超強敵相手で見送り"
+    },
+    {
+      "file": "15_01.json",
+      "race_id": "2026-01-05_15_01",
+      "verdict": "skip",
+      "primary_axis": [
+        1,
+        3
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "1-3軸本命過剰人気、6号艇好調シグナルだがまくり想定オッズ薄く見送り"
+    },
+    {
+      "file": "15_02.json",
+      "race_id": "2026-01-05_15_02",
+      "verdict": "skip",
+      "primary_axis": [
+        1,
+        3
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "1-2-3ライン本命凝縮で全帯EV<0.30、まくり系も妙味なく見送り"
+    },
+    {
+      "file": "15_03.json",
+      "race_id": "2026-01-05_15_03",
+      "verdict": "skip",
+      "primary_axis": [
+        3,
+        4
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "3号艇まくり本命でラインオッズ過小、本命系もまくり系も全帯EV<0.55で見送り"
+    },
+    {
+      "file": "15_04.json",
+      "race_id": "2026-01-05_15_04",
+      "verdict": "skip",
+      "primary_axis": [
+        1,
+        3
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "1-3軸双璧本命で本命系過剰人気EV<0.20、6号艇好調シグナルもまくり想定オッズ薄く見送り"
+    },
+    {
+      "file": "15_05.json",
+      "race_id": "2026-01-05_15_05",
+      "verdict": "skip",
+      "primary_axis": [
+        1,
+        4
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "4号艇A1当地強烈シグナルあるが市場織込済でEV~0.63ボーダー、S2基準60x未満で見送り"
+    },
+    {
+      "file": "15_06.json",
+      "race_id": "2026-01-05_15_06",
+      "verdict": "skip",
+      "primary_axis": [
+        1
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "1号艇A1当地強烈で本命系極端過剰人気EV<0.30、まくり系も妙味なく見送り"
+    },
+    {
+      "file": "15_07.json",
+      "race_id": "2026-01-05_15_07",
+      "verdict": "skip",
+      "primary_axis": [
+        6,
+        1
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "6号艇A1超特殊本命だが市場完全織込済で全帯EV<0.60、見送り"
+    },
+    {
+      "file": "15_08.json",
+      "race_id": "2026-01-05_15_08",
+      "verdict": "skip",
+      "primary_axis": [
+        1,
+        4
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "1号艇A1単勝1.0x極端本命で本命系過剰人気EV<0.30、4号艇まくりも妙味なく見送り"
+    },
+    {
+      "file": "15_09.json",
+      "race_id": "2026-01-05_15_09",
+      "verdict": "skip",
+      "primary_axis": [
+        1,
+        3
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "三軸拮抗で本命系EV<0.40、まくり系もボーダーEVで見送り"
+    },
+    {
+      "file": "15_10.json",
+      "race_id": "2026-01-05_15_10",
+      "verdict": "skip",
+      "primary_axis": [
+        1,
+        2
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "1号艇A2本命でA1相手も勝負、本命系過剰人気EV<0.30で見送り"
+    },
+    {
+      "file": "15_11.json",
+      "race_id": "2026-01-05_15_11",
+      "verdict": "skip",
+      "primary_axis": [
+        1
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "1号艇A1本命圧倒で本命系過剰人気EV<0.30、A1×4相手で見送り"
+    },
+    {
+      "file": "15_12.json",
+      "race_id": "2026-01-05_15_12",
+      "verdict": "skip",
+      "primary_axis": [
+        1,
+        3
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "1号艇A1当地圧倒本命で本命系過剰人気EV<0.30、まくり系もボーダーEVで見送り"
+    },
+    {
+      "file": "18_01.json",
+      "race_id": "2026-01-05_18_01",
+      "verdict": "skip",
+      "primary_axis": [
+        1
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "1コース勝率64%の徳山で1号艇A2本命過剰人気EV<0.30、4号艇まくりも妙味薄く見送り"
+    },
+    {
+      "file": "18_02.json",
+      "race_id": "2026-01-05_18_02",
+      "verdict": "skip",
+      "primary_axis": [
+        1
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "1号艇A1当地2連率66.7%で単勝1.0x極端本命、本命系過剰人気EV<0.30で見送り"
+    },
+    {
+      "file": "18_03.json",
+      "race_id": "2026-01-05_18_03",
+      "verdict": "skip",
+      "primary_axis": [
+        1,
+        2
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "1-2軸ライン本命凝縮で全帯EV<0.40、市場効率済で見送り"
+    },
+    {
+      "file": "18_04.json",
+      "race_id": "2026-01-05_18_04",
+      "verdict": "skip",
+      "primary_axis": [
+        1,
+        2
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "1-2軸双軸本命で本命系超過剰人気EV<0.20、まくり系も妙味なく見送り"
+    },
+    {
+      "file": "18_05.json",
+      "race_id": "2026-01-05_18_05",
+      "verdict": "skip",
+      "primary_axis": [
+        1,
+        3
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "1号艇本命過剰人気で本命系EV<0.30、まくり系もEV<0.35で見送り"
+    },
+    {
+      "file": "18_06.json",
+      "race_id": "2026-01-05_18_06",
+      "verdict": "skip",
+      "primary_axis": [
+        1,
+        4
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "1号艇本命過剰人気で本命系EV<0.30、4号艇まくりもボーダーEVで見送り"
+    },
+    {
+      "file": "18_07.json",
+      "race_id": "2026-01-05_18_07",
+      "verdict": "skip",
+      "primary_axis": [
+        3,
+        2
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "3号艇本命の異例構図で本命系過剰人気EV<0.30、1号艇まくりも当地不振で楽観EV0.77は危険、見送り"
+    },
+    {
+      "file": "18_08.json",
+      "race_id": "2026-01-05_18_08",
+      "verdict": "skip",
+      "primary_axis": [
+        1,
+        3
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "1-3双軸本命で本命系過剰人気EV<0.30、3号艇まくりもボーダーEVで見送り"
+    },
+    {
+      "file": "18_09.json",
+      "race_id": "2026-01-05_18_09",
+      "verdict": "skip",
+      "primary_axis": [
+        1,
+        5
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "1-5双軸本命で本命系過剰人気EV<0.30、5号艇A1まくりも市場織込済で見送り"
+    },
+    {
+      "file": "18_10.json",
+      "race_id": "2026-01-05_18_10",
+      "verdict": "skip",
+      "primary_axis": [
+        2,
+        6
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "2号艇本命の異例構図で本命系過剰人気EV<0.30、6号艇A1まくりも市場想定低で見送り"
+    },
+    {
+      "file": "18_11.json",
+      "race_id": "2026-01-05_18_11",
+      "verdict": "skip",
+      "primary_axis": [
+        1,
+        6
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "1号艇本命+6号艇好調シグナルだがまくりオッズ37x止まりでS2基準60x未満、EV~0.59ボーダーで見送り"
+    },
+    {
+      "file": "18_12.json",
+      "race_id": "2026-01-05_18_12",
+      "verdict": "skip",
+      "primary_axis": [
+        1
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "1号艇A1当地レジェンド単勝1.1xで本命系超過剰人気EV<0.20、まくり系も妙味なく見送り"
+    },
+    {
+      "file": "19_01.json",
+      "race_id": "2026-01-05_19_01",
+      "verdict": "skip",
+      "primary_axis": [
+        4,
+        1
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "4号艇A2単勝1.1x極端本命で本命系過剰人気EV<0.50、市場効率済で見送り"
+    },
+    {
+      "file": "19_02.json",
+      "race_id": "2026-01-05_19_02",
+      "verdict": "skip",
+      "primary_axis": [
+        4,
+        1
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "4号艇A2連勝シグナル+1号艇A2本命の双軸でラインオッズ過小、市場効率済で見送り"
+    },
+    {
+      "file": "19_03.json",
+      "race_id": "2026-01-05_19_03",
+      "verdict": "skip",
+      "primary_axis": [
+        1,
+        3
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "三つ巴拮抗で市場効率済、本命系もまくり系もEV<0.40で見送り"
+    },
+    {
+      "file": "19_04.json",
+      "race_id": "2026-01-05_19_04",
+      "verdict": "skip",
+      "primary_axis": [
+        1,
+        6
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "1号艇本命過剰人気でEV<0.30、6号艇A1好調シグナルあるがまくり系オッズ上位20圏外で確認不能、慎重に見送り"
+    },
+    {
+      "file": "19_05.json",
+      "race_id": "2026-01-05_19_05",
+      "verdict": "skip",
+      "primary_axis": [
+        1,
+        2
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "1-2軸ライン本命凝縮で全帯EV<0.30、市場効率済で見送り"
+    },
+    {
+      "file": "19_06.json",
+      "race_id": "2026-01-05_19_06",
+      "verdict": "skip",
+      "primary_axis": [
+        1,
+        2
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "1号艇A2極端本命で本命系過剰人気EV<0.30、まくり系も妙味なく見送り"
+    },
+    {
+      "file": "19_07.json",
+      "race_id": "2026-01-05_19_07",
+      "verdict": "skip",
+      "primary_axis": [
+        1,
+        6
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "1号艇A1単勝1.1x極端本命で本命系過剰人気EV<0.30、6号艇まくり系オッズ確認不能で見送り"
+    },
+    {
+      "file": "19_08.json",
+      "race_id": "2026-01-05_19_08",
+      "verdict": "skip",
+      "primary_axis": [
+        1,
+        4
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "進入固定戦で1号艇A1単勝1.0x極端本命、本命系超過剰人気EV<0.20で見送り"
+    },
+    {
+      "file": "19_09.json",
+      "race_id": "2026-01-05_19_09",
+      "verdict": "skip",
+      "primary_axis": [
+        1,
+        5
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "1号艇A2当地2連率75%で単勝1.0x極端本命、本命系過剰人気EV<0.30で見送り"
+    },
+    {
+      "file": "19_10.json",
+      "race_id": "2026-01-05_19_10",
+      "verdict": "skip",
+      "primary_axis": [
+        1,
+        6
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "1号艇本命+6号艇A2絶好調シグナルだがまくり系最高37.7xでS2基準60x未満、EV<0.70で見送り"
+    },
+    {
+      "file": "19_11.json",
+      "race_id": "2026-01-05_19_11",
+      "verdict": "skip",
+      "primary_axis": [
+        1,
+        2
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "1号艇A1単勝1.0x極端本命でA1×4相手、本命系過剰人気EV<0.30で見送り"
+    },
+    {
+      "file": "19_12.json",
+      "race_id": "2026-01-05_19_12",
+      "verdict": "skip",
+      "primary_axis": [
+        1,
+        4
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "1号艇A1当地2連率60%本命+ A1×4の超充実構成、本命系過剰人気EV<0.30で見送り"
     }
   ]
 }
