@@ -1,0 +1,16 @@
+{
+  "race_id": "2025-12-15_01_09",
+  "predicted_at": "2026-04-27T15:30:00+09:00",
+  "model": "claude-opus-4-7",
+  "analysis": "予選特賞 1800m。1号艇滝沢B1 単勝1.7x 全国2連22% / 当地2連46.67% モ41.67% で逃げ候補だが直近2走で2着連続 (1着なし)。2号艇木谷A2 単勝3.4x 30歳香川 全国2連50% / 当地2連52.63% / 直近10走で1着4 (絶好調) / 当地直近1着2 (12-14桐生2R/12-13 7R 1コース1着連続) で捲り頭の最有力。4号艇土屋B1 56歳群馬地元 当地2連31.67% / 当地直近1着1 を3着候補。6号艇岡村A1 当地2連44%/12-13 6R 1着 を3着候補に。1-2 軸両建てで5点。",
+  "primary_axis": [1, 2],
+  "verdict": "bet",
+  "skip_reason": null,
+  "bets": [
+    {"trifecta": "1-2-4", "stake": 100, "current_odds": 8.4, "expected_prob": 0.13, "ev": 1.09, "confidence": 0.50},
+    {"trifecta": "1-2-6", "stake": 100, "current_odds": 10.1, "expected_prob": 0.10, "ev": 1.01, "confidence": 0.50},
+    {"trifecta": "2-1-6", "stake": 100, "current_odds": 14.7, "expected_prob": 0.07, "ev": 1.03, "confidence": 0.50},
+    {"trifecta": "2-1-4", "stake": 100, "current_odds": 14.8, "expected_prob": 0.07, "ev": 1.04, "confidence": 0.50},
+    {"trifecta": "1-4-2", "stake": 100, "current_odds": 16.8, "expected_prob": 0.06, "ev": 1.01, "confidence": 0.45}
+  ]
+}

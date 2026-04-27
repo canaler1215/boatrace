@@ -1,0 +1,16 @@
+{
+  "race_id": "2025-12-15_01_10",
+  "predicted_at": "2026-04-27T15:30:00+09:00",
+  "model": "claude-opus-4-7",
+  "analysis": "予選特賞 1800m。1号艇富永A2 単勝2.9x 全国2連42% / 当地2連72.73% (全選手中ベスト) / モ34.68% 平均ST0.141 で逃げ頭固定。3号艇桑原B1 単勝2.3x が単勝最人気だがこれは12-13桐生で1コース1着連続2の地力評価、3コース進入の本日は捲り頭まで届くか不透明。4号艇浜本B1 全国2連43.43% / 当地直近2走で1コース1着連続2 (12-13 8R/4R) で4コース捲り脅威。6号艇重野A1 当地2連48% / 12-14 12R 6コース1着で6コース捲り歴あり。1頭固定でヒモ4方向に展開。",
+  "primary_axis": [1],
+  "verdict": "bet",
+  "skip_reason": null,
+  "bets": [
+    {"trifecta": "1-2-4", "stake": 100, "current_odds": 11.6, "expected_prob": 0.10, "ev": 1.16, "confidence": 0.55},
+    {"trifecta": "1-3-4", "stake": 100, "current_odds": 15.4, "expected_prob": 0.08, "ev": 1.23, "confidence": 0.50},
+    {"trifecta": "1-3-6", "stake": 100, "current_odds": 19.7, "expected_prob": 0.06, "ev": 1.18, "confidence": 0.50},
+    {"trifecta": "1-4-3", "stake": 100, "current_odds": 23.9, "expected_prob": 0.06, "ev": 1.43, "confidence": 0.50},
+    {"trifecta": "1-4-6", "stake": 100, "current_odds": 26.5, "expected_prob": 0.05, "ev": 1.33, "confidence": 0.45}
+  ]
+}

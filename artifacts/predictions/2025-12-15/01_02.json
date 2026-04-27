@@ -1,0 +1,16 @@
+{
+  "race_id": "2025-12-15_01_02",
+  "predicted_at": "2026-04-27T15:30:00+09:00",
+  "model": "claude-opus-4-7",
+  "analysis": "1号艇桑原B1 全国2連28% / 当地2連0% だが直近3走で1着2 (12-13桐生1着連続2) + モ52号 50% で当地で機能。4号艇中野A1 26歳 全国2連54.47% が捲り頭最有力、当地2連27% 直近1着1。2号艇山下B1 全国2連32% は単勝2.5x と過大評価。6号艇西田B1 平均ST0.113! は6コースから速いST。1-4 軸両建て、6号艇を3着候補に。",
+  "primary_axis": [1, 4],
+  "verdict": "bet",
+  "skip_reason": null,
+  "bets": [
+    {"trifecta": "1-4-2", "stake": 100, "current_odds": 12.5, "expected_prob": 0.10, "ev": 1.25, "confidence": 0.50},
+    {"trifecta": "1-2-4", "stake": 100, "current_odds": 12.8, "expected_prob": 0.10, "ev": 1.28, "confidence": 0.50},
+    {"trifecta": "1-4-6", "stake": 100, "current_odds": 18.7, "expected_prob": 0.07, "ev": 1.31, "confidence": 0.50},
+    {"trifecta": "4-1-2", "stake": 100, "current_odds": 20.3, "expected_prob": 0.06, "ev": 1.22, "confidence": 0.45},
+    {"trifecta": "4-1-6", "stake": 100, "current_odds": 32.9, "expected_prob": 0.05, "ev": 1.65, "confidence": 0.45}
+  ]
+}

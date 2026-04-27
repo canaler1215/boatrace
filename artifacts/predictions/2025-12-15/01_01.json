@@ -1,0 +1,16 @@
+{
+  "race_id": "2025-12-15_01_01",
+  "predicted_at": "2026-04-27T15:30:00+09:00",
+  "model": "claude-opus-4-7",
+  "analysis": "1号艇岡部B1 全国2連27% 平均ST0.197 で逃げ信頼度低い。3号艇柘植A2 全国2連44% 当地2連50% モ43.72% ST0.152 が捲り頭筆頭。5号艇木谷A2 当地2連52.63% 直近1着2/2連2 で当地超好調、5コースから捲り差し可能。西風9m の強風で1コース有利だが、ST0.197 の B1 では恩恵生かせず。1号艇逃げ vs 3号艇捲りの両建て、5号艇を3着候補軸に。",
+  "primary_axis": [1, 3],
+  "verdict": "bet",
+  "skip_reason": null,
+  "bets": [
+    {"trifecta": "1-3-5", "stake": 100, "current_odds": 10.0, "expected_prob": 0.10, "ev": 1.00, "confidence": 0.50},
+    {"trifecta": "3-1-5", "stake": 100, "current_odds": 19.6, "expected_prob": 0.07, "ev": 1.37, "confidence": 0.50},
+    {"trifecta": "1-5-3", "stake": 100, "current_odds": 20.1, "expected_prob": 0.07, "ev": 1.41, "confidence": 0.45},
+    {"trifecta": "3-5-1", "stake": 100, "current_odds": 30.6, "expected_prob": 0.05, "ev": 1.53, "confidence": 0.45},
+    {"trifecta": "1-3-2", "stake": 100, "current_odds": 14.2, "expected_prob": 0.07, "ev": 0.99, "confidence": 0.45}
+  ]
+}

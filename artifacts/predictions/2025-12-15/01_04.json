@@ -1,0 +1,16 @@
+{
+  "race_id": "2025-12-15_01_04",
+  "predicted_at": "2026-04-27T15:30:00+09:00",
+  "model": "claude-opus-4-7",
+  "analysis": "1号艇今坂B1 当地直近3走で全敗 (6-6-6 連続) で逃げ信頼度ほぼゼロ、単勝3.8x は過大評価。2号艇浜本B1 38歳 当地直近2走で1コース1着連続2 (12-13桐生8R/4R) で激好調、捲り頭最有力。4号艇小坂A1 全国2連46% モ16号51.35% 当地直近1コース1着1 で捲り脅威。3号艇滝沢B1 当地2連46.67% モ41.67% を連候補、6号艇茶谷A2 当地直近1着1 を3着候補。1号艇切って2-4 軸両建て。",
+  "primary_axis": [2, 4],
+  "verdict": "bet",
+  "skip_reason": null,
+  "bets": [
+    {"trifecta": "2-4-6", "stake": 100, "current_odds": 14.7, "expected_prob": 0.10, "ev": 1.47, "confidence": 0.55},
+    {"trifecta": "2-4-3", "stake": 100, "current_odds": 16.4, "expected_prob": 0.08, "ev": 1.31, "confidence": 0.50},
+    {"trifecta": "2-3-4", "stake": 100, "current_odds": 18.3, "expected_prob": 0.07, "ev": 1.28, "confidence": 0.50},
+    {"trifecta": "4-2-6", "stake": 100, "current_odds": 19.3, "expected_prob": 0.07, "ev": 1.35, "confidence": 0.50},
+    {"trifecta": "4-2-3", "stake": 100, "current_odds": 27.1, "expected_prob": 0.05, "ev": 1.36, "confidence": 0.45}
+  ]
+}

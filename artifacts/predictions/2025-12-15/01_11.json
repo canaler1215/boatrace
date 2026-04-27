@@ -1,0 +1,16 @@
+{
+  "race_id": "2025-12-15_01_11",
+  "predicted_at": "2026-04-27T15:30:00+09:00",
+  "model": "claude-opus-4-7",
+  "analysis": "一般特選 1800m。1号艇中野A1 26歳 単勝1.4x 全国2連54.47% / 12-14 11R で1コースから1着 で頭ほぼ確定の絶対本命。4号艇有賀A2 単勝5.5x 当地2連57.14% / 平均ST0.117! / 当地直近1着2 (12-13 10R / 10-26 3R) で捲り脅威の最有力ヒモ、4号艇捲りなら 1-4-X 系が妙味。2号艇田路A1 当地2連46.88% / 12-13 11R で3コース1着歴、3号艇茶谷A2 当地直近1着1 (12-13 9R 1コース1着) でヒモ多彩。1頭固定で5点。",
+  "primary_axis": [1],
+  "verdict": "bet",
+  "skip_reason": null,
+  "bets": [
+    {"trifecta": "1-2-3", "stake": 100, "current_odds": 5.8, "expected_prob": 0.20, "ev": 1.16, "confidence": 0.55},
+    {"trifecta": "1-2-4", "stake": 100, "current_odds": 7.5, "expected_prob": 0.13, "ev": 0.98, "confidence": 0.55},
+    {"trifecta": "1-3-4", "stake": 100, "current_odds": 10.7, "expected_prob": 0.10, "ev": 1.07, "confidence": 0.50},
+    {"trifecta": "1-4-2", "stake": 100, "current_odds": 13.2, "expected_prob": 0.08, "ev": 1.06, "confidence": 0.50},
+    {"trifecta": "1-4-3", "stake": 100, "current_odds": 13.4, "expected_prob": 0.07, "ev": 0.94, "confidence": 0.50}
+  ]
+}

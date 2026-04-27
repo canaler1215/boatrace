@@ -1,0 +1,16 @@
+{
+  "race_id": "2025-12-15_01_03",
+  "predicted_at": "2026-04-27T15:30:00+09:00",
+  "model": "claude-opus-4-7",
+  "analysis": "3号艇有賀A2 単勝1.9x 全国2連42% 当地2連57% 平均ST0.117 で当地ベスト級、捲り頭ほぼ確定。1号艇奥平B1 ST0.217 当地直近2走で6着連続の絶不調、逃げ信頼度低。2号艇土屋B1 56歳群馬地元 当地直近1着1/2連3 で当地超好調、3号艇連の最有力。6号艇松井A2 当地直近1着1 (12-14桐生8R 1コース1着) で3着候補。3頭固定で2着3着を分散。",
+  "primary_axis": [3],
+  "verdict": "bet",
+  "skip_reason": null,
+  "bets": [
+    {"trifecta": "3-2-6", "stake": 100, "current_odds": 15.2, "expected_prob": 0.10, "ev": 1.52, "confidence": 0.55},
+    {"trifecta": "3-6-2", "stake": 100, "current_odds": 17.4, "expected_prob": 0.07, "ev": 1.22, "confidence": 0.50},
+    {"trifecta": "3-4-6", "stake": 100, "current_odds": 17.6, "expected_prob": 0.07, "ev": 1.23, "confidence": 0.50},
+    {"trifecta": "3-2-4", "stake": 100, "current_odds": 24.1, "expected_prob": 0.06, "ev": 1.45, "confidence": 0.50},
+    {"trifecta": "3-1-6", "stake": 100, "current_odds": 22.2, "expected_prob": 0.05, "ev": 1.11, "confidence": 0.45}
+  ]
+}

@@ -1,0 +1,16 @@
+{
+  "race_id": "2025-12-15_01_12",
+  "predicted_at": "2026-04-27T15:30:00+09:00",
+  "model": "claude-opus-4-7",
+  "analysis": "一般桐生特選 1800m。1号艇小坂A1 単勝1.2x 全国2連46.67% / モ16号51.35% / ボート52号55.56% / 12-14 10R で1コースから1着 で頭ほぼ確定の絶対本命。4号艇西丸A2 21歳 単勝5.2x 全国2連53.61% / 12-14 1R 1コース1着で連の最有力。2号艇松山A1 全国2連44.90% / 12-14 6R 1着 で連、6号艇長谷川A2 25歳群馬地元 当地2連37.65% / 12-14 9R 2コース1着 で6コース捲り脅威。1頭固定で5点。",
+  "primary_axis": [1],
+  "verdict": "bet",
+  "skip_reason": null,
+  "bets": [
+    {"trifecta": "1-2-4", "stake": 100, "current_odds": 5.3, "expected_prob": 0.20, "ev": 1.06, "confidence": 0.55},
+    {"trifecta": "1-4-2", "stake": 100, "current_odds": 7.7, "expected_prob": 0.13, "ev": 1.00, "confidence": 0.55},
+    {"trifecta": "1-2-6", "stake": 100, "current_odds": 13.3, "expected_prob": 0.07, "ev": 0.93, "confidence": 0.50},
+    {"trifecta": "1-4-6", "stake": 100, "current_odds": 12.5, "expected_prob": 0.08, "ev": 1.00, "confidence": 0.50},
+    {"trifecta": "1-4-3", "stake": 100, "current_odds": 17.7, "expected_prob": 0.06, "ev": 1.06, "confidence": 0.45}
+  ]
+}
