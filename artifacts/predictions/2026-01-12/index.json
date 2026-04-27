@@ -1,11 +1,11 @@
 {
   "date": "2026-01-12",
-  "generated_at": "2026-04-27T23:54:42",
-  "n_total": 24,
-  "n_valid": 24,
+  "generated_at": "2026-04-28T00:20:23",
+  "n_total": 72,
+  "n_valid": 72,
   "n_invalid": 0,
   "n_bet": 8,
-  "n_skip": 16,
+  "n_skip": 64,
   "invalid_details": [],
   "predictions": [
     {
@@ -287,6 +287,562 @@
       "n_bets": 0,
       "total_stake": 0,
       "skip_reason": "1号艇A1当地+3号艇A1の二強で本命凝縮、EV<1.0"
+    },
+    {
+      "file": "03_01.json",
+      "race_id": "2026-01-12_03_01",
+      "verdict": "skip",
+      "primary_axis": [
+        1
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "1号艇B2のため本命確度楽観できず、1.5x単勝の人気凝縮で3連単本線EV<1.0。過去日ドライランで展示なし、判断材料も限定的"
+    },
+    {
+      "file": "03_02.json",
+      "race_id": "2026-01-12_03_02",
+      "verdict": "skip",
+      "primary_axis": [
+        1,
+        2
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "1号艇B1 23%・2号艇A2 39% の拮抗構図で人気分散、本線EV<1.0"
+    },
+    {
+      "file": "03_03.json",
+      "race_id": "2026-01-12_03_03",
+      "verdict": "skip",
+      "primary_axis": [
+        1
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "1-2-3 三者拮抗で人気分散、本命1号艇B1の確度が薄く本線EV<1.0"
+    },
+    {
+      "file": "03_04.json",
+      "race_id": "2026-01-12_03_04",
+      "verdict": "skip",
+      "primary_axis": [
+        1,
+        2
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "1号艇単勝1.3xでB1の過剰人気、本線EV<0.5"
+    },
+    {
+      "file": "03_05.json",
+      "race_id": "2026-01-12_03_05",
+      "verdict": "skip",
+      "primary_axis": [
+        2,
+        1
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "2号艇A1 前原 直近6/10勝の絶好調で単勝1.5xの大本命凝縮、本線EV<0.7"
+    },
+    {
+      "file": "03_06.json",
+      "race_id": "2026-01-12_03_06",
+      "verdict": "skip",
+      "primary_axis": [
+        4
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "4号艇A1まくり期待で単勝1.6x、本線EV<0.5"
+    },
+    {
+      "file": "03_07.json",
+      "race_id": "2026-01-12_03_07",
+      "verdict": "skip",
+      "primary_axis": [
+        2
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "2号艇A1まくり期待で単勝1.3x、本線EV<0.5"
+    },
+    {
+      "file": "03_08.json",
+      "race_id": "2026-01-12_03_08",
+      "verdict": "skip",
+      "primary_axis": [
+        1,
+        5
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "1号艇B1で1.6xの過剰人気と5号艇A1絶好調の拮抗、本線・逆軸とも EV<0.5"
+    },
+    {
+      "file": "03_09.json",
+      "race_id": "2026-01-12_03_09",
+      "verdict": "skip",
+      "primary_axis": [
+        1
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "1号艇A2 1.6x は妥当人気だが本線オッズ凝縮で EV<0.6"
+    },
+    {
+      "file": "03_10.json",
+      "race_id": "2026-01-12_03_10",
+      "verdict": "skip",
+      "primary_axis": [
+        1
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "1号艇A2 単勝1.0xの極端な凝縮人気で本線EV<0.35"
+    },
+    {
+      "file": "03_11.json",
+      "race_id": "2026-01-12_03_11",
+      "verdict": "skip",
+      "primary_axis": [
+        1
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "1号艇A2の本命1.6xで本線オッズ凝縮、EV<0.4"
+    },
+    {
+      "file": "03_12.json",
+      "race_id": "2026-01-12_03_12",
+      "verdict": "skip",
+      "primary_axis": [
+        1
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "A1×6選抜戦の1号艇本命1.5xで本線EV<0.4、CLAUDE.md定型パターン (A1×3-4本命系凝縮)"
+    },
+    {
+      "file": "05_01.json",
+      "race_id": "2026-01-12_05_01",
+      "verdict": "skip",
+      "primary_axis": [
+        1,
+        5
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "1号艇B1直近10走1着0と本命5号艇A2の拮抗構図、本線EV<0.6"
+    },
+    {
+      "file": "05_02.json",
+      "race_id": "2026-01-12_05_02",
+      "verdict": "skip",
+      "primary_axis": [
+        1,
+        6
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "6号艇A2好調も単勝5.2xは織込済、本線EV<0.4"
+    },
+    {
+      "file": "05_03.json",
+      "race_id": "2026-01-12_05_03",
+      "verdict": "skip",
+      "primary_axis": [
+        1,
+        4
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "1号艇B1で1.9xの過剰人気と4号艇A1まくり脅威の構図、本線EV<0.3"
+    },
+    {
+      "file": "05_04.json",
+      "race_id": "2026-01-12_05_04",
+      "verdict": "skip",
+      "primary_axis": [
+        1,
+        3
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "1号艇B1 1.9x過剰人気と3号艇A2絶好調の拮抗、本線EV<0.3"
+    },
+    {
+      "file": "05_05.json",
+      "race_id": "2026-01-12_05_05",
+      "verdict": "skip",
+      "primary_axis": [
+        1,
+        5
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "5号艇A1絶好調も単勝2.5xで織込済、5-1-4 EV=1.0付近のボーダーは展示欠損下でリスク高"
+    },
+    {
+      "file": "05_06.json",
+      "race_id": "2026-01-12_05_06",
+      "verdict": "skip",
+      "primary_axis": [
+        1
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "1号艇B2で単勝1.4xの過剰凝縮、本線EV<0.2"
+    },
+    {
+      "file": "05_07.json",
+      "race_id": "2026-01-12_05_07",
+      "verdict": "skip",
+      "primary_axis": [
+        1,
+        6
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "1号艇B1極弱と6号艇A1まくり差しの拮抗、本線・逆軸とも EV<0.7"
+    },
+    {
+      "file": "05_08.json",
+      "race_id": "2026-01-12_05_08",
+      "verdict": "skip",
+      "primary_axis": [
+        1
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "1号艇B1 単勝1.2xの極端な凝縮で本線EV<0.3"
+    },
+    {
+      "file": "05_09.json",
+      "race_id": "2026-01-12_05_09",
+      "verdict": "skip",
+      "primary_axis": [
+        1
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "1号艇A2 単勝1.2xの大本命凝縮で本線EV<0.25"
+    },
+    {
+      "file": "05_10.json",
+      "race_id": "2026-01-12_05_10",
+      "verdict": "skip",
+      "primary_axis": [
+        1
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "1号艇A2 単勝1.3xの大本命凝縮で本線EV<0.25"
+    },
+    {
+      "file": "05_11.json",
+      "race_id": "2026-01-12_05_11",
+      "verdict": "skip",
+      "primary_axis": [
+        1,
+        5
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "1号艇A2 1.3xの過剰人気、本線EV<0.35"
+    },
+    {
+      "file": "05_12.json",
+      "race_id": "2026-01-12_05_12",
+      "verdict": "skip",
+      "primary_axis": [
+        1
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "1号艇A1 単勝1.0xの極端な凝縮で本線EV<0.25"
+    },
+    {
+      "file": "06_01.json",
+      "race_id": "2026-01-12_06_01",
+      "verdict": "skip",
+      "primary_axis": [
+        2
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "1号艇B2極弱だが2号艇まくり凝縮で本線EV<0.2"
+    },
+    {
+      "file": "06_02.json",
+      "race_id": "2026-01-12_06_02",
+      "verdict": "skip",
+      "primary_axis": [
+        1,
+        4
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "1号艇A2と4号艇A1の二強拮抗、本線・逆軸とも EV<0.4"
+    },
+    {
+      "file": "06_03.json",
+      "race_id": "2026-01-12_06_03",
+      "verdict": "skip",
+      "primary_axis": [
+        1,
+        2
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "1-2-5 三者拮抗で人気分散、本線EV<0.25"
+    },
+    {
+      "file": "06_04.json",
+      "race_id": "2026-01-12_06_04",
+      "verdict": "skip",
+      "primary_axis": [
+        1,
+        4
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "1号艇B1 1.5xの過剰凝縮で本線EV<0.2"
+    },
+    {
+      "file": "06_05.json",
+      "race_id": "2026-01-12_06_05",
+      "verdict": "skip",
+      "primary_axis": [
+        1
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "1号艇A1 単勝1.2xの大本命凝縮で本線EV<0.25"
+    },
+    {
+      "file": "06_06.json",
+      "race_id": "2026-01-12_06_06",
+      "verdict": "skip",
+      "primary_axis": [
+        3,
+        6
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "1号艇B1極弱で外艇まくり構図だが本線・逆軸とも EV<0.5"
+    },
+    {
+      "file": "06_07.json",
+      "race_id": "2026-01-12_06_07",
+      "verdict": "skip",
+      "primary_axis": [
+        1,
+        2
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "1号艇B1 1.7xの本命凝縮で本線EV<0.2"
+    },
+    {
+      "file": "06_08.json",
+      "race_id": "2026-01-12_06_08",
+      "verdict": "skip",
+      "primary_axis": [
+        1
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "1号艇A2 単勝1.0xの極端な凝縮で本線EV<0.25"
+    },
+    {
+      "file": "06_09.json",
+      "race_id": "2026-01-12_06_09",
+      "verdict": "skip",
+      "primary_axis": [
+        1,
+        3
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "1号艇A2 1.5x過剰人気で2-3着候補分散、本線EV<0.2"
+    },
+    {
+      "file": "06_10.json",
+      "race_id": "2026-01-12_06_10",
+      "verdict": "skip",
+      "primary_axis": [
+        1,
+        2
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "A1×2+A2×4選抜戦の1号艇1.2xで本線EV<0.3、定型パターン"
+    },
+    {
+      "file": "06_11.json",
+      "race_id": "2026-01-12_06_11",
+      "verdict": "skip",
+      "primary_axis": [
+        1,
+        2
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "A1×2選抜戦の1号艇1.2x大本命凝縮で本線EV<0.3"
+    },
+    {
+      "file": "06_12.json",
+      "race_id": "2026-01-12_06_12",
+      "verdict": "skip",
+      "primary_axis": [
+        1,
+        3
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "A1×4優勝戦の1号艇1.2x大本命凝縮、本線EV<0.3 (定型 skip パターン)"
+    },
+    {
+      "file": "09_01.json",
+      "race_id": "2026-01-12_09_01",
+      "verdict": "skip",
+      "primary_axis": [
+        1
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "1号艇A2 単勝1.0xの極端な凝縮で本線EV<0.2"
+    },
+    {
+      "file": "09_02.json",
+      "race_id": "2026-01-12_09_02",
+      "verdict": "skip",
+      "primary_axis": [
+        1
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "1号艇B1 1.7x過剰人気で本線EV<0.15"
+    },
+    {
+      "file": "09_03.json",
+      "race_id": "2026-01-12_09_03",
+      "verdict": "skip",
+      "primary_axis": [
+        1,
+        3
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "1号艇B1極弱と3号艇A1絶好調・2号艇A2の三者拮抗で本線EV<0.5"
+    },
+    {
+      "file": "09_04.json",
+      "race_id": "2026-01-12_09_04",
+      "verdict": "skip",
+      "primary_axis": [
+        1,
+        5
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "3号艇欠場の5艇展開で5号艇A2まくり凝縮済、本線EV<0.5"
+    },
+    {
+      "file": "09_05.json",
+      "race_id": "2026-01-12_09_05",
+      "verdict": "skip",
+      "primary_axis": [
+        1
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "4号艇欠場5艇展開で1号艇A1 単勝1.0xの極端凝縮、本線EV<0.25"
+    },
+    {
+      "file": "09_06.json",
+      "race_id": "2026-01-12_09_06",
+      "verdict": "skip",
+      "primary_axis": [
+        1,
+        6
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "6号艇A1まくりも単勝3.0xで織込済、本線・逆軸とも EV<0.35"
+    },
+    {
+      "file": "09_07.json",
+      "race_id": "2026-01-12_09_07",
+      "verdict": "skip",
+      "primary_axis": [
+        4,
+        5
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "1号艇B1極弱で4-5号艇まくりも市場織込済、本線EV<0.45"
+    },
+    {
+      "file": "09_08.json",
+      "race_id": "2026-01-12_09_08",
+      "verdict": "skip",
+      "primary_axis": [
+        1,
+        2
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "1号艇A2と2号艇A1の二強拮抗で本線EV<0.4"
+    },
+    {
+      "file": "09_09.json",
+      "race_id": "2026-01-12_09_09",
+      "verdict": "skip",
+      "primary_axis": [
+        1,
+        4
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "1号艇B1直近不振と4号艇A1まくりの二強拮抗、本線・逆軸 EV<0.85"
+    },
+    {
+      "file": "09_10.json",
+      "race_id": "2026-01-12_09_10",
+      "verdict": "skip",
+      "primary_axis": [
+        2
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "2号艇A1 単勝1.0xの極端なまくり凝縮で本線EV<0.4"
+    },
+    {
+      "file": "09_11.json",
+      "race_id": "2026-01-12_09_11",
+      "verdict": "skip",
+      "primary_axis": [
+        1,
+        4
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "1号艇A2と4号艇A1の二強拮抗、本線EV<0.3"
+    },
+    {
+      "file": "09_12.json",
+      "race_id": "2026-01-12_09_12",
+      "verdict": "skip",
+      "primary_axis": [
+        1,
+        2
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "A1×2選抜戦の1-2号艇拮抗で本線EV<0.25"
     }
   ]
 }
