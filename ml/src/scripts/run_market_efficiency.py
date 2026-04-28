@@ -246,6 +246,38 @@ def load_winning_top2_boats(start: tuple[int, int], end: tuple[int, int]) -> pd.
     return grouped
 
 
+def load_race_conditions(start: tuple[int, int], end: tuple[int, int]) -> pd.DataFrame:
+    """
+    K ファイルから race_id 単位の天候・風速を抽出（P-v: race condition × odds_band 用）。
+    全艇 record で同一値のため drop_duplicates でレース単位化する。
+
+    Returns: DataFrame[race_id, weather, wind_speed]
+      weather    : '晴' / '曇' / '雨' / '霧' / '雪' / NaN
+      wind_speed : float (m/s) / NaN
+    """
+    df_hist = load_history_range(
+        start_year=start[0],
+        end_year=end[0],
+        start_month=start[1],
+        end_month=end[1],
+    )
+    if df_hist.empty:
+        raise RuntimeError("履歴データが空です（race conditions）")
+    df_hist["race_id"] = df_hist["race_id"].astype(str)
+    cond = (
+        df_hist[["race_id", "weather", "wind_speed"]]
+        .drop_duplicates("race_id")
+        .reset_index(drop=True)
+    )
+    n_with_weather = int(cond["weather"].notna().sum())
+    n_with_wind = int(cond["wind_speed"].notna().sum())
+    logger.info(
+        "Race conditions: %d races (weather: %d, wind_speed: %d)",
+        len(cond), n_with_weather, n_with_wind,
+    )
+    return cond
+
+
 def load_winning_combos(start: tuple[int, int], end: tuple[int, int]) -> pd.DataFrame:
     """
     K ファイルから各 race_id の 1-2-3 着 combination（"X-Y-Z"）を抽出。
@@ -807,6 +839,10 @@ STADIUM_NAMES: dict[int, str] = {
 ODDS_BAND_BINS = [1.0, 5.0, 10.0, 50.0, 200.0, 1000.0, float("inf")]
 ODDS_BAND_LABELS = ["[1,5)", "[5,10)", "[10,50)", "[50,200)", "[200,1000)", "[1000+)"]
 
+# レース条件 (P-v: race condition × odds_band 事前検証用)
+WIND_SPEED_BAND_BINS = [-0.001, 2.0, 5.0, 8.0, float("inf")]
+WIND_SPEED_BAND_LABELS = ["[0,2)", "[2,5)", "[5,8)", "[8+)"]
+
 
 def add_group_column(df: pd.DataFrame, group_by: str) -> pd.DataFrame:
     """group_by に応じたグルーピング列 _group を付与。"""
@@ -821,6 +857,24 @@ def add_group_column(df: pd.DataFrame, group_by: str) -> pd.DataFrame:
         ).astype(str)
     elif group_by == "month":
         df["_group"] = df["year_month"]
+    elif group_by == "wind_speed_band":
+        if "wind_speed" not in df.columns:
+            raise KeyError(
+                "wind_speed 列がない。load_race_conditions の merge を先に実行してください"
+            )
+        bands = pd.cut(
+            df["wind_speed"],
+            bins=WIND_SPEED_BAND_BINS,
+            labels=WIND_SPEED_BAND_LABELS,
+            right=False,
+        ).astype(str)
+        df["_group"] = bands.where(df["wind_speed"].notna(), "unknown")
+    elif group_by == "weather":
+        if "weather" not in df.columns:
+            raise KeyError(
+                "weather 列がない。load_race_conditions の merge を先に実行してください"
+            )
+        df["_group"] = df["weather"].fillna("unknown").astype(str)
     else:
         raise ValueError(f"Unknown group_by: {group_by}")
     return df
@@ -1369,7 +1423,7 @@ def main() -> None:
     # Step 2 用引数
     parser.add_argument(
         "--group-by", type=str, nargs="*", default=[],
-        choices=["stadium", "course", "odds_band", "month"],
+        choices=["stadium", "course", "odds_band", "month", "wind_speed_band", "weather"],
         help="Step 2: focus 帯内のサブセグメント分析（複数指定可）",
     )
     parser.add_argument(
@@ -1439,6 +1493,25 @@ def main() -> None:
     else:
         odds = compute_implied_probs(odds, takeout=takeout)
         df = attach_hit_label(odds, results)
+
+    # ── 2b. P-v: race condition merge（要求された場合のみ）──
+    condition_axes = {"wind_speed_band", "weather"}
+    needs_conditions = (
+        any(gb in condition_axes for gb in args.group_by)
+        or any(
+            any(p.strip() in condition_axes for p in spec.split(","))
+            for spec in args.group_by_2axis
+        )
+    )
+    if needs_conditions:
+        conditions = load_race_conditions(start, end)
+        df = df.merge(conditions, on="race_id", how="left")
+        n_cells_missing_w = int(df["weather"].isna().sum())
+        n_cells_missing_s = int(df["wind_speed"].isna().sum())
+        logger.info(
+            "Conditions merged: %d combos / weather missing=%d / wind missing=%d",
+            len(df), n_cells_missing_w, n_cells_missing_s,
+        )
 
     full_label = f"{args.start}_{args.end}_{args.bet_type}"
 
@@ -1633,7 +1706,7 @@ def main() -> None:
             all_flagged[gb] = flagged
 
         # 2 軸組合せ
-        valid_axes = {"stadium", "course", "odds_band", "month"}
+        valid_axes = {"stadium", "course", "odds_band", "month", "wind_speed_band", "weather"}
         for spec in args.group_by_2axis:
             parts = [p.strip() for p in spec.split(",")]
             if len(parts) != 2 or parts[0] not in valid_axes or parts[1] not in valid_axes:

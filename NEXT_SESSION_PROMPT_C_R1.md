@@ -1,5 +1,11 @@
 # 次セッション用プロンプト C_R1 — 連系券種（2 連単 / 2 連複 / 拡連複）DL 関数の実装（B-1/B-3 win/拡張 A 全撤退後の更新版）
 
+> 🛑 **凍結確定（2026-04-28、Q-A 合意）**: 本プロンプトは **新規着手不可**。
+> 拡張 A 撤退（2026-04-28）の直後に P-v race condition × odds 軸の事前検証を追加実施し、
+> その結果も flagged = 0 / 16 valid segments で「歪み < 控除率」の構造的結論が確定。
+> 連系券種の DL も着手しないことが Q-A で合意された。本ファイルは過去の検討記録としてのみ参照する。
+> 詳細は [CLAUDE.md](CLAUDE.md) §「現行の運用方針」 / [MARKET_EFFICIENCY_RESULTS.md](MARKET_EFFICIENCY_RESULTS.md) §10 を参照。
+
 以下を新セッションの最初のユーザープロンプトとして貼り付けてください。
 
 > 旧 [NEXT_SESSION_PROMPT_C.md](NEXT_SESSION_PROMPT_C.md) は **拡張 A R3 撤退前** の前提で書かれていた。

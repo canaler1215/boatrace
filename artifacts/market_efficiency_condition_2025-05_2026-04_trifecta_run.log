@@ -1,0 +1,146 @@
+2026-04-28 17:03:00,752 INFO __main__: オッズ読み込み完了: 6466068 行 / 54179 レース / 12 月
+2026-04-28 17:03:01,612 INFO collector.history_downloader: 2025-05: +29974 records (total 29974)
+2026-04-28 17:03:02,251 INFO collector.history_downloader: 2025-06: +28460 records (total 58434)
+2026-04-28 17:03:02,965 INFO collector.history_downloader: 2025-07: +30679 records (total 89113)
+2026-04-28 17:03:03,671 INFO collector.history_downloader: 2025-08: +30163 records (total 119276)
+2026-04-28 17:03:04,269 INFO collector.history_downloader: 2025-09: +25343 records (total 144619)
+2026-04-28 17:03:04,877 INFO collector.history_downloader: 2025-10: +24631 records (total 169250)
+2026-04-28 17:03:05,488 INFO collector.history_downloader: 2025-11: +23508 records (total 192758)
+2026-04-28 17:03:06,022 INFO collector.history_downloader: 2025-12: +28488 records (total 221246)
+2026-04-28 17:03:06,723 INFO collector.history_downloader: 2026-01: +30791 records (total 252037)
+2026-04-28 17:03:07,308 INFO collector.history_downloader: 2026-02: +24887 records (total 276924)
+2026-04-28 17:03:07,910 INFO collector.history_downloader: 2026-03: +27780 records (total 304704)
+2026-04-28 17:03:08,384 INFO collector.history_downloader: 2026-04: +19583 records (total 324287)
+2026-04-28 17:03:09,826 INFO collector.history_downloader: Total records loaded: 324287
+2026-04-28 17:03:10,416 INFO __main__: 結果データ: 54317 レース（1-2-3 着揃い）
+2026-04-28 17:03:16,284 INFO __main__: 結合後: 6463224 combo / 54154 レース
+2026-04-28 17:03:16,986 INFO collector.history_downloader: 2025-05: +29974 records (total 29974)
+2026-04-28 17:03:17,639 INFO collector.history_downloader: 2025-06: +28460 records (total 58434)
+2026-04-28 17:03:18,242 INFO collector.history_downloader: 2025-07: +30679 records (total 89113)
+2026-04-28 17:03:18,913 INFO collector.history_downloader: 2025-08: +30163 records (total 119276)
+2026-04-28 17:03:19,477 INFO collector.history_downloader: 2025-09: +25343 records (total 144619)
+2026-04-28 17:03:20,173 INFO collector.history_downloader: 2025-10: +24631 records (total 169250)
+2026-04-28 17:03:20,753 INFO collector.history_downloader: 2025-11: +23508 records (total 192758)
+2026-04-28 17:03:21,383 INFO collector.history_downloader: 2025-12: +28488 records (total 221246)
+2026-04-28 17:03:22,064 INFO collector.history_downloader: 2026-01: +30791 records (total 252037)
+2026-04-28 17:03:22,637 INFO collector.history_downloader: 2026-02: +24887 records (total 276924)
+2026-04-28 17:03:23,378 INFO collector.history_downloader: 2026-03: +27780 records (total 304704)
+2026-04-28 17:03:23,822 INFO collector.history_downloader: 2026-04: +19583 records (total 324287)
+2026-04-28 17:03:25,308 INFO collector.history_downloader: Total records loaded: 324287
+2026-04-28 17:03:25,477 INFO __main__: Race conditions: 54342 races (weather: 54342, wind_speed: 54342)
+2026-04-28 17:03:27,630 INFO __main__: Conditions merged: 6463224 combos / weather missing=0 / wind missing=0
+2026-04-28 17:03:35,871 INFO __main__: Step 1 をスキップ（--skip-step1）
+2026-04-28 17:03:36,509 INFO __main__: [wind_speed_band] bootstrap 200 / 2000
+2026-04-28 17:03:36,839 INFO __main__: [wind_speed_band] bootstrap 400 / 2000
+2026-04-28 17:03:37,258 INFO __main__: [wind_speed_band] bootstrap 600 / 2000
+2026-04-28 17:03:37,528 INFO __main__: [wind_speed_band] bootstrap 800 / 2000
+2026-04-28 17:03:37,915 INFO __main__: [wind_speed_band] bootstrap 1000 / 2000
+2026-04-28 17:03:38,309 INFO __main__: [wind_speed_band] bootstrap 1200 / 2000
+2026-04-28 17:03:38,585 INFO __main__: [wind_speed_band] bootstrap 1400 / 2000
+2026-04-28 17:03:38,924 INFO __main__: [wind_speed_band] bootstrap 1600 / 2000
+2026-04-28 17:03:39,297 INFO __main__: [wind_speed_band] bootstrap 1800 / 2000
+2026-04-28 17:03:39,505 INFO __main__: [wind_speed_band] bootstrap 2000 / 2000
+2026-04-28 17:03:39,562 INFO __main__: [wind_speed_band] CSV 保存: C:\Users\claude\workspace\boatrace\artifacts\market_efficiency_segment_wind_speed_band_focus_0.10-0.50_2025-05_2026-04_trifecta.csv
+2026-04-28 17:03:40,039 INFO __main__: [weather] bootstrap 200 / 2000
+2026-04-28 17:03:40,453 INFO __main__: [weather] bootstrap 400 / 2000
+2026-04-28 17:03:40,882 INFO __main__: [weather] bootstrap 600 / 2000
+2026-04-28 17:03:41,354 INFO __main__: [weather] bootstrap 800 / 2000
+2026-04-28 17:03:41,759 INFO __main__: [weather] bootstrap 1000 / 2000
+2026-04-28 17:03:42,196 INFO __main__: [weather] bootstrap 1200 / 2000
+2026-04-28 17:03:42,555 INFO __main__: [weather] bootstrap 1400 / 2000
+2026-04-28 17:03:42,953 INFO __main__: [weather] bootstrap 1600 / 2000
+2026-04-28 17:03:43,283 INFO __main__: [weather] bootstrap 1800 / 2000
+2026-04-28 17:03:43,578 INFO __main__: [weather] bootstrap 2000 / 2000
+2026-04-28 17:03:43,595 INFO __main__: [weather] CSV 保存: C:\Users\claude\workspace\boatrace\artifacts\market_efficiency_segment_weather_focus_0.10-0.50_2025-05_2026-04_trifecta.csv
+2026-04-28 17:03:44,145 INFO __main__: [wind_speed_bandXodds_band] bootstrap 200 / 2000
+2026-04-28 17:03:44,460 INFO __main__: [wind_speed_bandXodds_band] bootstrap 400 / 2000
+2026-04-28 17:03:44,729 INFO __main__: [wind_speed_bandXodds_band] bootstrap 600 / 2000
+2026-04-28 17:03:45,100 INFO __main__: [wind_speed_bandXodds_band] bootstrap 800 / 2000
+2026-04-28 17:03:45,377 INFO __main__: [wind_speed_bandXodds_band] bootstrap 1000 / 2000
+2026-04-28 17:03:45,830 INFO __main__: [wind_speed_bandXodds_band] bootstrap 1200 / 2000
+2026-04-28 17:03:46,265 INFO __main__: [wind_speed_bandXodds_band] bootstrap 1400 / 2000
+2026-04-28 17:03:46,637 INFO __main__: [wind_speed_bandXodds_band] bootstrap 1600 / 2000
+2026-04-28 17:03:46,939 INFO __main__: [wind_speed_bandXodds_band] bootstrap 1800 / 2000
+2026-04-28 17:03:47,342 INFO __main__: [wind_speed_bandXodds_band] bootstrap 2000 / 2000
+2026-04-28 17:03:47,364 INFO __main__: [wind_speed_bandXodds_band] CSV 保存: C:\Users\claude\workspace\boatrace\artifacts\market_efficiency_segment_wind_speed_bandXodds_band_focus_0.10-0.50_2025-05_2026-04_trifecta.csv
+2026-04-28 17:03:47,854 INFO __main__: [weatherXodds_band] bootstrap 200 / 2000
+2026-04-28 17:03:48,180 INFO __main__: [weatherXodds_band] bootstrap 400 / 2000
+2026-04-28 17:03:48,646 INFO __main__: [weatherXodds_band] bootstrap 600 / 2000
+2026-04-28 17:03:48,936 INFO __main__: [weatherXodds_band] bootstrap 800 / 2000
+2026-04-28 17:03:49,395 INFO __main__: [weatherXodds_band] bootstrap 1000 / 2000
+2026-04-28 17:03:49,719 INFO __main__: [weatherXodds_band] bootstrap 1200 / 2000
+2026-04-28 17:03:50,008 INFO __main__: [weatherXodds_band] bootstrap 1400 / 2000
+2026-04-28 17:03:50,291 INFO __main__: [weatherXodds_band] bootstrap 1600 / 2000
+2026-04-28 17:03:50,588 INFO __main__: [weatherXodds_band] bootstrap 1800 / 2000
+2026-04-28 17:03:50,870 INFO __main__: [weatherXodds_band] bootstrap 2000 / 2000
+2026-04-28 17:03:50,886 INFO __main__: [weatherXodds_band] CSV 保存: C:\Users\claude\workspace\boatrace\artifacts\market_efficiency_segment_weatherXodds_band_focus_0.10-0.50_2025-05_2026-04_trifecta.csv
+
+==============================================================================
+  Market efficiency distortion report [2025-05 to 2026-04, trifecta]
+==============================================================================
+  total bins: 9, flagged (n>=1000, |lift-1|>=0.10/0.15, CI excl. 1): 0
+
+                     bin         n   actual_p    implied    lift           90% boot CI
+  ------------------------------------------------------------------------------
+        [0.0001, 0.0003)    321211     0.0001     0.0002   0.436            [nan, nan]
+        [0.0003, 0.0010)   1381309     0.0004     0.0006   0.621            [nan, nan]
+        [0.0010, 0.0030)   1765368     0.0016     0.0018   0.856            [nan, nan]
+        [0.0030, 0.0100)   1648754     0.0054     0.0056   0.960            [nan, nan]
+        [0.0100, 0.0300)    903725     0.0174     0.0171   1.014            [nan, nan]
+        [0.0300, 0.0500)    232561     0.0393     0.0385   1.021            [nan, nan]
+        [0.0500, 0.1000)    167087     0.0698     0.0682   1.023            [nan, nan]
+        [0.1000, 0.2000)     37509     0.1383     0.1256   1.101            [nan, nan]
+        [0.2000, 0.5000)      1123     0.2663     0.2220   1.199            [nan, nan]
+
+  >> No bin meets adoption criteria -> B-1 retreat candidate
+
+==============================================================================
+  Step 2: Sub-segment analysis (focus implied_p_norm in [0.1, 0.5))
+==============================================================================
+  focus combos: 38,632 / 23,768 races / 5,488 hits, mean odds = 6.03
+
+  [group_by = wind_speed_band] (focus bin only, sorted by ev_all_buy desc)
+  wind_speed_band       n   lift           lift CI     ev             ev CI  flag
+  -------------------------------------------------------------------------------
+            [0,2)   10739   1.13      [1.10, 1.18]   0.88      [0.85, 0.91]  
+            [2,5)   22896   1.11      [1.09, 1.14]   0.86      [0.84, 0.88]  
+            [5,8)    4575   1.01      [0.95, 1.07]   0.78      [0.74, 0.83]  
+
+  [group_by = weather] (focus bin only, sorted by ev_all_buy desc)
+       weather       n   lift           lift CI     ev             ev CI  flag
+  ----------------------------------------------------------------------------
+             雨    3547   1.15      [1.08, 1.22]   0.89      [0.84, 0.95]  
+             曇    9991   1.11      [1.07, 1.15]   0.86      [0.83, 0.89]  
+             晴   24925   1.10      [1.08, 1.13]   0.85      [0.83, 0.87]  
+
+  [group_by = wind_speed_bandXodds_band] (focus bin only, n>=1000, sorted by ev_all_buy desc, top 15)
+  cells with n>=1000: 5 / 8 total
+     wind_speed_bandXodds_band      n   lift         lift CI     ev           ev CI  flag
+  ----------------------------------------------------------------------------------------
+                 [0,2) | [1,5)   1760   1.25     [1.16,1.34]   0.95     [0.88,1.02]  
+                [2,5) | [5,10)  18959   1.11     [1.08,1.15]   0.84     [0.82,0.87]  
+                 [2,5) | [1,5)   3937   1.11     [1.05,1.16]   0.84     [0.80,0.88]  
+                [0,2) | [5,10)   8979   1.10     [1.06,1.15]   0.83     [0.80,0.87]  
+                [5,8) | [5,10)   3887   0.99     [0.92,1.06]   0.75     [0.70,0.80]  
+
+  [group_by = weatherXodds_band] (focus bin only, n>=1000, sorted by ev_all_buy desc, top 15)
+  cells with n>=1000: 5 / 9 total
+             weatherXodds_band      n   lift         lift CI     ev           ev CI  flag
+  ----------------------------------------------------------------------------------------
+                     曇 | [1,5)   1692   1.19     [1.10,1.28]   0.90     [0.84,0.97]  
+                    雨 | [5,10)   2942   1.14     [1.05,1.22]   0.86     [0.80,0.92]  
+                     晴 | [1,5)   4132   1.12     [1.07,1.18]   0.85     [0.81,0.89]  
+                    晴 | [5,10)  20793   1.10     [1.07,1.13]   0.83     [0.81,0.85]  
+                    曇 | [5,10)   8299   1.08     [1.03,1.13]   0.82     [0.78,0.85]  
+
+  >> Step 2 adoption summary (n>=1000, lift_boot_lo>1.0, ev_all_buy>1.0, ev_boot_lo>1.0):
+    [wind_speed_band] no flagged segment
+    [weather] no flagged segment
+    [wind_speed_bandXodds_band] no flagged segment
+    [weatherXodds_band] no flagged segment
+
+  ====> No subsegment beats takeout. B-1 retreat candidate.
+
+  output: C:\Users\claude\workspace\boatrace\artifacts/market_efficiency_*.csv / .png
+==============================================================================
+

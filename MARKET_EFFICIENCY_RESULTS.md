@@ -202,3 +202,110 @@ Step 2 のスクリプト想定:
 - [BET_RULE_REVIEW_202509_202512.md](BET_RULE_REVIEW_202509_202512.md) §28-32 — 実運用再開条件
 - [AUTO_LOOP_PLAN.md](AUTO_LOOP_PLAN.md) — フェーズ 7 セクション
 - [CLAUDE.md](CLAUDE.md) — 「現在の仕様」「現行の運用方針」
+
+---
+
+## 10. P-v: race condition × odds_band 事前検証（2026-04-28）
+
+### 10.1 背景
+
+B-1 trifecta / B-3 win / 拡張 A 複勝 の 3 券種すべてで「控除率を縮める弱い歪みはあるが
+収支プラス化までは至らない」構造的結論が確定済み（最善 ev: 0.98 / 0.964 / 0.93）。
+
+LLM 予想 (P 系列) の今後を議論する前に、**まだ切っていない race condition × odds 軸**
+で歪みが残っていないかを最終 sanity check として確認する。
+
+### 10.2 実装
+
+`run_market_efficiency.py` に以下を追加（既存ロジック書換えなし、~75 行追加）:
+
+- `load_race_conditions(start, end)` — K ファイルから race_id 単位の `weather` / `wind_speed` を抽出
+- `add_group_column()` に新軸 2 つ追加:
+  - `wind_speed_band`: `[0,2)`, `[2,5)`, `[5,8)`, `[8+)`
+  - `weather`: `晴` / `曇` / `雨` / `霧` / `雪` / `unknown`
+- argparse choices 拡張、conditions merge は要求された場合のみ実行（履歴データの二重ロードを最小化）
+
+### 10.3 実行コマンド
+
+```bash
+py -3.12 ml/src/scripts/run_market_efficiency.py \
+  --start 2025-05 --end 2026-04 --bet-type trifecta \
+  --skip-step1 --bootstrap 2000 \
+  --group-by wind_speed_band weather \
+  --group-by-2axis wind_speed_band,odds_band weather,odds_band \
+  --focus-bin-lower 0.10 --focus-bin-upper 0.50
+```
+
+### 10.4 結果（trifecta、12 ヶ月、focus implied_p_norm ∈ [0.10, 0.50)）
+
+#### 単軸 wind_speed_band
+
+| wind_speed_band | n | lift | ev_all_buy | ev CI | flag |
+|---|---:|---:|---:|---|:---:|
+| `[0,2)` | 10,739 | 1.13 | 0.88 | [0.85, 0.91] | — |
+| `[2,5)` | 22,896 | 1.11 | 0.86 | [0.84, 0.88] | — |
+| `[5,8)` |  4,575 | 1.01 | 0.78 | [0.74, 0.83] | — |
+
+`[8+)` は n < 1,000 で除外。**強風で歪むという仮説は逆** — `[5,8)` が最も lift = 1.0 に近く、
+市場が風強条件を織り込み済み（むしろ過剰調整気味）。
+
+#### 単軸 weather
+
+| weather | n | lift | ev_all_buy | ev CI | flag |
+|---|---:|---:|---:|---|:---:|
+| `雨` |  3,547 | 1.15 | 0.89 | [0.84, 0.95] | — |
+| `曇` |  9,991 | 1.11 | 0.86 | [0.83, 0.89] | — |
+| `晴` | 24,925 | 1.10 | 0.85 | [0.83, 0.87] | — |
+
+雨天は lift 1.15 で最大だが ev 0.89、CI 上限 0.95 < 1.0 で控除率を破らず。
+
+#### 2 軸 wind_speed_band × odds_band（n ≥ 1000、上位 5 セル）
+
+| wind × odds_band | n | lift | ev | ev CI | flag |
+|---|---:|---:|---:|---|:---:|
+| **`[0,2) \| [1,5)`** | 1,760 | **1.25** | **0.95** | **[0.88, 1.02]** | — |
+| `[2,5) \| [5,10)` | 18,959 | 1.11 | 0.84 | [0.82, 0.87] | — |
+| `[2,5) \| [1,5)` |  3,937 | 1.11 | 0.84 | [0.80, 0.88] | — |
+| `[0,2) \| [5,10)` |  8,979 | 1.10 | 0.83 | [0.80, 0.87] | — |
+| `[5,8) \| [5,10)` |  3,887 | 0.99 | 0.75 | [0.70, 0.80] | — |
+
+最善 `[0,2) | [1,5)` で ev 0.95、CI 上限 1.02 が辛うじて 1.0 を超えるが点推定 < 1.0 で確信なし。
+
+#### 2 軸 weather × odds_band（n ≥ 1000、上位 5 セル）
+
+| weather × odds_band | n | lift | ev | ev CI | flag |
+|---|---:|---:|---:|---|:---:|
+| `曇 \| [1,5)` |  1,692 | 1.19 | 0.90 | [0.84, 0.97] | — |
+| `雨 \| [5,10)` |  2,942 | 1.14 | 0.86 | [0.80, 0.92] | — |
+| `晴 \| [1,5)` |  4,132 | 1.12 | 0.85 | [0.81, 0.89] | — |
+| `晴 \| [5,10)` | 20,793 | 1.10 | 0.83 | [0.81, 0.85] | — |
+| `曇 \| [5,10)` |  8,299 | 1.08 | 0.82 | [0.78, 0.85] | — |
+
+### 10.5 採用判定
+
+**flagged = 0 / 全 16 valid segments（n ≥ 1000）**
+
+- 単軸: 6 segments / 0 flagged
+- 2 軸: 10 segments / 0 flagged
+- 採用基準: `lift_boot_lo > 1.0` かつ `ev_all_buy > 1.0` かつ `ev_boot_lo > 1.0`
+
+### 10.6 構造的結論
+
+B-1 trifecta（最善 0.98） + B-3 win（最善 0.964） + 拡張 A 複勝（最善 0.93）+
+本 P-v race condition 軸（最善 0.95）の **4 系統すべてで「控除率を破る歪みなし」を確認**。
+
+合計 200 + segments を across 3 bet types × 6 grouping axes（stadium / course / odds_band /
+month / wind_speed_band / weather）で評価しても採用基準達成 0。
+
+**B 系列完全凍結確定**（[CLAUDE.md](CLAUDE.md) 現行運用方針反映済み）。
+
+連系券種（2 連単 / 2 連複 / 拡連複）も控除率 23〜25% で大差なく、組合せ数も中間（15〜30）の
+ため、本構造的結論を覆す根拠が薄い → 連系券種 DL も着手しない。
+
+### 10.7 出力 CSV
+
+- [artifacts/market_efficiency_segment_wind_speed_band_focus_0.10-0.50_2025-05_2026-04_trifecta.csv](artifacts/market_efficiency_segment_wind_speed_band_focus_0.10-0.50_2025-05_2026-04_trifecta.csv)
+- [artifacts/market_efficiency_segment_weather_focus_0.10-0.50_2025-05_2026-04_trifecta.csv](artifacts/market_efficiency_segment_weather_focus_0.10-0.50_2025-05_2026-04_trifecta.csv)
+- [artifacts/market_efficiency_segment_wind_speed_bandXodds_band_focus_0.10-0.50_2025-05_2026-04_trifecta.csv](artifacts/market_efficiency_segment_wind_speed_bandXodds_band_focus_0.10-0.50_2025-05_2026-04_trifecta.csv)
+- [artifacts/market_efficiency_segment_weatherXodds_band_focus_0.10-0.50_2025-05_2026-04_trifecta.csv](artifacts/market_efficiency_segment_weatherXodds_band_focus_0.10-0.50_2025-05_2026-04_trifecta.csv)
+- ラン log: [artifacts/market_efficiency_condition_2025-05_2026-04_trifecta_run.log](artifacts/market_efficiency_condition_2025-05_2026-04_trifecta_run.log)
