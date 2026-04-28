@@ -1,10 +1,11 @@
 name: Quarterly Walk-Forward
 
 on:
-  schedule:
-    # 四半期ごと: 4/1, 7/1, 10/1, 1/1 の 01:00 UTC（JST 10:00）
-    # auto_backtest_loop（00:00）の後に実行
-    - cron: "0 1 1 1,4,7,10 *"
+  # 2026-04-28 (P-v) 凍結: 定期実行停止。manual dispatch のみ残す
+  # schedule:
+  #   # 四半期ごと: 4/1, 7/1, 10/1, 1/1 の 01:00 UTC（JST 10:00）
+  #   # auto_backtest_loop（00:00）の後に実行
+  #   - cron: "0 1 1 1,4,7,10 *"
   workflow_dispatch:
     inputs:
       end_month:

@@ -26,8 +26,9 @@ on:
         required: false
         default: 'false'
         type: boolean
-  schedule:
-    - cron: '0 14 * * *'   # 毎日 23:00 JST (UTC 14:00)
+  # 2026-04-28 (P-v) 凍結: 定期実行停止。manual dispatch のみ残す
+  # schedule:
+  #   - cron: '0 14 * * *'   # 毎日 23:00 JST (UTC 14:00)
 
 jobs:
   fetch_results:

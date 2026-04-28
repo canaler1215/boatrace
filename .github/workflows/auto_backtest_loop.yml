@@ -1,9 +1,10 @@
 name: Auto Backtest Loop (Monthly)
 
 on:
-  schedule:
-    # 毎月1日 00:00 UTC（JST 09:00）に前月分を自動実行
-    - cron: "0 0 1 * *"
+  # 2026-04-28 (P-v) 凍結: 定期実行停止。manual dispatch のみ残す
+  # schedule:
+  #   # 毎月1日 00:00 UTC（JST 09:00）に前月分を自動実行
+  #   - cron: "0 0 1 * *"
   workflow_dispatch:
     inputs:
       year:

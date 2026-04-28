@@ -2,8 +2,9 @@ name: Build Racer ST Stats
 
 on:
   workflow_dispatch:
-  schedule:
-    - cron: '0 18 * * 0'      # 毎週日曜 03:00 JST (UTC 18:00)
+  # 2026-04-28 (P-v) 凍結: 定期実行停止。manual dispatch のみ残す
+  # schedule:
+  #   - cron: '0 18 * * 0'      # 毎週日曜 03:00 JST (UTC 18:00)
 
 jobs:
   build-racer-st-stats:

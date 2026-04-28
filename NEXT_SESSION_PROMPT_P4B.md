@@ -1,3 +1,14 @@
+> # 🛑 凍結済み (2026-04-28、Q-B 合意 / (P-v) ハイブリッド採用)
+>
+> 本ファイルは凍結時点の参照記録として保持されている。**新規着手は不可**。
+>
+> 全 6 系統 (B-1 / B-3 win / 拡張 A / P-v condition / P4-α LLM / Model-loop) で採用基準未達。
+> 後続作業は無し。詳細は [CLAUDE.md](CLAUDE.md)「現行の運用方針」冒頭参照。
+>
+> 手動でレース予想したくなった時は CLAUDE.md「手動レース予想の手順 (P-v 凍結後)」へ。
+
+---
+
 # P4-β 次セッション用プロンプト（コピペ用）
 
 **最終更新**: 2026-04-28（Day 8 完了 + Day 1-8 再評価/方針変更を次セッションで処理）
@@ -271,68 +282,128 @@ predict.md は「ガードレールゼロ」を謳っているのに、私が個
 
 ---
 
-### Step 0: Day 1-8 再評価シミュレーション (機械的 bet ルール適用)
+### Step 0: Day 1-8 再評価シミュレーション (機械的 bet ルール適用) — ✅ 完了 (2026-04-28)
 
-**目的**: 「Day X 不発教訓」を引用した skip を撤回し、predict.md の機械的ルール
-(EV ≥ 1.0 → bet / 0.85 ≤ EV < 1.0 → 積極的 bet 検討) を適用していたら
-ROI / hit_rate / bet 数がどう変化したかを定量化する。
+**実装**: [ml/src/scripts/reeval_skip_simulation.py](ml/src/scripts/reeval_skip_simulation.py)
+**結果**: [artifacts/eval/p4b_reeval_skip_simulation.md](artifacts/eval/p4b_reeval_skip_simulation.md) / [.json](artifacts/eval/p4b_reeval_skip_simulation.json)
 
-**実装方針**:
-1. `artifacts/predictions/2026-01-05/` 〜 `artifacts/predictions/2026-02-17/` の
-   skip JSON 全件 (約 1,180 件) を読み込み
-2. 各 skip JSON の analysis テキストから「EV X.Xx」「X-X-X X.Xx」等のパターンを正規表現で抽出
-3. 各 race の race_card MD から full odds を読み取り、Plackett-Luce 等の単純推定で
-   EV 候補買い目を再計算 (但し、Claude の生 prob 推定は復元できないので、
-   実機械化は限定的。**現実的には skip JSON の analysis テキストに記載された
-   EV / 候補オッズだけ抽出して、もし bet していたら hit/miss を K ファイル + parquet で照合する** 簡易版が現実的)
-4. 集計:
-   - 全 skip 中、analysis に「EV ≥ 1.0 候補」明記された件数
-   - 全 skip 中、analysis に「EV ボーダー (0.85-1.0)」明記された件数
-   - もし「EV ≥ 1.0 + EV ボーダー」を bet していたら追加 bets / hits / 追加 ROI
-5. レポート: `artifacts/eval/p4b_reeval_skip_simulation.md` (or .json) に保存
+#### 抽出ロジック
 
-**ツール**: 専用スクリプト `ml/src/scripts/reeval_skip_simulation.py` を作成
-(predict_llm/ や evaluate_predictions.py には触らない、独立スクリプト)。
+- skip JSON の analysis テキストから `(N-N-N) (X.Yx)` 形式の候補 + 周辺 EV 値 (EV=X.YY / EV~X.YY / EV<X.YY 等) を正規表現で抽出
+- 候補ごとに 3 分類:
+  - **MECH_BET**: 明示 EV ≥ 1.0 (機械的 bet 対象)
+  - **BORDER**: 明示 EV in [0.85, 1.0) または「ボーダー/境界」キーワード近接
+  - **REJECT**: EV < 0.85 / EV<1.0 (明示値なし) / EV 情報なし
+- analysis or skip_reason に `Day \d+` 言及があれば「後付けフィルタ」フラグ
+- 候補 combo を K ファイル (実着順) + odds parquet (実オッズ) と突合
 
-**注意事項**:
-- ❌ 既存の予想 JSON (artifacts/predictions/) は書き換えない (OOS 評価の一貫性維持)
-- ❌ predict.md / predict_llm/ / evaluate_predictions.py / eval_summary.py は書き換えない
-- ✅ 再評価結果は別ファイル (artifacts/eval/p4b_reeval_*) として独立保存
-- ✅ シミュレーション結果は次セッション以降の方針判断材料として使う
+#### 全期間サマリ (Day 1-8)
 
-**期待される産物**:
-```
-artifacts/eval/p4b_reeval_skip_simulation.md
-  - 「もし機械的に bet していた場合」の追加 bets / hits / ROI
-  - 「Day X 不発教訓」引用 skip の影響度 (件数、機会損失額)
-  - 「EV ≥ 1.0 を捨てた件数」「EV ボーダーを捨てた件数」
-```
+| 指標 | 値 |
+|---|---|
+| 解析対象 skip race | **1,202** |
+| うち実結果取得済 | 1,184 |
+| `Day \d+` 言及あり (後付けフィルタ) | **61** (5.1%) |
+| 抽出された候補 combo 総数 | 2,314 |
+| └ MECH_BET (EV ≥ 1.0) | **66** |
+| └ BORDER (0.85 ≤ EV < 1.0) | **46** |
+| └ REJECT | 2,202 |
+
+| シナリオ | 追加 bets | hits | hit_rate/bet | stake | payout | ROI |
+|---|---|---|---|---|---|---|
+| **A: MECH のみ (EV≥1.0)** | 66 | 4 | 6.06% | 6,600円 | 4,600円 | **-30.3%** |
+| **B: MECH + BORDER 採用** | 112 | 8 | 7.14% | 11,200円 | 9,260円 | **-17.3%** |
+| **C: Day-ref subset MECH のみ** | 17 | **0** | 0.00% | 1,700円 | 0円 | **-100.0%** |
+| **D: Day-ref subset MECH+BORDER** | 20 | 0 | 0.00% | 2,000円 | 0円 | -100.0% |
+
+#### 日別内訳 (注目: Day 6/7 で潜在 hit あり)
+
+| 日付 | skip races | day_ref | MECH cand | BORDER cand | MECH bets | MECH hits | MECH ROI | EXT bets | EXT hits | EXT ROI |
+|---|---|---|---|---|---|---|---|---|---|---|
+| 2026-01-05 | 180 | 0 | 1 | 3 | 1 | 0 | -100% | 4 | 0 | -100% |
+| 2026-01-12 | 172 | 13 | 0 | 0 | 0 | 0 | — | 0 | 0 | — |
+| 2026-01-20 | 138 | 0 | 12 | 20 | 12 | 1 | -9.2% | 32 | 2 | -50.6% |
+| 2026-01-26 | 174 | 0 | 3 | 7 | 3 | 0 | -100% | 10 | 0 | -100% |
+| 2026-02-02 | 130 | 12 | 3 | 3 | 3 | 0 | -100% | 6 | 0 | -100% |
+| **2026-02-09 (Day 6)** | 144 | 2 | **22** | 9 | 22 | **2** | **+1.8%** | 31 | 4 | **+44.5%** |
+| **2026-02-16 (Day 7)** | 132 | 10 | **23** | 3 | 23 | **1** | -44.8% | 26 | 2 | **+23.1%** |
+| 2026-02-17 (Day 8) | 132 | 24 | 2 | 1 | 2 | 0 | -100% | 3 | 0 | -100% |
+
+#### 当初仮説の検証結果
+
+**当初仮説 (ユーザー指摘)**: 「Claude が Day X 不発教訓を理由に EV ボーダーレースを skip しすぎていた」
+
+**検証結果**: **仮説は概ね棄却される**
+
+1. **Day-ref subset (17 bets) は 0/17 hit / ROI -100%** = 「Day X 教訓」引用 skip は結果的に **正解だった** (機会損失なし)
+2. **MECH (EV≥1.0) 厳格適用は ROI -30.3%** = 機械的に bet していたら現状 (-17.1%) より **悪化**
+3. **MECH+BORDER 拡張採用でも ROI -17.3%** = 現状とほぼ同等、改善なし
+4. **ただし Day 6 (2026-02-09) と Day 7 (2026-02-16) では潜在 hit あり**:
+   - Day 6: MECH 22 bets / 2 hits / +1.8% ・ EXT 31 bets / 4 hits / **+44.5%**
+   - Day 7: BORDER 込み 26 bets / 2 hits / **+23.1%**
+   - 「skip_rate 100% で 0 bet」だった日に潜在的 hit あり = **0 bet を回避すべき場面はあった**
+
+#### Step 0 限界
+
+- analysis テキスト解析は正規表現ベース、明示 EV 値がない combo は拾えない
+- 「本命凝縮 EV<1.0」等の総括コメントで EV 値が省略された候補は MECH/BORDER に分類されない
+- 抽出された候補は「Claude が言及した combo」に限定、潜在的な EV ≥ 1.0 候補を網羅しているわけではない
+- 統計的有意性: bet 数 66 (MECH) / 112 (EXT) は依然小、ROI ±20pp の不確定性あり
 
 ---
 
-### Step 1: Day 9 以降の方針変更 (Step 0 完了後に実行)
+### Step 1: Day 9 以降の方針 — Step 0 結果を踏まえた選択肢提示
 
-**Step 0 のシミュレーション結果に基づき、以下の方針変更を Day 9 以降に適用**:
+**Step 0 結果が当初仮説と逆だったため、当初想定していた「機械的 bet ルール強制」は推奨できない。**
+**ユーザー判断のための選択肢を以下に整理する。**
 
-#### 新ルール (Day 9 以降に厳守)
+#### Step 0 知見の含意
 
-1. **EV ≥ 1.0 → 機械的に bet** (個別 race-day 教訓を理由にした skip 禁止)
-   - 「Day 5 唐津R12 不発」「Day 4 平和島R3 不発」等の引用を analysis に書かない
-   - 過去日サンプル n=6 程度では統計的有意性なく、市場が完全織込済の構造であっても
-     bet すべき (それが predict.md の指針)
-2. **0.85 ≤ EV < 1.0 → 積極的に bet 検討** (confidence ≥ 0.4 でほぼ bet)
-   - 「ボーダー判定で skip」を控える、不確実時の skip は限定
-3. **EV < 0.85 → 原則 skip** (これは従来通り)
-4. **後付けフィルタ追加禁止原則の厳守** (CLAUDE.md フェーズ 3〜6 教訓)
-   - 個別 race-day の不発を理由にした「フィルタ強化」を禁止
-   - 統計的有意性 (n ≥ 30+) なしに「経験則」化しない
+1. **「Day X 不発教訓」引用 skip の撤回は ROI 改善しない** (Day-ref subset 0/17 hit / -100%)
+2. **機械的 EV≥1.0 ルール厳格化も ROI 改善しない** (-30.3%)
+3. **MECH+BORDER 拡張も中立** (-17.3%)
+4. **唯一の改善余地**: 「skip_rate 100% で 0 bet」の日 (Day 6/7) で MECH 候補が潜在 hit を含む
+   - これは「個別 race-day で何 bet 出すか」より「日全体で 0 bet を許容するか」の問題
 
-#### Day 9 開始時の手順
+#### 選択肢 (ユーザー判断必須)
 
-1. **Step 0 のシミュレーション結果**を参照し、新ルール適用の影響を確認
-2. **日付選択**: 2026-02-23 (月) または 2026-03-02 (月) など、ユーザー判断
-3. **prep-races + predict + eval-predictions** を新ルール下で実行
-4. Day 9 完了後、累積 ROI / bet 数の変化を確認
+**選択肢 1: B-3 単勝市場効率 Step 2 へ即移行 (推奨度: 高)**
+- 根拠: Step 0 で「skip 判断は概ね合理的」と確認、機械化で ROI 改善しない
+- 残り 4 race-days 完走しても累積 ROI 改善期待度低
+- 撤退ライン (1) ROI<-15% 既達、構造的に bet 機会増えない
+- B-3 (単勝、控除率 20% で 3連単 25% より 5pp 低い) に方針転換が合理的
+- 移行先: [NEXT_SESSION_PROMPT.md](NEXT_SESSION_PROMPT.md)
+
+**選択肢 2: Day 9 以降「日全体 0 bet 回避ルール」を試行 (中庸)**
+- 新ルール: 「全 races skip の見込みになった場合、MECH 候補 (明示 EV≥1.0) を 1-3 件採用して 0 bet を避ける」
+- 個別レースの「Day X 教訓」引用 skip は維持 OK
+- 想定効果: Day 6/7 のような「skip_rate 100%」日で 1-3 bets 追加 → 月次 ROI 分散低下
+- リスク: Step 0 サンプル小 (n=66) で +1.8% / +44.5% は偶然の可能性
+- 残り 4 race-days で実証、Day 12 完了後に撤退判定
+
+**選択肢 3: 現状維持で 12 race-days 完走 (受動的)**
+- 何も変えず Day 9 = 2026-02-23 (月) 等で継続
+- 想定: Day 8 までと同様、bet 数増えず累積 ROI -17% 前後で推移
+- 撤退判定 (CI 上限<+5%) には bet 数 200+ 必要、12 日完走では届かない
+
+**選択肢 4: predict.md 自体を改修 (厳禁)**
+- ❌ CLAUDE.md / NEXT_PHASE_P4B_PLAN.md の禁止事項に抵触
+- ❌ OOS 評価の一貫性が崩れる
+- 検討対象外
+
+#### 推奨
+
+Step 0 結果を踏まえ、**選択肢 1 (B-3 移行)** を推奨。次点で **選択肢 2 (0 bet 回避ルール試行)**。
+ユーザー最終判断を仰ぐ。
+
+#### Day 9 開始時の手順 (選択肢 2 を選んだ場合)
+
+1. 日付選択: 2026-02-23 (月) または 2026-03-02 (月) 等、ユーザー判断
+2. `/prep-races` → `/predict` を通常通り実行
+3. **新ルール**: 全場で skip 判断を出した後、`predictions/<date>/` を grep して
+   全件 skip と判明した場合、analysis 内に明示 EV≥1.0 と書いた race を再見直し
+   → 1-3 件を bet に変更 (artifact 書き換えではなく追加生成)
+4. `/eval-predictions` で評価
 
 #### 撤退ライン (継続)
 

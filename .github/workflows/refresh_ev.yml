@@ -2,8 +2,10 @@ name: Refresh EV (Lightweight Odds Update)
 
 on:
   workflow_dispatch:
-  repository_dispatch:
-    types: [refresh-ev-trigger]   # cron-job.org からの 10 分ごと定期トリガー
+  # 2026-04-28 (P-v) 凍結: 定期実行停止。manual dispatch のみ残す。
+  # cron-job.org 側で refresh-ev-trigger ジョブを無効化すること。
+  # repository_dispatch:
+  #   types: [refresh-ev-trigger]   # cron-job.org からの 10 分ごと定期トリガー
 
 jobs:
   refresh_ev:

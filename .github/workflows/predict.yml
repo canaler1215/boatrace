@@ -32,8 +32,10 @@ on:
         required: false
         default: 'true'
         type: boolean
-  repository_dispatch:
-    types: [predict-trigger]   # cron-job.org からの 30 分ごと定期トリガー
+  # 2026-04-28 (P-v) 凍結: 定期実行停止。manual dispatch のみ残す。
+  # cron-job.org 側で predict-trigger ジョブを無効化すること。
+  # repository_dispatch:
+  #   types: [predict-trigger]   # cron-job.org からの 30 分ごと定期トリガー
 
 jobs:
   predict:

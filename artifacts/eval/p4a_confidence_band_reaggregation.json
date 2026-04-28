@@ -1,0 +1,70 @@
+{
+  "input_days": [
+    "2025-09-06",
+    "2025-09-21",
+    "2025-09-26",
+    "2025-10-07",
+    "2025-10-22",
+    "2025-10-30",
+    "2025-11-01",
+    "2025-11-15",
+    "2025-11-29",
+    "2025-12-01",
+    "2025-12-15",
+    "2025-12-29"
+  ],
+  "n_days": 12,
+  "n_bets_total": 596,
+  "n_hits_total": 42,
+  "roi_total": -0.02785234899328859,
+  "bands": [
+    {
+      "band": "0.0-0.3",
+      "n_bets": 0,
+      "n_hits": 0,
+      "hit_rate_per_bet": null,
+      "roi": null,
+      "ci_lower": null,
+      "ci_upper": null,
+      "passes_criteria": false
+    },
+    {
+      "band": "0.3-0.5",
+      "n_bets": 220,
+      "n_hits": 11,
+      "hit_rate_per_bet": 0.05,
+      "roi": -0.10136363636363632,
+      "ci_lower": -0.6304545454545454,
+      "ci_upper": 0.5181818181818181,
+      "passes_criteria": false
+    },
+    {
+      "band": "0.5-0.7",
+      "n_bets": 376,
+      "n_hits": 31,
+      "hit_rate_per_bet": 0.08244680851063829,
+      "roi": 0.015159574468085024,
+      "ci_lower": -0.34707446808510634,
+      "ci_upper": 0.42420212765957444,
+      "passes_criteria": false
+    },
+    {
+      "band": "0.7-1.0",
+      "n_bets": 0,
+      "n_hits": 0,
+      "hit_rate_per_bet": null,
+      "roi": null,
+      "ci_lower": null,
+      "ci_upper": null,
+      "passes_criteria": false
+    }
+  ],
+  "criteria": {
+    "min_n_bets": 100,
+    "min_roi": 0.1,
+    "min_ci_lower": 0.0
+  },
+  "n_bands_passing": 0,
+  "bootstrap_n": 2000,
+  "seed": 42
+}
