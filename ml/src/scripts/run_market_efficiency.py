@@ -75,6 +75,12 @@ DEFAULT_TAKEOUT_TRIFECTA = 0.25
 DEFAULT_TAKEOUT_WIN = 0.20
 DEFAULT_TAKEOUT_PLACE = 0.20
 
+# place 用 R2 補正係数（pos_in_range mean、50 races / 100 hit boats sample 由来）
+# 実 payout は odds_low と odds_high の範囲内で odds_low に強く偏る (mean=0.245, median=0.0)。
+# 補正後 ev = (1 - POS_IN_RANGE_R2) * ev_actual_low + POS_IN_RANGE_R2 * ev_actual_high
+# 詳細: MARKET_EFFICIENCY_PLACE_RESULTS.md §11
+POS_IN_RANGE_R2 = 0.245
+
 
 # ---------------------------------------------------------------------------
 # 期間ユーティリティ
@@ -437,6 +443,7 @@ def bin_summary_place(df: pd.DataFrame, bins: np.ndarray = LINEAR_BINS_PLACE) ->
       - mean_odds（= mean_odds_low、互換）/ mean_odds_low/mid/high
       - ev_all_buy（= ev_all_buy_low、互換）/ ev_all_buy_low/mid/high
       - ev_actual_low/mid/high  ※ B-3 win 教訓: mean(odds × hit) は実 ROI ベース
+      - ev_actual_corrected      ※ R2 補正: (1-POS_IN_RANGE_R2)*low + POS_IN_RANGE_R2*high
       - wilson_lo / wilson_hi
     """
     df = assign_bins(df, bins)
@@ -460,6 +467,7 @@ def bin_summary_place(df: pd.DataFrame, bins: np.ndarray = LINEAR_BINS_PLACE) ->
         ev_act_low  = float((sub["odds_low"]  * sub["is_hit"]).mean())
         ev_act_mid  = float((sub["odds_mid"]  * sub["is_hit"]).mean())
         ev_act_high = float((sub["odds_high"] * sub["is_hit"]).mean())
+        ev_act_corrected = (1.0 - POS_IN_RANGE_R2) * ev_act_low + POS_IN_RANGE_R2 * ev_act_high
         lift_low  = actual_p / m_imp_low  if m_imp_low  > 0 else float("nan")
         lift_mid  = actual_p / m_imp_mid  if m_imp_mid  > 0 else float("nan")
         lift_high = actual_p / m_imp_high if m_imp_high > 0 else float("nan")
@@ -490,6 +498,7 @@ def bin_summary_place(df: pd.DataFrame, bins: np.ndarray = LINEAR_BINS_PLACE) ->
             "ev_actual_low":        ev_act_low,
             "ev_actual_mid":        ev_act_mid,
             "ev_actual_high":       ev_act_high,
+            "ev_actual_corrected":  ev_act_corrected,
             "wilson_lo":            wlo,
             "wilson_hi":            whi,
         })
@@ -581,9 +590,10 @@ def bootstrap_lift_ci_place(
     bins: np.ndarray = LINEAR_BINS_PLACE,
 ) -> pd.DataFrame:
     """
-    place 用 bootstrap CI（保守的評価 = low モードベース）。
+    place 用 bootstrap CI（保守的評価 = low モードベース + R2 補正後）。
     bin assign は implied_p_low、lift は actual_p / mean_implied_low、
-    ev_actual は mean(odds_low × hit) で算出。
+    ev_actual_low/high は mean(odds_<low|high> × hit)、
+    ev_actual_corrected は (1-POS_IN_RANGE_R2)*low + POS_IN_RANGE_R2*high を iter 内で合成。
     """
     rng = np.random.default_rng(seed)
     df = assign_bins(df, bins).reset_index(drop=True)
@@ -603,11 +613,16 @@ def bootstrap_lift_ci_place(
     is_hit_arr = df["is_hit"].values.astype(np.float64)
     implied_low_arr = df["implied_p_low"].values.astype(np.float64)
     odds_low_arr = df["odds_low"].values.astype(np.float64)
+    odds_high_arr = df["odds_high"].values.astype(np.float64)
     combo_race_idx = df["race_idx"].values.astype(np.int64)
     n_bins = len(bins) - 1
 
+    w_low = 1.0 - POS_IN_RANGE_R2
+    w_high = POS_IN_RANGE_R2
+
     lifts = np.full((n_resamples, n_bins), np.nan)
-    evs_actual = np.full((n_resamples, n_bins), np.nan)
+    evs_actual_low = np.full((n_resamples, n_bins), np.nan)
+    evs_actual_corrected = np.full((n_resamples, n_bins), np.nan)
 
     for it in range(n_resamples):
         race_weights = np.zeros(n_races, dtype=np.float64)
@@ -620,16 +635,22 @@ def bootstrap_lift_ci_place(
         bin_implied_sum = np.bincount(
             bin_idx_arr, weights=combo_weights * implied_low_arr, minlength=n_bins
         )
-        bin_payout_sum = np.bincount(
+        bin_payout_low_sum = np.bincount(
             bin_idx_arr, weights=combo_weights * odds_low_arr * is_hit_arr, minlength=n_bins
+        )
+        bin_payout_high_sum = np.bincount(
+            bin_idx_arr, weights=combo_weights * odds_high_arr * is_hit_arr, minlength=n_bins
         )
         with np.errstate(divide="ignore", invalid="ignore"):
             actual_p = np.where(bin_n > 0, bin_hits / bin_n, np.nan)
             mean_implied = np.where(bin_n > 0, bin_implied_sum / bin_n, np.nan)
-            ev_actual = np.where(bin_n > 0, bin_payout_sum / bin_n, np.nan)
+            ev_actual_l = np.where(bin_n > 0, bin_payout_low_sum / bin_n, np.nan)
+            ev_actual_h = np.where(bin_n > 0, bin_payout_high_sum / bin_n, np.nan)
+            ev_actual_c = w_low * ev_actual_l + w_high * ev_actual_h
             lift = np.where(mean_implied > 0, actual_p / mean_implied, np.nan)
         lifts[it] = lift
-        evs_actual[it] = ev_actual
+        evs_actual_low[it] = ev_actual_l
+        evs_actual_corrected[it] = ev_actual_c
 
         if (it + 1) % 200 == 0:
             logger.info("bootstrap (place) %d / %d", it + 1, n_resamples)
@@ -638,17 +659,21 @@ def bootstrap_lift_ci_place(
     for k in range(n_bins):
         col_l = lifts[:, k]
         col_l = col_l[~np.isnan(col_l)]
-        col_e = evs_actual[:, k]
+        col_e = evs_actual_low[:, k]
         col_e = col_e[~np.isnan(col_e)]
+        col_c = evs_actual_corrected[:, k]
+        col_c = col_c[~np.isnan(col_c)]
         if len(col_l) == 0:
             continue
         rows.append({
-            "bin_lower":         float(bins[k]),
-            "bin_upper":         float(bins[k + 1]),
-            "lift_boot_lo":      float(np.quantile(col_l, alpha / 2)),
-            "lift_boot_hi":      float(np.quantile(col_l, 1 - alpha / 2)),
-            "ev_actual_boot_lo": float(np.quantile(col_e, alpha / 2)) if len(col_e) > 0 else float("nan"),
-            "ev_actual_boot_hi": float(np.quantile(col_e, 1 - alpha / 2)) if len(col_e) > 0 else float("nan"),
+            "bin_lower":              float(bins[k]),
+            "bin_upper":              float(bins[k + 1]),
+            "lift_boot_lo":           float(np.quantile(col_l, alpha / 2)),
+            "lift_boot_hi":           float(np.quantile(col_l, 1 - alpha / 2)),
+            "ev_actual_boot_lo":      float(np.quantile(col_e, alpha / 2)) if len(col_e) > 0 else float("nan"),
+            "ev_actual_boot_hi":      float(np.quantile(col_e, 1 - alpha / 2)) if len(col_e) > 0 else float("nan"),
+            "ev_corrected_boot_lo":   float(np.quantile(col_c, alpha / 2)) if len(col_c) > 0 else float("nan"),
+            "ev_corrected_boot_hi":   float(np.quantile(col_c, 1 - alpha / 2)) if len(col_c) > 0 else float("nan"),
         })
     return pd.DataFrame(rows)
 
@@ -734,37 +759,34 @@ def evaluate_distortion(summary: pd.DataFrame, min_n: int = 1000) -> list[dict]:
 
 def evaluate_place_distortion(summary: pd.DataFrame, min_n: int = 1000) -> list[dict]:
     """
-    place 用 採用判定（控除率 20% 破壊基準）。
-      主基準  : ev_all_buy_low > 1.0 かつ ev_actual_boot_lo > 1.0（保守的評価で確信）
-      補助基準: ev_all_buy_mid > 1.05（中点評価で余裕あり）
+    place 用 採用判定（控除率 20% 破壊基準、R3 = R2 補正後 ev ベース）。
+      主基準  : ev_actual_corrected > 1.0 かつ ev_corrected_boot_lo > 1.0
       n >= min_n 必須
+    R1 補助基準（mid > 1.05）は R2 で「実 payout は odds_low に偏り mid 楽観的すぎ」と
+    判明したため廃止。前後半同方向チェックは呼び出し側 (run) で行う。
     """
     flagged = []
     for _, row in summary.iterrows():
         if row["n"] < min_n:
             continue
-        ev_low = row.get("ev_all_buy_low", np.nan)
-        ev_mid = row.get("ev_all_buy_mid", np.nan)
-        ev_act_lo = row.get("ev_actual_boot_lo", np.nan)
-        ev_act_hi = row.get("ev_actual_boot_hi", np.nan)
+        ev_corr = row.get("ev_actual_corrected", np.nan)
+        ev_corr_lo = row.get("ev_corrected_boot_lo", np.nan)
+        ev_corr_hi = row.get("ev_corrected_boot_hi", np.nan)
         primary = (
-            not np.isnan(ev_low) and ev_low > 1.0
-            and not np.isnan(ev_act_lo) and ev_act_lo > 1.0
+            not np.isnan(ev_corr) and ev_corr > 1.0
+            and not np.isnan(ev_corr_lo) and ev_corr_lo > 1.0
         )
-        secondary = not np.isnan(ev_mid) and ev_mid > 1.05
-        if primary or secondary:
+        if primary:
             flagged.append({
-                "bin_lower":         row["bin_lower"],
-                "bin_upper":         row["bin_upper"],
-                "n":                 int(row["n"]),
-                "lift_low":          row.get("lift_low", np.nan),
-                "ev_all_buy_low":    ev_low,
-                "ev_all_buy_mid":    ev_mid,
-                "ev_all_buy_high":   row.get("ev_all_buy_high", np.nan),
-                "ev_actual_boot_lo": ev_act_lo,
-                "ev_actual_boot_hi": ev_act_hi,
-                "primary":           primary,
-                "secondary":         secondary,
+                "bin_lower":             row["bin_lower"],
+                "bin_upper":             row["bin_upper"],
+                "n":                     int(row["n"]),
+                "lift_low":              row.get("lift_low", np.nan),
+                "ev_actual_low":         row.get("ev_actual_low", np.nan),
+                "ev_actual_high":        row.get("ev_actual_high", np.nan),
+                "ev_actual_corrected":   ev_corr,
+                "ev_corrected_boot_lo":  ev_corr_lo,
+                "ev_corrected_boot_hi":  ev_corr_hi,
             })
     return flagged
 
@@ -957,6 +979,182 @@ def evaluate_segment_distortion(
 
 
 # ---------------------------------------------------------------------------
+# Step 2 (place 専用): focus 帯内 group_by 集計 + bootstrap + 採用判定
+# ---------------------------------------------------------------------------
+
+def segment_summary_within_focus_place(df: pd.DataFrame, group_by: str) -> pd.DataFrame:
+    """place 用 segment KPI（補正後 ev ベース）。
+
+    出力カラム（trifecta/win 互換のため lift/ev_all_buy も併記、ただし low ベース）:
+      - group_by, n, n_races, n_hits
+      - mean_implied_p_norm (= mean_implied_low)
+      - mean_actual_p
+      - lift (= lift_low)
+      - mean_odds (= mean_odds_low、互換用)
+      - mean_odds_low/high
+      - ev_all_buy (= ev_actual_low、互換用 - 既存 sort/print と整合)
+      - ev_actual_low/high/corrected
+      - wilson_lo/hi
+    """
+    rows = []
+    for gval, sub in df.groupby("_group", observed=True):
+        n = len(sub)
+        n_hits = int(sub["is_hit"].sum())
+        if n == 0:
+            continue
+        actual_p = n_hits / n
+        mean_implied = float(sub["implied_p_low"].mean())
+        m_o_low = float(sub["odds_low"].mean())
+        m_o_high = float(sub["odds_high"].mean())
+        ev_actual_low = float((sub["odds_low"] * sub["is_hit"]).mean())
+        ev_actual_high = float((sub["odds_high"] * sub["is_hit"]).mean())
+        ev_actual_corrected = (
+            (1.0 - POS_IN_RANGE_R2) * ev_actual_low
+            + POS_IN_RANGE_R2 * ev_actual_high
+        )
+        lift = actual_p / mean_implied if mean_implied > 0 else float("nan")
+        wlo, whi = wilson_ci(n_hits, n, alpha=0.10)
+        rows.append({
+            group_by:              gval,
+            "n":                   n,
+            "n_races":             int(sub["race_id"].nunique()),
+            "n_hits":              n_hits,
+            "mean_implied_p_norm": mean_implied,
+            "mean_actual_p":       actual_p,
+            "lift":                lift,
+            "mean_odds":           m_o_low,
+            "mean_odds_low":       m_o_low,
+            "mean_odds_high":      m_o_high,
+            "ev_all_buy":          ev_actual_low,
+            "ev_actual_low":       ev_actual_low,
+            "ev_actual_high":      ev_actual_high,
+            "ev_actual_corrected": ev_actual_corrected,
+            "wilson_lo":           wlo,
+            "wilson_hi":           whi,
+        })
+    return pd.DataFrame(rows)
+
+
+def bootstrap_segment_lift_ci_place(
+    df: pd.DataFrame,
+    group_by: str,
+    n_resamples: int = 2000,
+    alpha: float = 0.10,
+    seed: int = 42,
+) -> pd.DataFrame:
+    """place 用 segment bootstrap CI（補正後 ev ベース、iter 内合成）。
+
+    出力: lift_boot_lo/hi（low ベース）, ev_boot_lo/hi（= ev_actual_low の CI、互換）,
+          ev_corrected_boot_lo/hi
+    """
+    rng = np.random.default_rng(seed)
+    df = df.reset_index(drop=True)
+
+    groups = sorted(df["_group"].unique().tolist())
+    group_to_idx = {g: i for i, g in enumerate(groups)}
+    n_groups = len(groups)
+    g_arr = df["_group"].map(group_to_idx).values.astype(np.int64)
+
+    race_ids = df["race_id"].drop_duplicates().reset_index(drop=True)
+    race_id_to_idx = {rid: i for i, rid in enumerate(race_ids)}
+    n_races = len(race_ids)
+    combo_race_idx = df["race_id"].map(race_id_to_idx).values.astype(np.int64)
+
+    race_month = df.drop_duplicates("race_id").set_index("race_id")["year_month"]
+    month_to_race_indices: dict[str, np.ndarray] = {}
+    for ym, ids in race_month.groupby(race_month):
+        idx_arr = np.array([race_id_to_idx[rid] for rid in ids.index], dtype=np.int64)
+        month_to_race_indices[ym] = idx_arr
+
+    is_hit_arr = df["is_hit"].values.astype(np.float64)
+    implied_arr = df["implied_p_low"].values.astype(np.float64)
+    odds_low_arr = df["odds_low"].values.astype(np.float64)
+    odds_high_arr = df["odds_high"].values.astype(np.float64)
+
+    w_low = 1.0 - POS_IN_RANGE_R2
+    w_high = POS_IN_RANGE_R2
+
+    lifts = np.full((n_resamples, n_groups), np.nan)
+    evs_low = np.full((n_resamples, n_groups), np.nan)
+    evs_corrected = np.full((n_resamples, n_groups), np.nan)
+
+    for it in range(n_resamples):
+        race_weights = np.zeros(n_races, dtype=np.float64)
+        for ym, race_indices in month_to_race_indices.items():
+            sampled = rng.choice(race_indices, size=len(race_indices), replace=True)
+            np.add.at(race_weights, sampled, 1.0)
+        combo_w = race_weights[combo_race_idx]
+        n_g = np.bincount(g_arr, weights=combo_w, minlength=n_groups)
+        h_g = np.bincount(g_arr, weights=combo_w * is_hit_arr, minlength=n_groups)
+        i_g = np.bincount(g_arr, weights=combo_w * implied_arr, minlength=n_groups)
+        pl_g = np.bincount(g_arr, weights=combo_w * odds_low_arr * is_hit_arr, minlength=n_groups)
+        ph_g = np.bincount(g_arr, weights=combo_w * odds_high_arr * is_hit_arr, minlength=n_groups)
+        with np.errstate(divide="ignore", invalid="ignore"):
+            actual = np.where(n_g > 0, h_g / n_g, np.nan)
+            implied = np.where(n_g > 0, i_g / n_g, np.nan)
+            ev_low = np.where(n_g > 0, pl_g / n_g, np.nan)
+            ev_high = np.where(n_g > 0, ph_g / n_g, np.nan)
+            ev_corr = w_low * ev_low + w_high * ev_high
+            lift = np.where(implied > 0, actual / implied, np.nan)
+        lifts[it] = lift
+        evs_low[it] = ev_low
+        evs_corrected[it] = ev_corr
+
+        if (it + 1) % 200 == 0:
+            logger.info("[%s place] bootstrap %d / %d", group_by, it + 1, n_resamples)
+
+    rows = []
+    for k, g in enumerate(groups):
+        lcol = lifts[:, k]; lcol = lcol[~np.isnan(lcol)]
+        ecol = evs_low[:, k]; ecol = ecol[~np.isnan(ecol)]
+        ccol = evs_corrected[:, k]; ccol = ccol[~np.isnan(ccol)]
+        if len(lcol) == 0 or len(ecol) == 0:
+            continue
+        rows.append({
+            group_by:                g,
+            "lift_boot_lo":          float(np.quantile(lcol, alpha / 2)),
+            "lift_boot_hi":          float(np.quantile(lcol, 1 - alpha / 2)),
+            "ev_boot_lo":            float(np.quantile(ecol, alpha / 2)),
+            "ev_boot_hi":            float(np.quantile(ecol, 1 - alpha / 2)),
+            "ev_corrected_boot_lo":  float(np.quantile(ccol, alpha / 2)) if len(ccol) > 0 else float("nan"),
+            "ev_corrected_boot_hi":  float(np.quantile(ccol, 1 - alpha / 2)) if len(ccol) > 0 else float("nan"),
+        })
+    return pd.DataFrame(rows)
+
+
+def evaluate_segment_distortion_place(
+    seg_df: pd.DataFrame, group_by: str, min_n: int = 1000,
+) -> list[dict]:
+    """place 用 segment 採用判定（R3 = 補正後 ev ベース）。
+      - n >= min_n
+      - ev_actual_corrected > 1.0
+      - ev_corrected_boot_lo > 1.0
+    """
+    flagged = []
+    for _, row in seg_df.iterrows():
+        if row["n"] < min_n:
+            continue
+        ev_corr = row.get("ev_actual_corrected", np.nan)
+        ev_corr_lo = row.get("ev_corrected_boot_lo", np.nan)
+        if (
+            not np.isnan(ev_corr) and ev_corr > 1.0
+            and not np.isnan(ev_corr_lo) and ev_corr_lo > 1.0
+        ):
+            flagged.append({
+                group_by:                row[group_by],
+                "n":                     int(row["n"]),
+                "lift":                  row["lift"],
+                "lift_boot_lo":          row.get("lift_boot_lo", np.nan),
+                "ev_actual_low":         row.get("ev_actual_low", np.nan),
+                "ev_actual_high":        row.get("ev_actual_high", np.nan),
+                "ev_actual_corrected":   ev_corr,
+                "ev_corrected_boot_lo":  ev_corr_lo,
+                "ev_corrected_boot_hi":  row.get("ev_corrected_boot_hi", np.nan),
+            })
+    return flagged
+
+
+# ---------------------------------------------------------------------------
 # パイプライン
 # ---------------------------------------------------------------------------
 
@@ -992,20 +1190,31 @@ def run_subsegment_group(
     n_bootstrap: int,
     output_dir: Path,
     min_n: int,
+    bet_type: str = "trifecta",
 ) -> tuple[pd.DataFrame, list[dict]]:
     """
     focus 帯内で 1 group 軸の集計 + bootstrap + CSV 保存 + 採用判定。
+    bet_type=place のときは補正後 ev ベース、それ以外は既存ロジック。
     """
     df_g = add_group_column(df_focus, group_by)
-    seg = segment_summary_within_focus(df_g, group_by)
-    if n_bootstrap > 0:
-        boot = bootstrap_segment_lift_ci(df_g, group_by, n_resamples=n_bootstrap)
-        seg = seg.merge(boot, on=group_by, how="left")
+    if bet_type == "place":
+        seg = segment_summary_within_focus_place(df_g, group_by)
+        if n_bootstrap > 0:
+            boot = bootstrap_segment_lift_ci_place(df_g, group_by, n_resamples=n_bootstrap)
+            seg = seg.merge(boot, on=group_by, how="left")
+    else:
+        seg = segment_summary_within_focus(df_g, group_by)
+        if n_bootstrap > 0:
+            boot = bootstrap_segment_lift_ci(df_g, group_by, n_resamples=n_bootstrap)
+            seg = seg.merge(boot, on=group_by, how="left")
     seg = seg.sort_values("ev_all_buy", ascending=False).reset_index(drop=True)
     out_csv = output_dir / f"market_efficiency_segment_{group_by}_{label}.csv"
     seg.to_csv(out_csv, index=False)
     logger.info("[%s] CSV 保存: %s", group_by, out_csv)
-    flagged = evaluate_segment_distortion(seg, group_by, min_n=min_n)
+    if bet_type == "place":
+        flagged = evaluate_segment_distortion_place(seg, group_by, min_n=min_n)
+    else:
+        flagged = evaluate_segment_distortion(seg, group_by, min_n=min_n)
     return seg, flagged
 
 
@@ -1016,22 +1225,34 @@ def run_subsegment_group_2axis(
     n_bootstrap: int,
     output_dir: Path,
     min_n: int,
+    bet_type: str = "trifecta",
 ) -> tuple[pd.DataFrame, list[dict]]:
     """
     2 軸組合せ版（_group 列が既に付与されたフレームを受け取る）。
-    既存の segment_summary_within_focus / bootstrap_segment_lift_ci を再利用。
+    bet_type=place のときは補正後 ev ベース、それ以外は既存ロジック。
     """
-    seg = segment_summary_within_focus(df_focus_with_group, group_col_name)
-    if n_bootstrap > 0:
-        boot = bootstrap_segment_lift_ci(
-            df_focus_with_group, group_col_name, n_resamples=n_bootstrap,
-        )
-        seg = seg.merge(boot, on=group_col_name, how="left")
+    if bet_type == "place":
+        seg = segment_summary_within_focus_place(df_focus_with_group, group_col_name)
+        if n_bootstrap > 0:
+            boot = bootstrap_segment_lift_ci_place(
+                df_focus_with_group, group_col_name, n_resamples=n_bootstrap,
+            )
+            seg = seg.merge(boot, on=group_col_name, how="left")
+    else:
+        seg = segment_summary_within_focus(df_focus_with_group, group_col_name)
+        if n_bootstrap > 0:
+            boot = bootstrap_segment_lift_ci(
+                df_focus_with_group, group_col_name, n_resamples=n_bootstrap,
+            )
+            seg = seg.merge(boot, on=group_col_name, how="left")
     seg = seg.sort_values("ev_all_buy", ascending=False).reset_index(drop=True)
     out_csv = output_dir / f"market_efficiency_segment_{group_col_name}_{label}.csv"
     seg.to_csv(out_csv, index=False)
     logger.info("[%s] CSV 保存: %s", group_col_name, out_csv)
-    flagged = evaluate_segment_distortion(seg, group_col_name, min_n=min_n)
+    if bet_type == "place":
+        flagged = evaluate_segment_distortion_place(seg, group_col_name, min_n=min_n)
+    else:
+        flagged = evaluate_segment_distortion(seg, group_col_name, min_n=min_n)
     return seg, flagged
 
 
@@ -1054,48 +1275,78 @@ def _format_2axis_group_value(gval: str, axis1: str, axis2: str) -> str:
     return f"{v1} | {v2}"
 
 
-def print_segment_table(seg: pd.DataFrame, group_by: str, min_n: int) -> None:
-    """サブセグメント集計テーブルを print。"""
+def print_segment_table(
+    seg: pd.DataFrame, group_by: str, min_n: int, bet_type: str = "trifecta",
+) -> None:
+    """サブセグメント集計テーブルを print。
+
+    bet_type=place のときは ev 列に補正後 ev を表示し、CI / flag も補正後ベース。
+    """
     print()
-    print(f"  [group_by = {group_by}] (focus bin only, sorted by ev_all_buy desc)")
+    if bet_type == "place":
+        print(f"  [group_by = {group_by}] (focus bin only, sorted by ev_actual_low desc, "
+              f"ev_corr = R2 corrected = 0.755*ev_low + 0.245*ev_high)")
+    else:
+        print(f"  [group_by = {group_by}] (focus bin only, sorted by ev_all_buy desc)")
     name_col_w = max(len(group_by), 12)
-    header = (
-        f"  {group_by:>{name_col_w}}  {'n':>6}  {'lift':>5}  "
-        f"{'lift CI':>16}  {'ev':>5}  {'ev CI':>16}  flag"
-    )
+    if bet_type == "place":
+        header = (
+            f"  {group_by:>{name_col_w}}  {'n':>6}  {'lift':>5}  "
+            f"{'ev_low':>6}  {'ev_high':>7}  {'ev_corr':>7}  {'ev_corr CI':>16}  flag"
+        )
+    else:
+        header = (
+            f"  {group_by:>{name_col_w}}  {'n':>6}  {'lift':>5}  "
+            f"{'lift CI':>16}  {'ev':>5}  {'ev CI':>16}  flag"
+        )
     print(header)
     print("  " + "-" * (len(header) - 2))
     for _, r in seg.iterrows():
         if r["n"] < min_n:
             continue
-        lift_ci = (
-            f"[{r.get('lift_boot_lo', float('nan')):.2f}, "
-            f"{r.get('lift_boot_hi', float('nan')):.2f}]"
-        )
-        ev_ci = (
-            f"[{r.get('ev_boot_lo', float('nan')):.2f}, "
-            f"{r.get('ev_boot_hi', float('nan')):.2f}]"
-        )
-        flag = (
-            "*"
-            if (
-                not np.isnan(r.get("lift_boot_lo", np.nan))
-                and r.get("lift_boot_lo", 0) > 1.0
-                and r["ev_all_buy"] > 1.0
-                and r.get("ev_boot_lo", 0) > 1.0
-            )
-            else ""
-        )
         gval_str = (
             f"{int(r[group_by])}.{STADIUM_NAMES.get(int(r[group_by]), '?')}"
             if group_by == "stadium"
             else str(r[group_by])
         )
-        print(
-            f"  {gval_str:>{name_col_w}}  {int(r['n']):>6}  "
-            f"{r['lift']:>5.2f}  {lift_ci:>16}  "
-            f"{r['ev_all_buy']:>5.2f}  {ev_ci:>16}  {flag}"
-        )
+        if bet_type == "place":
+            ev_corr = r.get("ev_actual_corrected", float("nan"))
+            ev_corr_lo = r.get("ev_corrected_boot_lo", float("nan"))
+            ev_corr_hi = r.get("ev_corrected_boot_hi", float("nan"))
+            ev_corr_ci = f"[{ev_corr_lo:.2f}, {ev_corr_hi:.2f}]"
+            flag = "*" if (not np.isnan(ev_corr) and ev_corr > 1.0
+                            and not np.isnan(ev_corr_lo) and ev_corr_lo > 1.0) else ""
+            print(
+                f"  {gval_str:>{name_col_w}}  {int(r['n']):>6}  "
+                f"{r['lift']:>5.2f}  "
+                f"{r.get('ev_actual_low', float('nan')):>6.2f}  "
+                f"{r.get('ev_actual_high', float('nan')):>7.2f}  "
+                f"{ev_corr:>7.2f}  {ev_corr_ci:>16}  {flag}"
+            )
+        else:
+            lift_ci = (
+                f"[{r.get('lift_boot_lo', float('nan')):.2f}, "
+                f"{r.get('lift_boot_hi', float('nan')):.2f}]"
+            )
+            ev_ci = (
+                f"[{r.get('ev_boot_lo', float('nan')):.2f}, "
+                f"{r.get('ev_boot_hi', float('nan')):.2f}]"
+            )
+            flag = (
+                "*"
+                if (
+                    not np.isnan(r.get("lift_boot_lo", np.nan))
+                    and r.get("lift_boot_lo", 0) > 1.0
+                    and r["ev_all_buy"] > 1.0
+                    and r.get("ev_boot_lo", 0) > 1.0
+                )
+                else ""
+            )
+            print(
+                f"  {gval_str:>{name_col_w}}  {int(r['n']):>6}  "
+                f"{r['lift']:>5.2f}  {lift_ci:>16}  "
+                f"{r['ev_all_buy']:>5.2f}  {ev_ci:>16}  {flag}"
+            )
 
 
 def main() -> None:
@@ -1245,8 +1496,8 @@ def main() -> None:
     print("=" * 78)
     if args.bet_type == "place":
         print(f"  total bins: {len(full_summary)}, "
-              f"flagged (n>={args.min_bin_n}, ev_all_buy_low>1.0+CI_lo>1.0 or "
-              f"ev_all_buy_mid>1.05): {len(flagged)}")
+              f"flagged (n>={args.min_bin_n}, ev_actual_corrected>1.0 + "
+              f"ev_corrected_boot_lo>1.0): {len(flagged)}")
     else:
         print(f"  total bins: {len(full_summary)}, "
               f"flagged (n>={args.min_bin_n}, |lift-1|>=0.10/0.15, CI excl. 1): "
@@ -1262,46 +1513,41 @@ def main() -> None:
         print(f"  {bin_str:>22}  {int(r['n']):>8}  {r['mean_actual_p']:>9.4f}  "
               f"{r['mean_implied_p_norm']:>9.4f}  {r['lift']:>6.3f}  {ci:>20}")
 
-    # place 用 補助テーブル: ev_all_buy 3 モード + ev_actual CI
+    # place 用 補助テーブル: ev_actual 3 モード（low / corrected / high） + 補正後 CI
     if args.bet_type == "place":
         print()
-        print("  >> Place ev_all_buy / ev_actual table (low=conservative / mid=midpoint / high=optimistic):")
-        print(f"  {'bin':>22}  {'n':>6}  {'ev_low':>7}  {'ev_mid':>7}  "
-              f"{'ev_high':>8}  {'ev_actual_low':>14}  {'ev_act_CI(low)':>18}")
-        print("  " + "-" * 95)
+        print("  >> Place ev_actual table (low=conservative / corrected=R2 / high=optimistic, 控除率破壊なら corrected > 1.0):")
+        print(f"  {'bin':>22}  {'n':>6}  {'ev_low':>7}  {'ev_corr':>8}  "
+              f"{'ev_high':>8}  {'ev_corr CI':>18}")
+        print("  " + "-" * 78)
         for _, r in full_summary.iterrows():
             bin_str = f"[{r['bin_lower']:.4f}, {r['bin_upper']:.4f})"
-            ev_act_ci = (
-                f"[{r.get('ev_actual_boot_lo', float('nan')):.3f}, "
-                f"{r.get('ev_actual_boot_hi', float('nan')):.3f}]"
+            ev_corr_ci = (
+                f"[{r.get('ev_corrected_boot_lo', float('nan')):.3f}, "
+                f"{r.get('ev_corrected_boot_hi', float('nan')):.3f}]"
             )
             print(
                 f"  {bin_str:>22}  {int(r['n']):>6}  "
-                f"{r.get('ev_all_buy_low', float('nan')):>7.3f}  "
-                f"{r.get('ev_all_buy_mid', float('nan')):>7.3f}  "
-                f"{r.get('ev_all_buy_high', float('nan')):>8.3f}  "
-                f"{r.get('ev_actual_low', float('nan')):>14.3f}  "
-                f"{ev_act_ci:>18}"
+                f"{r.get('ev_actual_low', float('nan')):>7.3f}  "
+                f"{r.get('ev_actual_corrected', float('nan')):>8.3f}  "
+                f"{r.get('ev_actual_high', float('nan')):>8.3f}  "
+                f"{ev_corr_ci:>18}"
             )
 
     if flagged:
         print()
         if args.bet_type == "place":
-            print("  >> Flagged bins (meets place adoption criteria):")
+            print("  >> Flagged bins (meets place adoption criteria, R2 corrected):")
             for f in flagged:
                 bin_str = f"[{f['bin_lower']:.4f}, {f['bin_upper']:.4f})"
-                tag = (
-                    "primary+secondary" if (f["primary"] and f["secondary"])
-                    else ("primary" if f["primary"] else "secondary")
-                )
-                ev_act_ci = (
-                    f"[{f['ev_actual_boot_lo']:.3f}, {f['ev_actual_boot_hi']:.3f}]"
+                ev_corr_ci = (
+                    f"[{f['ev_corrected_boot_lo']:.3f}, {f['ev_corrected_boot_hi']:.3f}]"
                 )
                 print(
                     f"    {bin_str}  n={f['n']:>6}  "
-                    f"ev_low={f['ev_all_buy_low']:.3f}  "
-                    f"ev_mid={f['ev_all_buy_mid']:.3f}  "
-                    f"ev_act_CI={ev_act_ci}  [{tag}]"
+                    f"ev_low={f['ev_actual_low']:.3f}  "
+                    f"ev_corr={f['ev_actual_corrected']:.3f}  "
+                    f"ev_corr_CI={ev_corr_ci}"
                 )
         else:
             print("  >> Flagged bins (meets criteria):")
@@ -1313,7 +1559,7 @@ def main() -> None:
     else:
         print()
         if args.bet_type == "place":
-            print("  >> No bin meets place adoption criteria -> B-3 拡張 A retreat candidate")
+            print("  >> No bin meets place adoption criteria (corrected) -> B-3 ext-A retreat candidate")
         else:
             print("  >> No bin meets adoption criteria -> B-1 retreat candidate")
 
@@ -1381,8 +1627,9 @@ def main() -> None:
                 n_bootstrap=args.bootstrap,
                 output_dir=output_dir,
                 min_n=args.min_bin_n,
+                bet_type=args.bet_type,
             )
-            print_segment_table(seg, gb, args.min_bin_n)
+            print_segment_table(seg, gb, args.min_bin_n, bet_type=args.bet_type)
             all_flagged[gb] = flagged
 
         # 2 軸組合せ
@@ -1402,49 +1649,75 @@ def main() -> None:
                 n_bootstrap=args.bootstrap,
                 output_dir=output_dir,
                 min_n=args.min_bin_n,
+                bet_type=args.bet_type,
             )
             # 上位/採用 cell をハイライト表示
             print()
-            print(f"  [group_by = {combined_name}] (focus bin only, n>=%d, sorted by ev_all_buy desc, top 15)" % args.min_bin_n)
+            sort_key = "ev_actual_low" if args.bet_type == "place" else "ev_all_buy"
+            print(f"  [group_by = {combined_name}] (focus bin only, n>=%d, sorted by {sort_key} desc, top 15)" % args.min_bin_n)
             valid_seg = seg[seg["n"] >= args.min_bin_n]
             print(f"  cells with n>={args.min_bin_n}: {len(valid_seg)} / {len(seg)} total")
             if not valid_seg.empty:
                 head_w = max(len(combined_name), 28)
-                print(
-                    f"  {combined_name:>{head_w}}  {'n':>5}  {'lift':>5}  "
-                    f"{'lift CI':>14}  {'ev':>5}  {'ev CI':>14}  flag"
-                )
+                if args.bet_type == "place":
+                    print(
+                        f"  {combined_name:>{head_w}}  {'n':>5}  {'lift':>5}  "
+                        f"{'ev_low':>6}  {'ev_high':>7}  {'ev_corr':>7}  {'ev_corr CI':>14}  flag"
+                    )
+                else:
+                    print(
+                        f"  {combined_name:>{head_w}}  {'n':>5}  {'lift':>5}  "
+                        f"{'lift CI':>14}  {'ev':>5}  {'ev CI':>14}  flag"
+                    )
                 print("  " + "-" * (head_w + 60))
                 for _, r in valid_seg.head(15).iterrows():
-                    lift_ci = (
-                        f"[{r.get('lift_boot_lo', float('nan')):.2f},"
-                        f"{r.get('lift_boot_hi', float('nan')):.2f}]"
-                    )
-                    ev_ci = (
-                        f"[{r.get('ev_boot_lo', float('nan')):.2f},"
-                        f"{r.get('ev_boot_hi', float('nan')):.2f}]"
-                    )
-                    flag = (
-                        "*"
-                        if (
-                            not np.isnan(r.get("lift_boot_lo", np.nan))
-                            and r.get("lift_boot_lo", 0) > 1.0
-                            and r["ev_all_buy"] > 1.0
-                            and r.get("ev_boot_lo", 0) > 1.0
-                        )
-                        else ""
-                    )
                     label_str = _format_2axis_group_value(str(r[combined_name]), ax1, ax2)
-                    print(
-                        f"  {label_str:>{head_w}}  {int(r['n']):>5}  "
-                        f"{r['lift']:>5.2f}  {lift_ci:>14}  "
-                        f"{r['ev_all_buy']:>5.2f}  {ev_ci:>14}  {flag}"
-                    )
+                    if args.bet_type == "place":
+                        ev_corr = r.get("ev_actual_corrected", float("nan"))
+                        ev_corr_lo = r.get("ev_corrected_boot_lo", float("nan"))
+                        ev_corr_hi = r.get("ev_corrected_boot_hi", float("nan"))
+                        ev_corr_ci = f"[{ev_corr_lo:.2f},{ev_corr_hi:.2f}]"
+                        flag = "*" if (not np.isnan(ev_corr) and ev_corr > 1.0
+                                        and not np.isnan(ev_corr_lo) and ev_corr_lo > 1.0) else ""
+                        print(
+                            f"  {label_str:>{head_w}}  {int(r['n']):>5}  "
+                            f"{r['lift']:>5.2f}  "
+                            f"{r.get('ev_actual_low', float('nan')):>6.2f}  "
+                            f"{r.get('ev_actual_high', float('nan')):>7.2f}  "
+                            f"{ev_corr:>7.2f}  {ev_corr_ci:>14}  {flag}"
+                        )
+                    else:
+                        lift_ci = (
+                            f"[{r.get('lift_boot_lo', float('nan')):.2f},"
+                            f"{r.get('lift_boot_hi', float('nan')):.2f}]"
+                        )
+                        ev_ci = (
+                            f"[{r.get('ev_boot_lo', float('nan')):.2f},"
+                            f"{r.get('ev_boot_hi', float('nan')):.2f}]"
+                        )
+                        flag = (
+                            "*"
+                            if (
+                                not np.isnan(r.get("lift_boot_lo", np.nan))
+                                and r.get("lift_boot_lo", 0) > 1.0
+                                and r["ev_all_buy"] > 1.0
+                                and r.get("ev_boot_lo", 0) > 1.0
+                            )
+                            else ""
+                        )
+                        print(
+                            f"  {label_str:>{head_w}}  {int(r['n']):>5}  "
+                            f"{r['lift']:>5.2f}  {lift_ci:>14}  "
+                            f"{r['ev_all_buy']:>5.2f}  {ev_ci:>14}  {flag}"
+                        )
             all_flagged[combined_name] = flagged
 
         # 採用判定サマリー
         print()
-        print("  >> Step 2 adoption summary (n>=%d, lift_boot_lo>1.0, ev_all_buy>1.0, ev_boot_lo>1.0):" % args.min_bin_n)
+        if args.bet_type == "place":
+            print("  >> Step 2 adoption summary (n>=%d, ev_actual_corrected>1.0, ev_corrected_boot_lo>1.0):" % args.min_bin_n)
+        else:
+            print("  >> Step 2 adoption summary (n>=%d, lift_boot_lo>1.0, ev_all_buy>1.0, ev_boot_lo>1.0):" % args.min_bin_n)
         for gb, flist in all_flagged.items():
             if flist:
                 print(f"    [{gb}] {len(flist)} flagged segment(s):")
@@ -1453,11 +1726,19 @@ def main() -> None:
                     if "X" in gb:
                         ax1, ax2 = gb.split("X", 1)
                         val = _format_2axis_group_value(str(val), ax1, ax2)
-                    print(
-                        f"      {gb}={val}, n={f['n']}, lift={f['lift']:.3f} "
-                        f"(CI lo={f['lift_boot_lo']:.3f}), "
-                        f"ev={f['ev_all_buy']:.3f} (CI=[{f['ev_boot_lo']:.3f}, {f['ev_boot_hi']:.3f}])"
-                    )
+                    if args.bet_type == "place":
+                        print(
+                            f"      {gb}={val}, n={f['n']}, lift={f['lift']:.3f}, "
+                            f"ev_low={f['ev_actual_low']:.3f}, ev_high={f['ev_actual_high']:.3f}, "
+                            f"ev_corr={f['ev_actual_corrected']:.3f} "
+                            f"(CI=[{f['ev_corrected_boot_lo']:.3f}, {f['ev_corrected_boot_hi']:.3f}])"
+                        )
+                    else:
+                        print(
+                            f"      {gb}={val}, n={f['n']}, lift={f['lift']:.3f} "
+                            f"(CI lo={f['lift_boot_lo']:.3f}), "
+                            f"ev={f['ev_all_buy']:.3f} (CI=[{f['ev_boot_lo']:.3f}, {f['ev_boot_hi']:.3f}])"
+                        )
             else:
                 print(f"    [{gb}] no flagged segment")
 
@@ -1466,7 +1747,10 @@ def main() -> None:
         if any_flagged:
             print("  ====> Step 3 (strategy backtest) candidate found.")
         else:
-            print("  ====> No subsegment beats takeout. B-1 retreat candidate.")
+            if args.bet_type == "place":
+                print("  ====> No subsegment beats takeout (corrected). B-3 ext-A retreat candidate.")
+            else:
+                print("  ====> No subsegment beats takeout. B-1 retreat candidate.")
 
     print()
     print(f"  output: {output_dir}/market_efficiency_*.csv / .png")

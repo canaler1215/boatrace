@@ -1,0 +1,180 @@
+2026-04-28 15:43:03,820 INFO __main__: Place オッズ読み込み: 304944 行 / 50824 レース（6 艇全揃い filter; 除外 3453 レース）/ 12 月
+2026-04-28 15:43:04,539 INFO collector.history_downloader: 2025-05: +29974 records (total 29974)
+2026-04-28 15:43:05,107 INFO collector.history_downloader: 2025-06: +28460 records (total 58434)
+2026-04-28 15:43:05,727 INFO collector.history_downloader: 2025-07: +30679 records (total 89113)
+2026-04-28 15:43:06,337 INFO collector.history_downloader: 2025-08: +30163 records (total 119276)
+2026-04-28 15:43:06,804 INFO collector.history_downloader: 2025-09: +25343 records (total 144619)
+2026-04-28 15:43:07,337 INFO collector.history_downloader: 2025-10: +24631 records (total 169250)
+2026-04-28 15:43:07,778 INFO collector.history_downloader: 2025-11: +23508 records (total 192758)
+2026-04-28 15:43:08,282 INFO collector.history_downloader: 2025-12: +28488 records (total 221246)
+2026-04-28 15:43:08,877 INFO collector.history_downloader: 2026-01: +30791 records (total 252037)
+2026-04-28 15:43:09,380 INFO collector.history_downloader: 2026-02: +24887 records (total 276924)
+2026-04-28 15:43:09,923 INFO collector.history_downloader: 2026-03: +27780 records (total 304704)
+2026-04-28 15:43:11,258 INFO collector.history_downloader: 2026-04: +19583 records (total 324287)
+2026-04-28 15:43:12,109 INFO collector.history_downloader: Total records loaded: 324287
+2026-04-28 15:43:13,183 INFO __main__: 結果データ (place top2): 54337 レース
+2026-04-28 15:43:13,535 INFO __main__: 結合後 (place): 304914 combo / 50819 レース（2 hits/race 確認済 50819 races）
+2026-04-28 15:43:16,842 INFO __main__: bootstrap (place) 200 / 2000
+2026-04-28 15:43:18,789 INFO __main__: bootstrap (place) 400 / 2000
+2026-04-28 15:43:20,592 INFO __main__: bootstrap (place) 600 / 2000
+2026-04-28 15:43:22,496 INFO __main__: bootstrap (place) 800 / 2000
+2026-04-28 15:43:24,380 INFO __main__: bootstrap (place) 1000 / 2000
+2026-04-28 15:43:26,255 INFO __main__: bootstrap (place) 1200 / 2000
+2026-04-28 15:43:28,136 INFO __main__: bootstrap (place) 1400 / 2000
+2026-04-28 15:43:30,013 INFO __main__: bootstrap (place) 1600 / 2000
+2026-04-28 15:43:31,843 INFO __main__: bootstrap (place) 1800 / 2000
+2026-04-28 15:43:33,720 INFO __main__: bootstrap (place) 2000 / 2000
+2026-04-28 15:43:33,749 INFO __main__: CSV 保存: C:\Users\claude\workspace\boatrace\artifacts\market_efficiency_2025-05_2026-04_place.csv
+2026-04-28 15:43:34,434 INFO __main__: プロット保存: C:\Users\claude\workspace\boatrace\artifacts\market_efficiency_2025-05_2026-04_place.png
+2026-04-28 15:43:35,719 INFO __main__: bootstrap (place) 200 / 2000
+2026-04-28 15:43:36,874 INFO __main__: bootstrap (place) 400 / 2000
+2026-04-28 15:43:37,884 INFO __main__: bootstrap (place) 600 / 2000
+2026-04-28 15:43:38,893 INFO __main__: bootstrap (place) 800 / 2000
+2026-04-28 15:43:39,893 INFO __main__: bootstrap (place) 1000 / 2000
+2026-04-28 15:43:40,895 INFO __main__: bootstrap (place) 1200 / 2000
+2026-04-28 15:43:41,904 INFO __main__: bootstrap (place) 1400 / 2000
+2026-04-28 15:43:42,925 INFO __main__: bootstrap (place) 1600 / 2000
+2026-04-28 15:43:43,944 INFO __main__: bootstrap (place) 1800 / 2000
+2026-04-28 15:43:44,942 INFO __main__: bootstrap (place) 2000 / 2000
+2026-04-28 15:43:44,957 INFO __main__: CSV 保存: C:\Users\claude\workspace\boatrace\artifacts\market_efficiency_2025-05_2025-10_place.csv
+2026-04-28 15:43:46,025 INFO __main__: bootstrap (place) 200 / 2000
+2026-04-28 15:43:47,109 INFO __main__: bootstrap (place) 400 / 2000
+2026-04-28 15:43:48,180 INFO __main__: bootstrap (place) 600 / 2000
+2026-04-28 15:43:49,242 INFO __main__: bootstrap (place) 800 / 2000
+2026-04-28 15:43:50,282 INFO __main__: bootstrap (place) 1000 / 2000
+2026-04-28 15:43:51,325 INFO __main__: bootstrap (place) 1200 / 2000
+2026-04-28 15:43:52,376 INFO __main__: bootstrap (place) 1400 / 2000
+2026-04-28 15:43:53,444 INFO __main__: bootstrap (place) 1600 / 2000
+2026-04-28 15:43:54,461 INFO __main__: bootstrap (place) 1800 / 2000
+2026-04-28 15:43:55,477 INFO __main__: bootstrap (place) 2000 / 2000
+2026-04-28 15:43:55,493 INFO __main__: CSV 保存: C:\Users\claude\workspace\boatrace\artifacts\market_efficiency_2025-11_2026-04_place.csv
+2026-04-28 15:43:57,323 INFO __main__: [stadium place] bootstrap 200 / 2000
+2026-04-28 15:43:58,667 INFO __main__: [stadium place] bootstrap 400 / 2000
+2026-04-28 15:43:59,927 INFO __main__: [stadium place] bootstrap 600 / 2000
+2026-04-28 15:44:01,220 INFO __main__: [stadium place] bootstrap 800 / 2000
+2026-04-28 15:44:02,496 INFO __main__: [stadium place] bootstrap 1000 / 2000
+2026-04-28 15:44:03,807 INFO __main__: [stadium place] bootstrap 1200 / 2000
+2026-04-28 15:44:05,094 INFO __main__: [stadium place] bootstrap 1400 / 2000
+2026-04-28 15:44:06,380 INFO __main__: [stadium place] bootstrap 1600 / 2000
+2026-04-28 15:44:07,682 INFO __main__: [stadium place] bootstrap 1800 / 2000
+2026-04-28 15:44:09,030 INFO __main__: [stadium place] bootstrap 2000 / 2000
+2026-04-28 15:44:09,054 INFO __main__: [stadium] CSV 保存: C:\Users\claude\workspace\boatrace\artifacts\market_efficiency_segment_stadium_focus_0.10-0.50_2025-05_2026-04_place.csv
+2026-04-28 15:44:10,843 INFO __main__: [stadiumXodds_band place] bootstrap 200 / 2000
+2026-04-28 15:44:12,126 INFO __main__: [stadiumXodds_band place] bootstrap 400 / 2000
+2026-04-28 15:44:13,384 INFO __main__: [stadiumXodds_band place] bootstrap 600 / 2000
+2026-04-28 15:44:14,624 INFO __main__: [stadiumXodds_band place] bootstrap 800 / 2000
+2026-04-28 15:44:15,861 INFO __main__: [stadiumXodds_band place] bootstrap 1000 / 2000
+2026-04-28 15:44:17,142 INFO __main__: [stadiumXodds_band place] bootstrap 1200 / 2000
+2026-04-28 15:44:18,409 INFO __main__: [stadiumXodds_band place] bootstrap 1400 / 2000
+2026-04-28 15:44:19,660 INFO __main__: [stadiumXodds_band place] bootstrap 1600 / 2000
+2026-04-28 15:44:20,908 INFO __main__: [stadiumXodds_band place] bootstrap 1800 / 2000
+2026-04-28 15:44:22,128 INFO __main__: [stadiumXodds_band place] bootstrap 2000 / 2000
+2026-04-28 15:44:22,160 INFO __main__: [stadiumXodds_band] CSV 保存: C:\Users\claude\workspace\boatrace\artifacts\market_efficiency_segment_stadiumXodds_band_focus_0.10-0.50_2025-05_2026-04_place.csv
+
+==============================================================================
+  Market efficiency distortion report [2025-05 to 2026-04, place]
+==============================================================================
+  total bins: 9, flagged (n>=1000, ev_actual_corrected>1.0 + ev_corrected_boot_lo>1.0): 0
+
+                     bin         n   actual_p    implied    lift           90% boot CI
+  ------------------------------------------------------------------------------
+        [0.0000, 0.1000)     20201     0.0522     0.0686   0.761        [0.725, 0.798]
+        [0.1000, 0.2000)     47828     0.1132     0.1506   0.751        [0.736, 0.767]
+        [0.2000, 0.3000)     52907     0.1895     0.2490   0.761        [0.750, 0.771]
+        [0.3000, 0.4000)     39037     0.2666     0.3453   0.772        [0.762, 0.782]
+        [0.4000, 0.5000)     33758     0.3369     0.4353   0.774        [0.765, 0.783]
+        [0.5000, 0.6000)     31303     0.4163     0.5348   0.778        [0.771, 0.786]
+        [0.6000, 0.7000)     24707     0.5108     0.6423   0.795        [0.788, 0.803]
+        [0.7000, 0.8000)     14026     0.5980     0.7273   0.822        [0.813, 0.831]
+        [0.8000, 0.9000)     41147     0.7126     0.8000   0.891        [0.886, 0.895]
+
+  >> Place ev_actual table (low=conservative / corrected=R2 / high=optimistic, 控除率破壊なら corrected > 1.0):
+                     bin       n   ev_low   ev_corr   ev_high          ev_corr CI
+  ------------------------------------------------------------------------------
+        [0.0000, 0.1000)   20201    0.631     0.789     1.276      [0.741, 0.840]
+        [0.1000, 0.2000)   47828    0.600     0.750     1.211      [0.732, 0.767]
+        [0.2000, 0.3000)   52907    0.608     0.768     1.260      [0.755, 0.781]
+        [0.3000, 0.4000)   39037    0.618     0.779     1.276      [0.768, 0.791]
+        [0.4000, 0.5000)   33758    0.619     0.774     1.251      [0.763, 0.784]
+        [0.5000, 0.6000)   31303    0.623     0.756     1.166      [0.747, 0.765]
+        [0.6000, 0.7000)   24707    0.636     0.735     1.041      [0.727, 0.743]
+        [0.7000, 0.8000)   14026    0.658     0.734     0.970      [0.723, 0.748]
+        [0.8000, 0.9000)   41147    0.713     0.742     0.833      [0.738, 0.746]
+
+  >> No bin meets place adoption criteria (corrected) -> B-3 ext-A retreat candidate
+
+  [first half (2025-05_2025-10_place) vs second half (2025-11_2026-04_place) same-direction check]
+                     bin    n_h1   lift_h1    n_h2   lift_h2  same dir?
+  ----------------------------------------------------------------------
+        [0.0000, 0.1000)   10264     0.770    9937     0.752  YES
+        [0.1000, 0.2000)   24730     0.779   23098     0.722  YES
+        [0.2000, 0.3000)   27528     0.758   25379     0.764  YES
+        [0.3000, 0.4000)   20413     0.768   18624     0.776  YES
+        [0.4000, 0.5000)   17564     0.770   16194     0.778  YES
+        [0.5000, 0.6000)   16194     0.781   15109     0.776  YES
+        [0.6000, 0.7000)   12699     0.800   12008     0.790  YES
+        [0.7000, 0.8000)    7215     0.819    6811     0.826  YES
+        [0.8000, 0.9000)   21247     0.888   19900     0.894  YES
+
+==============================================================================
+  Step 2: Sub-segment analysis (focus implied_p_norm in [0.1, 0.5))
+==============================================================================
+  focus combos: 173,530 / 50,716 races / 37,221 hits, mean odds = 3.40
+
+  [group_by = stadium] (focus bin only, sorted by ev_actual_low desc, ev_corr = R2 corrected = 0.755*ev_low + 0.245*ev_high)
+       stadium       n   lift  ev_low  ev_high  ev_corr        ev_corr CI  flag
+  -----------------------------------------------------------------------------
+    5.Tamagawa    6780   0.81    0.66     1.38     0.84      [0.79, 0.89]  
+   4.Heiwajima    6764   0.82    0.66     1.22     0.80      [0.77, 0.82]  
+       1.Kiryu    8027   0.81    0.65     1.14     0.77      [0.74, 0.79]  
+        2.Toda    7870   0.81    0.65     1.18     0.78      [0.75, 0.81]  
+     3.Edogawa    6540   0.80    0.64     1.10     0.76      [0.73, 0.78]  
+     14.Naruto    7152   0.80    0.63     1.23     0.78      [0.75, 0.82]  
+   17.Miyajima    7273   0.78    0.63     1.37     0.81      [0.77, 0.85]  
+    8.Tokoname    7384   0.77    0.62     1.21     0.77      [0.74, 0.79]  
+    12.Suminoe    7841   0.77    0.62     1.12     0.74      [0.72, 0.77]  
+    6.Hamanako    7389   0.77    0.62     1.14     0.75      [0.72, 0.77]  
+     10.Mikuni    7194   0.77    0.62     1.08     0.73      [0.71, 0.76]  
+         9.Tsu    6721   0.77    0.61     1.18     0.75      [0.72, 0.78]  
+  13.Amagasaki    6201   0.77    0.61     1.20     0.76      [0.73, 0.78]  
+     11.Biwako    6940   0.77    0.61     1.16     0.74      [0.72, 0.77]  
+     16.Kojima    7267   0.76    0.60     1.67     0.87      [0.82, 0.91]  
+    23.Karatsu    6672   0.76    0.60     1.07     0.72      [0.69, 0.74]  
+    22.Fukuoka    6732   0.76    0.60     1.20     0.74      [0.72, 0.77]  
+   15.Marugame    7628   0.75    0.60     1.36     0.78      [0.75, 0.82]  
+  20.Wakamatsu    7821   0.75    0.59     1.11     0.72      [0.70, 0.74]  
+     21.Ashiya    7707   0.74    0.59     1.48     0.80      [0.77, 0.83]  
+   18.Tokuyama    6913   0.73    0.57     1.24     0.74      [0.71, 0.76]  
+  19.Shimonoseki    7234   0.72    0.57     1.21     0.72      [0.70, 0.75]  
+      24.Omura    7729   0.70    0.56     1.04     0.68      [0.65, 0.70]  
+    7.Gamagori    7751   0.71    0.55     1.84     0.86      [0.83, 0.90]  
+
+  [group_by = stadiumXodds_band] (focus bin only, n>=1000, sorted by ev_actual_low desc, top 15)
+  cells with n>=1000: 48 / 48 total
+             stadiumXodds_band      n   lift  ev_low  ev_high  ev_corr      ev_corr CI  flag
+  ----------------------------------------------------------------------------------------
+           5.Tamagawa | [5,10)   1215   0.90    0.72     1.55     0.93     [0.80,1.07]  
+          4.Heiwajima | [5,10)   1051   0.89    0.70     1.47     0.89     [0.75,1.04]  
+           8.Tokoname | [5,10)   1279   0.88    0.69     1.25     0.83     [0.72,0.93]  
+            3.Edogawa | [5,10)   1043   0.83    0.68     1.22     0.81     [0.69,0.93]  
+               2.Toda | [5,10)   1150   0.83    0.67     1.29     0.82     [0.70,0.94]  
+               1.Kiryu | [1,5)   6738   0.81    0.65     1.15     0.77     [0.75,0.80]  
+           4.Heiwajima | [1,5)   5713   0.82    0.65     1.18     0.78     [0.75,0.80]  
+         13.Amagasaki | [5,10)   1102   0.81    0.65     1.32     0.81     [0.69,0.94]  
+            5.Tamagawa | [1,5)   5565   0.81    0.64     1.34     0.82     [0.76,0.88]  
+           12.Suminoe | [5,10)   1390   0.79    0.64     1.14     0.77     [0.67,0.86]  
+                2.Toda | [1,5)   6720   0.80    0.64     1.16     0.77     [0.74,0.80]  
+             3.Edogawa | [1,5)   5497   0.80    0.64     1.08     0.75     [0.72,0.77]  
+             14.Naruto | [1,5)   6015   0.80    0.63     1.25     0.79     [0.75,0.82]  
+            14.Naruto | [5,10)   1137   0.79    0.63     1.11     0.75     [0.64,0.86]  
+           17.Miyajima | [1,5)   6135   0.78    0.63     1.39     0.82     [0.77,0.87]  
+
+  >> Step 2 adoption summary (n>=1000, ev_actual_corrected>1.0, ev_corrected_boot_lo>1.0):
+    [stadium] no flagged segment
+    [stadiumXodds_band] no flagged segment
+
+  ====> No subsegment beats takeout (corrected). B-3 ext-A retreat candidate.
+
+  output: C:\Users\claude\workspace\boatrace\artifacts/market_efficiency_*.csv / .png
+==============================================================================
+

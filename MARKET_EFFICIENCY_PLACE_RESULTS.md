@@ -1,7 +1,7 @@
 # MARKET_EFFICIENCY_PLACE_RESULTS — フェーズ B-3 拡張 A: 複勝市場効率分析の結果
 
 最終更新: 2026-04-28
-ステータス: **R1（top-2 修正）+ R2（実 payout sample）完了 → R3（12 ヶ月集計 + 補正後評価）が次セッションのスコープ**
+ステータス: **R1 + R2 + R3 完了 → B-3 拡張 A 撤退確定（採用基準達成 0 / 全 81 セグメント）**
 位置付け: B-3 単勝（win）撤退確定後の保険分析 = 同じ控除率 20% の複勝で歪み構造を再評価する
 
 参照: [NEXT_PHASE_B3_PLAN.md](NEXT_PHASE_B3_PLAN.md), [MARKET_EFFICIENCY_WIN_RESULTS.md](MARKET_EFFICIENCY_WIN_RESULTS.md)（B-3 win 撤退結果）, [NEXT_SESSION_PROMPT_A_R3.md](NEXT_SESSION_PROMPT_A_R3.md)（R3 起点プロンプト）
@@ -388,3 +388,162 @@ R1 + R2 から、12 ヶ月集計でも **採用基準達成 0 セグメント** 
 ### 12.3 起点プロンプト
 
 [NEXT_SESSION_PROMPT_A_R3.md](NEXT_SESSION_PROMPT_A_R3.md) を新セッションで使用。
+
+---
+
+## 13. R3 集計結果（2026-04-28）
+
+### 13.1 実装変更
+
+| ファイル | 変更内容 |
+|---|---|
+| [ml/src/scripts/run_market_efficiency.py](ml/src/scripts/run_market_efficiency.py) | `POS_IN_RANGE_R2 = 0.245` 定数追加、`bin_summary_place` に `ev_actual_corrected` 列追加、`bootstrap_lift_ci_place` に `ev_corrected_boot_lo/hi` を iter 内合成で追加、`evaluate_place_distortion` を補正後 ev 主基準のみに変更（R1 補助基準 mid 廃止）、segment 系 place 専用関数 (`segment_summary_within_focus_place` / `bootstrap_segment_lift_ci_place` / `evaluate_segment_distortion_place`) 追加、`run_subsegment_group(_2axis)` に `bet_type` 分岐、`print_segment_table` に place 表示モード追加 |
+
+### 13.2 実行サマリー
+
+```bash
+py -3.12 ml/src/scripts/run_market_efficiency.py \
+  --start 2025-05 --end 2026-04 --bet-type place \
+  --split-halves --bootstrap 2000 \
+  --group-by stadium --group-by-2axis stadium,odds_band \
+  --focus-bin-lower 0.10 --focus-bin-upper 0.50
+```
+
+| 指標 | 値 |
+|---|---:|
+| 期間 | 2025-05〜2026-04（12 ヶ月） |
+| 入力 | place_odds 304,944 行 / 50,824 races（6 艇全揃いのみ、3,453 races 除外） |
+| 結合後 | 304,914 combo / **50,819 races**（2 hits/race 確認済 50,819）|
+| 所要 | 約 **1 分 20 秒**（bootstrap 2000 × 4 系統含む）|
+| 出力 | `artifacts/market_efficiency_2025-05_2026-04_place.{csv,png}` + segment 2 種 |
+
+### 13.3 全期間ビン別集計（9 bins、補正後 ev = 0.755 × ev_low + 0.245 × ev_high）
+
+| bin (implied_low) | n | actual_p | implied_low | lift | ev_low | ev_corr | ev_high | ev_corr 90% CI |
+|---|---:|---:|---:|---:|---:|---:|---:|---|
+| [0.0, 0.1) | 20,201 | 0.0522 | 0.0686 | 0.761 | 0.631 | **0.789** | 1.276 | [0.741, 0.840] |
+| [0.1, 0.2) | 47,828 | 0.1132 | 0.1506 | 0.751 | 0.600 | 0.750 | 1.211 | [0.732, 0.767] |
+| [0.2, 0.3) | 52,907 | 0.1895 | 0.2490 | 0.761 | 0.608 | 0.768 | 1.260 | [0.755, 0.781] |
+| [0.3, 0.4) | 39,037 | 0.2666 | 0.3453 | 0.772 | 0.618 | 0.779 | 1.276 | [0.768, 0.791] |
+| [0.4, 0.5) | 33,758 | 0.3369 | 0.4353 | 0.774 | 0.619 | 0.774 | 1.251 | [0.763, 0.784] |
+| [0.5, 0.6) | 31,303 | 0.4163 | 0.5348 | 0.778 | 0.623 | 0.756 | 1.166 | [0.747, 0.765] |
+| [0.6, 0.7) | 24,707 | 0.5108 | 0.6423 | 0.795 | 0.636 | 0.735 | 1.041 | [0.727, 0.743] |
+| [0.7, 0.8) | 14,026 | 0.5980 | 0.7273 | 0.822 | 0.658 | 0.734 | 0.970 | [0.723, 0.748] |
+| [0.8, 0.9) | 41,147 | 0.7126 | 0.8000 | 0.891 | 0.713 | 0.742 | 0.833 | [0.738, 0.746] |
+
+**観察**:
+
+1. **採用基準達成 0 / 9 bins**（`ev_corr > 1.0 & ev_corrected_boot_lo > 1.0` で flag）
+2. **全 bin で `ev_corr < 1.0`**、最善は bin [0.0, 0.1) の `ev_corr=0.789`、CI 上限 0.840 < 1.0
+3. **lift 全 bin で 1.0 未満**（0.751〜0.891）、odds_low ベース implied は systematic に過大評価
+4. R1 単月（2025-12）で flag されていた bin [0.0, 0.1) の `ev_all_buy_mid = 1.082` は R2 補正で `ev_corr = 0.789` まで圧縮 → R1 の secondary 基準が楽観的すぎたことを実証
+
+### 13.4 前後半同方向チェック（split-halves）
+
+- 前半 (2025-05〜2025-10) vs 後半 (2025-11〜2026-04) の lift 比較
+- **9 / 9 bins で同方向**（全 bin で lift < 1.0、両期間とも一致）
+- 期間横断で安定した overestimation 構造 → 単発の偶然ではない
+
+### 13.5 stadium 単軸（24 場、focus 0.10-0.50 内、173,530 combos / 50,716 races）
+
+| 順位 | stadium | n | lift | ev_low | ev_high | ev_corr | ev_corr CI |
+|---:|---|---:|---:|---:|---:|---:|---|
+| 1 | 5.Tamagawa | 6,780 | 0.81 | 0.66 | 1.38 | **0.84** | [0.79, 0.89] |
+| 2 | 4.Heiwajima | 6,764 | 0.82 | 0.66 | 1.22 | 0.80 | [0.77, 0.82] |
+| 3 | 1.Kiryu | 8,027 | 0.81 | 0.65 | 1.14 | 0.77 | [0.74, 0.79] |
+| 4 | 2.Toda | 7,870 | 0.81 | 0.65 | 1.18 | 0.78 | [0.75, 0.81] |
+| 5 | 17.Miyajima | 7,273 | 0.78 | 0.63 | 1.37 | 0.81 | [0.77, 0.85] |
+| ... | ... | ... | ... | ... | ... | ... | ... |
+| - | 16.Kojima | 7,267 | 0.76 | 0.60 | 1.67 | 0.87 | [0.82, 0.91] |
+| - | 7.Gamagori | 7,751 | 0.71 | 0.55 | 1.84 | 0.86 | [0.83, 0.90] |
+
+(全 24 場の詳細: `artifacts/market_efficiency_segment_stadium_focus_0.10-0.50_2025-05_2026-04_place.csv`)
+
+**観察**:
+
+1. **採用基準達成 0 / 24 場**（最善 5.Tamagawa で `ev_corr CI 上限 = 0.89 < 1.0`）
+2. ev_low 最高 = 0.66（玉川 / 平和島）、ev_corr 最高 = 0.87（児島、ただし `ev_high=1.67` の楽観評価依存）
+3. **odds_high の幅が広い場（児島 1.67 / 蒲郡 1.84）でも補正後は 0.87 / 0.86 に圧縮** → range の `high` 端が頻発する仮定（pos_in_range = 0.245）が黒字化に届かない構造を再確認
+4. 最弱 24.Omura（大村）で `ev_corr=0.68` → 場別差は最大 0.20pp、全場が控除率 20% を破れていない
+
+### 13.6 stadium × odds_band 2 軸（48 cells、focus 0.10-0.50 内）
+
+| 順位 | cell | n | lift | ev_low | ev_high | ev_corr | ev_corr CI |
+|---:|---|---:|---:|---:|---:|---:|---|
+| 1 | 5.Tamagawa \| [5,10) | 1,215 | 0.90 | 0.72 | 1.55 | **0.93** | [0.80, **1.07**] |
+| 2 | 4.Heiwajima \| [5,10) | 1,051 | 0.89 | 0.70 | 1.47 | 0.89 | [0.75, **1.04**] |
+| 3 | 8.Tokoname \| [5,10) | 1,279 | 0.88 | 0.69 | 1.25 | 0.83 | [0.72, 0.93] |
+| 4 | 3.Edogawa \| [5,10) | 1,043 | 0.83 | 0.68 | 1.22 | 0.81 | [0.69, 0.93] |
+| 5 | 2.Toda \| [5,10) | 1,150 | 0.83 | 0.67 | 1.29 | 0.82 | [0.70, 0.94] |
+| ... | ... | ... | ... | ... | ... | ... | ... |
+
+(全 48 cells: `artifacts/market_efficiency_segment_stadiumXodds_band_focus_0.10-0.50_2025-05_2026-04_place.csv`)
+
+**観察**:
+
+1. **採用基準達成 0 / 48 cells**
+2. 上位 2 cell (5.Tamagawa | [5,10), 4.Heiwajima | [5,10)) は `ev_corr CI 上限が初めて 1.0 を超える` (1.07 / 1.04) が、`点推定 < 1.0` かつ `CI 下限 < 1.0` で確信度なし
+3. ev_corr CI 下限が 1.0 を超える cell は **1 つもない**
+4. 最大 ev_corr 点推定でも 0.93（5.Tamagawa | [5,10)）、控除率 20% (= 0.80) を **わずかに上回る**程度で、`ev_high` 楽観仮定の救済範囲を超えていない
+
+### 13.7 出力ファイル
+
+- [artifacts/market_efficiency_2025-05_2026-04_place.csv](artifacts/market_efficiency_2025-05_2026-04_place.csv) — 全期間 9 bins
+- [artifacts/market_efficiency_2025-05_2026-04_place.png](artifacts/market_efficiency_2025-05_2026-04_place.png) — キャリブレーションプロット
+- [artifacts/market_efficiency_2025-05_2025-10_place.csv](artifacts/market_efficiency_2025-05_2025-10_place.csv) — 前半 (split-halves)
+- [artifacts/market_efficiency_2025-11_2026-04_place.csv](artifacts/market_efficiency_2025-11_2026-04_place.csv) — 後半 (split-halves)
+- [artifacts/market_efficiency_segment_stadium_focus_0.10-0.50_2025-05_2026-04_place.csv](artifacts/market_efficiency_segment_stadium_focus_0.10-0.50_2025-05_2026-04_place.csv) — stadium 単軸
+- [artifacts/market_efficiency_segment_stadiumXodds_band_focus_0.10-0.50_2025-05_2026-04_place.csv](artifacts/market_efficiency_segment_stadiumXodds_band_focus_0.10-0.50_2025-05_2026-04_place.csv) — stadium × odds_band 2 軸
+- [artifacts/market_efficiency_2025-05_2026-04_place_run.log](artifacts/market_efficiency_2025-05_2026-04_place_run.log) — 実行ログ
+
+---
+
+## 14. R3 採用判定 → B-3 拡張 A 撤退確定
+
+### 14.1 採用判定基準（合意済 R3 基準、§12.1 §13 で実行）
+
+主基準:
+- `n ≥ 1,000`
+- `ev_actual_corrected > 1.0`（点推定で控除率 20% を破る）
+- `ev_corrected_boot_lo > 1.0`（90% CI 下限が 1.0 を超え、確信あり）
+- 前後半同方向（split-halves で同方向の lift / ev 動向）
+
+R1 の補助基準（`ev_all_buy_mid > 1.05`）は R2 で「実 payout は odds_low に偏り mid は楽観すぎ」と判明したため廃止。
+
+### 14.2 判定結果
+
+| 集計対象 | 採用基準達成 | 最善 | 最善の CI 上限 | 結論 |
+|---|---:|---|---:|---|
+| 全期間 9 bins | **0 / 9** | bin [0.0, 0.1) ev_corr=0.789 | 0.840 | × |
+| stadium 単軸 24 場 | **0 / 24** | 5.Tamagawa ev_corr=0.84 | 0.89 | × |
+| stadium × odds_band 2 軸 48 cells | **0 / 48** | 5.Tamagawa\|[5,10) ev_corr=0.93 | 1.07 | △（上限超えだが点推定 < 1.0） |
+| 前後半同方向チェック | **9 / 9 bins YES** | — | — | 全期間で安定した overestimation 構造 |
+
+**全 81 セグメントで `ev_actual_corrected` 採用基準達成 0 件**。
+
+### 14.3 構造的結論
+
+1. **競艇複勝市場には『odds_low 帯の系統的な過大評価』があるが、控除率 20% を破る規模ではない**
+   - 全 bin で `lift < 1.0`、ev_low 最大 0.713（bin [0.8, 0.9)）、ev_corr 最大 0.789（bin [0.0, 0.1)）
+   - これは odds_low が「最低保証 payout」として保守的に提示されている pari-mutuel メカニズムの帰結
+2. **ev_high の楽観評価で 1.0 超えるビン / セグメントはあるが、実 payout の偏り（pos_in_range mean = 0.245）で補正すると 0.93 が天井**
+3. **B-1 trifecta（最善 ev=0.98）と B-3 win（最善 ev=0.964）と同じ「控除率を縮める効果はあるが収支プラス化までは至らない」構造**を複勝でも確認
+4. 控除率 20% の券種だからといって複勝市場が単勝市場より歪みやすいという仮説は否定された
+
+### 14.4 撤退判定
+
+- **R3 不合格** = `ev_actual_corrected > 1.0` セグメント = 0 件
+- **B-3 拡張 A 撤退確定**（2026-04-28）
+- 12 ヶ月本番実 payout DL（13 時間）は **不実施**（採用基準達成セグメントが 0 のため。R2 sample による補正で十分な判定根拠あり）
+
+### 14.5 次候補
+
+- **C: 連系券種（2 連単 / 2 連複 / 拡連複）DL 実装**: [NEXT_SESSION_PROMPT_C.md](NEXT_SESSION_PROMPT_C.md) / [NEXT_SESSION_PROMPT_C_R1.md](NEXT_SESSION_PROMPT_C_R1.md)
+- **完全凍結**: 全フェーズ撤退状態継続、`run_market_efficiency.py` の改善ループは停止
+
+### 14.6 厳守事項（撤退後継続）
+
+- ❌ R3 結果（採用基準 0 セグメント）を疑わずに次候補へ移行する前提
+- ❌ 既存 trifecta / win / place の集計コード破壊禁止（`--bet-type {trifecta,win,place}` の互換維持）
+- ❌ 後付けで補正係数を緩める / 採用基準を緩める変更禁止（フェーズ 3〜6 の教訓）
+- ❌ 実運用は引き続き停止（`BET_RULE_REVIEW_202509_202512.md` §30-32 の通算 ROI ≥ +10% & 最悪月 > -50% 達成まで）

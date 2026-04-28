@@ -531,45 +531,38 @@ B-1 で「3 連単市場の favorite-longshot bias は控除率 25% を破れな
 
 詳細: [MARKET_EFFICIENCY_WIN_RESULTS.md](MARKET_EFFICIENCY_WIN_RESULTS.md) §6-§7
 
-### 拡張 A: 複勝 (place) — Step 1 + 12 ヶ月 DL 完了 / Step 2 集計待機（2026-04-28）
+### 拡張 A: 複勝 (place) — R1 + R2 + R3 完了 / 拡張 A 撤退確定（2026-04-28）
 
 | Step | 内容 | 状態 | コスト |
 |---|---|---|---|
 | 1 | `fetch_place_odds` 実装 + 1 ヶ月試行 DL | **[x] 完了** 2026-04-27（4,749/4,771 races, 99.5%） | 実装 1h + DL 75 分 |
 | 2-DL | 残り 11 ヶ月本番 DL（バックグラウンド） | **[x] 完了** 2026-04-28（54,277 races / 12 ヶ月 / 0 empty / 12.9h） | DL 12.9h |
-| 2-集計 | `run_market_efficiency.py --bet-type place` 拡張で 12 ヶ月集計 | **[ ] 未着手** | 実装 ~3h + ラン 数分 |
-| 3 | サブセグメント分析（採用基準達成時のみ） | **[ ] 未着手** | — |
-| 4 | 撤退 / 進行判定 | **[ ] 未着手** | — |
+| R1 | top-2 仕様確認 + smoke test | **[x] 完了** 2026-04-28（2025-12 単月、全 bin lift < 1.0、ev_low < 0.72） | 数分 |
+| R2 | 50 races 実 payout sample → pos_in_range = 0.245 | **[x] 完了** 2026-04-28（補正係数確立、`ev_corr = 0.755 × low + 0.245 × high`） | 1〜2h |
+| R3 | 12 ヶ月集計 + 補正後評価 | **[x] 完了** 2026-04-28（採用基準達成 0 / 81 セグメント） | 実装 1.5h + ラン 1.5 分 |
+| 4 | 撤退 / 進行判定 | **[x] 撤退確定** 2026-04-28 | — |
 
-#### 拡張 A Step 1 主要観察
+#### R3 主要観察
 
-- **取得 OK**: 99.5% 取得成功、parquet schema (`race_id, combination, odds_low, odds_high`) は期待通り
-- **6 艇全揃い率 95.6%**（単勝の 94.2% より良い）
-- **複勝 overround は単勝のように単純解釈不能**: range 構造のため `1/odds_low` / `mid` / `1/odds_high` で sum implied が 2.14〜3.09 と分散。理論 3 に最も近いのは `sum(1/odds_low) = 3.09`
-- **桐生 1R などで boat 1 win=1.7 vs place=2.4-3.1 の不整合観察**（5 サンプル中 1 件）→ 出場辞退 / 表示ラグの可能性、Step 2 で実 ROI ベース計算に切り替え
-- **22 empty は江戸川 (jcd=03) 2025-12-09 集中**（中止 / 順延の可能性大）
+- **採用基準達成 = 0 / 全 81 セグメント**（全期間ビン 0/9、stadium 単軸 0/24、stadium × odds_band 0/48）
+- 最善は `5.Tamagawa | [5,10)` で `ev_corr=0.93, CI=[0.80, 1.07]`（CI 上限が初めて 1.0 超えるが点推定 < 1.0 で確信なし）
+- 全 bin で前後半同方向（9/9 YES）→ 期間横断で安定した overestimation 構造
+- B-1 trifecta（最善 0.98）/ B-3 win（最善 0.964）と同じ「控除率を縮める効果はあるが収支プラス化までは至らない」構造
+- 12 ヶ月本番 payout DL（13 時間）は不実施（採用基準 0 のため不要）
 
-詳細: [MARKET_EFFICIENCY_PLACE_RESULTS.md](MARKET_EFFICIENCY_PLACE_RESULTS.md)
-
-#### Step 2 への課題
-
-- 複勝は **1 レース 3 hit を許容する集計**が必要（単勝 sum-to-1 前提は使えない）
-- odds 評価モード 3 通り（low / mid / high）併記、推奨は保守的評価 = low
-- B-3 win 教訓に従い **実 ROI 必須**、`mean(odds × hit)` 上方バイアス回避
+詳細: [MARKET_EFFICIENCY_PLACE_RESULTS.md](MARKET_EFFICIENCY_PLACE_RESULTS.md) §13-§14 / [NEXT_SESSION_PROMPT_A_R3.md](NEXT_SESSION_PROMPT_A_R3.md)
 
 ### 残された選択肢
 
 | 候補 | 概要 | 着手判断 |
 |---|---|---|
-| A: 複勝 (place) Step 2 | 12 ヶ月本番 DL + 集計 | **Step 1 取得 OK 確認済み、ユーザー承認後に進行可** |
 | C: 2 連単 / 2 連複 / 拡連複 | 控除率 25%、組合せ 15〜30。trifecta と win の中間 | 歪みと組合せ数のトレードオフを再検証する余地あり |
 | B-2 動的オッズ | 締切前のオッズ変動を捉える | 別アプローチ |
-| 全フェーズ撤退（A 完全凍結） | 上記すべてを保留 | デフォルト |
+| 全フェーズ撤退（C 含めて完全凍結） | 上記すべてを保留 | デフォルト（B-1 / B-3 win / 拡張 A 全撤退の構造的結論を踏まえて） |
 
 ### 関連プロンプト（次タスク候補、参考）
 
-- **A**: 複勝 (place) DL 関数の実装 → [NEXT_SESSION_PROMPT_A.md](NEXT_SESSION_PROMPT_A.md)
-- **C**: 2 連単 / 2 連複 / 拡連複 DL 関数の実装 → [NEXT_SESSION_PROMPT_C.md](NEXT_SESSION_PROMPT_C.md)
+- **C**: 2 連単 / 2 連複 / 拡連複 DL 関数の実装 → [NEXT_SESSION_PROMPT_C.md](NEXT_SESSION_PROMPT_C.md) / [NEXT_SESSION_PROMPT_C_R1.md](NEXT_SESSION_PROMPT_C_R1.md)
 
 ---
 
