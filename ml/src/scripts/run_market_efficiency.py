@@ -68,8 +68,12 @@ LOG_BINS = np.array([
 # 等幅 10 ビン（implied_p_norm 用、win 用）
 LINEAR_BINS_WIN = np.linspace(0.0, 1.0, 11)
 
+# 等幅 10 ビン（implied_p_low 用、place 用）
+LINEAR_BINS_PLACE = np.linspace(0.0, 1.0, 11)
+
 DEFAULT_TAKEOUT_TRIFECTA = 0.25
 DEFAULT_TAKEOUT_WIN = 0.20
+DEFAULT_TAKEOUT_PLACE = 0.20
 
 
 # ---------------------------------------------------------------------------
@@ -173,6 +177,69 @@ def load_winning_first_boat(start: tuple[int, int], end: tuple[int, int]) -> pd.
     return result
 
 
+def load_place_odds_period(start: tuple[int, int], end: tuple[int, int]) -> pd.DataFrame:
+    """
+    指定期間の place オッズ parquet を結合。
+    parquet schema: race_id, combination, odds_low, odds_high
+    6 艇全揃いのレースのみに絞る（艇数 < 6 のレースは集計から除外）。
+    """
+    frames = []
+    for y, m in iter_year_months(start, end):
+        path = ODDS_DIR / f"place_odds_{y}{m:02d}.parquet"
+        if not path.exists():
+            logger.warning("Place オッズキャッシュ欠落: %s", path)
+            continue
+        df = pd.read_parquet(path)
+        df["year_month"] = f"{y}-{m:02d}"
+        frames.append(df)
+    if not frames:
+        raise RuntimeError("Place オッズデータが見つかりません")
+    odds = pd.concat(frames, ignore_index=True)
+    odds["race_id"] = odds["race_id"].astype(str)
+
+    counts = odds.groupby("race_id").size()
+    valid_races = counts[counts == 6].index
+    n_total = odds["race_id"].nunique()
+    odds = odds[odds["race_id"].isin(valid_races)]
+    n_kept = odds["race_id"].nunique()
+    logger.info(
+        "Place オッズ読み込み: %d 行 / %d レース（6 艇全揃い filter; 除外 %d レース）/ %d 月",
+        len(odds), n_kept, n_total - n_kept, len(frames),
+    )
+    return odds
+
+
+def load_winning_top2_boats(start: tuple[int, int], end: tuple[int, int]) -> pd.DataFrame:
+    """
+    K ファイルから各 race_id の top2 艇番（'1'〜'6' の集合）を抽出。
+    Returns: DataFrame[race_id, top2_set]  ※ top2_set は frozenset of str
+
+    競艇の複勝は top 2（1〜2 着）が払戻対象。競馬の複勝（top 3）と仕様が異なる。
+    出典: BOAT RACE オフィシャル「複勝は1着か2着に入る艇を当てるもの」
+    """
+    df_hist = load_history_range(
+        start_year=start[0],
+        end_year=end[0],
+        start_month=start[1],
+        end_month=end[1],
+    )
+    if df_hist.empty:
+        raise RuntimeError("履歴データが空です")
+
+    df_top2 = df_hist[df_hist["finish_position"].isin([1, 2])].copy()
+    df_top2["race_id"] = df_top2["race_id"].astype(str)
+    df_top2["boat_no_str"] = df_top2["boat_no"].astype(int).astype(str)
+
+    grouped = (
+        df_top2.groupby("race_id")["boat_no_str"]
+        .apply(lambda s: frozenset(s.tolist()))
+        .reset_index(name="top2_set")
+    )
+    grouped = grouped[grouped["top2_set"].apply(len) == 2]
+    logger.info("結果データ (place top2): %d レース", len(grouped))
+    return grouped
+
+
 def load_winning_combos(start: tuple[int, int], end: tuple[int, int]) -> pd.DataFrame:
     """
     K ファイルから各 race_id の 1-2-3 着 combination（"X-Y-Z"）を抽出。
@@ -221,6 +288,57 @@ def compute_implied_probs(
     df["implied_p_takeout"] = (1.0 - takeout) / df["odds"]
     sum_per_race = df.groupby("race_id")["implied_p_raw"].transform("sum")
     df["implied_p_norm"] = df["implied_p_raw"] / sum_per_race
+    return df
+
+
+def compute_place_implied_probs(
+    odds: pd.DataFrame,
+    takeout: float = DEFAULT_TAKEOUT_PLACE,
+) -> pd.DataFrame:
+    """
+    place 用 implied probability。range odds (low/high) → 3 モード併記。
+
+    複勝は理論 sum_per_race = 3.0（top-3 確率の和）のため、win/trifecta のような
+    `1/o / Σ(1/o)` 正規化は意味を持たない。代わりに `(1 - takeout) / odds_<mode>`
+    の非正規化版を使う（理論的に各艇の top-3 入り確率に対応、bin [0, 1) 内に分布）。
+
+    既存 trifecta/win 系コード（segment / plot 等）との互換のため:
+      - `odds`            ← `odds_low`（保守的評価ベース）
+      - `implied_p_norm`  ← `implied_p_low`（保守的評価ベース、bin assign に使う）
+    """
+    df = odds.copy()
+    df["odds_mid"] = (df["odds_low"] + df["odds_high"]) / 2.0
+    df["implied_p_low"]  = (1.0 - takeout) / df["odds_low"]
+    df["implied_p_mid"]  = (1.0 - takeout) / df["odds_mid"]
+    df["implied_p_high"] = (1.0 - takeout) / df["odds_high"]
+    df["odds"] = df["odds_low"]
+    df["implied_p_norm"] = df["implied_p_low"]
+    df["implied_p_raw"] = 1.0 / df["odds_low"]
+    df["implied_p_takeout"] = df["implied_p_low"]
+    return df
+
+
+def attach_place_hit_label(odds: pd.DataFrame, results: pd.DataFrame) -> pd.DataFrame:
+    """
+    place 用 hit ラベル付与（top 2、競艇複勝の正しい仕様）。
+    combination（艇番文字列 '1'〜'6'）が top2_set に入れば is_hit = 1。
+    1 レースに 2 hit が発生する設計（sum-to-1 前提なし）。
+    """
+    df = odds.merge(results, on="race_id", how="inner")
+    df["is_hit"] = [
+        int(c in s) for c, s in zip(df["combination"], df["top2_set"])
+    ]
+    n_races = df["race_id"].nunique()
+    n_hits_per_race = df.groupby("race_id")["is_hit"].sum()
+    expected_2 = (n_hits_per_race == 2).sum()
+    other = (n_hits_per_race != 2).sum()
+    if other > 0:
+        logger.warning("hit 数 != 2 のレース: %d 件（top2 が 6 艇内に揃っていない）", other)
+    logger.info(
+        "結合後 (place): %d combo / %d レース（2 hits/race 確認済 %d races）",
+        len(df), n_races, expected_2,
+    )
+    df = df.drop(columns=["top2_set"])
     return df
 
 
@@ -306,6 +424,78 @@ def bin_summary(df: pd.DataFrame, bins: np.ndarray = LOG_BINS) -> pd.DataFrame:
     return pd.DataFrame(rows)
 
 
+def bin_summary_place(df: pd.DataFrame, bins: np.ndarray = LINEAR_BINS_PLACE) -> pd.DataFrame:
+    """
+    place 用 bin 集計。bin assign は implied_p_low（保守的評価）ベース。
+    各モード（low/mid/high）の lift / ev_all_buy / ev_actual を併記。
+
+    出力カラム（既存 plot_calibration / segment 系の互換用に既存名も残す）:
+      - bin_lower / bin_upper / n / n_races / n_hits
+      - mean_implied_p_norm（= mean_implied_low、互換）/ mean_implied_low/mid/high
+      - mean_actual_p
+      - lift（= lift_low、互換）/ lift_low/mid/high
+      - mean_odds（= mean_odds_low、互換）/ mean_odds_low/mid/high
+      - ev_all_buy（= ev_all_buy_low、互換）/ ev_all_buy_low/mid/high
+      - ev_actual_low/mid/high  ※ B-3 win 教訓: mean(odds × hit) は実 ROI ベース
+      - wilson_lo / wilson_hi
+    """
+    df = assign_bins(df, bins)
+    rows = []
+    for b in range(len(bins) - 1):
+        sub = df[df["bin_idx"] == b]
+        if sub.empty:
+            continue
+        n = len(sub)
+        n_hits = int(sub["is_hit"].sum())
+        actual_p = n_hits / n
+        m_imp_low  = float(sub["implied_p_low"].mean())
+        m_imp_mid  = float(sub["implied_p_mid"].mean())
+        m_imp_high = float(sub["implied_p_high"].mean())
+        m_o_low  = float(sub["odds_low"].mean())
+        m_o_mid  = float(sub["odds_mid"].mean())
+        m_o_high = float(sub["odds_high"].mean())
+        ev_low  = m_o_low  * actual_p
+        ev_mid  = m_o_mid  * actual_p
+        ev_high = m_o_high * actual_p
+        ev_act_low  = float((sub["odds_low"]  * sub["is_hit"]).mean())
+        ev_act_mid  = float((sub["odds_mid"]  * sub["is_hit"]).mean())
+        ev_act_high = float((sub["odds_high"] * sub["is_hit"]).mean())
+        lift_low  = actual_p / m_imp_low  if m_imp_low  > 0 else float("nan")
+        lift_mid  = actual_p / m_imp_mid  if m_imp_mid  > 0 else float("nan")
+        lift_high = actual_p / m_imp_high if m_imp_high > 0 else float("nan")
+        wlo, whi = wilson_ci(n_hits, n, alpha=0.10)
+        rows.append({
+            "bin_lower":            float(bins[b]),
+            "bin_upper":            float(bins[b + 1]),
+            "n":                    n,
+            "n_races":              int(sub["race_id"].nunique()),
+            "n_hits":               n_hits,
+            "mean_implied_p_norm":  m_imp_low,
+            "mean_implied_low":     m_imp_low,
+            "mean_implied_mid":     m_imp_mid,
+            "mean_implied_high":    m_imp_high,
+            "mean_actual_p":        actual_p,
+            "lift":                 lift_low,
+            "lift_low":             lift_low,
+            "lift_mid":             lift_mid,
+            "lift_high":            lift_high,
+            "mean_odds":            m_o_low,
+            "mean_odds_low":        m_o_low,
+            "mean_odds_mid":        m_o_mid,
+            "mean_odds_high":       m_o_high,
+            "ev_all_buy":           ev_low,
+            "ev_all_buy_low":       ev_low,
+            "ev_all_buy_mid":       ev_mid,
+            "ev_all_buy_high":      ev_high,
+            "ev_actual_low":        ev_act_low,
+            "ev_actual_mid":        ev_act_mid,
+            "ev_actual_high":       ev_act_high,
+            "wilson_lo":            wlo,
+            "wilson_hi":            whi,
+        })
+    return pd.DataFrame(rows)
+
+
 # ---------------------------------------------------------------------------
 # Bootstrap CI（lift）
 # ---------------------------------------------------------------------------
@@ -379,6 +569,86 @@ def bootstrap_lift_ci(
             "bin_upper":    float(bins[k + 1]),
             "lift_boot_lo": lo,
             "lift_boot_hi": hi,
+        })
+    return pd.DataFrame(rows)
+
+
+def bootstrap_lift_ci_place(
+    df: pd.DataFrame,
+    n_resamples: int = 2000,
+    alpha: float = 0.10,
+    seed: int = 42,
+    bins: np.ndarray = LINEAR_BINS_PLACE,
+) -> pd.DataFrame:
+    """
+    place 用 bootstrap CI（保守的評価 = low モードベース）。
+    bin assign は implied_p_low、lift は actual_p / mean_implied_low、
+    ev_actual は mean(odds_low × hit) で算出。
+    """
+    rng = np.random.default_rng(seed)
+    df = assign_bins(df, bins).reset_index(drop=True)
+
+    race_ids = df["race_id"].drop_duplicates().reset_index(drop=True)
+    race_id_to_idx = {rid: i for i, rid in enumerate(race_ids)}
+    n_races = len(race_ids)
+    df["race_idx"] = df["race_id"].map(race_id_to_idx)
+
+    race_month = df.drop_duplicates("race_id").set_index("race_id")["year_month"]
+    month_to_race_indices: dict[str, np.ndarray] = {}
+    for ym, ids in race_month.groupby(race_month):
+        idx_arr = np.array([race_id_to_idx[rid] for rid in ids.index], dtype=np.int64)
+        month_to_race_indices[ym] = idx_arr
+
+    bin_idx_arr = df["bin_idx"].values.astype(np.int64)
+    is_hit_arr = df["is_hit"].values.astype(np.float64)
+    implied_low_arr = df["implied_p_low"].values.astype(np.float64)
+    odds_low_arr = df["odds_low"].values.astype(np.float64)
+    combo_race_idx = df["race_idx"].values.astype(np.int64)
+    n_bins = len(bins) - 1
+
+    lifts = np.full((n_resamples, n_bins), np.nan)
+    evs_actual = np.full((n_resamples, n_bins), np.nan)
+
+    for it in range(n_resamples):
+        race_weights = np.zeros(n_races, dtype=np.float64)
+        for ym, race_indices in month_to_race_indices.items():
+            sampled = rng.choice(race_indices, size=len(race_indices), replace=True)
+            np.add.at(race_weights, sampled, 1.0)
+        combo_weights = race_weights[combo_race_idx]
+        bin_n = np.bincount(bin_idx_arr, weights=combo_weights, minlength=n_bins)
+        bin_hits = np.bincount(bin_idx_arr, weights=combo_weights * is_hit_arr, minlength=n_bins)
+        bin_implied_sum = np.bincount(
+            bin_idx_arr, weights=combo_weights * implied_low_arr, minlength=n_bins
+        )
+        bin_payout_sum = np.bincount(
+            bin_idx_arr, weights=combo_weights * odds_low_arr * is_hit_arr, minlength=n_bins
+        )
+        with np.errstate(divide="ignore", invalid="ignore"):
+            actual_p = np.where(bin_n > 0, bin_hits / bin_n, np.nan)
+            mean_implied = np.where(bin_n > 0, bin_implied_sum / bin_n, np.nan)
+            ev_actual = np.where(bin_n > 0, bin_payout_sum / bin_n, np.nan)
+            lift = np.where(mean_implied > 0, actual_p / mean_implied, np.nan)
+        lifts[it] = lift
+        evs_actual[it] = ev_actual
+
+        if (it + 1) % 200 == 0:
+            logger.info("bootstrap (place) %d / %d", it + 1, n_resamples)
+
+    rows = []
+    for k in range(n_bins):
+        col_l = lifts[:, k]
+        col_l = col_l[~np.isnan(col_l)]
+        col_e = evs_actual[:, k]
+        col_e = col_e[~np.isnan(col_e)]
+        if len(col_l) == 0:
+            continue
+        rows.append({
+            "bin_lower":         float(bins[k]),
+            "bin_upper":         float(bins[k + 1]),
+            "lift_boot_lo":      float(np.quantile(col_l, alpha / 2)),
+            "lift_boot_hi":      float(np.quantile(col_l, 1 - alpha / 2)),
+            "ev_actual_boot_lo": float(np.quantile(col_e, alpha / 2)) if len(col_e) > 0 else float("nan"),
+            "ev_actual_boot_hi": float(np.quantile(col_e, 1 - alpha / 2)) if len(col_e) > 0 else float("nan"),
         })
     return pd.DataFrame(rows)
 
@@ -458,6 +728,43 @@ def evaluate_distortion(summary: pd.DataFrame, min_n: int = 1000) -> list[dict]:
                 "lift_boot_lo": lo,
                 "lift_boot_hi": hi,
                 "direction":    "underpriced (lift>=1.10)" if lift >= 1.10 else "overpriced (lift<=0.85)",
+            })
+    return flagged
+
+
+def evaluate_place_distortion(summary: pd.DataFrame, min_n: int = 1000) -> list[dict]:
+    """
+    place 用 採用判定（控除率 20% 破壊基準）。
+      主基準  : ev_all_buy_low > 1.0 かつ ev_actual_boot_lo > 1.0（保守的評価で確信）
+      補助基準: ev_all_buy_mid > 1.05（中点評価で余裕あり）
+      n >= min_n 必須
+    """
+    flagged = []
+    for _, row in summary.iterrows():
+        if row["n"] < min_n:
+            continue
+        ev_low = row.get("ev_all_buy_low", np.nan)
+        ev_mid = row.get("ev_all_buy_mid", np.nan)
+        ev_act_lo = row.get("ev_actual_boot_lo", np.nan)
+        ev_act_hi = row.get("ev_actual_boot_hi", np.nan)
+        primary = (
+            not np.isnan(ev_low) and ev_low > 1.0
+            and not np.isnan(ev_act_lo) and ev_act_lo > 1.0
+        )
+        secondary = not np.isnan(ev_mid) and ev_mid > 1.05
+        if primary or secondary:
+            flagged.append({
+                "bin_lower":         row["bin_lower"],
+                "bin_upper":         row["bin_upper"],
+                "n":                 int(row["n"]),
+                "lift_low":          row.get("lift_low", np.nan),
+                "ev_all_buy_low":    ev_low,
+                "ev_all_buy_mid":    ev_mid,
+                "ev_all_buy_high":   row.get("ev_all_buy_high", np.nan),
+                "ev_actual_boot_lo": ev_act_lo,
+                "ev_actual_boot_hi": ev_act_hi,
+                "primary":           primary,
+                "secondary":         secondary,
             })
     return flagged
 
@@ -659,12 +966,19 @@ def run_segment(
     n_bootstrap: int,
     output_dir: Path,
     bins: np.ndarray = LOG_BINS,
+    bet_type: str = "trifecta",
 ) -> pd.DataFrame:
-    """1 期間分: ビン集計 + bootstrap CI + CSV 保存。"""
-    summary = bin_summary(df, bins)
-    if n_bootstrap > 0:
-        boot = bootstrap_lift_ci(df, n_resamples=n_bootstrap, bins=bins)
-        summary = summary.merge(boot, on=["bin_lower", "bin_upper"], how="left")
+    """1 期間分: ビン集計 + bootstrap CI + CSV 保存。bet_type で集計関数を切替。"""
+    if bet_type == "place":
+        summary = bin_summary_place(df, bins)
+        if n_bootstrap > 0:
+            boot = bootstrap_lift_ci_place(df, n_resamples=n_bootstrap, bins=bins)
+            summary = summary.merge(boot, on=["bin_lower", "bin_upper"], how="left")
+    else:
+        summary = bin_summary(df, bins)
+        if n_bootstrap > 0:
+            boot = bootstrap_lift_ci(df, n_resamples=n_bootstrap, bins=bins)
+            summary = summary.merge(boot, on=["bin_lower", "bin_upper"], how="left")
     out_csv = output_dir / f"market_efficiency_{label}.csv"
     summary.to_csv(out_csv, index=False)
     logger.info("CSV 保存: %s", out_csv)
@@ -792,8 +1106,8 @@ def main() -> None:
     parser.add_argument("--start", type=str, required=True, help="開始 YYYY-MM")
     parser.add_argument("--end",   type=str, required=True, help="終了 YYYY-MM (inclusive)")
     parser.add_argument(
-        "--bet-type", choices=["trifecta", "win"], default="trifecta",
-        help="集計対象の券種（trifecta=既存 / win=単勝、フェーズ B-3）",
+        "--bet-type", choices=["trifecta", "win", "place"], default="trifecta",
+        help="集計対象の券種（trifecta=既存 / win=単勝 B-3 / place=複勝 B-3 拡張 A）",
     )
     parser.add_argument("--split-halves", action="store_true",
                         help="Step 1: 期間を前半/後半 2 分割して個別集計")
@@ -842,6 +1156,15 @@ def main() -> None:
                 "--group-by course は bet-type=win では無効（combination=艇番のため "
                 "course 軸は意味重複）"
             )
+    elif args.bet_type == "place":
+        bins = LINEAR_BINS_PLACE
+        takeout = DEFAULT_TAKEOUT_PLACE
+        log_scale = False
+        if "course" in args.group_by:
+            parser.error(
+                "--group-by course は bet-type=place では無効（combination=艇番のため "
+                "course 軸は意味重複）"
+            )
     else:
         bins = LOG_BINS
         takeout = DEFAULT_TAKEOUT_TRIFECTA
@@ -851,21 +1174,33 @@ def main() -> None:
     if args.bet_type == "win":
         odds = load_win_odds_period(start, end)
         results = load_winning_first_boat(start, end)
+    elif args.bet_type == "place":
+        odds = load_place_odds_period(start, end)
+        results = load_winning_top2_boats(start, end)
     else:
         odds = load_odds_period(start, end)
         results = load_winning_combos(start, end)
 
     # ── 2. 暗黙確率計算 + hit ラベル付与 ───────────────
-    odds = compute_implied_probs(odds, takeout=takeout)
-    df = attach_hit_label(odds, results)
+    if args.bet_type == "place":
+        odds = compute_place_implied_probs(odds, takeout=takeout)
+        df = attach_place_hit_label(odds, results)
+    else:
+        odds = compute_implied_probs(odds, takeout=takeout)
+        df = attach_hit_label(odds, results)
 
     full_label = f"{args.start}_{args.end}_{args.bet_type}"
 
     # ── 3. 全期間ビン集計（Step 1）─────────────────────
     if not args.skip_step1:
-        full_summary = run_segment(df, full_label, args.bootstrap, output_dir, bins=bins)
+        full_summary = run_segment(
+            df, full_label, args.bootstrap, output_dir, bins=bins, bet_type=args.bet_type,
+        )
     else:
-        full_summary = bin_summary(df, bins)
+        if args.bet_type == "place":
+            full_summary = bin_summary_place(df, bins)
+        else:
+            full_summary = bin_summary(df, bins)
         logger.info("Step 1 をスキップ（--skip-step1）")
 
     # ── 4. プロット（全期間のみ、Step 1 実行時のみ）─────
@@ -891,19 +1226,31 @@ def main() -> None:
             df_h2 = df[df["year_month"].isin(second_months)]
             label_h1 = f"{first_months[0]}_{first_months[-1]}_{args.bet_type}"
             label_h2 = f"{second_months[0]}_{second_months[-1]}_{args.bet_type}"
-            half_results[label_h1] = run_segment(df_h1, label_h1, args.bootstrap, output_dir, bins=bins)
-            half_results[label_h2] = run_segment(df_h2, label_h2, args.bootstrap, output_dir, bins=bins)
+            half_results[label_h1] = run_segment(
+                df_h1, label_h1, args.bootstrap, output_dir, bins=bins, bet_type=args.bet_type,
+            )
+            half_results[label_h2] = run_segment(
+                df_h2, label_h2, args.bootstrap, output_dir, bins=bins, bet_type=args.bet_type,
+            )
 
     # ── 6. 採用判定レポート ────────────────────────────
-    flagged = evaluate_distortion(full_summary, min_n=args.min_bin_n)
+    if args.bet_type == "place":
+        flagged = evaluate_place_distortion(full_summary, min_n=args.min_bin_n)
+    else:
+        flagged = evaluate_distortion(full_summary, min_n=args.min_bin_n)
 
     print()
     print("=" * 78)
     print(f"  Market efficiency distortion report [{args.start} to {args.end}, {args.bet_type}]")
     print("=" * 78)
-    print(f"  total bins: {len(full_summary)}, "
-          f"flagged (n>={args.min_bin_n}, |lift-1|>=0.10/0.15, CI excl. 1): "
-          f"{len(flagged)}")
+    if args.bet_type == "place":
+        print(f"  total bins: {len(full_summary)}, "
+              f"flagged (n>={args.min_bin_n}, ev_all_buy_low>1.0+CI_lo>1.0 or "
+              f"ev_all_buy_mid>1.05): {len(flagged)}")
+    else:
+        print(f"  total bins: {len(full_summary)}, "
+              f"flagged (n>={args.min_bin_n}, |lift-1|>=0.10/0.15, CI excl. 1): "
+              f"{len(flagged)}")
 
     print()
     print(f"  {'bin':>22}  {'n':>8}  {'actual_p':>9}  {'implied':>9}  "
@@ -915,17 +1262,60 @@ def main() -> None:
         print(f"  {bin_str:>22}  {int(r['n']):>8}  {r['mean_actual_p']:>9.4f}  "
               f"{r['mean_implied_p_norm']:>9.4f}  {r['lift']:>6.3f}  {ci:>20}")
 
+    # place 用 補助テーブル: ev_all_buy 3 モード + ev_actual CI
+    if args.bet_type == "place":
+        print()
+        print("  >> Place ev_all_buy / ev_actual table (low=conservative / mid=midpoint / high=optimistic):")
+        print(f"  {'bin':>22}  {'n':>6}  {'ev_low':>7}  {'ev_mid':>7}  "
+              f"{'ev_high':>8}  {'ev_actual_low':>14}  {'ev_act_CI(low)':>18}")
+        print("  " + "-" * 95)
+        for _, r in full_summary.iterrows():
+            bin_str = f"[{r['bin_lower']:.4f}, {r['bin_upper']:.4f})"
+            ev_act_ci = (
+                f"[{r.get('ev_actual_boot_lo', float('nan')):.3f}, "
+                f"{r.get('ev_actual_boot_hi', float('nan')):.3f}]"
+            )
+            print(
+                f"  {bin_str:>22}  {int(r['n']):>6}  "
+                f"{r.get('ev_all_buy_low', float('nan')):>7.3f}  "
+                f"{r.get('ev_all_buy_mid', float('nan')):>7.3f}  "
+                f"{r.get('ev_all_buy_high', float('nan')):>8.3f}  "
+                f"{r.get('ev_actual_low', float('nan')):>14.3f}  "
+                f"{ev_act_ci:>18}"
+            )
+
     if flagged:
         print()
-        print("  >> Flagged bins (meets criteria):")
-        for f in flagged:
-            bin_str = f"[{f['bin_lower']:.4f}, {f['bin_upper']:.4f})"
-            ci_str = f"[{f['lift_boot_lo']:.3f}, {f['lift_boot_hi']:.3f}]"
-            print(f"    {bin_str}  n={f['n']:>6}  lift={f['lift']:.3f}  "
-                  f"CI={ci_str}  {f['direction']}")
+        if args.bet_type == "place":
+            print("  >> Flagged bins (meets place adoption criteria):")
+            for f in flagged:
+                bin_str = f"[{f['bin_lower']:.4f}, {f['bin_upper']:.4f})"
+                tag = (
+                    "primary+secondary" if (f["primary"] and f["secondary"])
+                    else ("primary" if f["primary"] else "secondary")
+                )
+                ev_act_ci = (
+                    f"[{f['ev_actual_boot_lo']:.3f}, {f['ev_actual_boot_hi']:.3f}]"
+                )
+                print(
+                    f"    {bin_str}  n={f['n']:>6}  "
+                    f"ev_low={f['ev_all_buy_low']:.3f}  "
+                    f"ev_mid={f['ev_all_buy_mid']:.3f}  "
+                    f"ev_act_CI={ev_act_ci}  [{tag}]"
+                )
+        else:
+            print("  >> Flagged bins (meets criteria):")
+            for f in flagged:
+                bin_str = f"[{f['bin_lower']:.4f}, {f['bin_upper']:.4f})"
+                ci_str = f"[{f['lift_boot_lo']:.3f}, {f['lift_boot_hi']:.3f}]"
+                print(f"    {bin_str}  n={f['n']:>6}  lift={f['lift']:.3f}  "
+                      f"CI={ci_str}  {f['direction']}")
     else:
         print()
-        print("  >> No bin meets adoption criteria -> B-1 retreat candidate")
+        if args.bet_type == "place":
+            print("  >> No bin meets place adoption criteria -> B-3 拡張 A retreat candidate")
+        else:
+            print("  >> No bin meets adoption criteria -> B-1 retreat candidate")
 
     if args.split_halves and len(half_results) == 2:
         labels = list(half_results.keys())

@@ -1,10 +1,14 @@
 # MARKET_EFFICIENCY_PLACE_RESULTS — フェーズ B-3 拡張 A: 複勝市場効率分析の結果
 
 最終更新: 2026-04-28
-ステータス: **拡張 A Step 1 + 12 ヶ月本番 DL 完了 → Step 2 集計（`run_market_efficiency.py --bet-type place` 拡張）の前提条件成立、別セッションで着手可**
+ステータス: **R1（top-2 修正）+ R2（実 payout sample）完了 → R3（12 ヶ月集計 + 補正後評価）が次セッションのスコープ**
 位置付け: B-3 単勝（win）撤退確定後の保険分析 = 同じ控除率 20% の複勝で歪み構造を再評価する
 
-参照: [NEXT_PHASE_B3_PLAN.md](NEXT_PHASE_B3_PLAN.md), [MARKET_EFFICIENCY_WIN_RESULTS.md](MARKET_EFFICIENCY_WIN_RESULTS.md)（B-3 win 撤退結果）
+参照: [NEXT_PHASE_B3_PLAN.md](NEXT_PHASE_B3_PLAN.md), [MARKET_EFFICIENCY_WIN_RESULTS.md](MARKET_EFFICIENCY_WIN_RESULTS.md)（B-3 win 撤退結果）, [NEXT_SESSION_PROMPT_A_R3.md](NEXT_SESSION_PROMPT_A_R3.md)（R3 起点プロンプト）
+
+> ⚠️ **重要訂正（2026-04-28）**: 本ドキュメント §1〜§7 は「複勝 = top-3」を前提とした誤認定で書かれている。
+> 競艇の複勝は **top-2 (1〜2 着)** が正しい仕様（公式: BOAT RACE オフィシャル）。
+> §9 以降に訂正と R1/R2 の正しい結果を記載。§1〜§7 は履歴として残置。
 
 ## 1. Step 1 概要 — 複勝オッズ DL の API 動作確認
 
@@ -222,5 +226,165 @@
 
 - [MARKET_EFFICIENCY_WIN_RESULTS.md](MARKET_EFFICIENCY_WIN_RESULTS.md) — B-3 win 全結果（実 ROI、ev_all_buy 上方バイアス、`oddstf` 構造等）
 - [NEXT_PHASE_B3_PLAN.md](NEXT_PHASE_B3_PLAN.md) §1 — 券種別控除率表
-- [NEXT_SESSION_PROMPT_A.md](NEXT_SESSION_PROMPT_A.md) — 本セッションのプロンプト
+- [NEXT_SESSION_PROMPT_A.md](NEXT_SESSION_PROMPT_A.md) — Step 2 着手用（top-3 誤認定版、参考）
+- [NEXT_SESSION_PROMPT_A_R3.md](NEXT_SESSION_PROMPT_A_R3.md) — **R3 着手用（top-2 訂正後 + R2 補正係数反映、現行版）**
 - [CLAUDE.md](CLAUDE.md) — 「現行の運用方針」「現在の仕様」
+
+---
+
+## 9. ⚠️ 重要訂正: 競艇の複勝は top-2（2026-04-28、Step 2 着手セッション中に発覚）
+
+### 9.1 §1〜§7 の誤認定
+
+§1〜§7 は **「複勝 = top-3 (1〜3 着)」** という競馬準拠の前提で書かれているが、これは誤り。
+競艇の複勝は **top-2 (1〜2 着)** のみが払戻対象。3 着艇への払戻はなし。
+
+### 9.2 公式根拠
+
+> 「複勝は1着か2着に入る艇を当てるもので、選んだ艇が1着でも2着でも当たり。**的中率は1/3**」
+> — [LEVEL.1 複勝（複勝式）| BOAT RACE オフィシャルウェブサイト](https://www.boatrace.jp/owpc/pc/extra/enjoy/guide/level1/l1_03_01_02.html)
+
+### 9.3 raceresult ページでの実証（5 sample races）
+
+| race | 結果 (1-2-3) | 複勝表示 | 評価 |
+|---|---|---|---|
+| 桐生 1R 12/01 | 3-1-4 | boat 3 ¥150, boat 1 ¥250 | 3 着艇 (boat 4) の payout 無し ✅ |
+| 桐生 12R 12/01 | 1-3-? | boat 1 ¥120, boat 3 ¥290 | 2 艇のみ ✅ |
+| 住之江 5R 12/01 | 1-3-? | boat 1 ¥100, boat 3 ¥150 | 2 艇のみ ✅ |
+| 若松 3R 11/30 | 4-5-? | boat 4 ¥100, boat 5 ¥210 | 2 艇のみ ✅ |
+| 平和島 8R 11/30 | (取得失敗) | — | parser 失敗または未開催 |
+
+### 9.4 Step 1 観察「sum(1/odds_low) = 3.09」の再解釈
+
+§2.7「Overround」で観察した `sum(1/odds_low) = 3.09` は overround の意味を持たない:
+
+- 競艇の複勝は **top-2** なので理論 sum implied = 2.0 のはず
+- 観察値 3.09 はそれより +1.09 過剰
+- 理由: `odds_low / odds_high` は **条件付き payout の範囲**（pari-mutuel メカニズムでもう 1 艇の人気度に依存）であり、`(1-takeout)/odds_low` は真の hit 確率にならない
+- → 単純な「sum implied」分析は **odds データだけでは不能**、実 payout が必須
+
+### 9.5 影響範囲
+
+1. `load_winning_top3_boats` → `load_winning_top2_boats` に修正（`finish_position ∈ {1, 2}`）
+2. `attach_place_hit_label` を 1 レース 2 hits 仕様に修正
+3. §6 で書いた「Step 2 で取り組む課題」のヒット判定式は誤り（§10 R1 で訂正）
+4. §1〜§7 は履歴として残置、現行は §10 以降を参照
+
+---
+
+## 10. R1: top-2 修正後の smoke test（2025-12 単月、2026-04-28）
+
+### 10.1 実装変更
+
+| ファイル | 変更内容 |
+|---|---|
+| [ml/src/scripts/run_market_efficiency.py](ml/src/scripts/run_market_efficiency.py) | `--bet-type place` 拡張、`load_winning_top2_boats` / `attach_place_hit_label` (top-2)、`bin_summary_place` (3 odds モード併記)、`bootstrap_lift_ci_place` (low ベース)、`evaluate_place_distortion` |
+| 同上（R1 訂正）| `top3_set` → `top2_set`、`finish_position ∈ {1, 2}`、1 race 2 hits 仕様 |
+
+### 10.2 実行結果（2025-12, 4,537 races / 27,222 combos）
+
+| bin (implied_low) | n | actual_p | implied_low | lift | ev_all_buy_low | ev_all_buy_mid | ev_all_buy_high | ev_actual_low | 90% boot CI (lift) |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|---|
+| [0.0, 0.1) | 1,868 | 0.053 | 0.069 | 0.77 | 0.716 | **1.082** | 1.448 | 0.686 | [0.65, 0.90] |
+| [0.1, 0.2) | 4,339 | 0.106 | 0.151 | 0.71 | 0.586 | 0.914 | 1.242 | 0.566 | [0.66, 0.76] |
+| [0.2, 0.3) | 4,611 | 0.196 | 0.248 | 0.79 | 0.639 | 0.992 | 1.344 | 0.630 | [0.75, 0.83] |
+| [0.3, 0.4) | 3,469 | 0.279 | 0.345 | 0.81 | 0.650 | 1.004 | 1.359 | 0.645 | [0.78, 0.84] |
+| [0.4, 0.5) | 2,960 | 0.335 | 0.435 | 0.77 | 0.617 | 0.928 | 1.239 | 0.614 | [0.74, 0.80] |
+| [0.5, 0.6) | 2,793 | 0.408 | 0.535 | 0.76 | 0.611 | 0.881 | 1.151 | 0.610 | [0.73, 0.79] |
+| [0.6, 0.7) | 2,220 | 0.506 | 0.642 | 0.79 | 0.631 | 0.846 | 1.060 | 0.630 | [0.76, 0.81] |
+| [0.7, 0.8) | 1,263 | 0.591 | 0.727 | 0.81 | 0.650 | 0.809 | 0.968 | 0.650 | [0.79, 0.84] |
+| [0.8, 0.9) | 3,699 | 0.715 | 0.800 | 0.89 | 0.715 | 0.785 | 0.855 | 0.715 | [0.88, 0.91] |
+
+### 10.3 観察
+
+1. **integrity check ✅**: actual_p × n 合計 = 9,073 ≈ 4,537 races × 2 hits → top-2 仕様と整合
+2. **lift 全 bin で 1.0 未満** (0.71〜0.89): odds_low ベース implied は真の hit rate より一様に過大評価。これは pari-mutuel の「最低保証 payout」構造から予測される通り
+3. **`ev_all_buy_low` 全 bin で 1.0 未満** (0.59〜0.72): 控除率破壊不能の強い示唆
+4. **`ev_all_buy_mid` が 4 bin で 1.0 超** ([0.0, 0.4)): ただし「全 hit が odds_mid で払戻」の楽観仮定。実 payout 分布次第で無効化される可能性
+5. **flagged 1 bin** ([0.0, 0.1) で secondary 採用)、ただし `ev_actual_low = 0.686` で実勢は -31%
+
+→ R1 単独では撤退判定に至らず（`ev_all_buy_mid` のシナリオが残存）。R2 で実 payout 分布を確定させる必要。
+
+### 10.4 出力ファイル
+
+- [artifacts/market_efficiency_2025-12_2025-12_place.csv](artifacts/market_efficiency_2025-12_2025-12_place.csv)
+- [artifacts/market_efficiency_2025-12_2025-12_place.png](artifacts/market_efficiency_2025-12_2025-12_place.png)
+
+---
+
+## 11. R2: 実 payout sample 取得と構造分析（50 races / 100 hit boats、2026-04-28）
+
+### 11.1 実装
+
+| ファイル | 変更内容 |
+|---|---|
+| [ml/src/collector/openapi_client.py](ml/src/collector/openapi_client.py) | `fetch_place_payouts(stadium_id, race_date, race_no) -> dict[str, int]` 追加。raceresult ページの「複勝」セクションから 2 艇分の payout を抽出 |
+| [ml/src/scripts/sample_place_payouts.py](ml/src/scripts/sample_place_payouts.py) | 新規。`place_odds_202512.parquet` から N race ランダムサンプリング → `fetch_place_payouts` で実 payout 取得 → odds_low/mid/high と比較 |
+
+### 11.2 実行結果（50 races, 100 hit boats）
+
+| 指標 | 値 |
+|---|---:|
+| 取得成功率 | **50 / 50 races（100%）**、100 / 100 hit boats |
+| **in_range（payout ∈ [odds_low, odds_high]）** | **100% ✅** |
+| payout_x mean | 2.392 |
+| odds_low mean | 2.126 |
+| odds_mid mean | 2.753 |
+| odds_high mean | 3.379 |
+| **pos_in_range mean**（0=low, 1=high） | **0.245** |
+| pos_in_range median | **0.000** |
+| pos_in_range p25 / p75 | 0.000 / 0.500 |
+
+### 11.3 implied_low bin 別分析
+
+| bin | n | odds_low | odds_mid | odds_high | payout_x | pos_in_range |
+|---|---:|---:|---:|---:|---:|---:|
+| [0, 0.1) | 3 | 14.10 | 18.60 | 23.10 | 15.80 | 0.31 |
+| [0.1, 0.3) | 13 | 3.90 | 5.14 | 6.38 | 4.49 | 0.27 |
+| [0.3, 0.6) | 38 | 1.87 | 2.56 | 3.25 | 2.08 | 0.23 |
+| [0.6, 1.0) | 46 | 1.05 | 1.20 | 1.35 | 1.18 | 0.25 |
+
+### 11.4 主要な発見
+
+1. **odds_low / odds_high の意味は確定** — 100% in_range で実 payout は range 内に収まる
+2. **実 payout は odds_low に強く偏る** — pos_in_range mean = **0.245**、median = 0.0 で**半数以上のレースで payout = odds_low ピッタリ**
+3. **bin 全帯で偏りは一様**（0.23〜0.31）— 人気艇 / 人気薄艇で偏りに大きな差はない
+4. **R1 の `ev_all_buy_mid > 1.0` 観察は無効** — 実 payout は mid に達せず低位に偏る
+5. **補正係数の確立**: 実 ev ≈ `(1 - 0.245) × ev_actual_low + 0.245 × ev_actual_high` ≈ `0.755 × ev_actual_low + 0.245 × ev_actual_high`
+
+### 11.5 控除率破壊判定への含意
+
+R1 の `ev_actual_low` 最大値 = 0.715 (bin [0.8, 0.9))。R2 補正で:
+
+```
+ev_actual_corrected ≈ 0.755 × ev_actual_low + 0.245 × ev_actual_high
+```
+
+bin [0.8, 0.9) で `ev_actual ≈ 0.755 × 0.715 + 0.245 × 0.855 = 0.749` → **控除率 20% (0.80) 未達**
+
+全 bin で R1 の `ev_actual_low` を 25% 楽観補正で 0.80 を超えるのは困難。**B-3 拡張 A 撤退の方向に強く示唆**するが、12 ヶ月集計で確証取得すべき。
+
+### 11.6 出力ファイル
+
+- [artifacts/place_payouts_sample_2025-12.parquet](artifacts/place_payouts_sample_2025-12.parquet) — 50 races × 2 hit boats = 100 行（race_id, combination, payout_yen）
+
+---
+
+## 12. R3 (次セッション): 12 ヶ月集計 + 補正後 ev で控除率破壊判定
+
+### 12.1 タスク内容
+
+1. R2 補正係数 (pos_in_range = 0.245) を `bin_summary_place` に反映 → `ev_actual_corrected = 0.755 × ev_actual_low + 0.245 × ev_actual_high`
+2. `bootstrap_lift_ci_place` に `ev_actual_corrected_boot_lo / boot_hi` を追加
+3. `evaluate_place_distortion` を「`ev_actual_corrected > 1.0` & `ev_actual_corrected_boot_lo > 1.0`」に変更
+4. 12 ヶ月集計（`run_market_efficiency.py --bet-type place --start 2025-05 --end 2026-04 --split-halves --bootstrap 2000 --group-by stadium --group-by-2axis stadium,odds_band --focus-bin-lower 0.10 --focus-bin-upper 0.50`）
+5. segment 分析（stadium 単軸、stadium × odds_band 2 軸）
+6. 採用判定 → Step 3（サブセグメント詳細）or B-3 拡張 A 撤退
+
+### 12.2 期待される結果（仮説）
+
+R1 + R2 から、12 ヶ月集計でも **採用基準達成 0 セグメント** が予測される。最善でも `ev_actual_corrected ≈ 0.75` 程度に留まり、控除率 20% を破れない見込み。
+
+### 12.3 起点プロンプト
+
+[NEXT_SESSION_PROMPT_A_R3.md](NEXT_SESSION_PROMPT_A_R3.md) を新セッションで使用。

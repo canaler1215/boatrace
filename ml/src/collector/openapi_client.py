@@ -703,3 +703,81 @@ def fetch_race_result_full(
         "trifecta_combination": trifecta_combo,
         "trifecta_payout": trifecta_payout,
     }
+
+
+def fetch_place_payouts(
+    stadium_id: int, race_date: str, race_no: int
+) -> dict[str, int]:
+    """
+    複勝の実払戻金を取得（top-2 艇分、円単位、100 円ベース）。
+
+    raceresult ページの払戻金テーブル「複勝」セクションから 2 艇分を抽出。
+    競艇の複勝は top-2 (1〜2 着) のみ払戻対象。
+
+    Returns:
+        {"<boat_no>": <payout_yen>, ...}  最大 2 艇分。
+        例: {"3": 150, "1": 250}（boat 3 が 1 or 2 着で払戻 150 円、boat 1 同 250 円）
+        empty dict on parse failure.
+    """
+    hd = _hd(race_date)
+    soup = _get("raceresult", {"hd": hd, "jcd": f"{stadium_id:02d}", "rno": str(race_no)})
+    payouts: dict[str, int] = {}
+
+    for el in soup.find_all(string=re.compile(r"複勝")):
+        table = el.find_parent("table")
+        if not table:
+            continue
+        # table 内の全 tr を走査して「複勝」行とその直下の行（2 艇目）を取得
+        rows = table.find_all("tr")
+        in_place_section = False
+        for tr in rows:
+            cells = [c.get_text(strip=True) for c in tr.find_all(["th", "td"])]
+            if not cells:
+                continue
+            joined = "".join(cells)
+            # 「複勝」を含む行は section 開始
+            if "複勝" in joined and not in_place_section:
+                in_place_section = True
+                # 同じ行内に "複勝 | 3 | ¥150" の形式で 1 艇目が含まれる
+                _parse_place_row(cells, payouts)
+                continue
+            if in_place_section:
+                # 続く行に 2 艇目の payout（"1 | ¥250"）。空行 or 別 section 開始で終了
+                if all(not c for c in cells):
+                    break
+                # 次の section（単勝 / 拡連複 / etc.）に当たったら終了
+                section_keywords = ("単勝", "拡連複", "2連単", "2連複", "3連単", "3連複", "勝式", "組番")
+                if any(kw in joined for kw in section_keywords):
+                    break
+                _parse_place_row(cells, payouts)
+                if len(payouts) >= 2:
+                    break
+        if payouts:
+            break
+
+    logger.debug(
+        "place_payouts stadium=%02d rno=%d: %s",
+        stadium_id, race_no, payouts,
+    )
+    return payouts
+
+
+def _parse_place_row(cells: list[str], payouts: dict[str, int]) -> None:
+    """raceresult 表の 1 行から (boat_no, payout_yen) を抽出して payouts に追加。"""
+    boat_no: str | None = None
+    payout_yen: int | None = None
+    for cell in cells:
+        c = unicodedata.normalize("NFKC", cell).strip()
+        if c == "複勝":
+            continue
+        if boat_no is None and re.fullmatch(r"[1-6]", c):
+            boat_no = c
+            continue
+        m = re.search(r"(?:¥|￥)?\s*([0-9]{1,3}(?:,[0-9]{3})*|[0-9]+)\s*円?", c)
+        if m and payout_yen is None:
+            try:
+                payout_yen = int(m.group(1).replace(",", ""))
+            except ValueError:
+                pass
+    if boat_no is not None and payout_yen is not None and payout_yen > 0:
+        payouts[boat_no] = payout_yen
