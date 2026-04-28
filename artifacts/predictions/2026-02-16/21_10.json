@@ -1,0 +1,13 @@
+{
+  "race_id": "2026-02-16_21_10",
+  "predicted_at": "2026-04-28T14:00:00+09:00",
+  "model": "claude-opus-4-7",
+  "analysis": "1号艇1.5x+3号艇4.1x+6号艇5.5x、本命 1-2-4 17.6x EV<1.0 で人気分散。",
+  "primary_axis": [
+    1,
+    3
+  ],
+  "verdict": "skip",
+  "skip_reason": "1号艇1.5x+本命 1-2-4 17.6x EV<1.0 で人気分散",
+  "bets": []
+}

@@ -1,0 +1,496 @@
+{
+  "from": "2026-01-05",
+  "to": "2026-02-16",
+  "evaluated_at": "2026-04-28T12:12:02+09:00",
+  "n_days": 43,
+  "n_days_with_data": 7,
+  "n_days_missing": 36,
+  "missing_dates": [
+    "2026-01-06",
+    "2026-01-07",
+    "2026-01-08",
+    "2026-01-09",
+    "2026-01-10",
+    "2026-01-11",
+    "2026-01-13",
+    "2026-01-14",
+    "2026-01-15",
+    "2026-01-16",
+    "2026-01-17",
+    "2026-01-18",
+    "2026-01-19",
+    "2026-01-21",
+    "2026-01-22",
+    "2026-01-23",
+    "2026-01-24",
+    "2026-01-25",
+    "2026-01-27",
+    "2026-01-28",
+    "2026-01-29",
+    "2026-01-30",
+    "2026-01-31",
+    "2026-02-01",
+    "2026-02-03",
+    "2026-02-04",
+    "2026-02-05",
+    "2026-02-06",
+    "2026-02-07",
+    "2026-02-08",
+    "2026-02-10",
+    "2026-02-11",
+    "2026-02-12",
+    "2026-02-13",
+    "2026-02-14",
+    "2026-02-15"
+  ],
+  "input_files": [
+    "2026-01-05.json",
+    "2026-01-12.json",
+    "2026-01-20.json",
+    "2026-01-26.json",
+    "2026-02-02.json",
+    "2026-02-09.json",
+    "2026-02-16.json"
+  ],
+  "summary": {
+    "n_races": 1116,
+    "n_settled": 46,
+    "n_skipped_by_claude": 1070,
+    "n_no_result": 0,
+    "n_bet_races": 46,
+    "n_hit_races": 3,
+    "n_bets": 62,
+    "n_hits": 3,
+    "total_stake": 6200,
+    "total_payout": 5140.0,
+    "roi": -0.17096774193548392,
+    "hit_rate_per_bet": 0.04838709677419355,
+    "hit_rate_per_race": 0.06521739130434782,
+    "skip_rate": 0.9587813620071685,
+    "avg_confidence": 0.42564516129032265,
+    "bootstrap_ci": {
+      "n": 1000,
+      "lower": -1.0,
+      "upper": 1.0451612903225804
+    }
+  },
+  "by_month": [
+    {
+      "month": "2026-01",
+      "n_days": 4,
+      "n_races": 708,
+      "n_bet_races": 44,
+      "n_hit_races": 3,
+      "n_bets": 60,
+      "n_hits": 3,
+      "total_stake": 6000,
+      "total_payout": 5140.0,
+      "roi": -0.1433333333333333,
+      "hit_rate_per_bet": 0.05,
+      "hit_rate_per_race": 0.06818181818181818
+    },
+    {
+      "month": "2026-02",
+      "n_days": 3,
+      "n_races": 408,
+      "n_bet_races": 2,
+      "n_hit_races": 0,
+      "n_bets": 2,
+      "n_hits": 0,
+      "total_stake": 200,
+      "total_payout": 0.0,
+      "roi": -1.0,
+      "hit_rate_per_bet": 0.0,
+      "hit_rate_per_race": 0.0
+    }
+  ],
+  "by_stadium": [
+    {
+      "stadium_id": 1,
+      "name": "桐生",
+      "n_races": 5,
+      "n_bets": 5,
+      "n_hits": 0,
+      "total_stake": 500,
+      "total_payout": 0.0,
+      "roi": -1.0
+    },
+    {
+      "stadium_id": 2,
+      "name": "戸田",
+      "n_races": 11,
+      "n_bets": 15,
+      "n_hits": 0,
+      "total_stake": 1500,
+      "total_payout": 0.0,
+      "roi": -1.0
+    },
+    {
+      "stadium_id": 3,
+      "name": "江戸川",
+      "n_races": 2,
+      "n_bets": 3,
+      "n_hits": 0,
+      "total_stake": 300,
+      "total_payout": 0.0,
+      "roi": -1.0
+    },
+    {
+      "stadium_id": 4,
+      "name": "平和島",
+      "n_races": 7,
+      "n_bets": 11,
+      "n_hits": 1,
+      "total_stake": 1100,
+      "total_payout": 3200.0,
+      "roi": 1.9090909090909092
+    },
+    {
+      "stadium_id": 5,
+      "name": "多摩川",
+      "n_races": 2,
+      "n_bets": 2,
+      "n_hits": 0,
+      "total_stake": 200,
+      "total_payout": 0.0,
+      "roi": -1.0
+    },
+    {
+      "stadium_id": 6,
+      "name": "浜名湖",
+      "n_races": 5,
+      "n_bets": 7,
+      "n_hits": 0,
+      "total_stake": 700,
+      "total_payout": 0.0,
+      "roi": -1.0
+    },
+    {
+      "stadium_id": 8,
+      "name": "常滑",
+      "n_races": 6,
+      "n_bets": 6,
+      "n_hits": 1,
+      "total_stake": 600,
+      "total_payout": 800.0,
+      "roi": 0.33333333333333326
+    },
+    {
+      "stadium_id": 10,
+      "name": "三国",
+      "n_races": 1,
+      "n_bets": 1,
+      "n_hits": 0,
+      "total_stake": 100,
+      "total_payout": 0.0,
+      "roi": -1.0
+    },
+    {
+      "stadium_id": 11,
+      "name": "びわこ",
+      "n_races": 1,
+      "n_bets": 1,
+      "n_hits": 0,
+      "total_stake": 100,
+      "total_payout": 0.0,
+      "roi": -1.0
+    },
+    {
+      "stadium_id": 13,
+      "name": "尼崎",
+      "n_races": 1,
+      "n_bets": 1,
+      "n_hits": 0,
+      "total_stake": 100,
+      "total_payout": 0.0,
+      "roi": -1.0
+    },
+    {
+      "stadium_id": 15,
+      "name": "丸亀",
+      "n_races": 1,
+      "n_bets": 3,
+      "n_hits": 0,
+      "total_stake": 300,
+      "total_payout": 0.0,
+      "roi": -1.0
+    },
+    {
+      "stadium_id": 17,
+      "name": "宮島",
+      "n_races": 1,
+      "n_bets": 3,
+      "n_hits": 0,
+      "total_stake": 300,
+      "total_payout": 0.0,
+      "roi": -1.0
+    },
+    {
+      "stadium_id": 20,
+      "name": "若松",
+      "n_races": 1,
+      "n_bets": 2,
+      "n_hits": 1,
+      "total_stake": 200,
+      "total_payout": 1140.0,
+      "roi": 4.7
+    },
+    {
+      "stadium_id": 22,
+      "name": "福岡",
+      "n_races": 1,
+      "n_bets": 1,
+      "n_hits": 0,
+      "total_stake": 100,
+      "total_payout": 0.0,
+      "roi": -1.0
+    },
+    {
+      "stadium_id": 23,
+      "name": "唐津",
+      "n_races": 1,
+      "n_bets": 1,
+      "n_hits": 0,
+      "total_stake": 100,
+      "total_payout": 0.0,
+      "roi": -1.0
+    }
+  ],
+  "by_stadium_month": [
+    {
+      "stadium_id": 1,
+      "name": "桐生",
+      "n_races": 5,
+      "n_bets": 5,
+      "n_hits": 0,
+      "total_stake": 500,
+      "total_payout": 0.0,
+      "roi": -1.0,
+      "month": "2026-01"
+    },
+    {
+      "stadium_id": 2,
+      "name": "戸田",
+      "n_races": 11,
+      "n_bets": 15,
+      "n_hits": 0,
+      "total_stake": 1500,
+      "total_payout": 0.0,
+      "roi": -1.0,
+      "month": "2026-01"
+    },
+    {
+      "stadium_id": 3,
+      "name": "江戸川",
+      "n_races": 2,
+      "n_bets": 3,
+      "n_hits": 0,
+      "total_stake": 300,
+      "total_payout": 0.0,
+      "roi": -1.0,
+      "month": "2026-01"
+    },
+    {
+      "stadium_id": 4,
+      "name": "平和島",
+      "n_races": 7,
+      "n_bets": 11,
+      "n_hits": 1,
+      "total_stake": 1100,
+      "total_payout": 3200.0,
+      "roi": 1.9090909090909092,
+      "month": "2026-01"
+    },
+    {
+      "stadium_id": 5,
+      "name": "多摩川",
+      "n_races": 2,
+      "n_bets": 2,
+      "n_hits": 0,
+      "total_stake": 200,
+      "total_payout": 0.0,
+      "roi": -1.0,
+      "month": "2026-01"
+    },
+    {
+      "stadium_id": 6,
+      "name": "浜名湖",
+      "n_races": 5,
+      "n_bets": 7,
+      "n_hits": 0,
+      "total_stake": 700,
+      "total_payout": 0.0,
+      "roi": -1.0,
+      "month": "2026-01"
+    },
+    {
+      "stadium_id": 8,
+      "name": "常滑",
+      "n_races": 6,
+      "n_bets": 6,
+      "n_hits": 1,
+      "total_stake": 600,
+      "total_payout": 800.0,
+      "roi": 0.33333333333333326,
+      "month": "2026-01"
+    },
+    {
+      "stadium_id": 10,
+      "name": "三国",
+      "n_races": 1,
+      "n_bets": 1,
+      "n_hits": 0,
+      "total_stake": 100,
+      "total_payout": 0.0,
+      "roi": -1.0,
+      "month": "2026-02"
+    },
+    {
+      "stadium_id": 11,
+      "name": "びわこ",
+      "n_races": 1,
+      "n_bets": 1,
+      "n_hits": 0,
+      "total_stake": 100,
+      "total_payout": 0.0,
+      "roi": -1.0,
+      "month": "2026-01"
+    },
+    {
+      "stadium_id": 13,
+      "name": "尼崎",
+      "n_races": 1,
+      "n_bets": 1,
+      "n_hits": 0,
+      "total_stake": 100,
+      "total_payout": 0.0,
+      "roi": -1.0,
+      "month": "2026-01"
+    },
+    {
+      "stadium_id": 15,
+      "name": "丸亀",
+      "n_races": 1,
+      "n_bets": 3,
+      "n_hits": 0,
+      "total_stake": 300,
+      "total_payout": 0.0,
+      "roi": -1.0,
+      "month": "2026-01"
+    },
+    {
+      "stadium_id": 17,
+      "name": "宮島",
+      "n_races": 1,
+      "n_bets": 3,
+      "n_hits": 0,
+      "total_stake": 300,
+      "total_payout": 0.0,
+      "roi": -1.0,
+      "month": "2026-01"
+    },
+    {
+      "stadium_id": 20,
+      "name": "若松",
+      "n_races": 1,
+      "n_bets": 2,
+      "n_hits": 1,
+      "total_stake": 200,
+      "total_payout": 1140.0,
+      "roi": 4.7,
+      "month": "2026-01"
+    },
+    {
+      "stadium_id": 22,
+      "name": "福岡",
+      "n_races": 1,
+      "n_bets": 1,
+      "n_hits": 0,
+      "total_stake": 100,
+      "total_payout": 0.0,
+      "roi": -1.0,
+      "month": "2026-01"
+    },
+    {
+      "stadium_id": 23,
+      "name": "唐津",
+      "n_races": 1,
+      "n_bets": 1,
+      "n_hits": 0,
+      "total_stake": 100,
+      "total_payout": 0.0,
+      "roi": -1.0,
+      "month": "2026-02"
+    }
+  ],
+  "by_confidence_band": [
+    {
+      "band": "0.0-0.3",
+      "n_bets": 0,
+      "n_hits": 0,
+      "total_stake": 0,
+      "total_payout": 0.0,
+      "roi": 0.0
+    },
+    {
+      "band": "0.3-0.5",
+      "n_bets": 49,
+      "n_hits": 3,
+      "total_stake": 4900,
+      "total_payout": 5140.0,
+      "roi": 0.048979591836734615
+    },
+    {
+      "band": "0.5-0.7",
+      "n_bets": 13,
+      "n_hits": 0,
+      "total_stake": 1300,
+      "total_payout": 0.0,
+      "roi": -1.0
+    },
+    {
+      "band": "0.7-1.0",
+      "n_bets": 0,
+      "n_hits": 0,
+      "total_stake": 0,
+      "total_payout": 0.0,
+      "roi": 0.0
+    }
+  ],
+  "daily_roi_stats": {
+    "min": -1.0,
+    "median": -1.0,
+    "mean": -0.4849579831932774,
+    "max": 0.8823529411764706,
+    "stddev": 0.8211215227026677,
+    "n": 5,
+    "worst_day": "2026-01-12",
+    "best_day": "2026-01-05"
+  },
+  "monthly_roi_stats": {
+    "min": -1.0,
+    "median": -0.5716666666666667,
+    "mean": -0.5716666666666667,
+    "max": -0.1433333333333333,
+    "stddev": 0.6057548092164757,
+    "n": 2,
+    "worst_month": "2026-02",
+    "best_month": "2026-01"
+  },
+  "verdict": {
+    "status": "fail",
+    "label": "✗ 未達",
+    "roi": -0.17096774193548392,
+    "worst_month_roi": -1.0,
+    "bootstrap_ci_lower": -1.0,
+    "criteria": {
+      "production_ready": "ROI ≥ +10% かつ worst_month > -50% かつ bootstrap_ci_lower ≥ 0",
+      "breakeven": "ROI ≥ 0% かつ worst_month > -50%",
+      "fail": "上記以外"
+    },
+    "note": "判定は参考値。後付けフィルタで合わせ込んではならない（フェーズ 3〜6 の教訓）"
+  },
+  "warnings": [
+    "期間内 36 日分の <日付>.json が見つからない（取得済みのみで集計）"
+  ]
+}

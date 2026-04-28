@@ -1,0 +1,13 @@
+{
+  "race_id": "2026-02-16_08_09",
+  "predicted_at": "2026-04-28T13:00:00+09:00",
+  "model": "claude-opus-4-7",
+  "analysis": "4号艇単勝2.2x大本命まくり構図(1号艇押し出され3.5x)、本命 4-1-6 14.7x EV~1.0 ボーダー、Day 4 浜名湖R7 同パターン不発で skip。",
+  "primary_axis": [
+    4,
+    1
+  ],
+  "verdict": "skip",
+  "skip_reason": "4号艇A1まくり構図も Day 4 浜名湖R7 同パターン不発で skip、本命 4-1-6 14.7x EV~1.0 ボーダー",
+  "bets": []
+}

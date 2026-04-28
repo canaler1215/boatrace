@@ -1,0 +1,13 @@
+{
+  "race_id": "2026-02-16_16_10",
+  "predicted_at": "2026-04-28T13:30:00+09:00",
+  "model": "claude-opus-4-7",
+  "analysis": "2号艇1.9x+1号艇2.4x拮抗、本命 1-2-4 10.6x EV<1.0 で本命凝縮。",
+  "primary_axis": [
+    2,
+    1
+  ],
+  "verdict": "skip",
+  "skip_reason": "1-2号艇拮抗+本命 1-2-4 10.6x EV<1.0 で本命凝縮",
+  "bets": []
+}
