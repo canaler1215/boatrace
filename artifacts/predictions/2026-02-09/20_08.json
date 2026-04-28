@@ -1,0 +1,13 @@
+{
+  "race_id": "2026-02-09_20_08",
+  "predicted_at": "2026-04-28T14:00:00+09:00",
+  "model": "claude-opus-4-7",
+  "analysis": "6号艇単勝1.5x圧倒大本命だが3連単本命1-2-4 6.3x で6号艇3着扱い (オッズ整合性疑問)、確信度低く skip。",
+  "primary_axis": [
+    6,
+    1
+  ],
+  "verdict": "skip",
+  "skip_reason": "確信度低く skip。",
+  "bets": []
+}

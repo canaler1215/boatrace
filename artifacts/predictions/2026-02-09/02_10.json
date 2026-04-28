@@ -1,0 +1,13 @@
+{
+  "race_id": "2026-02-09_02_10",
+  "predicted_at": "2026-04-28T12:00:00+09:00",
+  "model": "claude-opus-4-7",
+  "analysis": "1号艇単勝1.5x大本命 + 6号艇単勝11.7x (戸田6コース勝率3.6%下で過小評価)。本命1-2-6 17.6x EV~1.06 ボーダー、6-X-X系も 30x台で EV~1.0 ボーダー、conservative skip。",
+  "primary_axis": [
+    1,
+    6
+  ],
+  "verdict": "skip",
+  "skip_reason": "1号艇1.5x大本命、6号艇単勝11.7x過小評価も本命1-2-6 17.6x EV~1.06 ボーダー、skip。",
+  "bets": []
+}

@@ -1,0 +1,12 @@
+{
+  "race_id": "2026-02-09_03_09",
+  "predicted_at": "2026-04-28T12:00:00+09:00",
+  "model": "claude-opus-4-7",
+  "analysis": "1号艇単勝1.0x絶対本命、6号艇欠場の5艇展開。本命1-5-2 10.5x で EV~1.05 ボーダー、conservative skip。",
+  "primary_axis": [
+    1
+  ],
+  "verdict": "skip",
+  "skip_reason": "1号艇単勝1.0x絶対本命、本命1-5-2 10.5x EV~1.05 ボーダー、skip。",
+  "bets": []
+}

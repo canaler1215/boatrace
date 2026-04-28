@@ -1,0 +1,12 @@
+{
+  "race_id": "2026-02-09_02_01",
+  "predicted_at": "2026-04-28T12:00:00+09:00",
+  "model": "claude-opus-4-7",
+  "analysis": "1号艇単勝1.3x大本命 + 4号艇単勝7.0xまくり微脅威。本命1-2-4 14.6x で EV~1.0 ボーダー、conservative skip。",
+  "primary_axis": [
+    1
+  ],
+  "verdict": "skip",
+  "skip_reason": "1号艇単勝1.3x大本命凝縮、本命1-2-4 14.6x EV~1.0 ボーダー、過去日下で確信度低く skip。",
+  "bets": []
+}

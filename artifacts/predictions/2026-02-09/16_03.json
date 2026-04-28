@@ -1,0 +1,13 @@
+{
+  "race_id": "2026-02-09_16_03",
+  "predicted_at": "2026-04-28T14:00:00+09:00",
+  "model": "claude-opus-4-7",
+  "analysis": "2号艇単勝2.2x大本命 (児島1コース勝率下では2号艇優勢の異例) + 1号艇2.6x + 4号艇2.9x。本命2-4-1 13.6x EV~1.0 ボーダー、人気拮抗で skip。",
+  "primary_axis": [
+    2,
+    1
+  ],
+  "verdict": "skip",
+  "skip_reason": "人気拮抗で skip。",
+  "bets": []
+}
