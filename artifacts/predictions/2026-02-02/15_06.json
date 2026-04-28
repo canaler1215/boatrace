@@ -1,0 +1,13 @@
+{
+  "race_id": "2026-02-02_15_06",
+  "predicted_at": "2026-02-02T10:30:00+09:00",
+  "model": "claude-opus-4-7",
+  "analysis": "1号艇単勝1.0x圧倒大本命+本命1-2-4 9.4x、1-3-4 9.9x で凝縮極端、市場完全織込済 EV 不成立。",
+  "primary_axis": [
+    1,
+    2
+  ],
+  "verdict": "skip",
+  "skip_reason": "1号艇1.0x圧倒+本命凝縮で EV<1.0",
+  "bets": []
+}

@@ -1,0 +1,1596 @@
+{
+  "date": "2026-02-02",
+  "generated_at": "2026-04-28T11:11:37",
+  "n_total": 132,
+  "n_valid": 132,
+  "n_invalid": 0,
+  "n_bet": 2,
+  "n_skip": 130,
+  "invalid_details": [],
+  "predictions": [
+    {
+      "file": "02_01.json",
+      "race_id": "2026-02-02_02_01",
+      "verdict": "skip",
+      "primary_axis": [
+        4,
+        1
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "4号艇まくり大本命構図で本命凝縮、EV<1.0"
+    },
+    {
+      "file": "02_02.json",
+      "race_id": "2026-02-02_02_02",
+      "verdict": "skip",
+      "primary_axis": [
+        2,
+        1
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "本命凝縮+多角拮抗で EV<1.0"
+    },
+    {
+      "file": "02_03.json",
+      "race_id": "2026-02-02_02_03",
+      "verdict": "skip",
+      "primary_axis": [
+        1,
+        4
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "1号艇本命凝縮+市場織込済で EV<1.0"
+    },
+    {
+      "file": "02_04.json",
+      "race_id": "2026-02-02_02_04",
+      "verdict": "skip",
+      "primary_axis": [
+        1,
+        3
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "1号艇弱+多角拮抗の本命凝縮で EV<1.0"
+    },
+    {
+      "file": "02_05.json",
+      "race_id": "2026-02-02_02_05",
+      "verdict": "skip",
+      "primary_axis": [
+        1,
+        3
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "1号艇1.0x圧倒+本命凝縮で EV<1.0"
+    },
+    {
+      "file": "02_06.json",
+      "race_id": "2026-02-02_02_06",
+      "verdict": "skip",
+      "primary_axis": [
+        1,
+        3
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "1号艇B1機能不全+3号艇A2まくりの3着分散で EV<1.0"
+    },
+    {
+      "file": "02_07.json",
+      "race_id": "2026-02-02_02_07",
+      "verdict": "skip",
+      "primary_axis": [
+        1,
+        3
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "1号艇1.2x圧倒+本命凝縮で EV<1.0"
+    },
+    {
+      "file": "02_08.json",
+      "race_id": "2026-02-02_02_08",
+      "verdict": "skip",
+      "primary_axis": [
+        2,
+        1
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "1号艇激弱+多角拮抗の本命3着分散で EV<1.0"
+    },
+    {
+      "file": "02_09.json",
+      "race_id": "2026-02-02_02_09",
+      "verdict": "skip",
+      "primary_axis": [
+        1,
+        2
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "1号艇1.0x圧倒+本命凝縮で EV<1.0"
+    },
+    {
+      "file": "02_10.json",
+      "race_id": "2026-02-02_02_10",
+      "verdict": "skip",
+      "primary_axis": [
+        1,
+        3
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "1号艇1.2x圧倒+本命凝縮で EV<1.0"
+    },
+    {
+      "file": "02_11.json",
+      "race_id": "2026-02-02_02_11",
+      "verdict": "skip",
+      "primary_axis": [
+        1,
+        2
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "1号艇1.0x圧倒+本命凝縮で EV<1.0"
+    },
+    {
+      "file": "02_12.json",
+      "race_id": "2026-02-02_02_12",
+      "verdict": "skip",
+      "primary_axis": [
+        1,
+        3
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "1号艇1.2x圧倒+本命凝縮で EV<1.0"
+    },
+    {
+      "file": "03_01.json",
+      "race_id": "2026-02-02_03_01",
+      "verdict": "skip",
+      "primary_axis": [
+        1,
+        3
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "1号艇B1機能不全+多角拮抗の本命3着分散で EV<1.0"
+    },
+    {
+      "file": "03_02.json",
+      "race_id": "2026-02-02_03_02",
+      "verdict": "skip",
+      "primary_axis": [
+        1,
+        3
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "1号艇B1+3号艇まくり構図で本命凝縮、EV<1.0"
+    },
+    {
+      "file": "03_03.json",
+      "race_id": "2026-02-02_03_03",
+      "verdict": "skip",
+      "primary_axis": [
+        1,
+        3
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "三角拮抗(1/3/4号艇)で本命20x前後の買い目薄、EV<1.0"
+    },
+    {
+      "file": "03_04.json",
+      "race_id": "2026-02-02_03_04",
+      "verdict": "skip",
+      "primary_axis": [
+        1,
+        2
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "1号艇本命+本命凝縮で EV<1.0"
+    },
+    {
+      "file": "03_05.json",
+      "race_id": "2026-02-02_03_05",
+      "verdict": "skip",
+      "primary_axis": [
+        1,
+        2
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "1号艇+2号艇拮抗の本命凝縮で EV<1.0"
+    },
+    {
+      "file": "03_06.json",
+      "race_id": "2026-02-02_03_06",
+      "verdict": "skip",
+      "primary_axis": [
+        1,
+        3
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "1号艇1.6x本命+本命凝縮で EV<1.0"
+    },
+    {
+      "file": "03_07.json",
+      "race_id": "2026-02-02_03_07",
+      "verdict": "skip",
+      "primary_axis": [
+        1,
+        3
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "1号艇1.9x本命+本命凝縮で EV<1.0"
+    },
+    {
+      "file": "03_08.json",
+      "race_id": "2026-02-02_03_08",
+      "verdict": "skip",
+      "primary_axis": [
+        3,
+        1
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "1号艇B1激弱+3号艇A2まくりの3着分散で EV<1.0"
+    },
+    {
+      "file": "03_09.json",
+      "race_id": "2026-02-02_03_09",
+      "verdict": "skip",
+      "primary_axis": [
+        1,
+        2
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "1号艇1.2x圧倒+本命凝縮で EV<1.0"
+    },
+    {
+      "file": "03_10.json",
+      "race_id": "2026-02-02_03_10",
+      "verdict": "skip",
+      "primary_axis": [
+        1,
+        2
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "1号艇1.5x本命+本命凝縮で EV<1.0"
+    },
+    {
+      "file": "03_11.json",
+      "race_id": "2026-02-02_03_11",
+      "verdict": "skip",
+      "primary_axis": [
+        1,
+        4
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "1号艇1.0x圧倒+本命凝縮で EV<1.0"
+    },
+    {
+      "file": "03_12.json",
+      "race_id": "2026-02-02_03_12",
+      "verdict": "skip",
+      "primary_axis": [
+        1,
+        5
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "5艇戦+A2充実の本命凝縮で EV<1.0"
+    },
+    {
+      "file": "06_01.json",
+      "race_id": "2026-02-02_06_01",
+      "verdict": "skip",
+      "primary_axis": [
+        1,
+        3
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "1号艇1.3x本命+本命凝縮で EV<1.0"
+    },
+    {
+      "file": "06_02.json",
+      "race_id": "2026-02-02_06_02",
+      "verdict": "skip",
+      "primary_axis": [
+        1,
+        2
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "1号艇+2号艇拮抗の本命凝縮で EV<1.0"
+    },
+    {
+      "file": "06_03.json",
+      "race_id": "2026-02-02_06_03",
+      "verdict": "skip",
+      "primary_axis": [
+        2,
+        3
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "1号艇単勝欠損+2-3号艇本命凝縮で EV<1.0"
+    },
+    {
+      "file": "06_04.json",
+      "race_id": "2026-02-02_06_04",
+      "verdict": "skip",
+      "primary_axis": [
+        1,
+        3
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "1号艇女子+3号艇A2圧倒の本命凝縮で EV<1.0"
+    },
+    {
+      "file": "06_05.json",
+      "race_id": "2026-02-02_06_05",
+      "verdict": "skip",
+      "primary_axis": [
+        1,
+        3
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "1号艇1.3x本命+本命凝縮で EV<1.0"
+    },
+    {
+      "file": "06_06.json",
+      "race_id": "2026-02-02_06_06",
+      "verdict": "skip",
+      "primary_axis": [
+        1,
+        2
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "1号艇+2号艇拮抗の本命凝縮で EV<1.0"
+    },
+    {
+      "file": "06_07.json",
+      "race_id": "2026-02-02_06_07",
+      "verdict": "skip",
+      "primary_axis": [
+        3,
+        1
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "1号艇B1機能不全+3号艇A2まくりの3着分散で EV ~1.0 ボーダー"
+    },
+    {
+      "file": "06_08.json",
+      "race_id": "2026-02-02_06_08",
+      "verdict": "skip",
+      "primary_axis": [
+        3,
+        1
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "1号艇B1機能不全+3号艇A1まくりの本命凝縮で EV<1.0"
+    },
+    {
+      "file": "06_09.json",
+      "race_id": "2026-02-02_06_09",
+      "verdict": "skip",
+      "primary_axis": [
+        1,
+        4
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "1号艇本命+4号艇拮抗の本命凝縮で EV<1.0"
+    },
+    {
+      "file": "06_10.json",
+      "race_id": "2026-02-02_06_10",
+      "verdict": "skip",
+      "primary_axis": [
+        1,
+        3
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "1号艇1.4x本命+本命凝縮で EV<1.0"
+    },
+    {
+      "file": "06_11.json",
+      "race_id": "2026-02-02_06_11",
+      "verdict": "skip",
+      "primary_axis": [
+        1,
+        2
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "1号艇1.0x圧倒+本命凝縮で EV<1.0"
+    },
+    {
+      "file": "06_12.json",
+      "race_id": "2026-02-02_06_12",
+      "verdict": "skip",
+      "primary_axis": [
+        1,
+        2
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "1号艇1.0x圧倒+本命凝縮で EV<1.0"
+    },
+    {
+      "file": "07_01.json",
+      "race_id": "2026-02-02_07_01",
+      "verdict": "skip",
+      "primary_axis": [
+        1,
+        2
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "1号艇1.2x圧倒+本命凝縮で EV<1.0"
+    },
+    {
+      "file": "07_02.json",
+      "race_id": "2026-02-02_07_02",
+      "verdict": "skip",
+      "primary_axis": [
+        1,
+        2
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "1/2号艇拮抗の本命凝縮で EV<1.0"
+    },
+    {
+      "file": "07_03.json",
+      "race_id": "2026-02-02_07_03",
+      "verdict": "skip",
+      "primary_axis": [
+        1,
+        4
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "1号艇1.1x圧倒+4号艇まくり差し本命凝縮で EV<1.0"
+    },
+    {
+      "file": "07_04.json",
+      "race_id": "2026-02-02_07_04",
+      "verdict": "skip",
+      "primary_axis": [
+        4,
+        1
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "1号艇B1機能不全+4号艇まくりの本命凝縮で EV<1.0"
+    },
+    {
+      "file": "07_05.json",
+      "race_id": "2026-02-02_07_05",
+      "verdict": "skip",
+      "primary_axis": [
+        1,
+        3
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "3号艇まくり差し大本命+本命凝縮で EV<1.0"
+    },
+    {
+      "file": "07_06.json",
+      "race_id": "2026-02-02_07_06",
+      "verdict": "skip",
+      "primary_axis": [
+        1,
+        2
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "三角拮抗(1/2/3号艇)+本命11x台で買い目薄、EV<1.0"
+    },
+    {
+      "file": "07_07.json",
+      "race_id": "2026-02-02_07_07",
+      "verdict": "skip",
+      "primary_axis": [
+        1,
+        3
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "1号艇1.3x圧倒+本命凝縮で EV<1.0"
+    },
+    {
+      "file": "07_08.json",
+      "race_id": "2026-02-02_07_08",
+      "verdict": "skip",
+      "primary_axis": [
+        1,
+        2
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "1号艇1.0x圧倒+本命凝縮で EV<1.0"
+    },
+    {
+      "file": "07_09.json",
+      "race_id": "2026-02-02_07_09",
+      "verdict": "skip",
+      "primary_axis": [
+        1,
+        4
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "1号艇1.4x本命+本命凝縮で EV<1.0"
+    },
+    {
+      "file": "07_10.json",
+      "race_id": "2026-02-02_07_10",
+      "verdict": "skip",
+      "primary_axis": [
+        1,
+        3
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "1号艇1.1x圧倒+本命凝縮で EV<1.0"
+    },
+    {
+      "file": "07_11.json",
+      "race_id": "2026-02-02_07_11",
+      "verdict": "skip",
+      "primary_axis": [
+        1,
+        2
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "1号艇1.3x圧倒+本命凝縮で EV<1.0"
+    },
+    {
+      "file": "07_12.json",
+      "race_id": "2026-02-02_07_12",
+      "verdict": "skip",
+      "primary_axis": [
+        1,
+        2
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "1号艇1.3x圧倒+本命凝縮で EV<1.0"
+    },
+    {
+      "file": "10_01.json",
+      "race_id": "2026-02-02_10_01",
+      "verdict": "skip",
+      "primary_axis": [
+        1,
+        2
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "1号艇1.1x圧倒+本命凝縮で EV<1.0"
+    },
+    {
+      "file": "10_02.json",
+      "race_id": "2026-02-02_10_02",
+      "verdict": "skip",
+      "primary_axis": [
+        1,
+        2
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "1/2号艇拮抗の本命凝縮で EV<1.0"
+    },
+    {
+      "file": "10_03.json",
+      "race_id": "2026-02-02_10_03",
+      "verdict": "skip",
+      "primary_axis": [
+        1,
+        3
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "1/2/3号艇拮抗の本命凝縮で EV<1.0"
+    },
+    {
+      "file": "10_04.json",
+      "race_id": "2026-02-02_10_04",
+      "verdict": "skip",
+      "primary_axis": [
+        1,
+        2
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "1号艇1.4x本命+本命凝縮で EV<1.0"
+    },
+    {
+      "file": "10_05.json",
+      "race_id": "2026-02-02_10_05",
+      "verdict": "skip",
+      "primary_axis": [
+        4,
+        1
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "1号艇弱+4号艇まくり大本命の本命凝縮で EV<1.0"
+    },
+    {
+      "file": "10_06.json",
+      "race_id": "2026-02-02_10_06",
+      "verdict": "skip",
+      "primary_axis": [
+        4,
+        1
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "1号艇激弱+1/2/4号艇拮抗の多角分散で EV<1.0"
+    },
+    {
+      "file": "10_07.json",
+      "race_id": "2026-02-02_10_07",
+      "verdict": "bet",
+      "primary_axis": [
+        6,
+        1
+      ],
+      "n_bets": 1,
+      "total_stake": 100,
+      "skip_reason": null
+    },
+    {
+      "file": "10_08.json",
+      "race_id": "2026-02-02_10_08",
+      "verdict": "skip",
+      "primary_axis": [
+        1,
+        4
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "1号艇本命+4号艇まくりの本命凝縮で EV<1.0"
+    },
+    {
+      "file": "10_09.json",
+      "race_id": "2026-02-02_10_09",
+      "verdict": "skip",
+      "primary_axis": [
+        1,
+        3
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "1号艇1.5x本命+本命凝縮で EV<1.0"
+    },
+    {
+      "file": "10_10.json",
+      "race_id": "2026-02-02_10_10",
+      "verdict": "skip",
+      "primary_axis": [
+        1,
+        2
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "1号艇1.7x本命+本命凝縮で EV<1.0"
+    },
+    {
+      "file": "10_11.json",
+      "race_id": "2026-02-02_10_11",
+      "verdict": "skip",
+      "primary_axis": [
+        1,
+        2
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "1号艇1.2x圧倒+本命凝縮で EV<1.0"
+    },
+    {
+      "file": "10_12.json",
+      "race_id": "2026-02-02_10_12",
+      "verdict": "skip",
+      "primary_axis": [
+        1,
+        2
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "1号艇1.0x圧倒+本命凝縮で EV<1.0"
+    },
+    {
+      "file": "13_01.json",
+      "race_id": "2026-02-02_13_01",
+      "verdict": "skip",
+      "primary_axis": [
+        1,
+        3
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "1号艇1.1x圧倒+本命凝縮で EV<1.0"
+    },
+    {
+      "file": "13_02.json",
+      "race_id": "2026-02-02_13_02",
+      "verdict": "skip",
+      "primary_axis": [
+        4,
+        1
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "1号艇弱+4号艇まくり大本命の3着分散で EV<1.0"
+    },
+    {
+      "file": "13_03.json",
+      "race_id": "2026-02-02_13_03",
+      "verdict": "skip",
+      "primary_axis": [
+        1,
+        3
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "1号艇本命+本命凝縮で EV<1.0"
+    },
+    {
+      "file": "13_04.json",
+      "race_id": "2026-02-02_13_04",
+      "verdict": "skip",
+      "primary_axis": [
+        6,
+        1
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "6号艇A1異常好調も20-30x帯で市場織込済 (Day 1 60x基準未達)"
+    },
+    {
+      "file": "13_05.json",
+      "race_id": "2026-02-02_13_05",
+      "verdict": "skip",
+      "primary_axis": [
+        1,
+        3
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "1号艇1.2x圧倒+本命凝縮で EV<1.0"
+    },
+    {
+      "file": "13_06.json",
+      "race_id": "2026-02-02_13_06",
+      "verdict": "skip",
+      "primary_axis": [
+        1,
+        4
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "1号艇本命+4/5号艇まくり差しの本命凝縮で EV<1.0"
+    },
+    {
+      "file": "13_07.json",
+      "race_id": "2026-02-02_13_07",
+      "verdict": "skip",
+      "primary_axis": [
+        1,
+        4
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "1号艇圧倒+4号艇まくり差しの本命凝縮で EV<1.0"
+    },
+    {
+      "file": "13_08.json",
+      "race_id": "2026-02-02_13_08",
+      "verdict": "skip",
+      "primary_axis": [
+        1,
+        3
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "1号艇1.4x本命+本命凝縮で EV<1.0"
+    },
+    {
+      "file": "13_09.json",
+      "race_id": "2026-02-02_13_09",
+      "verdict": "skip",
+      "primary_axis": [
+        1,
+        3
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "1号艇1.3x本命+本命凝縮で EV<1.0"
+    },
+    {
+      "file": "13_10.json",
+      "race_id": "2026-02-02_13_10",
+      "verdict": "skip",
+      "primary_axis": [
+        1,
+        2
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "1号艇本命+2号艇拮抗の本命凝縮で EV<1.0"
+    },
+    {
+      "file": "13_11.json",
+      "race_id": "2026-02-02_13_11",
+      "verdict": "skip",
+      "primary_axis": [
+        1,
+        2
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "1号艇1.0x圧倒+本命凝縮で EV<1.0"
+    },
+    {
+      "file": "13_12.json",
+      "race_id": "2026-02-02_13_12",
+      "verdict": "skip",
+      "primary_axis": [
+        1,
+        3
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "1号艇1.1x圧倒+本命凝縮で EV<1.0"
+    },
+    {
+      "file": "14_01.json",
+      "race_id": "2026-02-02_14_01",
+      "verdict": "skip",
+      "primary_axis": [
+        1,
+        3
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "1/3号艇拮抗の本命凝縮で EV<1.0"
+    },
+    {
+      "file": "14_02.json",
+      "race_id": "2026-02-02_14_02",
+      "verdict": "skip",
+      "primary_axis": [
+        3,
+        2
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "1号艇激弱+三角拮抗の多角分散で EV<1.0"
+    },
+    {
+      "file": "14_03.json",
+      "race_id": "2026-02-02_14_03",
+      "verdict": "skip",
+      "primary_axis": [
+        1,
+        3
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "1号艇本命+本命凝縮で EV<1.0"
+    },
+    {
+      "file": "14_04.json",
+      "race_id": "2026-02-02_14_04",
+      "verdict": "skip",
+      "primary_axis": [
+        4,
+        1
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "1号艇弱+4号艇まくり大本命の本命凝縮で EV<1.0"
+    },
+    {
+      "file": "14_05.json",
+      "race_id": "2026-02-02_14_05",
+      "verdict": "skip",
+      "primary_axis": [
+        1,
+        2
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "1号艇1.4x本命+本命凝縮で EV<1.0"
+    },
+    {
+      "file": "14_06.json",
+      "race_id": "2026-02-02_14_06",
+      "verdict": "skip",
+      "primary_axis": [
+        4,
+        1
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "1/4号艇拮抗+4号艇まくりの3着分散で EV<1.0"
+    },
+    {
+      "file": "14_07.json",
+      "race_id": "2026-02-02_14_07",
+      "verdict": "skip",
+      "primary_axis": [
+        1,
+        4
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "1号艇本命+本命凝縮で EV<1.0"
+    },
+    {
+      "file": "14_08.json",
+      "race_id": "2026-02-02_14_08",
+      "verdict": "skip",
+      "primary_axis": [
+        1,
+        2
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "1号艇1.3x本命+本命凝縮で EV<1.0"
+    },
+    {
+      "file": "14_09.json",
+      "race_id": "2026-02-02_14_09",
+      "verdict": "skip",
+      "primary_axis": [
+        1,
+        3
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "1号艇1.2x圧倒+本命凝縮で EV<1.0"
+    },
+    {
+      "file": "14_10.json",
+      "race_id": "2026-02-02_14_10",
+      "verdict": "skip",
+      "primary_axis": [
+        5,
+        1
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "5号艇A1まくり大本命も20x帯で市場織込済 (Day 1 60x基準未達)"
+    },
+    {
+      "file": "14_11.json",
+      "race_id": "2026-02-02_14_11",
+      "verdict": "skip",
+      "primary_axis": [
+        1,
+        4
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "1号艇本命+本命凝縮で EV<1.0"
+    },
+    {
+      "file": "14_12.json",
+      "race_id": "2026-02-02_14_12",
+      "verdict": "skip",
+      "primary_axis": [
+        1,
+        2
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "1号艇1.1x圧倒+本命凝縮で EV<1.0"
+    },
+    {
+      "file": "15_01.json",
+      "race_id": "2026-02-02_15_01",
+      "verdict": "skip",
+      "primary_axis": [
+        1,
+        3
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "1号艇1.0x圧倒+本命凝縮で EV<1.0"
+    },
+    {
+      "file": "15_02.json",
+      "race_id": "2026-02-02_15_02",
+      "verdict": "skip",
+      "primary_axis": [
+        2,
+        6
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "1号艇激弱+異例構図も6号艇A2当地未経験+20-30x帯で EV<1.0"
+    },
+    {
+      "file": "15_03.json",
+      "race_id": "2026-02-02_15_03",
+      "verdict": "skip",
+      "primary_axis": [
+        2,
+        1
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "1/2号艇拮抗の本命凝縮で EV<1.0"
+    },
+    {
+      "file": "15_04.json",
+      "race_id": "2026-02-02_15_04",
+      "verdict": "skip",
+      "primary_axis": [
+        1,
+        4
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "1号艇本命+4号艇まくり大本命の3着分散で EV<1.0"
+    },
+    {
+      "file": "15_05.json",
+      "race_id": "2026-02-02_15_05",
+      "verdict": "skip",
+      "primary_axis": [
+        1,
+        2
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "1号艇本命+本命凝縮で EV<1.0"
+    },
+    {
+      "file": "15_06.json",
+      "race_id": "2026-02-02_15_06",
+      "verdict": "skip",
+      "primary_axis": [
+        1,
+        2
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "1号艇1.0x圧倒+本命凝縮で EV<1.0"
+    },
+    {
+      "file": "15_07.json",
+      "race_id": "2026-02-02_15_07",
+      "verdict": "skip",
+      "primary_axis": [
+        4,
+        2
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "1号艇激弱+三角拮抗+4号艇まくりの本命凝縮で EV<1.0"
+    },
+    {
+      "file": "15_08.json",
+      "race_id": "2026-02-02_15_08",
+      "verdict": "skip",
+      "primary_axis": [
+        1,
+        2
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "1/2/4号艇拮抗の本命凝縮で EV<1.0"
+    },
+    {
+      "file": "15_09.json",
+      "race_id": "2026-02-02_15_09",
+      "verdict": "skip",
+      "primary_axis": [
+        1,
+        2
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "1号艇1.6x本命+本命凝縮で EV<1.0"
+    },
+    {
+      "file": "15_10.json",
+      "race_id": "2026-02-02_15_10",
+      "verdict": "skip",
+      "primary_axis": [
+        1,
+        2
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "1号艇1.5x本命+本命凝縮で EV<1.0"
+    },
+    {
+      "file": "15_11.json",
+      "race_id": "2026-02-02_15_11",
+      "verdict": "skip",
+      "primary_axis": [
+        1,
+        3
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "1号艇本命+3号艇拮抗の本命凝縮で EV<1.0"
+    },
+    {
+      "file": "15_12.json",
+      "race_id": "2026-02-02_15_12",
+      "verdict": "skip",
+      "primary_axis": [
+        1,
+        2
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "1号艇1.1x圧倒+本命凝縮で EV<1.0"
+    },
+    {
+      "file": "16_01.json",
+      "race_id": "2026-02-02_16_01",
+      "verdict": "skip",
+      "primary_axis": [
+        1,
+        3
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "1号艇1.0x圧倒+本命凝縮で EV<1.0"
+    },
+    {
+      "file": "16_02.json",
+      "race_id": "2026-02-02_16_02",
+      "verdict": "skip",
+      "primary_axis": [
+        1,
+        4
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "1号艇本命+4号艇まくり大本命の本命凝縮で EV<1.0"
+    },
+    {
+      "file": "16_03.json",
+      "race_id": "2026-02-02_16_03",
+      "verdict": "skip",
+      "primary_axis": [
+        1,
+        5
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "四艇拮抗(1/2/3/5)+本命15-17x帯で EV<1.0"
+    },
+    {
+      "file": "16_04.json",
+      "race_id": "2026-02-02_16_04",
+      "verdict": "skip",
+      "primary_axis": [
+        1,
+        4
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "1号艇1.2x圧倒+本命凝縮で EV<1.0"
+    },
+    {
+      "file": "16_05.json",
+      "race_id": "2026-02-02_16_05",
+      "verdict": "skip",
+      "primary_axis": [
+        1,
+        3
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "1号艇1.3x本命+本命凝縮で EV<1.0"
+    },
+    {
+      "file": "16_06.json",
+      "race_id": "2026-02-02_16_06",
+      "verdict": "skip",
+      "primary_axis": [
+        1,
+        2
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "1号艇本命+5艇戦の本命凝縮で EV<1.0"
+    },
+    {
+      "file": "16_07.json",
+      "race_id": "2026-02-02_16_07",
+      "verdict": "skip",
+      "primary_axis": [
+        1,
+        3
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "1号艇1.6x本命+本命凝縮で EV<1.0"
+    },
+    {
+      "file": "16_08.json",
+      "race_id": "2026-02-02_16_08",
+      "verdict": "skip",
+      "primary_axis": [
+        1,
+        2
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "1号艇1.0x圧倒+5艇戦の本命凝縮で EV<1.0"
+    },
+    {
+      "file": "16_09.json",
+      "race_id": "2026-02-02_16_09",
+      "verdict": "skip",
+      "primary_axis": [
+        1,
+        2
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "1号艇激弱+四艇拮抗の本命凝縮で EV<1.0"
+    },
+    {
+      "file": "16_10.json",
+      "race_id": "2026-02-02_16_10",
+      "verdict": "skip",
+      "primary_axis": [
+        1,
+        3
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "1/3号艇拮抗の本命凝縮で EV<1.0"
+    },
+    {
+      "file": "16_11.json",
+      "race_id": "2026-02-02_16_11",
+      "verdict": "skip",
+      "primary_axis": [
+        1,
+        3
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "1号艇本命+本命凝縮で EV<1.0"
+    },
+    {
+      "file": "16_12.json",
+      "race_id": "2026-02-02_16_12",
+      "verdict": "skip",
+      "primary_axis": [
+        1,
+        2
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "1/2号艇拮抗の本命凝縮で EV<1.0"
+    },
+    {
+      "file": "19_01.json",
+      "race_id": "2026-02-02_19_01",
+      "verdict": "skip",
+      "primary_axis": [
+        1,
+        3
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "1号艇1.0x圧倒+本命凝縮で EV<1.0"
+    },
+    {
+      "file": "19_02.json",
+      "race_id": "2026-02-02_19_02",
+      "verdict": "skip",
+      "primary_axis": [
+        1,
+        2
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "1号艇1.5x本命+本命凝縮で EV<1.0"
+    },
+    {
+      "file": "19_03.json",
+      "race_id": "2026-02-02_19_03",
+      "verdict": "skip",
+      "primary_axis": [
+        1,
+        4
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "1号艇本命+4号艇まくりの本命凝縮で EV<1.0"
+    },
+    {
+      "file": "19_04.json",
+      "race_id": "2026-02-02_19_04",
+      "verdict": "skip",
+      "primary_axis": [
+        1,
+        3
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "1号艇1.1x圧倒+本命凝縮で EV<1.0"
+    },
+    {
+      "file": "19_05.json",
+      "race_id": "2026-02-02_19_05",
+      "verdict": "skip",
+      "primary_axis": [
+        1,
+        2
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "1号艇1.0x圧倒+本命凝縮で EV<1.0"
+    },
+    {
+      "file": "19_06.json",
+      "race_id": "2026-02-02_19_06",
+      "verdict": "skip",
+      "primary_axis": [
+        1,
+        3
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "1号艇1.3x本命+本命凝縮で EV<1.0"
+    },
+    {
+      "file": "19_07.json",
+      "race_id": "2026-02-02_19_07",
+      "verdict": "skip",
+      "primary_axis": [
+        1,
+        3
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "1号艇1.0x圧倒+本命凝縮で EV<1.0"
+    },
+    {
+      "file": "19_08.json",
+      "race_id": "2026-02-02_19_08",
+      "verdict": "skip",
+      "primary_axis": [
+        1,
+        2
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "1号艇1.1x圧倒+本命凝縮で EV<1.0"
+    },
+    {
+      "file": "19_09.json",
+      "race_id": "2026-02-02_19_09",
+      "verdict": "skip",
+      "primary_axis": [
+        1,
+        2
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "1号艇1.0x圧倒+本命凝縮で EV<1.0"
+    },
+    {
+      "file": "19_10.json",
+      "race_id": "2026-02-02_19_10",
+      "verdict": "skip",
+      "primary_axis": [
+        1,
+        2
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "1号艇1.0x圧倒+本命凝縮で EV<1.0"
+    },
+    {
+      "file": "19_11.json",
+      "race_id": "2026-02-02_19_11",
+      "verdict": "skip",
+      "primary_axis": [
+        1,
+        2
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "1号艇1.1x圧倒+本命凝縮で EV<1.0"
+    },
+    {
+      "file": "19_12.json",
+      "race_id": "2026-02-02_19_12",
+      "verdict": "skip",
+      "primary_axis": [
+        1,
+        2
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "1号艇1.1x圧倒+本命凝縮で EV<1.0"
+    },
+    {
+      "file": "23_01.json",
+      "race_id": "2026-02-02_23_01",
+      "verdict": "skip",
+      "primary_axis": [
+        1,
+        2
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "1/2号艇拮抗の本命凝縮で EV<1.0"
+    },
+    {
+      "file": "23_02.json",
+      "race_id": "2026-02-02_23_02",
+      "verdict": "skip",
+      "primary_axis": [
+        1,
+        2
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "1号艇1.4x本命+本命凝縮で EV<1.0"
+    },
+    {
+      "file": "23_03.json",
+      "race_id": "2026-02-02_23_03",
+      "verdict": "skip",
+      "primary_axis": [
+        1,
+        3
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "1号艇本命+多角拮抗の本命凝縮で EV<1.0"
+    },
+    {
+      "file": "23_04.json",
+      "race_id": "2026-02-02_23_04",
+      "verdict": "skip",
+      "primary_axis": [
+        1,
+        3
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "1号艇圧倒+4号艇まくり差しの本命凝縮で EV<1.0"
+    },
+    {
+      "file": "23_05.json",
+      "race_id": "2026-02-02_23_05",
+      "verdict": "skip",
+      "primary_axis": [
+        3,
+        6
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "四艇拮抗+3/6号艇まくり差しの多角分散で EV<1.0"
+    },
+    {
+      "file": "23_06.json",
+      "race_id": "2026-02-02_23_06",
+      "verdict": "skip",
+      "primary_axis": [
+        1,
+        2
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "1号艇1.0x圧倒+本命凝縮で EV<1.0"
+    },
+    {
+      "file": "23_07.json",
+      "race_id": "2026-02-02_23_07",
+      "verdict": "skip",
+      "primary_axis": [
+        1,
+        3
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "1号艇本命+3号艇まくり差しの本命凝縮で EV<1.0"
+    },
+    {
+      "file": "23_08.json",
+      "race_id": "2026-02-02_23_08",
+      "verdict": "skip",
+      "primary_axis": [
+        1,
+        2
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "1号艇1.1x圧倒+本命凝縮で EV<1.0"
+    },
+    {
+      "file": "23_09.json",
+      "race_id": "2026-02-02_23_09",
+      "verdict": "skip",
+      "primary_axis": [
+        1,
+        6
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "6号艇A1異常好調も56.9x帯で60x基準ぎりぎり、conservative skip"
+    },
+    {
+      "file": "23_10.json",
+      "race_id": "2026-02-02_23_10",
+      "verdict": "skip",
+      "primary_axis": [
+        1,
+        2
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "1号艇1.0x圧倒+本命凝縮で EV<1.0"
+    },
+    {
+      "file": "23_11.json",
+      "race_id": "2026-02-02_23_11",
+      "verdict": "skip",
+      "primary_axis": [
+        1,
+        3
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "1号艇1.3x本命+本命凝縮で EV<1.0"
+    },
+    {
+      "file": "23_12.json",
+      "race_id": "2026-02-02_23_12",
+      "verdict": "bet",
+      "primary_axis": [
+        6,
+        1
+      ],
+      "n_bets": 1,
+      "total_stake": 100,
+      "skip_reason": null
+    }
+  ]
+}
