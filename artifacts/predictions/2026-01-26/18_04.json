@@ -1,0 +1,13 @@
+{
+  "race_id": "2026-01-26_18_04",
+  "predicted_at": "2026-01-26T10:30:00+09:00",
+  "model": "claude-opus-4-7",
+  "analysis": "1=1.7x/2=1.9x 拮抗、1-2-3 5.8x / 1-2-5 6.7x の本命凝縮 EV<0.4。",
+  "primary_axis": [
+    1,
+    2
+  ],
+  "verdict": "skip",
+  "skip_reason": "1=1.7x/2=1.9x 拮抗、本命凝縮 1-2-3 5.8x EV<0.4",
+  "bets": []
+}

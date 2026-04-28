@@ -1,0 +1,10 @@
+{
+  "race_id": "2026-01-26_03_08",
+  "predicted_at": "2026-01-26T10:30:00+09:00",
+  "model": "claude-opus-4-7",
+  "analysis": "1号艇1.9x+2号艇1.8x の2艇本命構図、2-1-3 6.7x / 1-2-3 7.2x 凝縮。配当薄で EV<0.6。",
+  "primary_axis": [1, 2],
+  "verdict": "skip",
+  "skip_reason": "1=1.9x/2=1.8x 本命凝縮、2-1-3 6.7x でEV<0.6",
+  "bets": []
+}

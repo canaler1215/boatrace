@@ -1,0 +1,2101 @@
+{
+  "date": "2026-01-26",
+  "generated_at": "2026-04-28T09:23:55",
+  "n_total": 180,
+  "n_valid": 180,
+  "n_invalid": 0,
+  "n_bet": 6,
+  "n_skip": 174,
+  "invalid_details": [],
+  "predictions": [
+    {
+      "file": "03_01.json",
+      "race_id": "2026-01-26_03_01",
+      "verdict": "skip",
+      "primary_axis": [
+        3,
+        2
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "1号艇B級+3号艇A1まくり構図は市場完全織込済 (2-3-5 9.1x)、EV<1.0"
+    },
+    {
+      "file": "03_02.json",
+      "race_id": "2026-01-26_03_02",
+      "verdict": "skip",
+      "primary_axis": [
+        3,
+        5
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "三角拮抗 (1=3.3x/3=2.5x/5=2.7x) で人気分散、買い目薄"
+    },
+    {
+      "file": "03_03.json",
+      "race_id": "2026-01-26_03_03",
+      "verdict": "skip",
+      "primary_axis": [
+        2,
+        3
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "1号艇B級+2-3軸の凝縮構図、本命2-3-4 7.9x で完全織込済、EV<1.0"
+    },
+    {
+      "file": "03_04.json",
+      "race_id": "2026-01-26_03_04",
+      "verdict": "skip",
+      "primary_axis": [
+        1,
+        2
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "1=2.4x/2=2.4x/3=3.0x 三角拮抗で本命凝縮 1-2-3 6.6x、買い目薄"
+    },
+    {
+      "file": "03_05.json",
+      "race_id": "2026-01-26_03_05",
+      "verdict": "skip",
+      "primary_axis": [
+        3,
+        4
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "3号艇単勝1.2x圧倒+4軸まくり差しの凝縮構図、3-5-4 12.2x で薄妙味"
+    },
+    {
+      "file": "03_06.json",
+      "race_id": "2026-01-26_03_06",
+      "verdict": "skip",
+      "primary_axis": [
+        1
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "1号艇A2 今井 当地2連51%大本命、1-2-4 4.4x で完全織込済 EV<0.7"
+    },
+    {
+      "file": "03_07.json",
+      "race_id": "2026-01-26_03_07",
+      "verdict": "skip",
+      "primary_axis": [
+        3,
+        2
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "1号艇B1機能不全+3号艇A2当地強+6号艇B1末脚の構図、3-2-6 10.7x で完全織込済EV境界、展示欠損で確信不足"
+    },
+    {
+      "file": "03_08.json",
+      "race_id": "2026-01-26_03_08",
+      "verdict": "skip",
+      "primary_axis": [
+        1,
+        2
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "1=1.9x/2=1.8x 本命凝縮、2-1-3 6.7x でEV<0.6"
+    },
+    {
+      "file": "03_09.json",
+      "race_id": "2026-01-26_03_09",
+      "verdict": "skip",
+      "primary_axis": [
+        1
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "1号艇単勝1.5x大本命、本命凝縮 1-3-4 4.2x で EV<0.5"
+    },
+    {
+      "file": "03_10.json",
+      "race_id": "2026-01-26_03_10",
+      "verdict": "skip",
+      "primary_axis": [
+        1,
+        2
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "1=1.7x/2=2.0x 本命凝縮、1-2-3 11.7x で薄妙味 EV<0.7"
+    },
+    {
+      "file": "03_11.json",
+      "race_id": "2026-01-26_03_11",
+      "verdict": "skip",
+      "primary_axis": [
+        4,
+        1
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "1=2.3x/4=1.7x まくり拮抗、市場完全織込済(4-1-2 24.3x)、EV境界で展示欠損下確信不足"
+    },
+    {
+      "file": "03_12.json",
+      "race_id": "2026-01-26_03_12",
+      "verdict": "skip",
+      "primary_axis": [
+        1
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "1号艇単勝1.3x圧倒、本命凝縮 1-2-5 7.1x EV<0.5"
+    },
+    {
+      "file": "04_01.json",
+      "race_id": "2026-01-26_04_01",
+      "verdict": "skip",
+      "primary_axis": [
+        1,
+        3
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "1号艇単勝1.5x大本命、本命凝縮 1-3-6 11.2x で EV<0.7"
+    },
+    {
+      "file": "04_02.json",
+      "race_id": "2026-01-26_04_02",
+      "verdict": "bet",
+      "primary_axis": [
+        6,
+        2
+      ],
+      "n_bets": 2,
+      "total_stake": 200,
+      "skip_reason": null
+    },
+    {
+      "file": "04_03.json",
+      "race_id": "2026-01-26_04_03",
+      "verdict": "bet",
+      "primary_axis": [
+        5,
+        4
+      ],
+      "n_bets": 1,
+      "total_stake": 100,
+      "skip_reason": null
+    },
+    {
+      "file": "04_04.json",
+      "race_id": "2026-01-26_04_04",
+      "verdict": "skip",
+      "primary_axis": [
+        1,
+        2
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "1=2.6x/2=2.2x 本命拮抗、本命凝縮 1-2-5 11.1x EV<0.8"
+    },
+    {
+      "file": "04_05.json",
+      "race_id": "2026-01-26_04_05",
+      "verdict": "skip",
+      "primary_axis": [
+        1
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "1号艇単勝1.3x圧倒、本命凝縮 1-3-5 6.6x EV<0.6"
+    },
+    {
+      "file": "04_06.json",
+      "race_id": "2026-01-26_04_06",
+      "verdict": "skip",
+      "primary_axis": [
+        1,
+        4
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "1号艇単勝1.2x圧倒、本命凝縮 1-4-2 9.9x EV<0.8"
+    },
+    {
+      "file": "04_07.json",
+      "race_id": "2026-01-26_04_07",
+      "verdict": "skip",
+      "primary_axis": [
+        4,
+        1
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "4号艇単勝1.6x圧倒のまくり構図、市場完全織込済 EV<0.8"
+    },
+    {
+      "file": "04_08.json",
+      "race_id": "2026-01-26_04_08",
+      "verdict": "skip",
+      "primary_axis": [
+        4,
+        2
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "4=2.1x/2=3.4x まくり拮抗+多角分散、4-5-6 28.4x EV境界で確信不足"
+    },
+    {
+      "file": "04_09.json",
+      "race_id": "2026-01-26_04_09",
+      "verdict": "skip",
+      "primary_axis": [
+        1,
+        2
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "1=1.7x/2=2.4x 本命凝縮、1-2-3 5.5x EV<0.5"
+    },
+    {
+      "file": "04_10.json",
+      "race_id": "2026-01-26_04_10",
+      "verdict": "skip",
+      "primary_axis": [
+        1,
+        2
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "1=2.0x/2=2.1x 本命拮抗、本命凝縮 1-2-4 7.2x EV<0.6"
+    },
+    {
+      "file": "04_11.json",
+      "race_id": "2026-01-26_04_11",
+      "verdict": "bet",
+      "primary_axis": [
+        3,
+        1
+      ],
+      "n_bets": 1,
+      "total_stake": 100,
+      "skip_reason": null
+    },
+    {
+      "file": "04_12.json",
+      "race_id": "2026-01-26_04_12",
+      "verdict": "skip",
+      "primary_axis": [
+        1,
+        2
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "1号艇単勝1.4x圧倒、本命凝縮 1-2-4 6.2x EV<0.5"
+    },
+    {
+      "file": "05_01.json",
+      "race_id": "2026-01-26_05_01",
+      "verdict": "skip",
+      "primary_axis": [
+        1,
+        4
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "1=2.1/2=2.5/4=5.6/5=5.6 四角拮抗で人気分散、本命系凝縮 EV<1.0"
+    },
+    {
+      "file": "05_02.json",
+      "race_id": "2026-01-26_05_02",
+      "verdict": "skip",
+      "primary_axis": [
+        1,
+        6
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "1=1.8x/6=2.7x で6号艇A1まくり織込済、6-X-X 13-17x 配当薄+多摩川1コース55.2%、EV境界"
+    },
+    {
+      "file": "05_03.json",
+      "race_id": "2026-01-26_05_03",
+      "verdict": "skip",
+      "primary_axis": [
+        1,
+        4
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "1=2.2x/4=2.4x まくり拮抗、本命凝縮 4-5-1 9.2x EV<0.8"
+    },
+    {
+      "file": "05_04.json",
+      "race_id": "2026-01-26_05_04",
+      "verdict": "bet",
+      "primary_axis": [
+        4,
+        6
+      ],
+      "n_bets": 1,
+      "total_stake": 100,
+      "skip_reason": null
+    },
+    {
+      "file": "05_05.json",
+      "race_id": "2026-01-26_05_05",
+      "verdict": "skip",
+      "primary_axis": [
+        1,
+        3
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "1=1.7x/3=2.6x 本命凝縮、3-4-5 12.0x EV<0.8"
+    },
+    {
+      "file": "05_06.json",
+      "race_id": "2026-01-26_05_06",
+      "verdict": "skip",
+      "primary_axis": [
+        1,
+        4
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "1=2.1x/4=2.8x 本命凝縮、1-3-5 14.2x EV<0.8"
+    },
+    {
+      "file": "05_07.json",
+      "race_id": "2026-01-26_05_07",
+      "verdict": "skip",
+      "primary_axis": [
+        1
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "1号艇単勝1.3x圧倒、本命凝縮 1-2-3 3.8x EV<0.4"
+    },
+    {
+      "file": "05_08.json",
+      "race_id": "2026-01-26_05_08",
+      "verdict": "skip",
+      "primary_axis": [
+        1
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "1号艇単勝1.2x圧倒、本命凝縮 1-3-5 4.5x EV<0.5"
+    },
+    {
+      "file": "05_09.json",
+      "race_id": "2026-01-26_05_09",
+      "verdict": "skip",
+      "primary_axis": [
+        1,
+        2
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "1=1.9x/2=2.3x 本命拮抗、本命凝縮 1-2-3 3.7x EV<0.4"
+    },
+    {
+      "file": "05_10.json",
+      "race_id": "2026-01-26_05_10",
+      "verdict": "skip",
+      "primary_axis": [
+        1,
+        3
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "1=1.8x/3=1.8x 二強拮抗、本命凝縮 3-1-4 8.1x EV<0.8"
+    },
+    {
+      "file": "05_11.json",
+      "race_id": "2026-01-26_05_11",
+      "verdict": "skip",
+      "primary_axis": [
+        1
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "1号艇単勝1.1x圧倒、本命凝縮 1-3-6 9.3x EV<0.5"
+    },
+    {
+      "file": "05_12.json",
+      "race_id": "2026-01-26_05_12",
+      "verdict": "skip",
+      "primary_axis": [
+        1
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "1号艇単勝1.2x圧倒、本命凝縮 1-2-5 5.5x EV<0.5"
+    },
+    {
+      "file": "06_01.json",
+      "race_id": "2026-01-26_06_01",
+      "verdict": "skip",
+      "primary_axis": [
+        1,
+        2
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "五角拮抗 (1-5号艇) で人気分散、本命凝縮 1-2-3 9.5x EV<0.7"
+    },
+    {
+      "file": "06_02.json",
+      "race_id": "2026-01-26_06_02",
+      "verdict": "skip",
+      "primary_axis": [
+        4,
+        5
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "4号艇単勝1.9x圧倒のまくり、4-5-6 9.5x で完全織込済 EV<0.9"
+    },
+    {
+      "file": "06_03.json",
+      "race_id": "2026-01-26_06_03",
+      "verdict": "skip",
+      "primary_axis": [
+        1,
+        3
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "1=1.9x/3=1.9x 二強拮抗、本命凝縮 1-3-4 8.8x EV<0.7"
+    },
+    {
+      "file": "06_04.json",
+      "race_id": "2026-01-26_06_04",
+      "verdict": "skip",
+      "primary_axis": [
+        1,
+        3
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "1=2.3x/3=2.1x 三角拮抗、本命凝縮 1-3-2 5.0x EV<0.4"
+    },
+    {
+      "file": "06_05.json",
+      "race_id": "2026-01-26_06_05",
+      "verdict": "skip",
+      "primary_axis": [
+        1
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "1号艇単勝1.1x圧倒、本命凝縮 1-3-4 6.7x EV<0.5"
+    },
+    {
+      "file": "06_06.json",
+      "race_id": "2026-01-26_06_06",
+      "verdict": "skip",
+      "primary_axis": [
+        4,
+        3
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "4号艇単勝1.5x圧倒のまくり、4-3-6 12.2x EV<0.9"
+    },
+    {
+      "file": "06_07.json",
+      "race_id": "2026-01-26_06_07",
+      "verdict": "bet",
+      "primary_axis": [
+        2,
+        4
+      ],
+      "n_bets": 1,
+      "total_stake": 100,
+      "skip_reason": null
+    },
+    {
+      "file": "06_08.json",
+      "race_id": "2026-01-26_06_08",
+      "verdict": "skip",
+      "primary_axis": [
+        1,
+        5
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "1号艇単勝1.5x大本命、本命凝縮 1-2-5 8.3x EV<0.8"
+    },
+    {
+      "file": "06_09.json",
+      "race_id": "2026-01-26_06_09",
+      "verdict": "skip",
+      "primary_axis": [
+        1,
+        4
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "1=2.3x/4=2.9x/5=2.9x 三角拮抗、本命凝縮 1-4-5 8.4x EV<0.7"
+    },
+    {
+      "file": "06_10.json",
+      "race_id": "2026-01-26_06_10",
+      "verdict": "bet",
+      "primary_axis": [
+        2,
+        1
+      ],
+      "n_bets": 1,
+      "total_stake": 100,
+      "skip_reason": null
+    },
+    {
+      "file": "06_11.json",
+      "race_id": "2026-01-26_06_11",
+      "verdict": "skip",
+      "primary_axis": [
+        1
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "1号艇単勝1.2x圧倒、本命凝縮 1-2-3 6.1x EV<0.5"
+    },
+    {
+      "file": "06_12.json",
+      "race_id": "2026-01-26_06_12",
+      "verdict": "skip",
+      "primary_axis": [
+        1,
+        4
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "1号艇単勝1.7x大本命、本命凝縮 1-4-2 8.8x EV<0.7"
+    },
+    {
+      "file": "07_01.json",
+      "race_id": "2026-01-26_07_01",
+      "verdict": "skip",
+      "primary_axis": [
+        1,
+        3
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "1号艇単勝1.6x大本命、本命凝縮 1-3-4 9.7x EV<0.6"
+    },
+    {
+      "file": "07_02.json",
+      "race_id": "2026-01-26_07_02",
+      "verdict": "skip",
+      "primary_axis": [
+        5,
+        1
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "5号艇単勝1.5x圧倒のまくり、市場完全織込済 EV<0.9"
+    },
+    {
+      "file": "07_03.json",
+      "race_id": "2026-01-26_07_03",
+      "verdict": "skip",
+      "primary_axis": [
+        1,
+        3
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "1=1.8x/3=1.9x 二強拮抗、本命凝縮 1-3-2 10.1x EV<0.7"
+    },
+    {
+      "file": "07_04.json",
+      "race_id": "2026-01-26_07_04",
+      "verdict": "skip",
+      "primary_axis": [
+        1,
+        3
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "1=1.8x/3=1.9x 二強拮抗、本命凝縮 1-3-6 8.7x EV<0.6"
+    },
+    {
+      "file": "07_05.json",
+      "race_id": "2026-01-26_07_05",
+      "verdict": "skip",
+      "primary_axis": [
+        1,
+        2
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "1=3.5x/2=3.5x 拮抗、本命凝縮 1-2-4 7.3x EV<0.5"
+    },
+    {
+      "file": "07_06.json",
+      "race_id": "2026-01-26_07_06",
+      "verdict": "skip",
+      "primary_axis": [
+        1,
+        3
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "1号艇単勝1.5x大本命、本命凝縮 3-1-6 8.2x EV<0.6"
+    },
+    {
+      "file": "07_07.json",
+      "race_id": "2026-01-26_07_07",
+      "verdict": "skip",
+      "primary_axis": [
+        1
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "1号艇単勝1.0x圧倒、本命凝縮 1-2-4 5.4x EV<0.4"
+    },
+    {
+      "file": "07_08.json",
+      "race_id": "2026-01-26_07_08",
+      "verdict": "skip",
+      "primary_axis": [
+        1
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "1号艇単勝1.1x圧倒、本命凝縮 1-2-4 5.5x EV<0.4"
+    },
+    {
+      "file": "07_09.json",
+      "race_id": "2026-01-26_07_09",
+      "verdict": "skip",
+      "primary_axis": [
+        1
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "1号艇単勝1.5x大本命、本命凝縮 1-2-3 5.7x EV<0.5"
+    },
+    {
+      "file": "07_10.json",
+      "race_id": "2026-01-26_07_10",
+      "verdict": "skip",
+      "primary_axis": [
+        2,
+        1
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "5艇戦+2号艇単勝1.5x大本命、本命凝縮 1-2-5 4.5x EV<0.5"
+    },
+    {
+      "file": "07_11.json",
+      "race_id": "2026-01-26_07_11",
+      "verdict": "skip",
+      "primary_axis": [
+        1
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "1号艇単勝1.1x圧倒、本命凝縮 1-3-5 9.0x EV<0.5"
+    },
+    {
+      "file": "07_12.json",
+      "race_id": "2026-01-26_07_12",
+      "verdict": "skip",
+      "primary_axis": [
+        1
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "1号艇単勝1.4x大本命、本命凝縮 1-2-4 8.0x EV<0.5"
+    },
+    {
+      "file": "09_01.json",
+      "race_id": "2026-01-26_09_01",
+      "verdict": "skip",
+      "primary_axis": [
+        1
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "1号艇単勝1.1x圧倒、本命凝縮 1-2-3 5.0x EV<0.4"
+    },
+    {
+      "file": "09_02.json",
+      "race_id": "2026-01-26_09_02",
+      "verdict": "skip",
+      "primary_axis": [
+        1
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "1号艇単勝1.3x大本命、本命凝縮 1-2-3 6.0x EV<0.5"
+    },
+    {
+      "file": "09_03.json",
+      "race_id": "2026-01-26_09_03",
+      "verdict": "skip",
+      "primary_axis": [
+        2,
+        1
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "2号艇A1差し1.3x圧倒+1号艇B1機能不全、本命系 14-19x 配当薄+織込済"
+    },
+    {
+      "file": "09_04.json",
+      "race_id": "2026-01-26_09_04",
+      "verdict": "skip",
+      "primary_axis": [
+        3,
+        1
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "5艇戦+3号艇単勝1.2x圧倒、本命凝縮 1-3-6 6.9x EV<0.6"
+    },
+    {
+      "file": "09_05.json",
+      "race_id": "2026-01-26_09_05",
+      "verdict": "skip",
+      "primary_axis": [
+        1
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "1号艇単勝1.0x圧倒、本命凝縮 1-2-3 4.3x EV<0.4"
+    },
+    {
+      "file": "09_06.json",
+      "race_id": "2026-01-26_09_06",
+      "verdict": "skip",
+      "primary_axis": [
+        2,
+        1
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "1=2.4x/2=2.3x 拮抗、本命凝縮 2-1-4 7.3x EV<0.6"
+    },
+    {
+      "file": "09_07.json",
+      "race_id": "2026-01-26_09_07",
+      "verdict": "skip",
+      "primary_axis": [
+        1,
+        2
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "5艇戦+1=1.7x/2=2.0x 拮抗、本命凝縮 EV<0.5"
+    },
+    {
+      "file": "09_08.json",
+      "race_id": "2026-01-26_09_08",
+      "verdict": "skip",
+      "primary_axis": [
+        4,
+        1
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "5艇戦+4号艇単勝1.5x圧倒、本命凝縮 1-4-3 10.2x EV<0.7"
+    },
+    {
+      "file": "09_09.json",
+      "race_id": "2026-01-26_09_09",
+      "verdict": "skip",
+      "primary_axis": [
+        1
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "1号艇単勝1.4x大本命、本命凝縮 1-2-4 4.8x EV<0.4"
+    },
+    {
+      "file": "09_10.json",
+      "race_id": "2026-01-26_09_10",
+      "verdict": "skip",
+      "primary_axis": [
+        1
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "1号艇単勝1.6x大本命、本命凝縮 1-3-4 7.3x EV<0.5"
+    },
+    {
+      "file": "09_11.json",
+      "race_id": "2026-01-26_09_11",
+      "verdict": "skip",
+      "primary_axis": [
+        1
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "1号艇単勝1.1x圧倒、本命凝縮 1-2-4 4.3x EV<0.4"
+    },
+    {
+      "file": "09_12.json",
+      "race_id": "2026-01-26_09_12",
+      "verdict": "skip",
+      "primary_axis": [
+        1
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "1号艇単勝1.1x圧倒、本命凝縮 1-2-3 6.9x EV<0.5"
+    },
+    {
+      "file": "10_01.json",
+      "race_id": "2026-01-26_10_01",
+      "verdict": "skip",
+      "primary_axis": [
+        1,
+        4
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "雪天候+1号艇単勝1.2x圧倒、本命凝縮 1-4-5 7.8x EV<0.5"
+    },
+    {
+      "file": "10_02.json",
+      "race_id": "2026-01-26_10_02",
+      "verdict": "skip",
+      "primary_axis": [
+        1
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "雪天候+1号艇単勝1.0x圧倒、本命凝縮 1-2-4 5.3x EV<0.4"
+    },
+    {
+      "file": "10_03.json",
+      "race_id": "2026-01-26_10_03",
+      "verdict": "skip",
+      "primary_axis": [
+        1,
+        3
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "雪天候+1号艇単勝1.5x大本命、本命凝縮 1-3-2 4.2x EV<0.4"
+    },
+    {
+      "file": "10_04.json",
+      "race_id": "2026-01-26_10_04",
+      "verdict": "skip",
+      "primary_axis": [
+        1,
+        4
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "雪天候+1号艇単勝1.2x圧倒、本命凝縮 1-2-4 6.5x EV<0.5"
+    },
+    {
+      "file": "10_05.json",
+      "race_id": "2026-01-26_10_05",
+      "verdict": "skip",
+      "primary_axis": [
+        1,
+        2
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "雪天候+1号艇単勝1.1x圧倒、本命凝縮 1-2-6 4.5x EV<0.4"
+    },
+    {
+      "file": "10_06.json",
+      "race_id": "2026-01-26_10_06",
+      "verdict": "skip",
+      "primary_axis": [
+        5,
+        1
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "雪天候+5号艇単勝1.5x圧倒、本命凝縮 1-2-5 12.1x EV<0.8"
+    },
+    {
+      "file": "10_07.json",
+      "race_id": "2026-01-26_10_07",
+      "verdict": "skip",
+      "primary_axis": [
+        2,
+        5
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "4艇戦+雪天候+本命凝縮 1-6-5 5.0x EV<0.5"
+    },
+    {
+      "file": "10_08.json",
+      "race_id": "2026-01-26_10_08",
+      "verdict": "skip",
+      "primary_axis": [
+        1
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "雪天候+1号艇単勝1.3x大本命、本命凝縮 1-2-6 8.4x EV<0.5"
+    },
+    {
+      "file": "10_09.json",
+      "race_id": "2026-01-26_10_09",
+      "verdict": "skip",
+      "primary_axis": [
+        1,
+        3
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "雪天候+1号艇単勝1.5x大本命、本命凝縮 1-3-2 5.8x EV<0.5"
+    },
+    {
+      "file": "10_10.json",
+      "race_id": "2026-01-26_10_10",
+      "verdict": "skip",
+      "primary_axis": [
+        1
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "雪天候+1号艇単勝1.2x圧倒、本命凝縮 1-2-4 6.4x EV<0.5"
+    },
+    {
+      "file": "10_11.json",
+      "race_id": "2026-01-26_10_11",
+      "verdict": "skip",
+      "primary_axis": [
+        1
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "雪天候+1号艇単勝1.1x圧倒、本命凝縮 1-2-3 6.5x EV<0.4"
+    },
+    {
+      "file": "10_12.json",
+      "race_id": "2026-01-26_10_12",
+      "verdict": "skip",
+      "primary_axis": [
+        1
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "雪天候+1号艇単勝1.0x圧倒、本命凝縮 1-2-3 6.2x EV<0.4"
+    },
+    {
+      "file": "11_01.json",
+      "race_id": "2026-01-26_11_01",
+      "verdict": "skip",
+      "primary_axis": [
+        1
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "1号艇単勝1.9x大本命+多角分散、本命凝縮 1-5-2 11.1x EV<0.7"
+    },
+    {
+      "file": "11_02.json",
+      "race_id": "2026-01-26_11_02",
+      "verdict": "skip",
+      "primary_axis": [
+        1,
+        3
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "3号艇A1まくり拮抗、本命凝縮 3-4-5 10.6x EV<0.7"
+    },
+    {
+      "file": "11_03.json",
+      "race_id": "2026-01-26_11_03",
+      "verdict": "skip",
+      "primary_axis": [
+        5,
+        2
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "5艇戦+5号艇A2まくり差し1.9x+多角構図、展示欠損下確信不足"
+    },
+    {
+      "file": "11_04.json",
+      "race_id": "2026-01-26_11_04",
+      "verdict": "skip",
+      "primary_axis": [
+        1,
+        3
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "1号艇単勝1.7x大本命、本命凝縮 1-3-6 8.6x EV<0.5"
+    },
+    {
+      "file": "11_05.json",
+      "race_id": "2026-01-26_11_05",
+      "verdict": "skip",
+      "primary_axis": [
+        1
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "1号艇単勝1.2x圧倒、本命凝縮 1-2-3 8.3x EV<0.5"
+    },
+    {
+      "file": "11_06.json",
+      "race_id": "2026-01-26_11_06",
+      "verdict": "skip",
+      "primary_axis": [
+        3,
+        1
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "3号艇単勝1.6x圧倒のまくり、本命凝縮 1-2-3 6.1x EV<0.5"
+    },
+    {
+      "file": "11_07.json",
+      "race_id": "2026-01-26_11_07",
+      "verdict": "skip",
+      "primary_axis": [
+        4,
+        3
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "4号艇単勝1.6x圧倒のまくり、本命凝縮 4-3-5 11.3x EV<0.7"
+    },
+    {
+      "file": "11_08.json",
+      "race_id": "2026-01-26_11_08",
+      "verdict": "skip",
+      "primary_axis": [
+        3,
+        1
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "5艇戦+3号艇単勝1.3x圧倒、本命凝縮 1-3-2 8.6x EV<0.6"
+    },
+    {
+      "file": "11_09.json",
+      "race_id": "2026-01-26_11_09",
+      "verdict": "skip",
+      "primary_axis": [
+        1
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "1号艇単勝1.0x圧倒、本命凝縮 1-3-6 6.7x EV<0.4"
+    },
+    {
+      "file": "11_10.json",
+      "race_id": "2026-01-26_11_10",
+      "verdict": "skip",
+      "primary_axis": [
+        1
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "1号艇単勝1.1x圧倒、本命凝縮 1-3-4 6.6x EV<0.5"
+    },
+    {
+      "file": "11_11.json",
+      "race_id": "2026-01-26_11_11",
+      "verdict": "skip",
+      "primary_axis": [
+        1,
+        3
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "1号艇単勝1.3x大本命、本命凝縮 1-2-3 10.3x EV<0.6"
+    },
+    {
+      "file": "11_12.json",
+      "race_id": "2026-01-26_11_12",
+      "verdict": "skip",
+      "primary_axis": [
+        1,
+        5
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "1号艇単勝1.4x大本命、本命凝縮 1-2-3 8.3x EV<0.5"
+    },
+    {
+      "file": "16_01.json",
+      "race_id": "2026-01-26_16_01",
+      "verdict": "skip",
+      "primary_axis": [
+        1
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "1号艇単勝1.2x圧倒、本命凝縮 1-2-3 6.1x EV<0.4"
+    },
+    {
+      "file": "16_02.json",
+      "race_id": "2026-01-26_16_02",
+      "verdict": "skip",
+      "primary_axis": [
+        2,
+        1
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "2号艇A1差し1.2x圧倒+1号艇機能弱、本命凝縮 1-3-5 8.6x で確信不足"
+    },
+    {
+      "file": "16_03.json",
+      "race_id": "2026-01-26_16_03",
+      "verdict": "skip",
+      "primary_axis": [
+        1
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "1号艇単勝1.8x大本命、本命凝縮 1-2-3 7.1x EV<0.5"
+    },
+    {
+      "file": "16_04.json",
+      "race_id": "2026-01-26_16_04",
+      "verdict": "skip",
+      "primary_axis": [
+        4,
+        5
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "4号艇単勝1.9x圧倒のまくり、本命凝縮 4-5-6 8.9x EV<0.6"
+    },
+    {
+      "file": "16_05.json",
+      "race_id": "2026-01-26_16_05",
+      "verdict": "skip",
+      "primary_axis": [
+        1,
+        4
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "1=2.0x/4=1.6x 二強拮抗、本命凝縮 1-3-6 6.0x EV<0.5"
+    },
+    {
+      "file": "16_06.json",
+      "race_id": "2026-01-26_16_06",
+      "verdict": "skip",
+      "primary_axis": [
+        1,
+        2
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "1=1.8x/2=1.8x 二強拮抗、本命凝縮 1-2-3 4.1x EV<0.4"
+    },
+    {
+      "file": "16_07.json",
+      "race_id": "2026-01-26_16_07",
+      "verdict": "skip",
+      "primary_axis": [
+        1,
+        3
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "1=2.4x/3=2.5x 三角拮抗、本命凝縮 1-2-3 9.9x EV<0.6"
+    },
+    {
+      "file": "16_08.json",
+      "race_id": "2026-01-26_16_08",
+      "verdict": "skip",
+      "primary_axis": [
+        1,
+        2
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "1号艇単勝1.3x大本命、本命凝縮 1-2-3 12.0x EV<0.6"
+    },
+    {
+      "file": "16_09.json",
+      "race_id": "2026-01-26_16_09",
+      "verdict": "skip",
+      "primary_axis": [
+        1,
+        3
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "1=1.9x/3=3.9x 拮抗、本命凝縮 1-3-4 8.7x EV<0.5"
+    },
+    {
+      "file": "16_10.json",
+      "race_id": "2026-01-26_16_10",
+      "verdict": "skip",
+      "primary_axis": [
+        1
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "1号艇単勝1.2x圧倒、本命凝縮 1-2-3 3.6x EV<0.3"
+    },
+    {
+      "file": "16_11.json",
+      "race_id": "2026-01-26_16_11",
+      "verdict": "skip",
+      "primary_axis": [
+        1,
+        2
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "五角拮抗 (1-5号艇) で人気分散、本命凝縮 1-2-3 9.8x EV<0.5"
+    },
+    {
+      "file": "16_12.json",
+      "race_id": "2026-01-26_16_12",
+      "verdict": "skip",
+      "primary_axis": [
+        1,
+        2
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "1号艇単勝1.4x大本命、本命凝縮 1-2-3 7.6x EV<0.5"
+    },
+    {
+      "file": "18_01.json",
+      "race_id": "2026-01-26_18_01",
+      "verdict": "skip",
+      "primary_axis": [
+        1,
+        4
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "5艇戦+1号艇単勝1.6x大本命、本命凝縮 1-4-2 4.4x EV<0.4"
+    },
+    {
+      "file": "18_02.json",
+      "race_id": "2026-01-26_18_02",
+      "verdict": "skip",
+      "primary_axis": [
+        4,
+        1
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "4号艇単勝1.3x圧倒のまくり、本命凝縮 1-3-4 5.8x EV<0.5"
+    },
+    {
+      "file": "18_03.json",
+      "race_id": "2026-01-26_18_03",
+      "verdict": "skip",
+      "primary_axis": [
+        1
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "1号艇単勝1.7x大本命、本命凝縮 1-3-6 9.4x EV<0.6"
+    },
+    {
+      "file": "18_04.json",
+      "race_id": "2026-01-26_18_04",
+      "verdict": "skip",
+      "primary_axis": [
+        1,
+        2
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "1=1.7x/2=1.9x 拮抗、本命凝縮 1-2-3 5.8x EV<0.4"
+    },
+    {
+      "file": "18_05.json",
+      "race_id": "2026-01-26_18_05",
+      "verdict": "skip",
+      "primary_axis": [
+        1,
+        3
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "1号艇単勝1.6x大本命、本命凝縮 1-3-6 9.0x EV<0.6"
+    },
+    {
+      "file": "18_06.json",
+      "race_id": "2026-01-26_18_06",
+      "verdict": "skip",
+      "primary_axis": [
+        1,
+        4
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "5艇戦+1号艇単勝1.1x圧倒、本命凝縮 1-4-6 8.1x EV<0.5"
+    },
+    {
+      "file": "18_07.json",
+      "race_id": "2026-01-26_18_07",
+      "verdict": "skip",
+      "primary_axis": [
+        1,
+        4
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "1=2.5x/4=2.6x 拮抗、本命凝縮 1-3-4 6.4x EV<0.5"
+    },
+    {
+      "file": "18_08.json",
+      "race_id": "2026-01-26_18_08",
+      "verdict": "skip",
+      "primary_axis": [
+        5,
+        1
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "5号艇A1まくり差し1.6x圧倒+1号艇B1機能弱、多角構図で本命凝縮 1-5-3 10.4x EV境界"
+    },
+    {
+      "file": "18_09.json",
+      "race_id": "2026-01-26_18_09",
+      "verdict": "skip",
+      "primary_axis": [
+        2,
+        1
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "2=1.6x/1=2.2x 二強拮抗、本命凝縮 2-1-4 9.0x EV<0.5"
+    },
+    {
+      "file": "18_10.json",
+      "race_id": "2026-01-26_18_10",
+      "verdict": "skip",
+      "primary_axis": [
+        1
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "1号艇単勝1.6x大本命、本命凝縮 1-3-5 12.0x EV<0.6"
+    },
+    {
+      "file": "18_11.json",
+      "race_id": "2026-01-26_18_11",
+      "verdict": "skip",
+      "primary_axis": [
+        3,
+        1
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "3号艇単勝1.0x圧倒のまくり、本命凝縮 3-4-5 11.5x EV<0.7"
+    },
+    {
+      "file": "18_12.json",
+      "race_id": "2026-01-26_18_12",
+      "verdict": "skip",
+      "primary_axis": [
+        2,
+        4
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "5艇戦+2号艇単勝1.1x圧倒、本命凝縮 2-3-4 7.4x EV<0.5"
+    },
+    {
+      "file": "19_01.json",
+      "race_id": "2026-01-26_19_01",
+      "verdict": "skip",
+      "primary_axis": [
+        3,
+        1
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "3号艇単勝1.6x圧倒のまくり、本命凝縮 1-3-2 8.8x EV<0.5"
+    },
+    {
+      "file": "19_02.json",
+      "race_id": "2026-01-26_19_02",
+      "verdict": "skip",
+      "primary_axis": [
+        1,
+        2
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "1号艇単勝1.9x大本命、本命凝縮 1-2-3 7.9x EV<0.5"
+    },
+    {
+      "file": "19_03.json",
+      "race_id": "2026-01-26_19_03",
+      "verdict": "skip",
+      "primary_axis": [
+        1
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "1号艇単勝1.0x圧倒、本命凝縮 1-3-4 19.1x EV<0.6"
+    },
+    {
+      "file": "19_04.json",
+      "race_id": "2026-01-26_19_04",
+      "verdict": "skip",
+      "primary_axis": [
+        4,
+        1
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "4号艇単勝1.5x圧倒のまくり、本命凝縮 1-4-3 12.8x EV<0.7"
+    },
+    {
+      "file": "19_05.json",
+      "race_id": "2026-01-26_19_05",
+      "verdict": "skip",
+      "primary_axis": [
+        1
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "1号艇単勝大本命、本命凝縮 1-2-4 5.8x EV<0.4"
+    },
+    {
+      "file": "19_06.json",
+      "race_id": "2026-01-26_19_06",
+      "verdict": "skip",
+      "primary_axis": [
+        1
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "1号艇単勝1.2x圧倒、本命凝縮 1-2-3 5.1x EV<0.4"
+    },
+    {
+      "file": "19_07.json",
+      "race_id": "2026-01-26_19_07",
+      "verdict": "skip",
+      "primary_axis": [
+        1
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "5艇戦+1号艇単勝1.1x圧倒、本命凝縮 1-2-3 2.9x EV<0.3"
+    },
+    {
+      "file": "19_08.json",
+      "race_id": "2026-01-26_19_08",
+      "verdict": "skip",
+      "primary_axis": [
+        1
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "1号艇単勝1.2x圧倒、本命凝縮 1-2-4 4.5x EV<0.4"
+    },
+    {
+      "file": "19_09.json",
+      "race_id": "2026-01-26_19_09",
+      "verdict": "skip",
+      "primary_axis": [
+        1
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "1号艇単勝1.2x圧倒、本命凝縮 1-3-5 5.3x EV<0.4"
+    },
+    {
+      "file": "19_10.json",
+      "race_id": "2026-01-26_19_10",
+      "verdict": "skip",
+      "primary_axis": [
+        1
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "1号艇単勝1.2x圧倒、本命凝縮 1-2-3 8.8x EV<0.5"
+    },
+    {
+      "file": "19_11.json",
+      "race_id": "2026-01-26_19_11",
+      "verdict": "skip",
+      "primary_axis": [
+        1,
+        2
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "1=1.9x/2=2.1x 拮抗、本命凝縮 1-2-3 6.8x EV<0.5"
+    },
+    {
+      "file": "19_12.json",
+      "race_id": "2026-01-26_19_12",
+      "verdict": "skip",
+      "primary_axis": [
+        1
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "1号艇単勝1.0x圧倒、本命凝縮 1-2-3 3.6x EV<0.3"
+    },
+    {
+      "file": "20_01.json",
+      "race_id": "2026-01-26_20_01",
+      "verdict": "skip",
+      "primary_axis": [
+        1,
+        6
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "1=1.9x/5=3.1x の本命構図、本命凝縮 1-6-4 9.9x EV<0.7"
+    },
+    {
+      "file": "20_02.json",
+      "race_id": "2026-01-26_20_02",
+      "verdict": "skip",
+      "primary_axis": [
+        1
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "1号艇単勝1.5x大本命、本命凝縮 1-2-6 10.4x EV<0.6"
+    },
+    {
+      "file": "20_03.json",
+      "race_id": "2026-01-26_20_03",
+      "verdict": "skip",
+      "primary_axis": [
+        1
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "1号艇単勝1.5x大本命、本命凝縮 1-2-6 6.8x EV<0.5"
+    },
+    {
+      "file": "20_04.json",
+      "race_id": "2026-01-26_20_04",
+      "verdict": "skip",
+      "primary_axis": [
+        3,
+        1
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "3号艇単勝1.5x圧倒のまくり、本命凝縮 1-3-5 5.8x EV<0.5"
+    },
+    {
+      "file": "20_05.json",
+      "race_id": "2026-01-26_20_05",
+      "verdict": "skip",
+      "primary_axis": [
+        1,
+        4
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "1号艇単勝1.3x大本命、本命凝縮 1-2-3 7.5x EV<0.5"
+    },
+    {
+      "file": "20_06.json",
+      "race_id": "2026-01-26_20_06",
+      "verdict": "skip",
+      "primary_axis": [
+        1
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "1号艇単勝1.0x圧倒、本命凝縮 1-3-5 10.1x EV<0.5"
+    },
+    {
+      "file": "20_07.json",
+      "race_id": "2026-01-26_20_07",
+      "verdict": "skip",
+      "primary_axis": [
+        1
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "1号艇単勝1.1x圧倒、本命凝縮 1-3-5 8.0x EV<0.5"
+    },
+    {
+      "file": "20_08.json",
+      "race_id": "2026-01-26_20_08",
+      "verdict": "skip",
+      "primary_axis": [
+        1
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "1号艇単勝1.0x圧倒、本命凝縮 1-2-3 3.8x EV<0.3"
+    },
+    {
+      "file": "20_09.json",
+      "race_id": "2026-01-26_20_09",
+      "verdict": "skip",
+      "primary_axis": [
+        1
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "1号艇単勝1.0x圧倒、本命凝縮 1-2-3 5.1x EV<0.4"
+    },
+    {
+      "file": "20_10.json",
+      "race_id": "2026-01-26_20_10",
+      "verdict": "skip",
+      "primary_axis": [
+        1
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "1号艇単勝1.4x大本命、本命凝縮 1-3-2 7.8x EV<0.5"
+    },
+    {
+      "file": "20_11.json",
+      "race_id": "2026-01-26_20_11",
+      "verdict": "skip",
+      "primary_axis": [
+        1
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "1号艇単勝1.1x圧倒、本命凝縮 1-3-4 5.3x EV<0.4"
+    },
+    {
+      "file": "20_12.json",
+      "race_id": "2026-01-26_20_12",
+      "verdict": "skip",
+      "primary_axis": [
+        1
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "1号艇単勝1.0x圧倒、本命凝縮 1-2-4 7.0x EV<0.5"
+    },
+    {
+      "file": "22_01.json",
+      "race_id": "2026-01-26_22_01",
+      "verdict": "skip",
+      "primary_axis": [
+        1
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "1号艇単勝1.0x圧倒、本命凝縮 1-2-3 4.4x EV<0.3"
+    },
+    {
+      "file": "22_02.json",
+      "race_id": "2026-01-26_22_02",
+      "verdict": "skip",
+      "primary_axis": [
+        1
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "1号艇単勝1.1x圧倒、本命凝縮 1-3-4 11.3x EV<0.5"
+    },
+    {
+      "file": "22_03.json",
+      "race_id": "2026-01-26_22_03",
+      "verdict": "skip",
+      "primary_axis": [
+        3,
+        1
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "3号艇単勝2.5xのまくり拮抗、本命凝縮 3-1-4 10.6x EV<0.7"
+    },
+    {
+      "file": "22_04.json",
+      "race_id": "2026-01-26_22_04",
+      "verdict": "skip",
+      "primary_axis": [
+        4,
+        1
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "4号艇単勝1.0x圧倒のまくり、市場完全織込済 EV<0.7"
+    },
+    {
+      "file": "22_05.json",
+      "race_id": "2026-01-26_22_05",
+      "verdict": "skip",
+      "primary_axis": [
+        2,
+        4
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "2=1.9x/4=1.9x まくり拮抗+1号艇弱、本命凝縮 1-2-4 7.3x EV<0.5"
+    },
+    {
+      "file": "22_06.json",
+      "race_id": "2026-01-26_22_06",
+      "verdict": "skip",
+      "primary_axis": [
+        2,
+        1
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "2号艇単勝1.5x圧倒のA1差し、市場完全織込済 EV<0.7"
+    },
+    {
+      "file": "22_07.json",
+      "race_id": "2026-01-26_22_07",
+      "verdict": "skip",
+      "primary_axis": [
+        1,
+        5
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "1号艇単勝1.7x大本命、本命凝縮 1-5-4 9.2x EV<0.6"
+    },
+    {
+      "file": "22_08.json",
+      "race_id": "2026-01-26_22_08",
+      "verdict": "skip",
+      "primary_axis": [
+        1,
+        2
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "1=1.8x/2=2.1x 二強拮抗、本命凝縮 1-2-3 8.5x EV<0.5"
+    },
+    {
+      "file": "22_09.json",
+      "race_id": "2026-01-26_22_09",
+      "verdict": "skip",
+      "primary_axis": [
+        1,
+        2
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "1号艇単勝1.4x大本命、本命凝縮 1-2-3 5.2x EV<0.4"
+    },
+    {
+      "file": "22_10.json",
+      "race_id": "2026-01-26_22_10",
+      "verdict": "skip",
+      "primary_axis": [
+        1,
+        2
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "1号艇単勝1.7x大本命、本命凝縮 1-2-4 9.0x EV<0.6"
+    },
+    {
+      "file": "22_11.json",
+      "race_id": "2026-01-26_22_11",
+      "verdict": "skip",
+      "primary_axis": [
+        1
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "1号艇単勝1.2x圧倒、本命凝縮 1-3-2 5.2x EV<0.4"
+    },
+    {
+      "file": "22_12.json",
+      "race_id": "2026-01-26_22_12",
+      "verdict": "skip",
+      "primary_axis": [
+        1,
+        3
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "1=2.0x/3=2.3x 二強拮抗、本命凝縮 1-2-4 7.5x EV<0.5"
+    },
+    {
+      "file": "23_01.json",
+      "race_id": "2026-01-26_23_01",
+      "verdict": "skip",
+      "primary_axis": [
+        1
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "1号艇単勝1.0x圧倒、本命凝縮 1-2-3 6.9x EV<0.4"
+    },
+    {
+      "file": "23_02.json",
+      "race_id": "2026-01-26_23_02",
+      "verdict": "skip",
+      "primary_axis": [
+        1
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "1号艇単勝1.1x圧倒、本命凝縮 1-2-3 6.0x EV<0.4"
+    },
+    {
+      "file": "23_03.json",
+      "race_id": "2026-01-26_23_03",
+      "verdict": "skip",
+      "primary_axis": [
+        1
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "1号艇単勝1.1x圧倒、本命凝縮 1-3-2 6.4x EV<0.4"
+    },
+    {
+      "file": "23_04.json",
+      "race_id": "2026-01-26_23_04",
+      "verdict": "skip",
+      "primary_axis": [
+        1,
+        2
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "1=1.9x/2=2.5x 二強拮抗、本命凝縮 1-2-3 6.7x EV<0.4"
+    },
+    {
+      "file": "23_05.json",
+      "race_id": "2026-01-26_23_05",
+      "verdict": "skip",
+      "primary_axis": [
+        1,
+        2
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "1号艇単勝1.4x大本命、本命凝縮 2-1-5 8.6x EV<0.5"
+    },
+    {
+      "file": "23_06.json",
+      "race_id": "2026-01-26_23_06",
+      "verdict": "skip",
+      "primary_axis": [
+        3,
+        1
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "3号艇単勝1.6x圧倒のまくり、本命凝縮 1-3-2 9.9x EV<0.6"
+    },
+    {
+      "file": "23_07.json",
+      "race_id": "2026-01-26_23_07",
+      "verdict": "skip",
+      "primary_axis": [
+        1,
+        4
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "1=2.1x/4=2.5x 拮抗、本命凝縮 1-4-6 5.8x EV<0.5"
+    },
+    {
+      "file": "23_08.json",
+      "race_id": "2026-01-26_23_08",
+      "verdict": "skip",
+      "primary_axis": [
+        1
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "5艇戦+1号艇単勝1.5x大本命、本命凝縮 1-3-5 5.1x EV<0.4"
+    },
+    {
+      "file": "23_09.json",
+      "race_id": "2026-01-26_23_09",
+      "verdict": "skip",
+      "primary_axis": [
+        1
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "1号艇単勝1.4x大本命、本命凝縮 1-2-3 6.6x EV<0.5"
+    },
+    {
+      "file": "23_10.json",
+      "race_id": "2026-01-26_23_10",
+      "verdict": "skip",
+      "primary_axis": [
+        2,
+        4
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "2号艇単勝2.1x圧倒+4号艇拮抗、本命凝縮 2-1-4 11.1x EV<0.6"
+    },
+    {
+      "file": "23_11.json",
+      "race_id": "2026-01-26_23_11",
+      "verdict": "skip",
+      "primary_axis": [
+        1,
+        2
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "1号艇単勝1.6x大本命、本命凝縮 1-2-3 5.8x EV<0.4"
+    },
+    {
+      "file": "23_12.json",
+      "race_id": "2026-01-26_23_12",
+      "verdict": "skip",
+      "primary_axis": [
+        1
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "1号艇単勝1.1x圧倒、本命凝縮 1-2-3 5.0x EV<0.4"
+    },
+    {
+      "file": "24_01.json",
+      "race_id": "2026-01-26_24_01",
+      "verdict": "skip",
+      "primary_axis": [
+        1
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "1号艇単勝1.1x圧倒、本命凝縮 1-3-5 5.3x EV<0.4"
+    },
+    {
+      "file": "24_02.json",
+      "race_id": "2026-01-26_24_02",
+      "verdict": "skip",
+      "primary_axis": [
+        1
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "5艇戦+1号艇単勝1.0x圧倒、本命凝縮 1-5-2 6.9x EV<0.4"
+    },
+    {
+      "file": "24_03.json",
+      "race_id": "2026-01-26_24_03",
+      "verdict": "skip",
+      "primary_axis": [
+        1
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "1号艇単勝1.1x圧倒、本命凝縮 1-3-6 4.5x EV<0.3"
+    },
+    {
+      "file": "24_04.json",
+      "race_id": "2026-01-26_24_04",
+      "verdict": "skip",
+      "primary_axis": [
+        1,
+        4
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "1=1.8x/4=2.7x/5=3.2x まくり拮抗、本命凝縮 1-4-5 8.4x EV<0.6"
+    },
+    {
+      "file": "24_05.json",
+      "race_id": "2026-01-26_24_05",
+      "verdict": "skip",
+      "primary_axis": [
+        1
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "1号艇単勝1.3x大本命、本命凝縮 1-2-6 8.4x EV<0.5"
+    },
+    {
+      "file": "24_06.json",
+      "race_id": "2026-01-26_24_06",
+      "verdict": "skip",
+      "primary_axis": [
+        1,
+        4
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "1号艇単勝1.0x圧倒、本命凝縮 1-4-2 5.0x EV<0.4"
+    },
+    {
+      "file": "24_07.json",
+      "race_id": "2026-01-26_24_07",
+      "verdict": "skip",
+      "primary_axis": [
+        1
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "1号艇単勝1.0x圧倒、本命凝縮 1-2-3 3.2x EV<0.3"
+    },
+    {
+      "file": "24_08.json",
+      "race_id": "2026-01-26_24_08",
+      "verdict": "skip",
+      "primary_axis": [
+        1
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "1号艇単勝1.0x圧倒、本命凝縮 1-2-3 4.1x EV<0.3"
+    },
+    {
+      "file": "24_09.json",
+      "race_id": "2026-01-26_24_09",
+      "verdict": "skip",
+      "primary_axis": [
+        1
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "1号艇単勝1.2x圧倒、本命凝縮 1-2-3 5.2x EV<0.4"
+    },
+    {
+      "file": "24_10.json",
+      "race_id": "2026-01-26_24_10",
+      "verdict": "skip",
+      "primary_axis": [
+        1
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "1号艇単勝1.1x圧倒、本命凝縮 1-2-3 6.7x EV<0.4"
+    },
+    {
+      "file": "24_11.json",
+      "race_id": "2026-01-26_24_11",
+      "verdict": "skip",
+      "primary_axis": [
+        1
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "1号艇単勝1.2x圧倒、本命凝縮 1-2-3 4.4x EV<0.3"
+    },
+    {
+      "file": "24_12.json",
+      "race_id": "2026-01-26_24_12",
+      "verdict": "skip",
+      "primary_axis": [
+        1,
+        5
+      ],
+      "n_bets": 0,
+      "total_stake": 0,
+      "skip_reason": "1号艇単勝1.3x大本命、本命凝縮 1-2-3 6.5x EV<0.5"
+    }
+  ]
+}
