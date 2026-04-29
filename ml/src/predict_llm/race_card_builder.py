@@ -16,7 +16,7 @@ from features.stadium_features import (
 
 from predict_llm.history_summarizer import RacerSummary, RecentRun
 from predict_llm.program_parser import Boat, Race
-from predict_llm.stadium_resolver import name_of
+from predict_llm.stadium_resolver import WATER_TYPE_LABEL, features_of, name_of
 
 DEFAULT_RECENT_NATIONAL_N = 10
 DEFAULT_RECENT_LOCAL_N = 6
@@ -92,9 +92,15 @@ def _recent_runs_table(runs: list[RecentRun], header_label: str) -> str:
 def _stadium_features_section(stadium_id: int) -> str:
     in_rate = STADIUM_IN_WIN_RATE.get(stadium_id, DEFAULT_IN_WIN_RATE)
     course_table = STADIUM_COURSE_WIN_RATE.get(stadium_id) or DEFAULT_COURSE_WIN_RATE
+    feats = features_of(stadium_id)
+    water_type_jp = WATER_TYPE_LABEL.get(str(feats.get("water_type")), "?")
+    night_label = "ナイター開催" if feats.get("is_night") else "デイ開催"
+    elev_m = int(feats.get("elevation_m") or 0)
+    elev_label = f"標高 {elev_m}m" if elev_m > 0 else "標高 海抜近傍"
     lines = [
         "## 場特性",
         f"- {_stadium_short(stadium_id)} 1コース勝率 (in_win_rate): {in_rate * 100:.1f}%",
+        f"- 水質: {water_type_jp} / {night_label} / {elev_label}",
         "- コース別 1着率:",
     ]
     for course in range(1, 7):

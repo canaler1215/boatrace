@@ -202,6 +202,7 @@ def parse_result_file(filepath: Path) -> Iterator[dict]:
     weather:        str | None   = None
     wind_direction: int | None   = None
     wind_speed:     float | None = None
+    wave_height:    float | None = None
     after_sep:      bool         = False
     boat_count:     int          = 0
 
@@ -259,6 +260,13 @@ def parse_result_file(filepath: Path) -> Iterator[dict]:
                 wind_direction = _WIND_DIR_MAP.get(wm.group(1))
                 try:
                     wind_speed = float(wm.group(2))
+                except ValueError:
+                    pass
+            # 波高 ("波　  1cm" パターン、cm 単位 float)
+            hm = re.search(r"波[\s　]*(\d+(?:\.\d+)?)cm", line)
+            if hm:
+                try:
+                    wave_height = float(hm.group(1))
                 except ValueError:
                     pass
             continue
@@ -342,7 +350,7 @@ def parse_result_file(filepath: Path) -> Iterator[dict]:
                 "weather":         weather,
                 "wind_direction":  wind_direction,
                 "wind_speed":      wind_speed,
-                "wave_height":     None,
+                "wave_height":     wave_height,
             }
             boat_count += 1
 

@@ -13,7 +13,7 @@
   - 3 連単オッズ: parquet キャッシュ
   - 単勝オッズ:   parquet キャッシュ (無ければ "(キャッシュなし)")
   - 展示・進入:   "(過去日のため取得不能)" 表示
-  - 気象:         K ファイルから天候・風向・風速のみ
+  - 気象:         K ファイルから天候・風向・風速・波高 (気温/水温は K に無し)
   - 進入予想:     "(過去日のため枠なり仮定)" 注記のみ (実値は入れない)
 
 当日モード (`mode="live"`):
@@ -238,7 +238,8 @@ def _kfile_weather(
 ) -> BeforeWeather:
     """K ファイルキャッシュからレース当日の気象を抜き出す.
 
-    波高 / 気温 / 水温は K ファイルに無いので欠損のまま。
+    波高は K ファイルレースヘッダ ("波　 1cm") からパース。
+    気温 / 水温は K ファイルに無いので欠損のまま。
     """
     history_dir = history_dir or _HISTORY_DIR
     date = _dt.date.fromisoformat(race_date)
@@ -265,6 +266,9 @@ def _kfile_weather(
                     ws = rec.get("wind_speed")
                     if isinstance(ws, (int, float)):
                         w.wind_speed_m = float(ws)
+                    wh = rec.get("wave_height")
+                    if isinstance(wh, (int, float)):
+                        w.wave_height_cm = float(wh)
                     return w
     except Exception as exc:
         logger.debug("K file weather extraction failed: %s", exc)

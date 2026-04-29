@@ -35,6 +35,44 @@ STADIUMS: dict[int, tuple[str, str]] = {
     24: ("大村",   "おおむら"),
 }
 
+# JCD コード → 場固定特性 (水質 / ナイター / 標高)
+# 出典: kyotei-pr.jp 水質分類 (海水10 / 汽水5 / 淡水9)、boatrace.jp 公式ナイター場
+# 標高は際立つ 2 場 (桐生 124m / びわこ 85m) のみ計上、他は 0 (海抜近傍)
+# water_type: "fresh" (淡水) / "brackish" (汽水) / "salt" (海水)
+STADIUM_FEATURES: dict[int, dict[str, object]] = {
+    1:  {"water_type": "fresh",    "is_night": True,  "elevation_m": 124},
+    2:  {"water_type": "fresh",    "is_night": False, "elevation_m": 0},
+    3:  {"water_type": "brackish", "is_night": False, "elevation_m": 0},
+    4:  {"water_type": "salt",     "is_night": False, "elevation_m": 0},
+    5:  {"water_type": "fresh",    "is_night": False, "elevation_m": 0},
+    6:  {"water_type": "brackish", "is_night": False, "elevation_m": 0},
+    7:  {"water_type": "salt",     "is_night": True,  "elevation_m": 0},
+    8:  {"water_type": "salt",     "is_night": False, "elevation_m": 0},
+    9:  {"water_type": "salt",     "is_night": False, "elevation_m": 0},
+    10: {"water_type": "fresh",    "is_night": False, "elevation_m": 0},
+    11: {"water_type": "fresh",    "is_night": False, "elevation_m": 85},
+    12: {"water_type": "fresh",    "is_night": True,  "elevation_m": 0},
+    13: {"water_type": "brackish", "is_night": False, "elevation_m": 0},
+    14: {"water_type": "salt",     "is_night": False, "elevation_m": 0},
+    15: {"water_type": "fresh",    "is_night": True,  "elevation_m": 0},
+    16: {"water_type": "fresh",    "is_night": False, "elevation_m": 0},
+    17: {"water_type": "salt",     "is_night": False, "elevation_m": 0},
+    18: {"water_type": "salt",     "is_night": False, "elevation_m": 0},
+    19: {"water_type": "salt",     "is_night": False, "elevation_m": 0},
+    20: {"water_type": "salt",     "is_night": True,  "elevation_m": 0},
+    21: {"water_type": "fresh",    "is_night": False, "elevation_m": 0},
+    22: {"water_type": "brackish", "is_night": False, "elevation_m": 0},
+    23: {"water_type": "brackish", "is_night": False, "elevation_m": 0},
+    24: {"water_type": "salt",     "is_night": True,  "elevation_m": 0},
+}
+
+# 水質コード → 日本語ラベル
+WATER_TYPE_LABEL: dict[str, str] = {
+    "fresh":    "淡水",
+    "brackish": "汽水",
+    "salt":     "海水",
+}
+
 # 双方向ルックアップを構築 (漢字 / ひらがな の両方を ID にマップ)
 _NAME_TO_ID: dict[str, int] = {}
 for _id, (_kanji, _kana) in STADIUMS.items():
@@ -88,3 +126,14 @@ def name_of(stadium_id: int) -> str:
     if stadium_id not in STADIUMS:
         raise UnknownStadiumError(f"unknown stadium id: {stadium_id}")
     return STADIUMS[stadium_id][0]
+
+
+def features_of(stadium_id: int) -> dict[str, object]:
+    """JCD ID から場固定特性 (water_type / is_night / elevation_m) を返す.
+
+    未登録 ID はデフォルト (淡水・デイ・標高 0) を返す.
+    """
+    return STADIUM_FEATURES.get(
+        stadium_id,
+        {"water_type": "fresh", "is_night": False, "elevation_m": 0},
+    )
